@@ -24,7 +24,7 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
-from collections.abc import Iterable
+from collections.abc import Iterable, AsyncIterable
 from google.protobuf import json_format
 import json
 import math
@@ -36,6 +36,13 @@ from requests import Response
 from requests import Request, PreparedRequest
 from requests.sessions import Session
 from google.protobuf import json_format
+
+try:
+    from google.auth.aio import credentials as ga_credentials_async
+
+    HAS_GOOGLE_AUTH_AIO = True
+except ImportError:  # pragma: NO COVER
+    HAS_GOOGLE_AUTH_AIO = False
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -92,8 +99,22 @@ from google.type import interval_pb2  # type: ignore
 import google.auth
 
 
+async def mock_async_gen(data, chunk_size=1):
+    for i in range(0, len(data)):  # pragma: NO COVER
+        chunk = data[i : i + chunk_size]
+        yield chunk.encode("utf-8")
+
+
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
+
+
+# TODO: use async auth anon credentials by default once the minimum version of google-auth is upgraded.
+# See related issue: https://github.com/googleapis/gapic-generator-python/issues/2107.
+def async_anonymous_credentials():
+    if HAS_GOOGLE_AUTH_AIO:
+        return ga_credentials_async.AnonymousCredentials()
+    return ga_credentials.AnonymousCredentials()
 
 
 # If default endpoint is localhost, then default mtls endpoint will be the same.
@@ -1264,27 +1285,6 @@ def test_create_model_monitor(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_create_model_monitor_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_model_monitor), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.CreateModelMonitorRequest()
-
-
 def test_create_model_monitor_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -1362,29 +1362,6 @@ def test_create_model_monitor_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_model_monitor_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_model_monitor), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.create_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.CreateModelMonitorRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_model_monitor_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1392,7 +1369,7 @@ async def test_create_model_monitor_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1437,7 +1414,7 @@ async def test_create_model_monitor_async(
     request_type=model_monitoring_service.CreateModelMonitorRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1504,7 +1481,7 @@ def test_create_model_monitor_field_headers():
 @pytest.mark.asyncio
 async def test_create_model_monitor_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1601,7 +1578,7 @@ def test_create_model_monitor_flattened_error():
 @pytest.mark.asyncio
 async def test_create_model_monitor_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1648,7 +1625,7 @@ async def test_create_model_monitor_flattened_async():
 @pytest.mark.asyncio
 async def test_create_model_monitor_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1700,27 +1677,6 @@ def test_update_model_monitor(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_update_model_monitor_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_model_monitor), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.UpdateModelMonitorRequest()
 
 
 def test_update_model_monitor_non_empty_request_with_auto_populated_field():
@@ -1794,29 +1750,6 @@ def test_update_model_monitor_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_model_monitor_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_model_monitor), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.update_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.UpdateModelMonitorRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_model_monitor_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1824,7 +1757,7 @@ async def test_update_model_monitor_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1869,7 +1802,7 @@ async def test_update_model_monitor_async(
     request_type=model_monitoring_service.UpdateModelMonitorRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1936,7 +1869,7 @@ def test_update_model_monitor_field_headers():
 @pytest.mark.asyncio
 async def test_update_model_monitor_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2033,7 +1966,7 @@ def test_update_model_monitor_flattened_error():
 @pytest.mark.asyncio
 async def test_update_model_monitor_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2080,7 +2013,7 @@ async def test_update_model_monitor_flattened_async():
 @pytest.mark.asyncio
 async def test_update_model_monitor_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2141,27 +2074,6 @@ def test_get_model_monitor(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
-
-
-def test_get_model_monitor_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_model_monitor), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.GetModelMonitorRequest()
 
 
 def test_get_model_monitor_non_empty_request_with_auto_populated_field():
@@ -2232,34 +2144,6 @@ def test_get_model_monitor_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_model_monitor_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_model_monitor), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            model_monitor.ModelMonitor(
-                name="name_value",
-                display_name="display_name_value",
-                satisfies_pzs=True,
-                satisfies_pzi=True,
-            )
-        )
-        response = await client.get_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.GetModelMonitorRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_model_monitor_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2267,7 +2151,7 @@ async def test_get_model_monitor_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2307,7 +2191,7 @@ async def test_get_model_monitor_async(
     request_type=model_monitoring_service.GetModelMonitorRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2383,7 +2267,7 @@ def test_get_model_monitor_field_headers():
 @pytest.mark.asyncio
 async def test_get_model_monitor_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2457,7 +2341,7 @@ def test_get_model_monitor_flattened_error():
 @pytest.mark.asyncio
 async def test_get_model_monitor_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2488,7 +2372,7 @@ async def test_get_model_monitor_flattened_async():
 @pytest.mark.asyncio
 async def test_get_model_monitor_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2536,27 +2420,6 @@ def test_list_model_monitors(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelMonitorsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_model_monitors_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_model_monitors), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_model_monitors()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.ListModelMonitorsRequest()
 
 
 def test_list_model_monitors_non_empty_request_with_auto_populated_field():
@@ -2633,31 +2496,6 @@ def test_list_model_monitors_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_model_monitors_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_model_monitors), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            model_monitoring_service.ListModelMonitorsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_model_monitors()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.ListModelMonitorsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_model_monitors_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2665,7 +2503,7 @@ async def test_list_model_monitors_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2705,7 +2543,7 @@ async def test_list_model_monitors_async(
     request_type=model_monitoring_service.ListModelMonitorsRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2775,7 +2613,7 @@ def test_list_model_monitors_field_headers():
 @pytest.mark.asyncio
 async def test_list_model_monitors_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2849,7 +2687,7 @@ def test_list_model_monitors_flattened_error():
 @pytest.mark.asyncio
 async def test_list_model_monitors_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2880,7 +2718,7 @@ async def test_list_model_monitors_flattened_async():
 @pytest.mark.asyncio
 async def test_list_model_monitors_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2994,7 +2832,7 @@ def test_list_model_monitors_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_model_monitors_async_pager():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3046,7 +2884,7 @@ async def test_list_model_monitors_async_pager():
 @pytest.mark.asyncio
 async def test_list_model_monitors_async_pages():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3129,27 +2967,6 @@ def test_delete_model_monitor(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_model_monitor_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_model_monitor), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.DeleteModelMonitorRequest()
-
-
 def test_delete_model_monitor_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -3225,29 +3042,6 @@ def test_delete_model_monitor_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_model_monitor_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_model_monitor), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_model_monitor()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.DeleteModelMonitorRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_model_monitor_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3255,7 +3049,7 @@ async def test_delete_model_monitor_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3300,7 +3094,7 @@ async def test_delete_model_monitor_async(
     request_type=model_monitoring_service.DeleteModelMonitorRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3367,7 +3161,7 @@ def test_delete_model_monitor_field_headers():
 @pytest.mark.asyncio
 async def test_delete_model_monitor_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3441,7 +3235,7 @@ def test_delete_model_monitor_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_model_monitor_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3472,7 +3266,7 @@ async def test_delete_model_monitor_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_model_monitor_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3526,27 +3320,6 @@ def test_create_model_monitoring_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.schedule == "schedule_value"
-
-
-def test_create_model_monitoring_job_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_model_monitoring_job), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_model_monitoring_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.CreateModelMonitoringJobRequest()
 
 
 def test_create_model_monitoring_job_non_empty_request_with_auto_populated_field():
@@ -3622,34 +3395,6 @@ def test_create_model_monitoring_job_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_model_monitoring_job_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_model_monitoring_job), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_model_monitoring_job.ModelMonitoringJob(
-                name="name_value",
-                display_name="display_name_value",
-                state=job_state.JobState.JOB_STATE_QUEUED,
-                schedule="schedule_value",
-            )
-        )
-        response = await client.create_model_monitoring_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.CreateModelMonitoringJobRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_model_monitoring_job_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3657,7 +3402,7 @@ async def test_create_model_monitoring_job_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3697,7 +3442,7 @@ async def test_create_model_monitoring_job_async(
     request_type=model_monitoring_service.CreateModelMonitoringJobRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3773,7 +3518,7 @@ def test_create_model_monitoring_job_field_headers():
 @pytest.mark.asyncio
 async def test_create_model_monitoring_job_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3856,7 +3601,7 @@ def test_create_model_monitoring_job_flattened_error():
 @pytest.mark.asyncio
 async def test_create_model_monitoring_job_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3893,7 +3638,7 @@ async def test_create_model_monitoring_job_flattened_async():
 @pytest.mark.asyncio
 async def test_create_model_monitoring_job_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3950,27 +3695,6 @@ def test_get_model_monitoring_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
     assert response.schedule == "schedule_value"
-
-
-def test_get_model_monitoring_job_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_model_monitoring_job), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_model_monitoring_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.GetModelMonitoringJobRequest()
 
 
 def test_get_model_monitoring_job_non_empty_request_with_auto_populated_field():
@@ -4044,34 +3768,6 @@ def test_get_model_monitoring_job_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_model_monitoring_job_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_model_monitoring_job), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            model_monitoring_job.ModelMonitoringJob(
-                name="name_value",
-                display_name="display_name_value",
-                state=job_state.JobState.JOB_STATE_QUEUED,
-                schedule="schedule_value",
-            )
-        )
-        response = await client.get_model_monitoring_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.GetModelMonitoringJobRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_model_monitoring_job_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4079,7 +3775,7 @@ async def test_get_model_monitoring_job_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4119,7 +3815,7 @@ async def test_get_model_monitoring_job_async(
     request_type=model_monitoring_service.GetModelMonitoringJobRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4195,7 +3891,7 @@ def test_get_model_monitoring_job_field_headers():
 @pytest.mark.asyncio
 async def test_get_model_monitoring_job_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4269,7 +3965,7 @@ def test_get_model_monitoring_job_flattened_error():
 @pytest.mark.asyncio
 async def test_get_model_monitoring_job_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4300,7 +3996,7 @@ async def test_get_model_monitoring_job_flattened_async():
 @pytest.mark.asyncio
 async def test_get_model_monitoring_job_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4348,27 +4044,6 @@ def test_list_model_monitoring_jobs(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelMonitoringJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_model_monitoring_jobs_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_model_monitoring_jobs), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_model_monitoring_jobs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.ListModelMonitoringJobsRequest()
 
 
 def test_list_model_monitoring_jobs_non_empty_request_with_auto_populated_field():
@@ -4446,31 +4121,6 @@ def test_list_model_monitoring_jobs_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_model_monitoring_jobs_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_model_monitoring_jobs), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            model_monitoring_service.ListModelMonitoringJobsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_model_monitoring_jobs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.ListModelMonitoringJobsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_model_monitoring_jobs_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4478,7 +4128,7 @@ async def test_list_model_monitoring_jobs_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4518,7 +4168,7 @@ async def test_list_model_monitoring_jobs_async(
     request_type=model_monitoring_service.ListModelMonitoringJobsRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4588,7 +4238,7 @@ def test_list_model_monitoring_jobs_field_headers():
 @pytest.mark.asyncio
 async def test_list_model_monitoring_jobs_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4662,7 +4312,7 @@ def test_list_model_monitoring_jobs_flattened_error():
 @pytest.mark.asyncio
 async def test_list_model_monitoring_jobs_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4693,7 +4343,7 @@ async def test_list_model_monitoring_jobs_flattened_async():
 @pytest.mark.asyncio
 async def test_list_model_monitoring_jobs_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4811,7 +4461,7 @@ def test_list_model_monitoring_jobs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_model_monitoring_jobs_async_pager():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4865,7 +4515,7 @@ async def test_list_model_monitoring_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_model_monitoring_jobs_async_pages():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4948,27 +4598,6 @@ def test_delete_model_monitoring_job(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_model_monitoring_job_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_model_monitoring_job), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_model_monitoring_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.DeleteModelMonitoringJobRequest()
-
-
 def test_delete_model_monitoring_job_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -5045,29 +4674,6 @@ def test_delete_model_monitoring_job_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_model_monitoring_job_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_model_monitoring_job), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_model_monitoring_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.DeleteModelMonitoringJobRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_model_monitoring_job_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5075,7 +4681,7 @@ async def test_delete_model_monitoring_job_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5120,7 +4726,7 @@ async def test_delete_model_monitoring_job_async(
     request_type=model_monitoring_service.DeleteModelMonitoringJobRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5187,7 +4793,7 @@ def test_delete_model_monitoring_job_field_headers():
 @pytest.mark.asyncio
 async def test_delete_model_monitoring_job_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5261,7 +4867,7 @@ def test_delete_model_monitoring_job_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_model_monitoring_job_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5292,7 +4898,7 @@ async def test_delete_model_monitoring_job_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_model_monitoring_job_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5340,27 +4946,6 @@ def test_search_model_monitoring_stats(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.SearchModelMonitoringStatsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_search_model_monitoring_stats_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.search_model_monitoring_stats), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.search_model_monitoring_stats()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.SearchModelMonitoringStatsRequest()
 
 
 def test_search_model_monitoring_stats_non_empty_request_with_auto_populated_field():
@@ -5436,31 +5021,6 @@ def test_search_model_monitoring_stats_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_search_model_monitoring_stats_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.search_model_monitoring_stats), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            model_monitoring_service.SearchModelMonitoringStatsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.search_model_monitoring_stats()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.SearchModelMonitoringStatsRequest()
-
-
-@pytest.mark.asyncio
 async def test_search_model_monitoring_stats_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5468,7 +5028,7 @@ async def test_search_model_monitoring_stats_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5508,7 +5068,7 @@ async def test_search_model_monitoring_stats_async(
     request_type=model_monitoring_service.SearchModelMonitoringStatsRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5580,7 +5140,7 @@ def test_search_model_monitoring_stats_field_headers():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_stats_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5656,7 +5216,7 @@ def test_search_model_monitoring_stats_flattened_error():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_stats_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5689,7 +5249,7 @@ async def test_search_model_monitoring_stats_flattened_async():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_stats_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5807,7 +5367,7 @@ def test_search_model_monitoring_stats_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_search_model_monitoring_stats_async_pager():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5862,7 +5422,7 @@ async def test_search_model_monitoring_stats_async_pager():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_stats_async_pages():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5952,27 +5512,6 @@ def test_search_model_monitoring_alerts(request_type, transport: str = "grpc"):
     assert response.next_page_token == "next_page_token_value"
 
 
-def test_search_model_monitoring_alerts_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.search_model_monitoring_alerts), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.search_model_monitoring_alerts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.SearchModelMonitoringAlertsRequest()
-
-
 def test_search_model_monitoring_alerts_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -6052,32 +5591,6 @@ def test_search_model_monitoring_alerts_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_search_model_monitoring_alerts_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.search_model_monitoring_alerts), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            model_monitoring_service.SearchModelMonitoringAlertsResponse(
-                total_number_alerts=2038,
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.search_model_monitoring_alerts()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == model_monitoring_service.SearchModelMonitoringAlertsRequest()
-
-
-@pytest.mark.asyncio
 async def test_search_model_monitoring_alerts_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6085,7 +5598,7 @@ async def test_search_model_monitoring_alerts_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = ModelMonitoringServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6125,7 +5638,7 @@ async def test_search_model_monitoring_alerts_async(
     request_type=model_monitoring_service.SearchModelMonitoringAlertsRequest,
 ):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6199,7 +5712,7 @@ def test_search_model_monitoring_alerts_field_headers():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_alerts_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6275,7 +5788,7 @@ def test_search_model_monitoring_alerts_flattened_error():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_alerts_flattened_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6308,7 +5821,7 @@ async def test_search_model_monitoring_alerts_flattened_async():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_alerts_flattened_error_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6426,7 +5939,7 @@ def test_search_model_monitoring_alerts_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_search_model_monitoring_alerts_async_pager():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6481,7 +5994,7 @@ async def test_search_model_monitoring_alerts_async_pager():
 @pytest.mark.asyncio
 async def test_search_model_monitoring_alerts_async_pages():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6529,6 +6042,3133 @@ async def test_search_model_monitoring_alerts_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
+def test_create_model_monitor_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_model_monitor in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_model_monitor
+        ] = mock_rpc
+
+        request = {}
+        client.create_model_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.create_model_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_create_model_monitor_rest_required_fields(
+    request_type=model_monitoring_service.CreateModelMonitorRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_model_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_model_monitor._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("model_monitor_id",))
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_model_monitor(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_model_monitor_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_model_monitor._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(("modelMonitorId",))
+        & set(
+            (
+                "parent",
+                "modelMonitor",
+            )
+        )
+    )
+
+
+def test_create_model_monitor_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            model_monitor=gca_model_monitor.ModelMonitor(
+                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
+                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
+                        features=["features_value"]
+                    )
+                )
+            ),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_model_monitor(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/modelMonitors"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_model_monitor_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_model_monitor(
+            model_monitoring_service.CreateModelMonitorRequest(),
+            parent="parent_value",
+            model_monitor=gca_model_monitor.ModelMonitor(
+                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
+                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
+                        features=["features_value"]
+                    )
+                )
+            ),
+        )
+
+
+def test_update_model_monitor_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.update_model_monitor in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.update_model_monitor
+        ] = mock_rpc
+
+        request = {}
+        client.update_model_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.update_model_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_update_model_monitor_rest_required_fields(
+    request_type=model_monitoring_service.UpdateModelMonitorRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).update_model_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).update_model_monitor._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("update_mask",))
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "patch",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.update_model_monitor(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_update_model_monitor_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.update_model_monitor._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(("updateMask",))
+        & set(
+            (
+                "modelMonitor",
+                "updateMask",
+            )
+        )
+    )
+
+
+def test_update_model_monitor_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "model_monitor": {
+                "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
+            }
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            model_monitor=gca_model_monitor.ModelMonitor(
+                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
+                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
+                        features=["features_value"]
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.update_model_monitor(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{model_monitor.name=projects/*/locations/*/modelMonitors/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_update_model_monitor_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.update_model_monitor(
+            model_monitoring_service.UpdateModelMonitorRequest(),
+            model_monitor=gca_model_monitor.ModelMonitor(
+                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
+                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
+                        features=["features_value"]
+                    )
+                )
+            ),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+        )
+
+
+def test_get_model_monitor_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.get_model_monitor in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_model_monitor
+        ] = mock_rpc
+
+        request = {}
+        client.get_model_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_model_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_get_model_monitor_rest_required_fields(
+    request_type=model_monitoring_service.GetModelMonitorRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_model_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_model_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_monitor.ModelMonitor()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = model_monitor.ModelMonitor.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_model_monitor(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_model_monitor_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_model_monitor._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_get_model_monitor_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_monitor.ModelMonitor()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_monitor.ModelMonitor.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_model_monitor(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_model_monitor_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_model_monitor(
+            model_monitoring_service.GetModelMonitorRequest(),
+            name="name_value",
+        )
+
+
+def test_list_model_monitors_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_model_monitors in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_model_monitors
+        ] = mock_rpc
+
+        request = {}
+        client.list_model_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_model_monitors(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_model_monitors_rest_required_fields(
+    request_type=model_monitoring_service.ListModelMonitorsRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_monitors._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_monitors._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_monitoring_service.ListModelMonitorsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = model_monitoring_service.ListModelMonitorsResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_model_monitors(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_model_monitors_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_model_monitors._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+def test_list_model_monitors_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_monitoring_service.ListModelMonitorsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_monitoring_service.ListModelMonitorsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_model_monitors(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}/modelMonitors"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_model_monitors_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_model_monitors(
+            model_monitoring_service.ListModelMonitorsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_model_monitors_rest_pager(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            model_monitoring_service.ListModelMonitorsResponse(
+                model_monitors=[
+                    model_monitor.ModelMonitor(),
+                    model_monitor.ModelMonitor(),
+                    model_monitor.ModelMonitor(),
+                ],
+                next_page_token="abc",
+            ),
+            model_monitoring_service.ListModelMonitorsResponse(
+                model_monitors=[],
+                next_page_token="def",
+            ),
+            model_monitoring_service.ListModelMonitorsResponse(
+                model_monitors=[
+                    model_monitor.ModelMonitor(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_monitoring_service.ListModelMonitorsResponse(
+                model_monitors=[
+                    model_monitor.ModelMonitor(),
+                    model_monitor.ModelMonitor(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            model_monitoring_service.ListModelMonitorsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_model_monitors(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, model_monitor.ModelMonitor) for i in results)
+
+        pages = list(client.list_model_monitors(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_delete_model_monitor_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_model_monitor in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_model_monitor
+        ] = mock_rpc
+
+        request = {}
+        client.delete_model_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_model_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_delete_model_monitor_rest_required_fields(
+    request_type=model_monitoring_service.DeleteModelMonitorRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_model_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_model_monitor._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("force",))
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_model_monitor(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_model_monitor_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_model_monitor._get_unset_required_fields({})
+    assert set(unset_fields) == (set(("force",)) & set(("name",)))
+
+
+def test_delete_model_monitor_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_model_monitor(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_model_monitor_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_model_monitor(
+            model_monitoring_service.DeleteModelMonitorRequest(),
+            name="name_value",
+        )
+
+
+def test_create_model_monitoring_job_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_model_monitoring_job
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_model_monitoring_job
+        ] = mock_rpc
+
+        request = {}
+        client.create_model_monitoring_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_model_monitoring_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_create_model_monitoring_job_rest_required_fields(
+    request_type=model_monitoring_service.CreateModelMonitoringJobRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_model_monitoring_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_model_monitoring_job._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("model_monitoring_job_id",))
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_model_monitoring_job.ModelMonitoringJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_model_monitoring_job.ModelMonitoringJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_model_monitoring_job(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_model_monitoring_job_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_model_monitoring_job._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(("modelMonitoringJobId",))
+        & set(
+            (
+                "parent",
+                "modelMonitoringJob",
+            )
+        )
+    )
+
+
+def test_create_model_monitoring_job_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_model_monitoring_job.ModelMonitoringJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            model_monitoring_job=gca_model_monitoring_job.ModelMonitoringJob(
+                name="name_value"
+            ),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_model_monitoring_job.ModelMonitoringJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_model_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/modelMonitors/*}/modelMonitoringJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_model_monitoring_job_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_model_monitoring_job(
+            model_monitoring_service.CreateModelMonitoringJobRequest(),
+            parent="parent_value",
+            model_monitoring_job=gca_model_monitoring_job.ModelMonitoringJob(
+                name="name_value"
+            ),
+        )
+
+
+def test_get_model_monitoring_job_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_model_monitoring_job
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_model_monitoring_job
+        ] = mock_rpc
+
+        request = {}
+        client.get_model_monitoring_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_model_monitoring_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_get_model_monitoring_job_rest_required_fields(
+    request_type=model_monitoring_service.GetModelMonitoringJobRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_model_monitoring_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_model_monitoring_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_monitoring_job.ModelMonitoringJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = model_monitoring_job.ModelMonitoringJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_model_monitoring_job(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_model_monitoring_job_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_model_monitoring_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_get_model_monitoring_job_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_monitoring_job.ModelMonitoringJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_monitoring_job.ModelMonitoringJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_model_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*/modelMonitoringJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_model_monitoring_job_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_model_monitoring_job(
+            model_monitoring_service.GetModelMonitoringJobRequest(),
+            name="name_value",
+        )
+
+
+def test_list_model_monitoring_jobs_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_model_monitoring_jobs
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_model_monitoring_jobs
+        ] = mock_rpc
+
+        request = {}
+        client.list_model_monitoring_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_model_monitoring_jobs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_model_monitoring_jobs_rest_required_fields(
+    request_type=model_monitoring_service.ListModelMonitoringJobsRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_monitoring_jobs._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_model_monitoring_jobs._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "page_size",
+            "page_token",
+            "read_mask",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_monitoring_service.ListModelMonitoringJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = model_monitoring_service.ListModelMonitoringJobsResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_model_monitoring_jobs(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_model_monitoring_jobs_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_model_monitoring_jobs._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "pageSize",
+                "pageToken",
+                "readMask",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+def test_list_model_monitoring_jobs_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_monitoring_service.ListModelMonitoringJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_monitoring_service.ListModelMonitoringJobsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_model_monitoring_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/modelMonitors/*}/modelMonitoringJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_model_monitoring_jobs_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_model_monitoring_jobs(
+            model_monitoring_service.ListModelMonitoringJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_model_monitoring_jobs_rest_pager(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            model_monitoring_service.ListModelMonitoringJobsResponse(
+                model_monitoring_jobs=[
+                    model_monitoring_job.ModelMonitoringJob(),
+                    model_monitoring_job.ModelMonitoringJob(),
+                    model_monitoring_job.ModelMonitoringJob(),
+                ],
+                next_page_token="abc",
+            ),
+            model_monitoring_service.ListModelMonitoringJobsResponse(
+                model_monitoring_jobs=[],
+                next_page_token="def",
+            ),
+            model_monitoring_service.ListModelMonitoringJobsResponse(
+                model_monitoring_jobs=[
+                    model_monitoring_job.ModelMonitoringJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_monitoring_service.ListModelMonitoringJobsResponse(
+                model_monitoring_jobs=[
+                    model_monitoring_job.ModelMonitoringJob(),
+                    model_monitoring_job.ModelMonitoringJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            model_monitoring_service.ListModelMonitoringJobsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        pager = client.list_model_monitoring_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, model_monitoring_job.ModelMonitoringJob) for i in results
+        )
+
+        pages = list(client.list_model_monitoring_jobs(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_delete_model_monitoring_job_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_model_monitoring_job
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_model_monitoring_job
+        ] = mock_rpc
+
+        request = {}
+        client.delete_model_monitoring_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_model_monitoring_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_delete_model_monitoring_job_rest_required_fields(
+    request_type=model_monitoring_service.DeleteModelMonitoringJobRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_model_monitoring_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_model_monitoring_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_model_monitoring_job(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_model_monitoring_job_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_model_monitoring_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_delete_model_monitoring_job_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_model_monitoring_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*/modelMonitoringJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_model_monitoring_job_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_model_monitoring_job(
+            model_monitoring_service.DeleteModelMonitoringJobRequest(),
+            name="name_value",
+        )
+
+
+def test_search_model_monitoring_stats_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.search_model_monitoring_stats
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.search_model_monitoring_stats
+        ] = mock_rpc
+
+        request = {}
+        client.search_model_monitoring_stats(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.search_model_monitoring_stats(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_search_model_monitoring_stats_rest_required_fields(
+    request_type=model_monitoring_service.SearchModelMonitoringStatsRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["model_monitor"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_model_monitoring_stats._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["modelMonitor"] = "model_monitor_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_model_monitoring_stats._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "modelMonitor" in jsonified_request
+    assert jsonified_request["modelMonitor"] == "model_monitor_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_monitoring_service.SearchModelMonitoringStatsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                model_monitoring_service.SearchModelMonitoringStatsResponse.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.search_model_monitoring_stats(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_search_model_monitoring_stats_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.search_model_monitoring_stats._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (set(()) & set(("modelMonitor",)))
+
+
+def test_search_model_monitoring_stats_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_monitoring_service.SearchModelMonitoringStatsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            model_monitor="model_monitor_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_monitoring_service.SearchModelMonitoringStatsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.search_model_monitoring_stats(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{model_monitor=projects/*/locations/*/modelMonitors/*}:searchModelMonitoringStats"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_search_model_monitoring_stats_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.search_model_monitoring_stats(
+            model_monitoring_service.SearchModelMonitoringStatsRequest(),
+            model_monitor="model_monitor_value",
+        )
+
+
+def test_search_model_monitoring_stats_rest_pager(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            model_monitoring_service.SearchModelMonitoringStatsResponse(
+                monitoring_stats=[
+                    model_monitoring_stats.ModelMonitoringStats(),
+                    model_monitoring_stats.ModelMonitoringStats(),
+                    model_monitoring_stats.ModelMonitoringStats(),
+                ],
+                next_page_token="abc",
+            ),
+            model_monitoring_service.SearchModelMonitoringStatsResponse(
+                monitoring_stats=[],
+                next_page_token="def",
+            ),
+            model_monitoring_service.SearchModelMonitoringStatsResponse(
+                monitoring_stats=[
+                    model_monitoring_stats.ModelMonitoringStats(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_monitoring_service.SearchModelMonitoringStatsResponse(
+                monitoring_stats=[
+                    model_monitoring_stats.ModelMonitoringStats(),
+                    model_monitoring_stats.ModelMonitoringStats(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            model_monitoring_service.SearchModelMonitoringStatsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        pager = client.search_model_monitoring_stats(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, model_monitoring_stats.ModelMonitoringStats) for i in results
+        )
+
+        pages = list(client.search_model_monitoring_stats(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_search_model_monitoring_alerts_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.search_model_monitoring_alerts
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.search_model_monitoring_alerts
+        ] = mock_rpc
+
+        request = {}
+        client.search_model_monitoring_alerts(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.search_model_monitoring_alerts(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_search_model_monitoring_alerts_rest_required_fields(
+    request_type=model_monitoring_service.SearchModelMonitoringAlertsRequest,
+):
+    transport_class = transports.ModelMonitoringServiceRestTransport
+
+    request_init = {}
+    request_init["model_monitor"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_model_monitoring_alerts._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["modelMonitor"] = "model_monitor_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).search_model_monitoring_alerts._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "modelMonitor" in jsonified_request
+    assert jsonified_request["modelMonitor"] == "model_monitor_value"
+
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = model_monitoring_service.SearchModelMonitoringAlertsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = (
+                model_monitoring_service.SearchModelMonitoringAlertsResponse.pb(
+                    return_value
+                )
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.search_model_monitoring_alerts(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_search_model_monitoring_alerts_rest_unset_required_fields():
+    transport = transports.ModelMonitoringServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.search_model_monitoring_alerts._get_unset_required_fields(
+        {}
+    )
+    assert set(unset_fields) == (set(()) & set(("modelMonitor",)))
+
+
+def test_search_model_monitoring_alerts_rest_flattened():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = model_monitoring_service.SearchModelMonitoringAlertsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            model_monitor="model_monitor_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = model_monitoring_service.SearchModelMonitoringAlertsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.search_model_monitoring_alerts(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{model_monitor=projects/*/locations/*/modelMonitors/*}:searchModelMonitoringAlerts"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_search_model_monitoring_alerts_rest_flattened_error(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.search_model_monitoring_alerts(
+            model_monitoring_service.SearchModelMonitoringAlertsRequest(),
+            model_monitor="model_monitor_value",
+        )
+
+
+def test_search_model_monitoring_alerts_rest_pager(transport: str = "rest"):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            model_monitoring_service.SearchModelMonitoringAlertsResponse(
+                model_monitoring_alerts=[
+                    model_monitoring_alert.ModelMonitoringAlert(),
+                    model_monitoring_alert.ModelMonitoringAlert(),
+                    model_monitoring_alert.ModelMonitoringAlert(),
+                ],
+                next_page_token="abc",
+            ),
+            model_monitoring_service.SearchModelMonitoringAlertsResponse(
+                model_monitoring_alerts=[],
+                next_page_token="def",
+            ),
+            model_monitoring_service.SearchModelMonitoringAlertsResponse(
+                model_monitoring_alerts=[
+                    model_monitoring_alert.ModelMonitoringAlert(),
+                ],
+                next_page_token="ghi",
+            ),
+            model_monitoring_service.SearchModelMonitoringAlertsResponse(
+                model_monitoring_alerts=[
+                    model_monitoring_alert.ModelMonitoringAlert(),
+                    model_monitoring_alert.ModelMonitoringAlert(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            model_monitoring_service.SearchModelMonitoringAlertsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+
+        pager = client.search_model_monitoring_alerts(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, model_monitoring_alert.ModelMonitoringAlert) for i in results
+        )
+
+        pages = list(
+            client.search_model_monitoring_alerts(request=sample_request).pages
+        )
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_credentials_transport_error():
+    # It is an error to provide credentials and a transport instance.
+    transport = transports.ModelMonitoringServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    with pytest.raises(ValueError):
+        client = ModelMonitoringServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+    # It is an error to provide a credentials file and a transport instance.
+    transport = transports.ModelMonitoringServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    with pytest.raises(ValueError):
+        client = ModelMonitoringServiceClient(
+            client_options={"credentials_file": "credentials.json"},
+            transport=transport,
+        )
+
+    # It is an error to provide an api_key and a transport instance.
+    transport = transports.ModelMonitoringServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = ModelMonitoringServiceClient(
+            client_options=options,
+            transport=transport,
+        )
+
+    # It is an error to provide an api_key and a credential.
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = ModelMonitoringServiceClient(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+
+    # It is an error to provide scopes and a transport instance.
+    transport = transports.ModelMonitoringServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    with pytest.raises(ValueError):
+        client = ModelMonitoringServiceClient(
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
+        )
+
+
+def test_transport_instance():
+    # A client may be instantiated with a custom transport instance.
+    transport = transports.ModelMonitoringServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    client = ModelMonitoringServiceClient(transport=transport)
+    assert client.transport is transport
+
+
+def test_transport_get_channel():
+    # A client may be instantiated with a custom transport instance.
+    transport = transports.ModelMonitoringServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    channel = transport.grpc_channel
+    assert channel
+
+    transport = transports.ModelMonitoringServiceGrpcAsyncIOTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    channel = transport.grpc_channel
+    assert channel
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.ModelMonitoringServiceGrpcTransport,
+        transports.ModelMonitoringServiceGrpcAsyncIOTransport,
+        transports.ModelMonitoringServiceRestTransport,
+    ],
+)
+def test_transport_adc(transport_class):
+    # Test default credentials are used if not provided.
+    with mock.patch.object(google.auth, "default") as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
+        transport_class()
+        adc.assert_called_once()
+
+
+def test_transport_kind_grpc():
+    transport = ModelMonitoringServiceClient.get_transport_class("grpc")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "grpc"
+
+
+def test_initialize_client_w_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_model_monitor_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_monitor), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.CreateModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_model_monitor_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_model_monitor), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.update_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.UpdateModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_model_monitor_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_monitor), "__call__"
+    ) as call:
+        call.return_value = model_monitor.ModelMonitor()
+        client.get_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.GetModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_model_monitors_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_monitors), "__call__"
+    ) as call:
+        call.return_value = model_monitoring_service.ListModelMonitorsResponse()
+        client.list_model_monitors(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.ListModelMonitorsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_model_monitor_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_monitor), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.DeleteModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_model_monitoring_job_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_monitoring_job), "__call__"
+    ) as call:
+        call.return_value = gca_model_monitoring_job.ModelMonitoringJob()
+        client.create_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.CreateModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_model_monitoring_job_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_monitoring_job), "__call__"
+    ) as call:
+        call.return_value = model_monitoring_job.ModelMonitoringJob()
+        client.get_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.GetModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_model_monitoring_jobs_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_monitoring_jobs), "__call__"
+    ) as call:
+        call.return_value = model_monitoring_service.ListModelMonitoringJobsResponse()
+        client.list_model_monitoring_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.ListModelMonitoringJobsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_model_monitoring_job_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_monitoring_job), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.DeleteModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_search_model_monitoring_stats_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_monitoring_stats), "__call__"
+    ) as call:
+        call.return_value = (
+            model_monitoring_service.SearchModelMonitoringStatsResponse()
+        )
+        client.search_model_monitoring_stats(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.SearchModelMonitoringStatsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_search_model_monitoring_alerts_empty_call_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_monitoring_alerts), "__call__"
+    ) as call:
+        call.return_value = (
+            model_monitoring_service.SearchModelMonitoringAlertsResponse()
+        )
+        client.search_model_monitoring_alerts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.SearchModelMonitoringAlertsRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_grpc_asyncio():
+    transport = ModelMonitoringServiceAsyncClient.get_transport_class("grpc_asyncio")(
+        credentials=async_anonymous_credentials()
+    )
+    assert transport.kind == "grpc_asyncio"
+
+
+def test_initialize_client_w_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_model_monitor_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.create_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.CreateModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_model_monitor_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_model_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.update_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.UpdateModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_model_monitor_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_monitor.ModelMonitor(
+                name="name_value",
+                display_name="display_name_value",
+                satisfies_pzs=True,
+                satisfies_pzi=True,
+            )
+        )
+        await client.get_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.GetModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_model_monitors_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_monitors), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_monitoring_service.ListModelMonitorsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_model_monitors(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.ListModelMonitorsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_model_monitor_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.DeleteModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_model_monitoring_job_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_model_monitoring_job.ModelMonitoringJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                schedule="schedule_value",
+            )
+        )
+        await client.create_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.CreateModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_model_monitoring_job_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_monitoring_job.ModelMonitoringJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                schedule="schedule_value",
+            )
+        )
+        await client.get_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.GetModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_model_monitoring_jobs_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_monitoring_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_monitoring_service.ListModelMonitoringJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_model_monitoring_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.ListModelMonitoringJobsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_model_monitoring_job_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_monitoring_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.DeleteModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_search_model_monitoring_stats_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_monitoring_stats), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_monitoring_service.SearchModelMonitoringStatsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.search_model_monitoring_stats(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.SearchModelMonitoringStatsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_search_model_monitoring_alerts_empty_call_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_monitoring_alerts), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            model_monitoring_service.SearchModelMonitoringAlertsResponse(
+                total_number_alerts=2038,
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.search_model_monitoring_alerts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.SearchModelMonitoringAlertsRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_rest():
+    transport = ModelMonitoringServiceClient.get_transport_class("rest")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "rest"
+
+
+def test_create_model_monitor_rest_bad_request(
+    request_type=model_monitoring_service.CreateModelMonitorRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_model_monitor(request)
+
+
 @pytest.mark.parametrize(
     "request_type",
     [
@@ -6536,10 +9176,9 @@ async def test_search_model_monitoring_alerts_async_pages():
         dict,
     ],
 )
-def test_create_model_monitor_rest(request_type):
+def test_create_model_monitor_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -6753,151 +9392,15 @@ def test_create_model_monitor_rest(request_type):
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.create_model_monitor(request)
 
     # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
-def test_create_model_monitor_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.create_model_monitor in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.create_model_monitor
-        ] = mock_rpc
-
-        request = {}
-        client.create_model_monitor(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.create_model_monitor(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_create_model_monitor_rest_required_fields(
-    request_type=model_monitoring_service.CreateModelMonitorRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_model_monitor._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_model_monitor._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("model_monitor_id",))
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.create_model_monitor(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_create_model_monitor_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.create_model_monitor._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(("modelMonitorId",))
-        & set(
-            (
-                "parent",
-                "modelMonitor",
-            )
-        )
-    )
+    json_return_value = json_format.MessageToJson(return_value)
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -6909,6 +9412,7 @@ def test_create_model_monitor_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -6932,12 +9436,10 @@ def test_create_model_monitor_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
 
         request = model_monitoring_service.CreateModelMonitorRequest()
         metadata = [
@@ -6959,17 +9461,18 @@ def test_create_model_monitor_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_create_model_monitor_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.CreateModelMonitorRequest,
+def test_update_model_monitor_rest_bad_request(
+    request_type=model_monitoring_service.UpdateModelMonitorRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "model_monitor": {
+            "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        }
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -6977,86 +9480,13 @@ def test_create_model_monitor_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.create_model_monitor(request)
-
-
-def test_create_model_monitor_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-            model_monitor=gca_model_monitor.ModelMonitor(
-                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
-                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
-                        features=["features_value"]
-                    )
-                )
-            ),
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.create_model_monitor(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/modelMonitors"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_create_model_monitor_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.create_model_monitor(
-            model_monitoring_service.CreateModelMonitorRequest(),
-            parent="parent_value",
-            model_monitor=gca_model_monitor.ModelMonitor(
-                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
-                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
-                        features=["features_value"]
-                    )
-                )
-            ),
-        )
-
-
-def test_create_model_monitor_rest_error():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.update_model_monitor(request)
 
 
 @pytest.mark.parametrize(
@@ -7066,10 +9496,9 @@ def test_create_model_monitor_rest_error():
         dict,
     ],
 )
-def test_update_model_monitor_rest(request_type):
+def test_update_model_monitor_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -7287,146 +9716,15 @@ def test_update_model_monitor_rest(request_type):
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.update_model_monitor(request)
 
     # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
-def test_update_model_monitor_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.update_model_monitor in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.update_model_monitor
-        ] = mock_rpc
-
-        request = {}
-        client.update_model_monitor(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.update_model_monitor(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_update_model_monitor_rest_required_fields(
-    request_type=model_monitoring_service.UpdateModelMonitorRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).update_model_monitor._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).update_model_monitor._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("update_mask",))
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "patch",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.update_model_monitor(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_update_model_monitor_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.update_model_monitor._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(("updateMask",))
-        & set(
-            (
-                "modelMonitor",
-                "updateMask",
-            )
-        )
-    )
+    json_return_value = json_format.MessageToJson(return_value)
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -7438,6 +9736,7 @@ def test_update_model_monitor_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -7461,12 +9760,10 @@ def test_update_model_monitor_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
 
         request = model_monitoring_service.UpdateModelMonitorRequest()
         metadata = [
@@ -7488,21 +9785,14 @@ def test_update_model_monitor_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_update_model_monitor_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.UpdateModelMonitorRequest,
+def test_get_model_monitor_rest_bad_request(
+    request_type=model_monitoring_service.GetModelMonitorRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {
-        "model_monitor": {
-            "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-    }
+    request_init = {"name": "projects/sample1/locations/sample2/modelMonitors/sample3"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -7510,90 +9800,13 @@ def test_update_model_monitor_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.update_model_monitor(request)
-
-
-def test_update_model_monitor_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "model_monitor": {
-                "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
-            }
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            model_monitor=gca_model_monitor.ModelMonitor(
-                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
-                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
-                        features=["features_value"]
-                    )
-                )
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.update_model_monitor(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{model_monitor.name=projects/*/locations/*/modelMonitors/*}"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_update_model_monitor_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.update_model_monitor(
-            model_monitoring_service.UpdateModelMonitorRequest(),
-            model_monitor=gca_model_monitor.ModelMonitor(
-                tabular_objective=model_monitoring_spec.ModelMonitoringObjectiveSpec.TabularObjective(
-                    feature_drift_spec=model_monitoring_spec.ModelMonitoringObjectiveSpec.DataDriftSpec(
-                        features=["features_value"]
-                    )
-                )
-            ),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
-        )
-
-
-def test_update_model_monitor_rest_error():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.get_model_monitor(request)
 
 
 @pytest.mark.parametrize(
@@ -7603,10 +9816,9 @@ def test_update_model_monitor_rest_error():
         dict,
     ],
 )
-def test_get_model_monitor_rest(request_type):
+def test_get_model_monitor_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -7624,13 +9836,13 @@ def test_get_model_monitor_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = model_monitor.ModelMonitor.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.get_model_monitor(request)
 
@@ -7642,127 +9854,6 @@ def test_get_model_monitor_rest(request_type):
     assert response.satisfies_pzi is True
 
 
-def test_get_model_monitor_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_model_monitor in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.get_model_monitor
-        ] = mock_rpc
-
-        request = {}
-        client.get_model_monitor(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_model_monitor(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_get_model_monitor_rest_required_fields(
-    request_type=model_monitoring_service.GetModelMonitorRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_model_monitor._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_model_monitor._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = model_monitor.ModelMonitor()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = model_monitor.ModelMonitor.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.get_model_monitor(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_get_model_monitor_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.get_model_monitor._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_get_model_monitor_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
@@ -7772,6 +9863,7 @@ def test_get_model_monitor_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -7793,12 +9885,10 @@ def test_get_model_monitor_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = model_monitor.ModelMonitor.to_json(
-            model_monitor.ModelMonitor()
-        )
+        return_value = model_monitor.ModelMonitor.to_json(model_monitor.ModelMonitor())
+        req.return_value.content = return_value
 
         request = model_monitoring_service.GetModelMonitorRequest()
         metadata = [
@@ -7820,17 +9910,14 @@ def test_get_model_monitor_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_get_model_monitor_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.GetModelMonitorRequest,
+def test_list_model_monitors_rest_bad_request(
+    request_type=model_monitoring_service.ListModelMonitorsRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/modelMonitors/sample3"}
+    request_init = {"parent": "projects/sample1/locations/sample2"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -7838,76 +9925,13 @@ def test_get_model_monitor_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.get_model_monitor(request)
-
-
-def test_get_model_monitor_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = model_monitor.ModelMonitor()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = model_monitor.ModelMonitor.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.get_model_monitor(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*}"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_get_model_monitor_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.get_model_monitor(
-            model_monitoring_service.GetModelMonitorRequest(),
-            name="name_value",
-        )
-
-
-def test_get_model_monitor_rest_error():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.list_model_monitors(request)
 
 
 @pytest.mark.parametrize(
@@ -7917,10 +9941,9 @@ def test_get_model_monitor_rest_error():
         dict,
     ],
 )
-def test_list_model_monitors_rest(request_type):
+def test_list_model_monitors_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -7935,165 +9958,21 @@ def test_list_model_monitors_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = model_monitoring_service.ListModelMonitorsResponse.pb(
             return_value
         )
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.list_model_monitors(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelMonitorsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_model_monitors_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_model_monitors in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.list_model_monitors
-        ] = mock_rpc
-
-        request = {}
-        client.list_model_monitors(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_model_monitors(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_list_model_monitors_rest_required_fields(
-    request_type=model_monitoring_service.ListModelMonitorsRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_model_monitors._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_model_monitors._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(
-        (
-            "filter",
-            "page_size",
-            "page_token",
-            "read_mask",
-        )
-    )
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = model_monitoring_service.ListModelMonitorsResponse()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = model_monitoring_service.ListModelMonitorsResponse.pb(
-                return_value
-            )
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.list_model_monitors(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_list_model_monitors_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.list_model_monitors._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(
-            (
-                "filter",
-                "pageSize",
-                "pageToken",
-                "readMask",
-            )
-        )
-        & set(("parent",))
-    )
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -8105,6 +9984,7 @@ def test_list_model_monitors_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -8126,14 +10006,12 @@ def test_list_model_monitors_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            model_monitoring_service.ListModelMonitorsResponse.to_json(
-                model_monitoring_service.ListModelMonitorsResponse()
-            )
+        return_value = model_monitoring_service.ListModelMonitorsResponse.to_json(
+            model_monitoring_service.ListModelMonitorsResponse()
         )
+        req.return_value.content = return_value
 
         request = model_monitoring_service.ListModelMonitorsRequest()
         metadata = [
@@ -8155,17 +10033,14 @@ def test_list_model_monitors_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_list_model_monitors_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.ListModelMonitorsRequest,
+def test_delete_model_monitor_rest_bad_request(
+    request_type=model_monitoring_service.DeleteModelMonitorRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {"name": "projects/sample1/locations/sample2/modelMonitors/sample3"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -8173,134 +10048,13 @@ def test_list_model_monitors_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.list_model_monitors(request)
-
-
-def test_list_model_monitors_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = model_monitoring_service.ListModelMonitorsResponse()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = model_monitoring_service.ListModelMonitorsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.list_model_monitors(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/modelMonitors"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_list_model_monitors_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.list_model_monitors(
-            model_monitoring_service.ListModelMonitorsRequest(),
-            parent="parent_value",
-        )
-
-
-def test_list_model_monitors_rest_pager(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # TODO(kbandes): remove this mock unless there's a good reason for it.
-        # with mock.patch.object(path_template, 'transcode') as transcode:
-        # Set the response as a series of pages
-        response = (
-            model_monitoring_service.ListModelMonitorsResponse(
-                model_monitors=[
-                    model_monitor.ModelMonitor(),
-                    model_monitor.ModelMonitor(),
-                    model_monitor.ModelMonitor(),
-                ],
-                next_page_token="abc",
-            ),
-            model_monitoring_service.ListModelMonitorsResponse(
-                model_monitors=[],
-                next_page_token="def",
-            ),
-            model_monitoring_service.ListModelMonitorsResponse(
-                model_monitors=[
-                    model_monitor.ModelMonitor(),
-                ],
-                next_page_token="ghi",
-            ),
-            model_monitoring_service.ListModelMonitorsResponse(
-                model_monitors=[
-                    model_monitor.ModelMonitor(),
-                    model_monitor.ModelMonitor(),
-                ],
-            ),
-        )
-        # Two responses for two calls
-        response = response + response
-
-        # Wrap the values into proper Response objs
-        response = tuple(
-            model_monitoring_service.ListModelMonitorsResponse.to_json(x)
-            for x in response
-        )
-        return_values = tuple(Response() for i in response)
-        for return_val, response_val in zip(return_values, response):
-            return_val._content = response_val.encode("UTF-8")
-            return_val.status_code = 200
-        req.side_effect = return_values
-
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
-
-        pager = client.list_model_monitors(request=sample_request)
-
-        results = list(pager)
-        assert len(results) == 6
-        assert all(isinstance(i, model_monitor.ModelMonitor) for i in results)
-
-        pages = list(client.list_model_monitors(request=sample_request).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
+        client.delete_model_monitor(request)
 
 
 @pytest.mark.parametrize(
@@ -8310,10 +10064,9 @@ def test_list_model_monitors_rest_pager(transport: str = "rest"):
         dict,
     ],
 )
-def test_delete_model_monitor_rest(request_type):
+def test_delete_model_monitor_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -8326,142 +10079,15 @@ def test_delete_model_monitor_rest(request_type):
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.delete_model_monitor(request)
 
     # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
-def test_delete_model_monitor_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.delete_model_monitor in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.delete_model_monitor
-        ] = mock_rpc
-
-        request = {}
-        client.delete_model_monitor(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.delete_model_monitor(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_delete_model_monitor_rest_required_fields(
-    request_type=model_monitoring_service.DeleteModelMonitorRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_model_monitor._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_model_monitor._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("force",))
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "delete",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.delete_model_monitor(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_delete_model_monitor_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.delete_model_monitor._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("force",)) & set(("name",)))
+    json_return_value = json_format.MessageToJson(return_value)
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -8473,6 +10099,7 @@ def test_delete_model_monitor_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -8496,12 +10123,10 @@ def test_delete_model_monitor_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
 
         request = model_monitoring_service.DeleteModelMonitorRequest()
         metadata = [
@@ -8523,17 +10148,16 @@ def test_delete_model_monitor_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_delete_model_monitor_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.DeleteModelMonitorRequest,
+def test_create_model_monitoring_job_rest_bad_request(
+    request_type=model_monitoring_service.CreateModelMonitoringJobRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/modelMonitors/sample3"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -8541,74 +10165,13 @@ def test_delete_model_monitor_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.delete_model_monitor(request)
-
-
-def test_delete_model_monitor_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.delete_model_monitor(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*}"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_delete_model_monitor_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.delete_model_monitor(
-            model_monitoring_service.DeleteModelMonitorRequest(),
-            name="name_value",
-        )
-
-
-def test_delete_model_monitor_rest_error():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.create_model_monitoring_job(request)
 
 
 @pytest.mark.parametrize(
@@ -8618,10 +10181,9 @@ def test_delete_model_monitor_rest_error():
         dict,
     ],
 )
-def test_create_model_monitoring_job_rest(request_type):
+def test_create_model_monitoring_job_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -8854,13 +10416,13 @@ def test_create_model_monitoring_job_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = gca_model_monitoring_job.ModelMonitoringJob.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.create_model_monitoring_job(request)
 
@@ -8872,141 +10434,6 @@ def test_create_model_monitoring_job_rest(request_type):
     assert response.schedule == "schedule_value"
 
 
-def test_create_model_monitoring_job_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.create_model_monitoring_job
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.create_model_monitoring_job
-        ] = mock_rpc
-
-        request = {}
-        client.create_model_monitoring_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_model_monitoring_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_create_model_monitoring_job_rest_required_fields(
-    request_type=model_monitoring_service.CreateModelMonitoringJobRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_model_monitoring_job._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_model_monitoring_job._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("model_monitoring_job_id",))
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = gca_model_monitoring_job.ModelMonitoringJob()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = gca_model_monitoring_job.ModelMonitoringJob.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.create_model_monitoring_job(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_create_model_monitoring_job_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.create_model_monitoring_job._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(("modelMonitoringJobId",))
-        & set(
-            (
-                "parent",
-                "modelMonitoringJob",
-            )
-        )
-    )
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
@@ -9016,6 +10443,7 @@ def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -9039,12 +10467,12 @@ def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_model_monitoring_job.ModelMonitoringJob.to_json(
+        return_value = gca_model_monitoring_job.ModelMonitoringJob.to_json(
             gca_model_monitoring_job.ModelMonitoringJob()
         )
+        req.return_value.content = return_value
 
         request = model_monitoring_service.CreateModelMonitoringJobRequest()
         metadata = [
@@ -9066,18 +10494,15 @@ def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_create_model_monitoring_job_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.CreateModelMonitoringJobRequest,
+def test_get_model_monitoring_job_rest_bad_request(
+    request_type=model_monitoring_service.GetModelMonitoringJobRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
-        "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
     }
     request = request_type(**request_init)
 
@@ -9086,82 +10511,13 @@ def test_create_model_monitoring_job_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.create_model_monitoring_job(request)
-
-
-def test_create_model_monitoring_job_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_model_monitoring_job.ModelMonitoringJob()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-            model_monitoring_job=gca_model_monitoring_job.ModelMonitoringJob(
-                name="name_value"
-            ),
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_model_monitoring_job.ModelMonitoringJob.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.create_model_monitoring_job(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*/modelMonitors/*}/modelMonitoringJobs"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_create_model_monitoring_job_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.create_model_monitoring_job(
-            model_monitoring_service.CreateModelMonitoringJobRequest(),
-            parent="parent_value",
-            model_monitoring_job=gca_model_monitoring_job.ModelMonitoringJob(
-                name="name_value"
-            ),
-        )
-
-
-def test_create_model_monitoring_job_rest_error():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.get_model_monitoring_job(request)
 
 
 @pytest.mark.parametrize(
@@ -9171,10 +10527,9 @@ def test_create_model_monitoring_job_rest_error():
         dict,
     ],
 )
-def test_get_model_monitoring_job_rest(request_type):
+def test_get_model_monitoring_job_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -9194,13 +10549,13 @@ def test_get_model_monitoring_job_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = model_monitoring_job.ModelMonitoringJob.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.get_model_monitoring_job(request)
 
@@ -9212,130 +10567,6 @@ def test_get_model_monitoring_job_rest(request_type):
     assert response.schedule == "schedule_value"
 
 
-def test_get_model_monitoring_job_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.get_model_monitoring_job
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.get_model_monitoring_job
-        ] = mock_rpc
-
-        request = {}
-        client.get_model_monitoring_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_model_monitoring_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_get_model_monitoring_job_rest_required_fields(
-    request_type=model_monitoring_service.GetModelMonitoringJobRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_model_monitoring_job._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_model_monitoring_job._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = model_monitoring_job.ModelMonitoringJob()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = model_monitoring_job.ModelMonitoringJob.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.get_model_monitoring_job(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_get_model_monitoring_job_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.get_model_monitoring_job._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
     transport = transports.ModelMonitoringServiceRestTransport(
@@ -9345,6 +10576,7 @@ def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -9367,12 +10599,12 @@ def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = model_monitoring_job.ModelMonitoringJob.to_json(
+        return_value = model_monitoring_job.ModelMonitoringJob.to_json(
             model_monitoring_job.ModelMonitoringJob()
         )
+        req.return_value.content = return_value
 
         request = model_monitoring_service.GetModelMonitoringJobRequest()
         metadata = [
@@ -9394,18 +10626,15 @@ def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_get_model_monitoring_job_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.GetModelMonitoringJobRequest,
+def test_list_model_monitoring_jobs_rest_bad_request(
+    request_type=model_monitoring_service.ListModelMonitoringJobsRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
-        "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
+        "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
     }
     request = request_type(**request_init)
 
@@ -9414,76 +10643,13 @@ def test_get_model_monitoring_job_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.get_model_monitoring_job(request)
-
-
-def test_get_model_monitoring_job_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = model_monitoring_job.ModelMonitoringJob()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = model_monitoring_job.ModelMonitoringJob.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.get_model_monitoring_job(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*/modelMonitoringJobs/*}"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_get_model_monitoring_job_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.get_model_monitoring_job(
-            model_monitoring_service.GetModelMonitoringJobRequest(),
-            name="name_value",
-        )
-
-
-def test_get_model_monitoring_job_rest_error():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.list_model_monitoring_jobs(request)
 
 
 @pytest.mark.parametrize(
@@ -9493,10 +10659,9 @@ def test_get_model_monitoring_job_rest_error():
         dict,
     ],
 )
-def test_list_model_monitoring_jobs_rest(request_type):
+def test_list_model_monitoring_jobs_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -9513,166 +10678,21 @@ def test_list_model_monitoring_jobs_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = model_monitoring_service.ListModelMonitoringJobsResponse.pb(
             return_value
         )
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.list_model_monitoring_jobs(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelMonitoringJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_model_monitoring_jobs_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_model_monitoring_jobs
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.list_model_monitoring_jobs
-        ] = mock_rpc
-
-        request = {}
-        client.list_model_monitoring_jobs(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_model_monitoring_jobs(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_list_model_monitoring_jobs_rest_required_fields(
-    request_type=model_monitoring_service.ListModelMonitoringJobsRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_model_monitoring_jobs._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_model_monitoring_jobs._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(
-        (
-            "filter",
-            "page_size",
-            "page_token",
-            "read_mask",
-        )
-    )
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = model_monitoring_service.ListModelMonitoringJobsResponse()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = model_monitoring_service.ListModelMonitoringJobsResponse.pb(
-                return_value
-            )
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.list_model_monitoring_jobs(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_list_model_monitoring_jobs_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.list_model_monitoring_jobs._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(
-            (
-                "filter",
-                "pageSize",
-                "pageToken",
-                "readMask",
-            )
-        )
-        & set(("parent",))
-    )
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -9684,6 +10704,7 @@ def test_list_model_monitoring_jobs_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -9707,14 +10728,12 @@ def test_list_model_monitoring_jobs_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            model_monitoring_service.ListModelMonitoringJobsResponse.to_json(
-                model_monitoring_service.ListModelMonitoringJobsResponse()
-            )
+        return_value = model_monitoring_service.ListModelMonitoringJobsResponse.to_json(
+            model_monitoring_service.ListModelMonitoringJobsResponse()
         )
+        req.return_value.content = return_value
 
         request = model_monitoring_service.ListModelMonitoringJobsRequest()
         metadata = [
@@ -9736,18 +10755,15 @@ def test_list_model_monitoring_jobs_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_list_model_monitoring_jobs_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.ListModelMonitoringJobsRequest,
+def test_delete_model_monitoring_job_rest_bad_request(
+    request_type=model_monitoring_service.DeleteModelMonitoringJobRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
-        "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
+        "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
     }
     request = request_type(**request_init)
 
@@ -9756,140 +10772,13 @@ def test_list_model_monitoring_jobs_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.list_model_monitoring_jobs(request)
-
-
-def test_list_model_monitoring_jobs_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = model_monitoring_service.ListModelMonitoringJobsResponse()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = model_monitoring_service.ListModelMonitoringJobsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.list_model_monitoring_jobs(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*/modelMonitors/*}/modelMonitoringJobs"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_list_model_monitoring_jobs_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.list_model_monitoring_jobs(
-            model_monitoring_service.ListModelMonitoringJobsRequest(),
-            parent="parent_value",
-        )
-
-
-def test_list_model_monitoring_jobs_rest_pager(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # TODO(kbandes): remove this mock unless there's a good reason for it.
-        # with mock.patch.object(path_template, 'transcode') as transcode:
-        # Set the response as a series of pages
-        response = (
-            model_monitoring_service.ListModelMonitoringJobsResponse(
-                model_monitoring_jobs=[
-                    model_monitoring_job.ModelMonitoringJob(),
-                    model_monitoring_job.ModelMonitoringJob(),
-                    model_monitoring_job.ModelMonitoringJob(),
-                ],
-                next_page_token="abc",
-            ),
-            model_monitoring_service.ListModelMonitoringJobsResponse(
-                model_monitoring_jobs=[],
-                next_page_token="def",
-            ),
-            model_monitoring_service.ListModelMonitoringJobsResponse(
-                model_monitoring_jobs=[
-                    model_monitoring_job.ModelMonitoringJob(),
-                ],
-                next_page_token="ghi",
-            ),
-            model_monitoring_service.ListModelMonitoringJobsResponse(
-                model_monitoring_jobs=[
-                    model_monitoring_job.ModelMonitoringJob(),
-                    model_monitoring_job.ModelMonitoringJob(),
-                ],
-            ),
-        )
-        # Two responses for two calls
-        response = response + response
-
-        # Wrap the values into proper Response objs
-        response = tuple(
-            model_monitoring_service.ListModelMonitoringJobsResponse.to_json(x)
-            for x in response
-        )
-        return_values = tuple(Response() for i in response)
-        for return_val, response_val in zip(return_values, response):
-            return_val._content = response_val.encode("UTF-8")
-            return_val.status_code = 200
-        req.side_effect = return_values
-
-        sample_request = {
-            "parent": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        pager = client.list_model_monitoring_jobs(request=sample_request)
-
-        results = list(pager)
-        assert len(results) == 6
-        assert all(
-            isinstance(i, model_monitoring_job.ModelMonitoringJob) for i in results
-        )
-
-        pages = list(client.list_model_monitoring_jobs(request=sample_request).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
+        client.delete_model_monitoring_job(request)
 
 
 @pytest.mark.parametrize(
@@ -9899,10 +10788,9 @@ def test_list_model_monitoring_jobs_rest_pager(transport: str = "rest"):
         dict,
     ],
 )
-def test_delete_model_monitoring_job_rest(request_type):
+def test_delete_model_monitoring_job_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -9917,141 +10805,15 @@ def test_delete_model_monitoring_job_rest(request_type):
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.delete_model_monitoring_job(request)
 
     # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
-def test_delete_model_monitoring_job_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.delete_model_monitoring_job
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.delete_model_monitoring_job
-        ] = mock_rpc
-
-        request = {}
-        client.delete_model_monitoring_job(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.delete_model_monitoring_job(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_delete_model_monitoring_job_rest_required_fields(
-    request_type=model_monitoring_service.DeleteModelMonitoringJobRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_model_monitoring_job._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_model_monitoring_job._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "delete",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.delete_model_monitoring_job(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_delete_model_monitoring_job_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.delete_model_monitoring_job._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
+    json_return_value = json_format.MessageToJson(return_value)
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10063,6 +10825,7 @@ def test_delete_model_monitoring_job_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -10088,12 +10851,10 @@ def test_delete_model_monitoring_job_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
 
         request = model_monitoring_service.DeleteModelMonitoringJobRequest()
         metadata = [
@@ -10115,18 +10876,15 @@ def test_delete_model_monitoring_job_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_delete_model_monitoring_job_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.DeleteModelMonitoringJobRequest,
+def test_search_model_monitoring_stats_rest_bad_request(
+    request_type=model_monitoring_service.SearchModelMonitoringStatsRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
-        "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
+        "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
     }
     request = request_type(**request_init)
 
@@ -10135,74 +10893,13 @@ def test_delete_model_monitoring_job_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.delete_model_monitoring_job(request)
-
-
-def test_delete_model_monitoring_job_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/modelMonitors/sample3/modelMonitoringJobs/sample4"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.delete_model_monitoring_job(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/modelMonitors/*/modelMonitoringJobs/*}"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_delete_model_monitoring_job_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.delete_model_monitoring_job(
-            model_monitoring_service.DeleteModelMonitoringJobRequest(),
-            name="name_value",
-        )
-
-
-def test_delete_model_monitoring_job_rest_error():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.search_model_monitoring_stats(request)
 
 
 @pytest.mark.parametrize(
@@ -10212,10 +10909,9 @@ def test_delete_model_monitoring_job_rest_error():
         dict,
     ],
 )
-def test_search_model_monitoring_stats_rest(request_type):
+def test_search_model_monitoring_stats_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -10232,152 +10928,21 @@ def test_search_model_monitoring_stats_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = model_monitoring_service.SearchModelMonitoringStatsResponse.pb(
             return_value
         )
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.search_model_monitoring_stats(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.SearchModelMonitoringStatsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_search_model_monitoring_stats_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.search_model_monitoring_stats
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.search_model_monitoring_stats
-        ] = mock_rpc
-
-        request = {}
-        client.search_model_monitoring_stats(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.search_model_monitoring_stats(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_search_model_monitoring_stats_rest_required_fields(
-    request_type=model_monitoring_service.SearchModelMonitoringStatsRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["model_monitor"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).search_model_monitoring_stats._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["modelMonitor"] = "model_monitor_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).search_model_monitoring_stats._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "modelMonitor" in jsonified_request
-    assert jsonified_request["modelMonitor"] == "model_monitor_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = model_monitoring_service.SearchModelMonitoringStatsResponse()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = (
-                model_monitoring_service.SearchModelMonitoringStatsResponse.pb(
-                    return_value
-                )
-            )
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.search_model_monitoring_stats(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_search_model_monitoring_stats_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.search_model_monitoring_stats._get_unset_required_fields(
-        {}
-    )
-    assert set(unset_fields) == (set(()) & set(("modelMonitor",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10389,6 +10954,7 @@ def test_search_model_monitoring_stats_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -10412,14 +10978,14 @@ def test_search_model_monitoring_stats_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
+        return_value = (
             model_monitoring_service.SearchModelMonitoringStatsResponse.to_json(
                 model_monitoring_service.SearchModelMonitoringStatsResponse()
             )
         )
+        req.return_value.content = return_value
 
         request = model_monitoring_service.SearchModelMonitoringStatsRequest()
         metadata = [
@@ -10443,15 +11009,12 @@ def test_search_model_monitoring_stats_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_search_model_monitoring_stats_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.SearchModelMonitoringStatsRequest,
+def test_search_model_monitoring_alerts_rest_bad_request(
+    request_type=model_monitoring_service.SearchModelMonitoringAlertsRequest,
 ):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
         "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
@@ -10463,140 +11026,13 @@ def test_search_model_monitoring_stats_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.search_model_monitoring_stats(request)
-
-
-def test_search_model_monitoring_stats_rest_flattened():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = model_monitoring_service.SearchModelMonitoringStatsResponse()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            model_monitor="model_monitor_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = model_monitoring_service.SearchModelMonitoringStatsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.search_model_monitoring_stats(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{model_monitor=projects/*/locations/*/modelMonitors/*}:searchModelMonitoringStats"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_search_model_monitoring_stats_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.search_model_monitoring_stats(
-            model_monitoring_service.SearchModelMonitoringStatsRequest(),
-            model_monitor="model_monitor_value",
-        )
-
-
-def test_search_model_monitoring_stats_rest_pager(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # TODO(kbandes): remove this mock unless there's a good reason for it.
-        # with mock.patch.object(path_template, 'transcode') as transcode:
-        # Set the response as a series of pages
-        response = (
-            model_monitoring_service.SearchModelMonitoringStatsResponse(
-                monitoring_stats=[
-                    model_monitoring_stats.ModelMonitoringStats(),
-                    model_monitoring_stats.ModelMonitoringStats(),
-                    model_monitoring_stats.ModelMonitoringStats(),
-                ],
-                next_page_token="abc",
-            ),
-            model_monitoring_service.SearchModelMonitoringStatsResponse(
-                monitoring_stats=[],
-                next_page_token="def",
-            ),
-            model_monitoring_service.SearchModelMonitoringStatsResponse(
-                monitoring_stats=[
-                    model_monitoring_stats.ModelMonitoringStats(),
-                ],
-                next_page_token="ghi",
-            ),
-            model_monitoring_service.SearchModelMonitoringStatsResponse(
-                monitoring_stats=[
-                    model_monitoring_stats.ModelMonitoringStats(),
-                    model_monitoring_stats.ModelMonitoringStats(),
-                ],
-            ),
-        )
-        # Two responses for two calls
-        response = response + response
-
-        # Wrap the values into proper Response objs
-        response = tuple(
-            model_monitoring_service.SearchModelMonitoringStatsResponse.to_json(x)
-            for x in response
-        )
-        return_values = tuple(Response() for i in response)
-        for return_val, response_val in zip(return_values, response):
-            return_val._content = response_val.encode("UTF-8")
-            return_val.status_code = 200
-        req.side_effect = return_values
-
-        sample_request = {
-            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        pager = client.search_model_monitoring_stats(request=sample_request)
-
-        results = list(pager)
-        assert len(results) == 6
-        assert all(
-            isinstance(i, model_monitoring_stats.ModelMonitoringStats) for i in results
-        )
-
-        pages = list(client.search_model_monitoring_stats(request=sample_request).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
+        client.search_model_monitoring_alerts(request)
 
 
 @pytest.mark.parametrize(
@@ -10606,10 +11042,9 @@ def test_search_model_monitoring_stats_rest_pager(transport: str = "rest"):
         dict,
     ],
 )
-def test_search_model_monitoring_alerts_rest(request_type):
+def test_search_model_monitoring_alerts_rest_call_success(request_type):
     client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -10627,15 +11062,15 @@ def test_search_model_monitoring_alerts_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = model_monitoring_service.SearchModelMonitoringAlertsResponse.pb(
             return_value
         )
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.search_model_monitoring_alerts(request)
 
@@ -10643,137 +11078,6 @@ def test_search_model_monitoring_alerts_rest(request_type):
     assert isinstance(response, pagers.SearchModelMonitoringAlertsPager)
     assert response.total_number_alerts == 2038
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_search_model_monitoring_alerts_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.search_model_monitoring_alerts
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.search_model_monitoring_alerts
-        ] = mock_rpc
-
-        request = {}
-        client.search_model_monitoring_alerts(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.search_model_monitoring_alerts(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_search_model_monitoring_alerts_rest_required_fields(
-    request_type=model_monitoring_service.SearchModelMonitoringAlertsRequest,
-):
-    transport_class = transports.ModelMonitoringServiceRestTransport
-
-    request_init = {}
-    request_init["model_monitor"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).search_model_monitoring_alerts._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["modelMonitor"] = "model_monitor_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).search_model_monitoring_alerts._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "modelMonitor" in jsonified_request
-    assert jsonified_request["modelMonitor"] == "model_monitor_value"
-
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = model_monitoring_service.SearchModelMonitoringAlertsResponse()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = (
-                model_monitoring_service.SearchModelMonitoringAlertsResponse.pb(
-                    return_value
-                )
-            )
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.search_model_monitoring_alerts(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_search_model_monitoring_alerts_rest_unset_required_fields():
-    transport = transports.ModelMonitoringServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.search_model_monitoring_alerts._get_unset_required_fields(
-        {}
-    )
-    assert set(unset_fields) == (set(()) & set(("modelMonitor",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10785,6 +11089,7 @@ def test_search_model_monitoring_alerts_rest_interceptors(null_interceptor):
         else transports.ModelMonitoringServiceRestInterceptor(),
     )
     client = ModelMonitoringServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -10808,14 +11113,14 @@ def test_search_model_monitoring_alerts_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
+        return_value = (
             model_monitoring_service.SearchModelMonitoringAlertsResponse.to_json(
                 model_monitoring_service.SearchModelMonitoringAlertsResponse()
             )
         )
+        req.return_value.content = return_value
 
         request = model_monitoring_service.SearchModelMonitoringAlertsRequest()
         metadata = [
@@ -10839,20 +11144,15 @@ def test_search_model_monitoring_alerts_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_search_model_monitoring_alerts_rest_bad_request(
-    transport: str = "rest",
-    request_type=model_monitoring_service.SearchModelMonitoringAlertsRequest,
-):
+def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
     client = ModelMonitoringServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        transport="rest",
     )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
-    }
-    request = request_type(**request_init)
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
 
     # Mock the http request call within the method and fake a BadRequest error.
     with mock.patch.object(Session, "request") as req, pytest.raises(
@@ -10860,247 +11160,859 @@ def test_search_model_monitoring_alerts_rest_bad_request(
     ):
         # Wrap the value into a proper Response obj
         response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        client.search_model_monitoring_alerts(request)
+        client.get_location(request)
 
 
-def test_search_model_monitoring_alerts_rest_flattened():
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
     client = ModelMonitoringServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = model_monitoring_service.SearchModelMonitoringAlertsResponse()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            model_monitor="model_monitor_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = model_monitoring_service.SearchModelMonitoringAlertsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.search_model_monitoring_alerts(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{model_monitor=projects/*/locations/*/modelMonitors/*}:searchModelMonitoringAlerts"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_search_model_monitoring_alerts_rest_flattened_error(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.search_model_monitoring_alerts(
-            model_monitoring_service.SearchModelMonitoringAlertsRequest(),
-            model_monitor="model_monitor_value",
-        )
-
-
-def test_search_model_monitoring_alerts_rest_pager(transport: str = "rest"):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
     with mock.patch.object(Session, "request") as req:
-        # TODO(kbandes): remove this mock unless there's a good reason for it.
-        # with mock.patch.object(path_template, 'transcode') as transcode:
-        # Set the response as a series of pages
-        response = (
-            model_monitoring_service.SearchModelMonitoringAlertsResponse(
-                model_monitoring_alerts=[
-                    model_monitoring_alert.ModelMonitoringAlert(),
-                    model_monitoring_alert.ModelMonitoringAlert(),
-                    model_monitoring_alert.ModelMonitoringAlert(),
-                ],
-                next_page_token="abc",
-            ),
-            model_monitoring_service.SearchModelMonitoringAlertsResponse(
-                model_monitoring_alerts=[],
-                next_page_token="def",
-            ),
-            model_monitoring_service.SearchModelMonitoringAlertsResponse(
-                model_monitoring_alerts=[
-                    model_monitoring_alert.ModelMonitoringAlert(),
-                ],
-                next_page_token="ghi",
-            ),
-            model_monitoring_service.SearchModelMonitoringAlertsResponse(
-                model_monitoring_alerts=[
-                    model_monitoring_alert.ModelMonitoringAlert(),
-                    model_monitoring_alert.ModelMonitoringAlert(),
-                ],
-            ),
-        )
-        # Two responses for two calls
-        response = response + response
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
 
-        # Wrap the values into proper Response objs
-        response = tuple(
-            model_monitoring_service.SearchModelMonitoringAlertsResponse.to_json(x)
-            for x in response
-        )
-        return_values = tuple(Response() for i in response)
-        for return_val, response_val in zip(return_values, response):
-            return_val._content = response_val.encode("UTF-8")
-            return_val.status_code = 200
-        req.side_effect = return_values
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
 
-        sample_request = {
-            "model_monitor": "projects/sample1/locations/sample2/modelMonitors/sample3"
-        }
+        req.return_value = response_value
 
-        pager = client.search_model_monitoring_alerts(request=sample_request)
+        response = client.get_location(request)
 
-        results = list(pager)
-        assert len(results) == 6
-        assert all(
-            isinstance(i, model_monitoring_alert.ModelMonitoringAlert) for i in results
-        )
-
-        pages = list(
-            client.search_model_monitoring_alerts(request=sample_request).pages
-        )
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
 
 
-def test_credentials_transport_error():
-    # It is an error to provide credentials and a transport instance.
-    transport = transports.ModelMonitoringServiceGrpcTransport(
+def test_list_locations_rest_bad_request(
+    request_type=locations_pb2.ListLocationsRequest,
+):
+    client = ModelMonitoringServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    with pytest.raises(ValueError):
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
 
-    # It is an error to provide a credentials file and a transport instance.
-    transport = transports.ModelMonitoringServiceGrpcTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    with pytest.raises(ValueError):
-        client = ModelMonitoringServiceClient(
-            client_options={"credentials_file": "credentials.json"},
-            transport=transport,
-        )
-
-    # It is an error to provide an api_key and a transport instance.
-    transport = transports.ModelMonitoringServiceGrpcTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    options = client_options.ClientOptions()
-    options.api_key = "api_key"
-    with pytest.raises(ValueError):
-        client = ModelMonitoringServiceClient(
-            client_options=options,
-            transport=transport,
-        )
-
-    # It is an error to provide an api_key and a credential.
-    options = client_options.ClientOptions()
-    options.api_key = "api_key"
-    with pytest.raises(ValueError):
-        client = ModelMonitoringServiceClient(
-            client_options=options, credentials=ga_credentials.AnonymousCredentials()
-        )
-
-    # It is an error to provide scopes and a transport instance.
-    transport = transports.ModelMonitoringServiceGrpcTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    with pytest.raises(ValueError):
-        client = ModelMonitoringServiceClient(
-            client_options={"scopes": ["1", "2"]},
-            transport=transport,
-        )
-
-
-def test_transport_instance():
-    # A client may be instantiated with a custom transport instance.
-    transport = transports.ModelMonitoringServiceGrpcTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    client = ModelMonitoringServiceClient(transport=transport)
-    assert client.transport is transport
-
-
-def test_transport_get_channel():
-    # A client may be instantiated with a custom transport instance.
-    transport = transports.ModelMonitoringServiceGrpcTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    channel = transport.grpc_channel
-    assert channel
-
-    transport = transports.ModelMonitoringServiceGrpcAsyncIOTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    channel = transport.grpc_channel
-    assert channel
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
 
 
 @pytest.mark.parametrize(
-    "transport_class",
+    "request_type",
     [
-        transports.ModelMonitoringServiceGrpcTransport,
-        transports.ModelMonitoringServiceGrpcAsyncIOTransport,
-        transports.ModelMonitoringServiceRestTransport,
+        locations_pb2.ListLocationsRequest,
+        dict,
     ],
 )
-def test_transport_adc(transport_class):
-    # Test default credentials are used if not provided.
-    with mock.patch.object(google.auth, "default") as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport_class()
-        adc.assert_called_once()
+def test_list_locations_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.GetIamPolicyRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
 
 
 @pytest.mark.parametrize(
-    "transport_name",
+    "request_type",
     [
-        "grpc",
-        "rest",
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
     ],
 )
-def test_transport_kind(transport_name):
-    transport = ModelMonitoringServiceClient.get_transport_class(transport_name)(
+def test_get_iam_policy_rest(request_type):
+    client = ModelMonitoringServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    assert transport.kind == transport_name
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.SetIamPolicyRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    request_type=iam_policy_pb2.TestIamPermissionsRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    request_type=operations_pb2.CancelOperationRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    request_type=operations_pb2.DeleteOperationRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    request_type=operations_pb2.GetOperationRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    request_type=operations_pb2.ListOperationsRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    request_type=operations_pb2.WaitOperationRequest,
+):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_initialize_client_w_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_model_monitor_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_monitor), "__call__"
+    ) as call:
+        client.create_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.CreateModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_model_monitor_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_model_monitor), "__call__"
+    ) as call:
+        client.update_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.UpdateModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_model_monitor_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_monitor), "__call__"
+    ) as call:
+        client.get_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.GetModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_model_monitors_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_monitors), "__call__"
+    ) as call:
+        client.list_model_monitors(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.ListModelMonitorsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_model_monitor_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_monitor), "__call__"
+    ) as call:
+        client.delete_model_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.DeleteModelMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_model_monitoring_job_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_model_monitoring_job), "__call__"
+    ) as call:
+        client.create_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.CreateModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_model_monitoring_job_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_model_monitoring_job), "__call__"
+    ) as call:
+        client.get_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.GetModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_model_monitoring_jobs_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_model_monitoring_jobs), "__call__"
+    ) as call:
+        client.list_model_monitoring_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.ListModelMonitoringJobsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_model_monitoring_job_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_model_monitoring_job), "__call__"
+    ) as call:
+        client.delete_model_monitoring_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.DeleteModelMonitoringJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_search_model_monitoring_stats_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_monitoring_stats), "__call__"
+    ) as call:
+        client.search_model_monitoring_stats(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.SearchModelMonitoringStatsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_search_model_monitoring_alerts_empty_call_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_model_monitoring_alerts), "__call__"
+    ) as call:
+        client.search_model_monitoring_alerts(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = model_monitoring_service.SearchModelMonitoringAlertsRequest()
+
+        assert args[0] == request_msg
+
+
+def test_model_monitoring_service_rest_lro_client():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
 
 
 def test_transport_grpc_default():
@@ -11359,23 +12271,6 @@ def test_model_monitoring_service_http_transport_client_cert_source_for_mtls():
             credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
         )
         mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
-
-
-def test_model_monitoring_service_rest_lro_client():
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    transport = client.transport
-
-    # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.AbstractOperationsClient,
-    )
-
-    # Ensure that subsequent calls to the property send the exact same object.
-    assert transport.operations_client is transport.operations_client
 
 
 @pytest.mark.parametrize(
@@ -11983,607 +12878,6 @@ def test_client_with_default_client_info():
         prep.assert_called_once_with(client_info)
 
 
-@pytest.mark.asyncio
-async def test_transport_close_async():
-    client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-    with mock.patch.object(
-        type(getattr(client.transport, "grpc_channel")), "close"
-    ) as close:
-        async with client:
-            close.assert_not_called()
-        close.assert_called_once()
-
-
-def test_get_location_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_location(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.GetLocationRequest,
-        dict,
-    ],
-)
-def test_get_location_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.Location()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_location(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.Location)
-
-
-def test_list_locations_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict({"name": "projects/sample1"}, request)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_locations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.ListLocationsRequest,
-        dict,
-    ],
-)
-def test_list_locations_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.ListLocationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_locations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.ListLocationsResponse)
-
-
-def test_get_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.GetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_get_iam_policy_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_set_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.set_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.SetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_set_iam_policy_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.set_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_test_iam_permissions_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.test_iam_permissions(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.TestIamPermissionsRequest,
-        dict,
-    ],
-)
-def test_test_iam_permissions_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = iam_policy_pb2.TestIamPermissionsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.test_iam_permissions(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
-
-
-def test_cancel_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.cancel_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.CancelOperationRequest,
-        dict,
-    ],
-)
-def test_cancel_operation_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.cancel_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_delete_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.DeleteOperationRequest,
-        dict,
-    ],
-)
-def test_delete_operation_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.delete_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_get_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.GetOperationRequest,
-        dict,
-    ],
-)
-def test_get_operation_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
-def test_list_operations_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_operations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.ListOperationsRequest,
-        dict,
-    ],
-)
-def test_list_operations_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.ListOperationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_operations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.ListOperationsResponse)
-
-
-def test_wait_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
-):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.wait_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.WaitOperationRequest,
-        dict,
-    ],
-)
-def test_wait_operation_rest(request_type):
-    client = ModelMonitoringServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.wait_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
 def test_delete_operation(transport: str = "grpc"):
     client = ModelMonitoringServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -12611,7 +12905,7 @@ def test_delete_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12664,7 +12958,7 @@ def test_delete_operation_field_headers():
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12709,7 +13003,7 @@ def test_delete_operation_from_dict():
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
@@ -12750,7 +13044,7 @@ def test_cancel_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12803,7 +13097,7 @@ def test_cancel_operation_field_headers():
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12848,7 +13142,7 @@ def test_cancel_operation_from_dict():
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
@@ -12889,7 +13183,7 @@ def test_wait_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -12944,7 +13238,7 @@ def test_wait_operation_field_headers():
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -12991,7 +13285,7 @@ def test_wait_operation_from_dict():
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
@@ -13034,7 +13328,7 @@ def test_get_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13089,7 +13383,7 @@ def test_get_operation_field_headers():
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13136,7 +13430,7 @@ def test_get_operation_from_dict():
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
@@ -13179,7 +13473,7 @@ def test_list_operations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13234,7 +13528,7 @@ def test_list_operations_field_headers():
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13281,7 +13575,7 @@ def test_list_operations_from_dict():
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
@@ -13324,7 +13618,7 @@ def test_list_locations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13379,7 +13673,7 @@ def test_list_locations_field_headers():
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13426,7 +13720,7 @@ def test_list_locations_from_dict():
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -13469,7 +13763,7 @@ def test_get_location(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13524,7 +13818,7 @@ def test_get_location_field_headers():
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials()
+        credentials=async_anonymous_credentials()
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13571,7 +13865,7 @@ def test_get_location_from_dict():
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -13622,7 +13916,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13687,7 +13981,7 @@ def test_set_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13735,7 +14029,7 @@ def test_set_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
@@ -13788,7 +14082,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13854,7 +14148,7 @@ def test_get_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13902,7 +14196,7 @@ def test_get_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
@@ -13954,7 +14248,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -14021,7 +14315,7 @@ def test_test_iam_permissions_field_headers():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -14075,7 +14369,7 @@ def test_test_iam_permissions_from_dict():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
     client = ModelMonitoringServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -14095,22 +14389,41 @@ async def test_test_iam_permissions_from_dict_async():
         call.assert_called()
 
 
-def test_transport_close():
-    transports = {
-        "rest": "_session",
-        "grpc": "_grpc_channel",
-    }
+def test_transport_close_grpc():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
-    for transport, close_name in transports.items():
-        client = ModelMonitoringServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport
-        )
-        with mock.patch.object(
-            type(getattr(client.transport, close_name)), "close"
-        ) as close:
-            with client:
-                close.assert_not_called()
-            close.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_transport_close_grpc_asyncio():
+    client = ModelMonitoringServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close_rest():
+    client = ModelMonitoringServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_session")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
 
 def test_client_ctx():

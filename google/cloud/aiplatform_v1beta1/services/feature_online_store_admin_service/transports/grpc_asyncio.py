@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import inspect
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -239,6 +240,9 @@ class FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport(
             )
 
         # Wrap messages. This must be done after self._grpc_channel exists
+        self._wrap_with_kind = (
+            "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
+        )
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -652,75 +656,134 @@ class FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport(
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
-            self.create_feature_online_store: gapic_v1.method_async.wrap_method(
+            self.create_feature_online_store: self._wrap_method(
                 self.create_feature_online_store,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.get_feature_online_store: gapic_v1.method_async.wrap_method(
+            self.get_feature_online_store: self._wrap_method(
                 self.get_feature_online_store,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.list_feature_online_stores: gapic_v1.method_async.wrap_method(
+            self.list_feature_online_stores: self._wrap_method(
                 self.list_feature_online_stores,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.update_feature_online_store: gapic_v1.method_async.wrap_method(
+            self.update_feature_online_store: self._wrap_method(
                 self.update_feature_online_store,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.delete_feature_online_store: gapic_v1.method_async.wrap_method(
+            self.delete_feature_online_store: self._wrap_method(
                 self.delete_feature_online_store,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.create_feature_view: gapic_v1.method_async.wrap_method(
+            self.create_feature_view: self._wrap_method(
                 self.create_feature_view,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.get_feature_view: gapic_v1.method_async.wrap_method(
+            self.get_feature_view: self._wrap_method(
                 self.get_feature_view,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.list_feature_views: gapic_v1.method_async.wrap_method(
+            self.list_feature_views: self._wrap_method(
                 self.list_feature_views,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.update_feature_view: gapic_v1.method_async.wrap_method(
+            self.update_feature_view: self._wrap_method(
                 self.update_feature_view,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.delete_feature_view: gapic_v1.method_async.wrap_method(
+            self.delete_feature_view: self._wrap_method(
                 self.delete_feature_view,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-            self.sync_feature_view: gapic_v1.method_async.wrap_method(
+            self.sync_feature_view: self._wrap_method(
                 self.sync_feature_view,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_feature_view_sync: gapic_v1.method_async.wrap_method(
+            self.get_feature_view_sync: self._wrap_method(
                 self.get_feature_view_sync,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_feature_view_syncs: gapic_v1.method_async.wrap_method(
+            self.list_feature_view_syncs: self._wrap_method(
                 self.list_feature_view_syncs,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_location: self._wrap_method(
+                self.get_location,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_locations: self._wrap_method(
+                self.list_locations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_iam_policy: self._wrap_method(
+                self.get_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.set_iam_policy: self._wrap_method(
+                self.set_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.test_iam_permissions: self._wrap_method(
+                self.test_iam_permissions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_operation: self._wrap_method(
+                self.cancel_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_operation: self._wrap_method(
+                self.delete_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_operation: self._wrap_method(
+                self.get_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_operations: self._wrap_method(
+                self.list_operations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.wait_operation: self._wrap_method(
+                self.wait_operation,
                 default_timeout=None,
                 client_info=client_info,
             ),
         }
 
+    def _wrap_method(self, func, *args, **kwargs):
+        if self._wrap_with_kind:  # pragma: NO COVER
+            kwargs["kind"] = self.kind
+        return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
+
     def close(self):
         return self.grpc_channel.close()
+
+    @property
+    def kind(self) -> str:
+        return "grpc_asyncio"
 
     @property
     def delete_operation(
@@ -765,7 +828,7 @@ class FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport(
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_operation" not in self._stubs:
+        if "wait_operation" not in self._stubs:
             self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,

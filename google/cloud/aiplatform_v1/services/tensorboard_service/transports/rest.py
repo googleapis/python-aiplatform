@@ -16,14 +16,11 @@
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
 import json  # type: ignore
-import grpc  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
-from google.api_core import path_template
 from google.api_core import gapic_v1
 
 from google.protobuf import json_format
@@ -31,16 +28,11 @@ from google.api_core import operations_v1
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.cloud.location import locations_pb2  # type: ignore
+
 from requests import __version__ as requests_version
 import dataclasses
-import re
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 from google.cloud.aiplatform_v1.types import tensorboard
@@ -57,10 +49,14 @@ from google.cloud.aiplatform_v1.types import (
 )
 from google.longrunning import operations_pb2  # type: ignore
 
-from .base import (
-    TensorboardServiceTransport,
-    DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO,
-)
+
+from .rest_base import _BaseTensorboardServiceRestTransport
+from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -1310,8 +1306,8 @@ class TensorboardServiceRestStub:
     _interceptor: TensorboardServiceRestInterceptor
 
 
-class TensorboardServiceRestTransport(TensorboardServiceTransport):
-    """REST backend transport for TensorboardService.
+class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
+    """REST backend synchronous transport for TensorboardService.
 
     TensorboardService
 
@@ -1320,7 +1316,6 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     and call it.
 
     It sends JSON representations of protocol buffers over HTTP/1.1
-
     """
 
     def __init__(
@@ -1374,21 +1369,12 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
         # TODO(yon-mg): resolve other ctor params i.e. scopes, quota, etc.
         # TODO: When custom host (api_endpoint) is set, `scopes` must *also* be set on the
         # credentials object
-        maybe_url_match = re.match("^(?P<scheme>http(?:s)?://)?(?P<host>.*)$", host)
-        if maybe_url_match is None:
-            raise ValueError(
-                f"Unexpected hostname structure: {host}"
-            )  # pragma: NO COVER
-
-        url_match_items = maybe_url_match.groupdict()
-
-        host = f"{url_scheme}://{host}" if not url_match_items["scheme"] else host
-
         super().__init__(
             host=host,
             credentials=credentials,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            url_scheme=url_scheme,
             api_audience=api_audience,
         )
         self._session = AuthorizedSession(
@@ -3238,19 +3224,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
         # Return the client from cache.
         return self._operations_client
 
-    class _BatchCreateTensorboardRuns(TensorboardServiceRestStub):
+    class _BatchCreateTensorboardRuns(
+        _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("BatchCreateTensorboardRuns")
+            return hash("TensorboardServiceRestTransport.BatchCreateTensorboardRuns")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3280,49 +3283,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*/experiments/*}/runs:batchCreate",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_http_options()
+            )
             request, metadata = self._interceptor.pre_batch_create_tensorboard_runs(
                 request, metadata
             )
-            pb_request = tensorboard_service.BatchCreateTensorboardRunsRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._BatchCreateTensorboardRuns._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3338,19 +3326,38 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_batch_create_tensorboard_runs(resp)
             return resp
 
-    class _BatchCreateTensorboardTimeSeries(TensorboardServiceRestStub):
+    class _BatchCreateTensorboardTimeSeries(
+        _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("BatchCreateTensorboardTimeSeries")
+            return hash(
+                "TensorboardServiceRestTransport.BatchCreateTensorboardTimeSeries"
+            )
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3380,52 +3387,37 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*/experiments/*}:batchCreate",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_batch_create_tensorboard_time_series(
                 request, metadata
             )
-            pb_request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._BatchCreateTensorboardTimeSeries._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3443,21 +3435,37 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_batch_create_tensorboard_time_series(resp)
             return resp
 
-    class _BatchReadTensorboardTimeSeriesData(TensorboardServiceRestStub):
+    class _BatchReadTensorboardTimeSeriesData(
+        _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("BatchReadTensorboardTimeSeriesData")
+            return hash(
+                "TensorboardServiceRestTransport.BatchReadTensorboardTimeSeriesData"
+            )
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "timeSeries": "",
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -3487,47 +3495,32 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{tensorboard=projects/*/locations/*/tensorboards/*}:batchRead",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_batch_read_tensorboard_time_series_data(
                 request, metadata
             )
-            pb_request = (
-                tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest.pb(
-                    request
-                )
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._BatchReadTensorboardTimeSeriesData._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3545,19 +3538,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_batch_read_tensorboard_time_series_data(resp)
             return resp
 
-    class _CreateTensorboard(TensorboardServiceRestStub):
+    class _CreateTensorboard(
+        _BaseTensorboardServiceRestTransport._BaseCreateTensorboard,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateTensorboard")
+            return hash("TensorboardServiceRestTransport.CreateTensorboard")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3587,47 +3597,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*}/tensorboards",
-                    "body": "tensorboard",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_tensorboard(
                 request, metadata
             )
-            pb_request = tensorboard_service.CreateTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._CreateTensorboard._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3641,21 +3638,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_create_tensorboard(resp)
             return resp
 
-    class _CreateTensorboardExperiment(TensorboardServiceRestStub):
+    class _CreateTensorboardExperiment(
+        _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateTensorboardExperiment")
+            return hash("TensorboardServiceRestTransport.CreateTensorboardExperiment")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "tensorboardExperimentId": "",
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3687,49 +3699,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*}/experiments",
-                    "body": "tensorboard_experiment",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_tensorboard_experiment(
                 request, metadata
             )
-            pb_request = tensorboard_service.CreateTensorboardExperimentRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._CreateTensorboardExperiment._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3745,21 +3742,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_create_tensorboard_experiment(resp)
             return resp
 
-    class _CreateTensorboardRun(TensorboardServiceRestStub):
+    class _CreateTensorboardRun(
+        _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateTensorboardRun")
+            return hash("TensorboardServiceRestTransport.CreateTensorboardRun")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "tensorboardRunId": "",
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3790,47 +3802,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*/experiments/*}/runs",
-                    "body": "tensorboard_run",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_tensorboard_run(
                 request, metadata
             )
-            pb_request = tensorboard_service.CreateTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                TensorboardServiceRestTransport._CreateTensorboardRun._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3846,19 +3847,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_create_tensorboard_run(resp)
             return resp
 
-    class _CreateTensorboardTimeSeries(TensorboardServiceRestStub):
+    class _CreateTensorboardTimeSeries(
+        _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateTensorboardTimeSeries")
+            return hash("TensorboardServiceRestTransport.CreateTensorboardTimeSeries")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3888,49 +3906,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/timeSeries",
-                    "body": "tensorboard_time_series",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_tensorboard_time_series(
                 request, metadata
             )
-            pb_request = tensorboard_service.CreateTensorboardTimeSeriesRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._CreateTensorboardTimeSeries._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3946,19 +3949,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_create_tensorboard_time_series(resp)
             return resp
 
-    class _DeleteTensorboard(TensorboardServiceRestStub):
+    class _DeleteTensorboard(
+        _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteTensorboard")
+            return hash("TensorboardServiceRestTransport.DeleteTensorboard")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -3988,40 +4007,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_tensorboard(
                 request, metadata
             )
-            pb_request = tensorboard_service.DeleteTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._DeleteTensorboard._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4035,19 +4043,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_delete_tensorboard(resp)
             return resp
 
-    class _DeleteTensorboardExperiment(TensorboardServiceRestStub):
+    class _DeleteTensorboardExperiment(
+        _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteTensorboardExperiment")
+            return hash("TensorboardServiceRestTransport.DeleteTensorboardExperiment")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4078,42 +4102,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_tensorboard_experiment(
                 request, metadata
             )
-            pb_request = tensorboard_service.DeleteTensorboardExperimentRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._DeleteTensorboardExperiment._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4127,19 +4138,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_delete_tensorboard_experiment(resp)
             return resp
 
-    class _DeleteTensorboardRun(TensorboardServiceRestStub):
+    class _DeleteTensorboardRun(
+        _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteTensorboardRun")
+            return hash("TensorboardServiceRestTransport.DeleteTensorboardRun")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4169,40 +4196,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_tensorboard_run(
                 request, metadata
             )
-            pb_request = tensorboard_service.DeleteTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                TensorboardServiceRestTransport._DeleteTensorboardRun._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4216,19 +4234,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_delete_tensorboard_run(resp)
             return resp
 
-    class _DeleteTensorboardTimeSeries(TensorboardServiceRestStub):
+    class _DeleteTensorboardTimeSeries(
+        _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteTensorboardTimeSeries")
+            return hash("TensorboardServiceRestTransport.DeleteTensorboardTimeSeries")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4259,42 +4293,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_tensorboard_time_series(
                 request, metadata
             )
-            pb_request = tensorboard_service.DeleteTensorboardTimeSeriesRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._DeleteTensorboardTimeSeries._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4308,19 +4329,38 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_delete_tensorboard_time_series(resp)
             return resp
 
-    class _ExportTensorboardTimeSeriesData(TensorboardServiceRestStub):
+    class _ExportTensorboardTimeSeriesData(
+        _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ExportTensorboardTimeSeriesData")
+            return hash(
+                "TensorboardServiceRestTransport.ExportTensorboardTimeSeriesData"
+            )
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4350,52 +4390,37 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{tensorboard_time_series=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}:exportTensorboardTimeSeries",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_http_options()
+            )
             (
                 request,
                 metadata,
             ) = self._interceptor.pre_export_tensorboard_time_series_data(
                 request, metadata
             )
-            pb_request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._ExportTensorboardTimeSeriesData._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4413,19 +4438,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_export_tensorboard_time_series_data(resp)
             return resp
 
-    class _GetTensorboard(TensorboardServiceRestStub):
+    class _GetTensorboard(
+        _BaseTensorboardServiceRestTransport._BaseGetTensorboard,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetTensorboard")
+            return hash("TensorboardServiceRestTransport.GetTensorboard")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4458,38 +4499,27 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_tensorboard(request, metadata)
-            pb_request = tensorboard_service.GetTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._GetTensorboard._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4505,19 +4535,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_get_tensorboard(resp)
             return resp
 
-    class _GetTensorboardExperiment(TensorboardServiceRestStub):
+    class _GetTensorboardExperiment(
+        _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetTensorboardExperiment")
+            return hash("TensorboardServiceRestTransport.GetTensorboardExperiment")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4549,40 +4595,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_tensorboard_experiment(
                 request, metadata
             )
-            pb_request = tensorboard_service.GetTensorboardExperimentRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                TensorboardServiceRestTransport._GetTensorboardExperiment._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4598,19 +4635,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_get_tensorboard_experiment(resp)
             return resp
 
-    class _GetTensorboardRun(TensorboardServiceRestStub):
+    class _GetTensorboardRun(
+        _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetTensorboardRun")
+            return hash("TensorboardServiceRestTransport.GetTensorboardRun")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4641,40 +4694,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_tensorboard_run(
                 request, metadata
             )
-            pb_request = tensorboard_service.GetTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._GetTensorboardRun._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4690,19 +4732,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_get_tensorboard_run(resp)
             return resp
 
-    class _GetTensorboardTimeSeries(TensorboardServiceRestStub):
+    class _GetTensorboardTimeSeries(
+        _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetTensorboardTimeSeries")
+            return hash("TensorboardServiceRestTransport.GetTensorboardTimeSeries")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4732,40 +4790,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_tensorboard_time_series(
                 request, metadata
             )
-            pb_request = tensorboard_service.GetTensorboardTimeSeriesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                TensorboardServiceRestTransport._GetTensorboardTimeSeries._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4781,19 +4830,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_get_tensorboard_time_series(resp)
             return resp
 
-    class _ListTensorboardExperiments(TensorboardServiceRestStub):
+    class _ListTensorboardExperiments(
+        _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListTensorboardExperiments")
+            return hash("TensorboardServiceRestTransport.ListTensorboardExperiments")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4823,42 +4888,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*}/experiments",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_tensorboard_experiments(
                 request, metadata
             )
-            pb_request = tensorboard_service.ListTensorboardExperimentsRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._ListTensorboardExperiments._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4874,19 +4926,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_list_tensorboard_experiments(resp)
             return resp
 
-    class _ListTensorboardRuns(TensorboardServiceRestStub):
+    class _ListTensorboardRuns(
+        _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListTensorboardRuns")
+            return hash("TensorboardServiceRestTransport.ListTensorboardRuns")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4915,40 +4983,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*/experiments/*}/runs",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_tensorboard_runs(
                 request, metadata
             )
-            pb_request = tensorboard_service.ListTensorboardRunsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                TensorboardServiceRestTransport._ListTensorboardRuns._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4964,19 +5023,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_list_tensorboard_runs(resp)
             return resp
 
-    class _ListTensorboards(TensorboardServiceRestStub):
+    class _ListTensorboards(
+        _BaseTensorboardServiceRestTransport._BaseListTensorboards,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListTensorboards")
+            return hash("TensorboardServiceRestTransport.ListTensorboards")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5005,40 +5080,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*}/tensorboards",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_tensorboards(
                 request, metadata
             )
-            pb_request = tensorboard_service.ListTensorboardsRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._ListTensorboards._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5054,19 +5118,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_list_tensorboards(resp)
             return resp
 
-    class _ListTensorboardTimeSeries(TensorboardServiceRestStub):
+    class _ListTensorboardTimeSeries(
+        _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListTensorboardTimeSeries")
+            return hash("TensorboardServiceRestTransport.ListTensorboardTimeSeries")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5096,42 +5176,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{parent=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/timeSeries",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_tensorboard_time_series(
                 request, metadata
             )
-            pb_request = tensorboard_service.ListTensorboardTimeSeriesRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._ListTensorboardTimeSeries._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5147,19 +5214,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_list_tensorboard_time_series(resp)
             return resp
 
-    class _ReadTensorboardBlobData(TensorboardServiceRestStub):
+    class _ReadTensorboardBlobData(
+        _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ReadTensorboardBlobData")
+            return hash("TensorboardServiceRestTransport.ReadTensorboardBlobData")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                stream=True,
+            )
+            return response
 
         def __call__(
             self,
@@ -5189,40 +5273,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{time_series=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}:readBlobData",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_http_options()
+            )
             request, metadata = self._interceptor.pre_read_tensorboard_blob_data(
                 request, metadata
             )
-            pb_request = tensorboard_service.ReadTensorboardBlobDataRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                TensorboardServiceRestTransport._ReadTensorboardBlobData._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5237,19 +5312,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_read_tensorboard_blob_data(resp)
             return resp
 
-    class _ReadTensorboardSize(TensorboardServiceRestStub):
+    class _ReadTensorboardSize(
+        _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ReadTensorboardSize")
+            return hash("TensorboardServiceRestTransport.ReadTensorboardSize")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5278,40 +5369,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{tensorboard=projects/*/locations/*/tensorboards/*}:readSize",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_http_options()
+            )
             request, metadata = self._interceptor.pre_read_tensorboard_size(
                 request, metadata
             )
-            pb_request = tensorboard_service.ReadTensorboardSizeRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                TensorboardServiceRestTransport._ReadTensorboardSize._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5327,19 +5409,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_read_tensorboard_size(resp)
             return resp
 
-    class _ReadTensorboardTimeSeriesData(TensorboardServiceRestStub):
+    class _ReadTensorboardTimeSeriesData(
+        _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ReadTensorboardTimeSeriesData")
+            return hash("TensorboardServiceRestTransport.ReadTensorboardTimeSeriesData")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5369,42 +5467,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{tensorboard_time_series=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}:read",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_http_options()
+            )
             request, metadata = self._interceptor.pre_read_tensorboard_time_series_data(
                 request, metadata
             )
-            pb_request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = TensorboardServiceRestTransport._ReadTensorboardTimeSeriesData._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5420,19 +5505,35 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_read_tensorboard_time_series_data(resp)
             return resp
 
-    class _ReadTensorboardUsage(TensorboardServiceRestStub):
+    class _ReadTensorboardUsage(
+        _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ReadTensorboardUsage")
+            return hash("TensorboardServiceRestTransport.ReadTensorboardUsage")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -5461,40 +5562,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1/{tensorboard=projects/*/locations/*/tensorboards/*}:readUsage",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_http_options()
+            )
             request, metadata = self._interceptor.pre_read_tensorboard_usage(
                 request, metadata
             )
-            pb_request = tensorboard_service.ReadTensorboardUsageRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                TensorboardServiceRestTransport._ReadTensorboardUsage._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5510,21 +5602,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_read_tensorboard_usage(resp)
             return resp
 
-    class _UpdateTensorboard(TensorboardServiceRestStub):
+    class _UpdateTensorboard(
+        _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateTensorboard")
+            return hash("TensorboardServiceRestTransport.UpdateTensorboard")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "updateMask": {},
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5554,47 +5661,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{tensorboard.name=projects/*/locations/*/tensorboards/*}",
-                    "body": "tensorboard",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_http_options()
+            )
             request, metadata = self._interceptor.pre_update_tensorboard(
                 request, metadata
             )
-            pb_request = tensorboard_service.UpdateTensorboardRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._UpdateTensorboard._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5608,21 +5702,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_update_tensorboard(resp)
             return resp
 
-    class _UpdateTensorboardExperiment(TensorboardServiceRestStub):
+    class _UpdateTensorboardExperiment(
+        _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateTensorboardExperiment")
+            return hash("TensorboardServiceRestTransport.UpdateTensorboardExperiment")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "updateMask": {},
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5654,49 +5763,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{tensorboard_experiment.name=projects/*/locations/*/tensorboards/*/experiments/*}",
-                    "body": "tensorboard_experiment",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_http_options()
+            )
             request, metadata = self._interceptor.pre_update_tensorboard_experiment(
                 request, metadata
             )
-            pb_request = tensorboard_service.UpdateTensorboardExperimentRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._UpdateTensorboardExperiment._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5712,21 +5806,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_update_tensorboard_experiment(resp)
             return resp
 
-    class _UpdateTensorboardRun(TensorboardServiceRestStub):
+    class _UpdateTensorboardRun(
+        _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateTensorboardRun")
+            return hash("TensorboardServiceRestTransport.UpdateTensorboardRun")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "updateMask": {},
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5757,47 +5866,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{tensorboard_run.name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}",
-                    "body": "tensorboard_run",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_http_options()
+            )
             request, metadata = self._interceptor.pre_update_tensorboard_run(
                 request, metadata
             )
-            pb_request = tensorboard_service.UpdateTensorboardRunRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                TensorboardServiceRestTransport._UpdateTensorboardRun._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5813,21 +5911,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_update_tensorboard_run(resp)
             return resp
 
-    class _UpdateTensorboardTimeSeries(TensorboardServiceRestStub):
+    class _UpdateTensorboardTimeSeries(
+        _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateTensorboardTimeSeries")
+            return hash("TensorboardServiceRestTransport.UpdateTensorboardTimeSeries")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "updateMask": {},
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5857,49 +5970,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1/{tensorboard_time_series.name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}",
-                    "body": "tensorboard_time_series",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_http_options()
+            )
             request, metadata = self._interceptor.pre_update_tensorboard_time_series(
                 request, metadata
             )
-            pb_request = tensorboard_service.UpdateTensorboardTimeSeriesRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._UpdateTensorboardTimeSeries._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5915,19 +6013,38 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_update_tensorboard_time_series(resp)
             return resp
 
-    class _WriteTensorboardExperimentData(TensorboardServiceRestStub):
+    class _WriteTensorboardExperimentData(
+        _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("WriteTensorboardExperimentData")
+            return hash(
+                "TensorboardServiceRestTransport.WriteTensorboardExperimentData"
+            )
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5957,49 +6074,34 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{tensorboard_experiment=projects/*/locations/*/tensorboards/*/experiments/*}:write",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_http_options()
+            )
             request, metadata = self._interceptor.pre_write_tensorboard_experiment_data(
                 request, metadata
             )
-            pb_request = tensorboard_service.WriteTensorboardExperimentDataRequest.pb(
-                request
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_transcoded_request(
+                http_options, request
             )
-            transcoded_request = path_template.transcode(http_options, pb_request)
 
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            body = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_request_body_json(
+                transcoded_request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = TensorboardServiceRestTransport._WriteTensorboardExperimentData._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6017,19 +6119,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             resp = self._interceptor.post_write_tensorboard_experiment_data(resp)
             return resp
 
-    class _WriteTensorboardRunData(TensorboardServiceRestStub):
+    class _WriteTensorboardRunData(
+        _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData,
+        TensorboardServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("WriteTensorboardRunData")
+            return hash("TensorboardServiceRestTransport.WriteTensorboardRunData")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -6059,47 +6178,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{tensorboard_run=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}:write",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_http_options()
+            )
             request, metadata = self._interceptor.pre_write_tensorboard_run_data(
                 request, metadata
             )
-            pb_request = tensorboard_service.WriteTensorboardRunDataRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                TensorboardServiceRestTransport._WriteTensorboardRunData._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6441,7 +6549,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def get_location(self):
         return self._GetLocation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetLocation(TensorboardServiceRestStub):
+    class _GetLocation(
+        _BaseTensorboardServiceRestTransport._BaseGetLocation,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.GetLocation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.GetLocationRequest,
@@ -6466,36 +6603,27 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 locations_pb2.Location: Response from GetLocation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseGetLocation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetLocation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseGetLocation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._GetLocation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6503,8 +6631,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.Location()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
             return resp
 
@@ -6512,7 +6641,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def list_locations(self):
         return self._ListLocations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListLocations(TensorboardServiceRestStub):
+    class _ListLocations(
+        _BaseTensorboardServiceRestTransport._BaseListLocations,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.ListLocations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.ListLocationsRequest,
@@ -6537,36 +6695,27 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*}/locations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*}/locations",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseListLocations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListLocations._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseListLocations._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._ListLocations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6574,8 +6723,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.ListLocationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
             return resp
 
@@ -6583,7 +6733,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def get_iam_policy(self):
         return self._GetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetIamPolicy(TensorboardServiceRestStub):
+    class _GetIamPolicy(
+        _BaseTensorboardServiceRestTransport._BaseGetIamPolicy,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.GetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.GetIamPolicyRequest,
@@ -6608,84 +6787,27 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 policy_pb2.Policy: Response from GetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/publishers/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._GetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6693,8 +6815,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
             return resp
 
@@ -6702,7 +6825,37 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def set_iam_policy(self):
         return self._SetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _SetIamPolicy(TensorboardServiceRestStub):
+    class _SetIamPolicy(
+        _BaseTensorboardServiceRestTransport._BaseSetIamPolicy,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.SetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.SetIamPolicyRequest,
@@ -6727,95 +6880,32 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 policy_pb2.Policy: Response from SetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
+                http_options, request
+            )
 
-            body = json.dumps(transcoded_request["body"])
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            body = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
-                data=body,
+            response = TensorboardServiceRestTransport._SetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6823,8 +6913,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
             return resp
 
@@ -6832,7 +6923,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def test_iam_permissions(self):
         return self._TestIamPermissions(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _TestIamPermissions(TensorboardServiceRestStub):
+    class _TestIamPermissions(
+        _BaseTensorboardServiceRestTransport._BaseTestIamPermissions,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.TestIamPermissions")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.TestIamPermissionsRequest,
@@ -6857,82 +6977,31 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_http_options()
+            )
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = (
+                TensorboardServiceRestTransport._TestIamPermissions._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6940,8 +7009,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = iam_policy_pb2.TestIamPermissionsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
             return resp
 
@@ -6949,7 +7019,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def cancel_operation(self):
         return self._CancelOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _CancelOperation(TensorboardServiceRestStub):
+    class _CancelOperation(
+        _BaseTensorboardServiceRestTransport._BaseCancelOperation,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.CancelOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.CancelOperationRequest,
@@ -6971,366 +7070,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._CancelOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7344,7 +7106,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def delete_operation(self):
         return self._DeleteOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _DeleteOperation(TensorboardServiceRestStub):
+    class _DeleteOperation(
+        _BaseTensorboardServiceRestTransport._BaseDeleteOperation,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.DeleteOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.DeleteOperationRequest,
@@ -7366,390 +7157,29 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._DeleteOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7763,7 +7193,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def get_operation(self):
         return self._GetOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetOperation(TensorboardServiceRestStub):
+    class _GetOperation(
+        _BaseTensorboardServiceRestTransport._BaseGetOperation,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.GetOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.GetOperationRequest,
@@ -7788,400 +7247,27 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 operations_pb2.Operation: Response from GetOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDeploymentJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseGetOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseGetOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._GetOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -8189,8 +7275,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
             return resp
 
@@ -8198,7 +7285,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def list_operations(self):
         return self._ListOperations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListOperations(TensorboardServiceRestStub):
+    class _ListOperations(
+        _BaseTensorboardServiceRestTransport._BaseListOperations,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.ListOperations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.ListOperationsRequest,
@@ -8223,396 +7339,27 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseListOperations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseListOperations._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseListOperations._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._ListOperations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -8620,8 +7367,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.ListOperationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
             return resp
 
@@ -8629,7 +7377,36 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
     def wait_operation(self):
         return self._WaitOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _WaitOperation(TensorboardServiceRestStub):
+    class _WaitOperation(
+        _BaseTensorboardServiceRestTransport._BaseWaitOperation,
+        TensorboardServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("TensorboardServiceRestTransport.WaitOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.WaitOperationRequest,
@@ -8654,392 +7431,27 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
                 operations_pb2.Operation: Response from WaitOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-            ]
-
+            http_options = (
+                _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = TensorboardServiceRestTransport._WaitOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -9047,8 +7459,9 @@ class TensorboardServiceRestTransport(TensorboardServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
             return resp
 

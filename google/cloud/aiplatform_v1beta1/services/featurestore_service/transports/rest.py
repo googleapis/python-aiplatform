@@ -16,14 +16,11 @@
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
 import json  # type: ignore
-import grpc  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming
-from google.api_core import path_template
 from google.api_core import gapic_v1
 
 from google.protobuf import json_format
@@ -31,16 +28,11 @@ from google.api_core import operations_v1
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.cloud.location import locations_pb2  # type: ignore
+
 from requests import __version__ as requests_version
 import dataclasses
-import re
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 from google.cloud.aiplatform_v1beta1.types import entity_type
@@ -51,10 +43,14 @@ from google.cloud.aiplatform_v1beta1.types import featurestore
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.longrunning import operations_pb2  # type: ignore
 
-from .base import (
-    FeaturestoreServiceTransport,
-    DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO,
-)
+
+from .rest_base import _BaseFeaturestoreServiceRestTransport
+from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
+
+try:
+    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
+except AttributeError:  # pragma: NO COVER
+    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -980,8 +976,8 @@ class FeaturestoreServiceRestStub:
     _interceptor: FeaturestoreServiceRestInterceptor
 
 
-class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
-    """REST backend transport for FeaturestoreService.
+class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
+    """REST backend synchronous transport for FeaturestoreService.
 
     The service that handles CRUD and List for resources for
     Featurestore.
@@ -991,7 +987,6 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     and call it.
 
     It sends JSON representations of protocol buffers over HTTP/1.1
-
     """
 
     def __init__(
@@ -1045,21 +1040,12 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
         # TODO(yon-mg): resolve other ctor params i.e. scopes, quota, etc.
         # TODO: When custom host (api_endpoint) is set, `scopes` must *also* be set on the
         # credentials object
-        maybe_url_match = re.match("^(?P<scheme>http(?:s)?://)?(?P<host>.*)$", host)
-        if maybe_url_match is None:
-            raise ValueError(
-                f"Unexpected hostname structure: {host}"
-            )  # pragma: NO COVER
-
-        url_match_items = maybe_url_match.groupdict()
-
-        host = f"{url_scheme}://{host}" if not url_match_items["scheme"] else host
-
         super().__init__(
             host=host,
             credentials=credentials,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            url_scheme=url_scheme,
             api_audience=api_audience,
         )
         self._session = AuthorizedSession(
@@ -3125,19 +3111,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
         # Return the client from cache.
         return self._operations_client
 
-    class _BatchCreateFeatures(FeaturestoreServiceRestStub):
+    class _BatchCreateFeatures(
+        _BaseFeaturestoreServiceRestTransport._BaseBatchCreateFeatures,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("BatchCreateFeatures")
+            return hash("FeaturestoreServiceRestTransport.BatchCreateFeatures")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3167,47 +3170,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*/featurestores/*/entityTypes/*}/features:batchCreate",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseBatchCreateFeatures._get_http_options()
+            )
             request, metadata = self._interceptor.pre_batch_create_features(
                 request, metadata
             )
-            pb_request = featurestore_service.BatchCreateFeaturesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseBatchCreateFeatures._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseBatchCreateFeatures._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseBatchCreateFeatures._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._BatchCreateFeatures._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3221,19 +3213,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_batch_create_features(resp)
             return resp
 
-    class _BatchReadFeatureValues(FeaturestoreServiceRestStub):
+    class _BatchReadFeatureValues(
+        _BaseFeaturestoreServiceRestTransport._BaseBatchReadFeatureValues,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("BatchReadFeatureValues")
+            return hash("FeaturestoreServiceRestTransport.BatchReadFeatureValues")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3263,47 +3272,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{featurestore=projects/*/locations/*/featurestores/*}:batchReadFeatureValues",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseBatchReadFeatureValues._get_http_options()
+            )
             request, metadata = self._interceptor.pre_batch_read_feature_values(
                 request, metadata
             )
-            pb_request = featurestore_service.BatchReadFeatureValuesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseBatchReadFeatureValues._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseBatchReadFeatureValues._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseBatchReadFeatureValues._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._BatchReadFeatureValues._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3317,21 +3315,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_batch_read_feature_values(resp)
             return resp
 
-    class _CreateEntityType(FeaturestoreServiceRestStub):
+    class _CreateEntityType(
+        _BaseFeaturestoreServiceRestTransport._BaseCreateEntityType,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateEntityType")
+            return hash("FeaturestoreServiceRestTransport.CreateEntityType")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "entityTypeId": "",
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3361,47 +3374,34 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*/featurestores/*}/entityTypes",
-                    "body": "entity_type",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseCreateEntityType._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_entity_type(
                 request, metadata
             )
-            pb_request = featurestore_service.CreateEntityTypeRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseCreateEntityType._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseCreateEntityType._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseCreateEntityType._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = FeaturestoreServiceRestTransport._CreateEntityType._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3415,21 +3415,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_create_entity_type(resp)
             return resp
 
-    class _CreateFeature(FeaturestoreServiceRestStub):
+    class _CreateFeature(
+        _BaseFeaturestoreServiceRestTransport._BaseCreateFeature,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateFeature")
+            return hash("FeaturestoreServiceRestTransport.CreateFeature")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "featureId": "",
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3461,45 +3476,32 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*/featurestores/*/entityTypes/*}/features",
-                    "body": "feature",
-                },
-            ]
-            request, metadata = self._interceptor.pre_create_feature(request, metadata)
-            pb_request = featurestore_service.CreateFeatureRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseCreateFeature._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_create_feature(request, metadata)
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseCreateFeature._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseCreateFeature._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseCreateFeature._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = FeaturestoreServiceRestTransport._CreateFeature._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3513,21 +3515,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_create_feature(resp)
             return resp
 
-    class _CreateFeaturestore(FeaturestoreServiceRestStub):
+    class _CreateFeaturestore(
+        _BaseFeaturestoreServiceRestTransport._BaseCreateFeaturestore,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("CreateFeaturestore")
+            return hash("FeaturestoreServiceRestTransport.CreateFeaturestore")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {
-            "featurestoreId": "",
-        }
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3557,47 +3574,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*}/featurestores",
-                    "body": "featurestore",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseCreateFeaturestore._get_http_options()
+            )
             request, metadata = self._interceptor.pre_create_featurestore(
                 request, metadata
             )
-            pb_request = featurestore_service.CreateFeaturestoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseCreateFeaturestore._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseCreateFeaturestore._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseCreateFeaturestore._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._CreateFeaturestore._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3611,19 +3617,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_create_featurestore(resp)
             return resp
 
-    class _DeleteEntityType(FeaturestoreServiceRestStub):
+    class _DeleteEntityType(
+        _BaseFeaturestoreServiceRestTransport._BaseDeleteEntityType,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteEntityType")
+            return hash("FeaturestoreServiceRestTransport.DeleteEntityType")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -3653,40 +3675,29 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*}",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseDeleteEntityType._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_entity_type(
                 request, metadata
             )
-            pb_request = featurestore_service.DeleteEntityTypeRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseDeleteEntityType._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteEntityType._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._DeleteEntityType._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3700,19 +3711,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_delete_entity_type(resp)
             return resp
 
-    class _DeleteFeature(FeaturestoreServiceRestStub):
+    class _DeleteFeature(
+        _BaseFeaturestoreServiceRestTransport._BaseDeleteFeature,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteFeature")
+            return hash("FeaturestoreServiceRestTransport.DeleteFeature")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -3744,38 +3771,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseDeleteFeature._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_feature(request, metadata)
-            pb_request = featurestore_service.DeleteFeatureRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeature._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeature._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._DeleteFeature._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3789,19 +3805,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_delete_feature(resp)
             return resp
 
-    class _DeleteFeaturestore(FeaturestoreServiceRestStub):
+    class _DeleteFeaturestore(
+        _BaseFeaturestoreServiceRestTransport._BaseDeleteFeaturestore,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteFeaturestore")
+            return hash("FeaturestoreServiceRestTransport.DeleteFeaturestore")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -3831,40 +3863,31 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseDeleteFeaturestore._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_featurestore(
                 request, metadata
             )
-            pb_request = featurestore_service.DeleteFeaturestoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeaturestore._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeaturestore._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                FeaturestoreServiceRestTransport._DeleteFeaturestore._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3878,19 +3901,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_delete_featurestore(resp)
             return resp
 
-    class _DeleteFeatureValues(FeaturestoreServiceRestStub):
+    class _DeleteFeatureValues(
+        _BaseFeaturestoreServiceRestTransport._BaseDeleteFeatureValues,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("DeleteFeatureValues")
+            return hash("FeaturestoreServiceRestTransport.DeleteFeatureValues")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -3920,47 +3960,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{entity_type=projects/*/locations/*/featurestores/*/entityTypes/*}:deleteFeatureValues",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseDeleteFeatureValues._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_feature_values(
                 request, metadata
             )
-            pb_request = featurestore_service.DeleteFeatureValuesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeatureValues._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeatureValues._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeatureValues._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._DeleteFeatureValues._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -3974,19 +4003,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_delete_feature_values(resp)
             return resp
 
-    class _ExportFeatureValues(FeaturestoreServiceRestStub):
+    class _ExportFeatureValues(
+        _BaseFeaturestoreServiceRestTransport._BaseExportFeatureValues,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ExportFeatureValues")
+            return hash("FeaturestoreServiceRestTransport.ExportFeatureValues")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4016,47 +4062,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{entity_type=projects/*/locations/*/featurestores/*/entityTypes/*}:exportFeatureValues",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseExportFeatureValues._get_http_options()
+            )
             request, metadata = self._interceptor.pre_export_feature_values(
                 request, metadata
             )
-            pb_request = featurestore_service.ExportFeatureValuesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseExportFeatureValues._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseExportFeatureValues._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseExportFeatureValues._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._ExportFeatureValues._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4070,19 +4105,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_export_feature_values(resp)
             return resp
 
-    class _GetEntityType(FeaturestoreServiceRestStub):
+    class _GetEntityType(
+        _BaseFeaturestoreServiceRestTransport._BaseGetEntityType,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetEntityType")
+            return hash("FeaturestoreServiceRestTransport.GetEntityType")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4115,38 +4166,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*}",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseGetEntityType._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_entity_type(request, metadata)
-            pb_request = featurestore_service.GetEntityTypeRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseGetEntityType._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseGetEntityType._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._GetEntityType._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4162,19 +4202,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_get_entity_type(resp)
             return resp
 
-    class _GetFeature(FeaturestoreServiceRestStub):
+    class _GetFeature(
+        _BaseFeaturestoreServiceRestTransport._BaseGetFeature,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetFeature")
+            return hash("FeaturestoreServiceRestTransport.GetFeature")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4206,38 +4262,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseGetFeature._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_feature(request, metadata)
-            pb_request = featurestore_service.GetFeatureRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseGetFeature._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseGetFeature._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._GetFeature._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4253,19 +4298,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_get_feature(resp)
             return resp
 
-    class _GetFeaturestore(FeaturestoreServiceRestStub):
+    class _GetFeaturestore(
+        _BaseFeaturestoreServiceRestTransport._BaseGetFeaturestore,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("GetFeaturestore")
+            return hash("FeaturestoreServiceRestTransport.GetFeaturestore")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4297,40 +4358,29 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseGetFeaturestore._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_featurestore(
                 request, metadata
             )
-            pb_request = featurestore_service.GetFeaturestoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseGetFeaturestore._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseGetFeaturestore._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._GetFeaturestore._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4346,19 +4396,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_get_featurestore(resp)
             return resp
 
-    class _ImportFeatureValues(FeaturestoreServiceRestStub):
+    class _ImportFeatureValues(
+        _BaseFeaturestoreServiceRestTransport._BaseImportFeatureValues,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ImportFeatureValues")
+            return hash("FeaturestoreServiceRestTransport.ImportFeatureValues")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4388,47 +4455,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{entity_type=projects/*/locations/*/featurestores/*/entityTypes/*}:importFeatureValues",
-                    "body": "*",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseImportFeatureValues._get_http_options()
+            )
             request, metadata = self._interceptor.pre_import_feature_values(
                 request, metadata
             )
-            pb_request = featurestore_service.ImportFeatureValuesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseImportFeatureValues._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseImportFeatureValues._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseImportFeatureValues._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._ImportFeatureValues._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4442,19 +4498,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_import_feature_values(resp)
             return resp
 
-    class _ListEntityTypes(FeaturestoreServiceRestStub):
+    class _ListEntityTypes(
+        _BaseFeaturestoreServiceRestTransport._BaseListEntityTypes,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListEntityTypes")
+            return hash("FeaturestoreServiceRestTransport.ListEntityTypes")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4483,40 +4555,29 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*/featurestores/*}/entityTypes",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseListEntityTypes._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_entity_types(
                 request, metadata
             )
-            pb_request = featurestore_service.ListEntityTypesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseListEntityTypes._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseListEntityTypes._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._ListEntityTypes._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4532,19 +4593,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_list_entity_types(resp)
             return resp
 
-    class _ListFeatures(FeaturestoreServiceRestStub):
+    class _ListFeatures(
+        _BaseFeaturestoreServiceRestTransport._BaseListFeatures,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListFeatures")
+            return hash("FeaturestoreServiceRestTransport.ListFeatures")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4577,38 +4654,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*/featurestores/*/entityTypes/*}/features",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseListFeatures._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_features(request, metadata)
-            pb_request = featurestore_service.ListFeaturesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseListFeatures._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseListFeatures._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._ListFeatures._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4624,19 +4690,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_list_features(resp)
             return resp
 
-    class _ListFeaturestores(FeaturestoreServiceRestStub):
+    class _ListFeaturestores(
+        _BaseFeaturestoreServiceRestTransport._BaseListFeaturestores,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("ListFeaturestores")
+            return hash("FeaturestoreServiceRestTransport.ListFeaturestores")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4665,40 +4747,31 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*}/featurestores",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseListFeaturestores._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_featurestores(
                 request, metadata
             )
-            pb_request = featurestore_service.ListFeaturestoresRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseListFeaturestores._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseListFeaturestores._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = (
+                FeaturestoreServiceRestTransport._ListFeaturestores._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4714,19 +4787,35 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_list_featurestores(resp)
             return resp
 
-    class _SearchFeatures(FeaturestoreServiceRestStub):
+    class _SearchFeatures(
+        _BaseFeaturestoreServiceRestTransport._BaseSearchFeatures,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("SearchFeatures")
+            return hash("FeaturestoreServiceRestTransport.SearchFeatures")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
 
         def __call__(
             self,
@@ -4755,38 +4844,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{location=projects/*/locations/*}/featurestores:searchFeatures",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseSearchFeatures._get_http_options()
+            )
             request, metadata = self._interceptor.pre_search_features(request, metadata)
-            pb_request = featurestore_service.SearchFeaturesRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseSearchFeatures._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseSearchFeatures._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            response = FeaturestoreServiceRestTransport._SearchFeatures._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4802,19 +4880,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_search_features(resp)
             return resp
 
-    class _UpdateEntityType(FeaturestoreServiceRestStub):
+    class _UpdateEntityType(
+        _BaseFeaturestoreServiceRestTransport._BaseUpdateEntityType,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateEntityType")
+            return hash("FeaturestoreServiceRestTransport.UpdateEntityType")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4847,47 +4942,34 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1beta1/{entity_type.name=projects/*/locations/*/featurestores/*/entityTypes/*}",
-                    "body": "entity_type",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseUpdateEntityType._get_http_options()
+            )
             request, metadata = self._interceptor.pre_update_entity_type(
                 request, metadata
             )
-            pb_request = featurestore_service.UpdateEntityTypeRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseUpdateEntityType._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseUpdateEntityType._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseUpdateEntityType._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = FeaturestoreServiceRestTransport._UpdateEntityType._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -4903,19 +4985,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_update_entity_type(resp)
             return resp
 
-    class _UpdateFeature(FeaturestoreServiceRestStub):
+    class _UpdateFeature(
+        _BaseFeaturestoreServiceRestTransport._BaseUpdateFeature,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateFeature")
+            return hash("FeaturestoreServiceRestTransport.UpdateFeature")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -4947,45 +5046,32 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1beta1/{feature.name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}",
-                    "body": "feature",
-                },
-            ]
-            request, metadata = self._interceptor.pre_update_feature(request, metadata)
-            pb_request = featurestore_service.UpdateFeatureRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseUpdateFeature._get_http_options()
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            request, metadata = self._interceptor.pre_update_feature(request, metadata)
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeature._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeature._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeature._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = FeaturestoreServiceRestTransport._UpdateFeature._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5001,19 +5087,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             resp = self._interceptor.post_update_feature(resp)
             return resp
 
-    class _UpdateFeaturestore(FeaturestoreServiceRestStub):
+    class _UpdateFeaturestore(
+        _BaseFeaturestoreServiceRestTransport._BaseUpdateFeaturestore,
+        FeaturestoreServiceRestStub,
+    ):
         def __hash__(self):
-            return hash("UpdateFeaturestore")
+            return hash("FeaturestoreServiceRestTransport.UpdateFeaturestore")
 
-        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
 
-        @classmethod
-        def _get_unset_required_fields(cls, message_dict):
-            return {
-                k: v
-                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
-                if k not in message_dict
-            }
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
 
         def __call__(
             self,
@@ -5043,47 +5146,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
 
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1beta1/{featurestore.name=projects/*/locations/*/featurestores/*}",
-                    "body": "featurestore",
-                },
-            ]
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseUpdateFeaturestore._get_http_options()
+            )
             request, metadata = self._interceptor.pre_update_featurestore(
                 request, metadata
             )
-            pb_request = featurestore_service.UpdateFeaturestoreRequest.pb(request)
-            transcoded_request = path_template.transcode(http_options, pb_request)
-
-            # Jsonify the request body
-
-            body = json_format.MessageToJson(
-                transcoded_request["body"], use_integers_for_enums=True
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeaturestore._get_transcoded_request(
+                http_options, request
             )
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+
+            body = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeaturestore._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(
-                json_format.MessageToJson(
-                    transcoded_request["query_params"],
-                    use_integers_for_enums=True,
-                )
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeaturestore._get_query_params_json(
+                transcoded_request
             )
-            query_params.update(self._get_unset_required_fields(query_params))
-
-            query_params["$alt"] = "json;enum-encoding=int"
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params, strict=True),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._UpdateFeaturestore._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5309,7 +5401,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def get_location(self):
         return self._GetLocation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetLocation(FeaturestoreServiceRestStub):
+    class _GetLocation(
+        _BaseFeaturestoreServiceRestTransport._BaseGetLocation,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.GetLocation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.GetLocationRequest,
@@ -5334,36 +5455,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 locations_pb2.Location: Response from GetLocation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseGetLocation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_location(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseGetLocation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseGetLocation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = FeaturestoreServiceRestTransport._GetLocation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5371,8 +5483,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.Location()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
             return resp
 
@@ -5380,7 +5493,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def list_locations(self):
         return self._ListLocations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListLocations(FeaturestoreServiceRestStub):
+    class _ListLocations(
+        _BaseFeaturestoreServiceRestTransport._BaseListLocations,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.ListLocations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: locations_pb2.ListLocationsRequest,
@@ -5405,36 +5547,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*}/locations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*}/locations",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseListLocations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseListLocations._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseListLocations._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = FeaturestoreServiceRestTransport._ListLocations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5442,8 +5575,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = locations_pb2.ListLocationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
             return resp
 
@@ -5451,7 +5585,37 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def get_iam_policy(self):
         return self._GetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetIamPolicy(FeaturestoreServiceRestStub):
+    class _GetIamPolicy(
+        _BaseFeaturestoreServiceRestTransport._BaseGetIamPolicy,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.GetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.GetIamPolicyRequest,
@@ -5476,95 +5640,32 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 policy_pb2.Policy: Response from GetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/endpoints/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/publishers/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/publishers/*/models/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:getIamPolicy",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseGetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
+                http_options, request
+            )
 
-            body = json.dumps(transcoded_request["body"])
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            body = _BaseFeaturestoreServiceRestTransport._BaseGetIamPolicy._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
-                data=body,
+            response = FeaturestoreServiceRestTransport._GetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5572,8 +5673,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
             return resp
 
@@ -5581,7 +5683,37 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def set_iam_policy(self):
         return self._SetIamPolicy(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _SetIamPolicy(FeaturestoreServiceRestStub):
+    class _SetIamPolicy(
+        _BaseFeaturestoreServiceRestTransport._BaseSetIamPolicy,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.SetIamPolicy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.SetIamPolicyRequest,
@@ -5606,100 +5738,32 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 policy_pb2.Policy: Response from SetIamPolicy method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/endpoints/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:setIamPolicy",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
-                    "body": "*",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseSetIamPolicy._get_http_options()
+            )
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
+                http_options, request
+            )
 
-            body = json.dumps(transcoded_request["body"])
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            body = _BaseFeaturestoreServiceRestTransport._BaseSetIamPolicy._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
-                data=body,
+            response = FeaturestoreServiceRestTransport._SetIamPolicy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5707,8 +5771,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = policy_pb2.Policy()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
             return resp
 
@@ -5716,7 +5781,37 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def test_iam_permissions(self):
         return self._TestIamPermissions(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _TestIamPermissions(FeaturestoreServiceRestStub):
+    class _TestIamPermissions(
+        _BaseFeaturestoreServiceRestTransport._BaseTestIamPermissions,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.TestIamPermissions")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
         def __call__(
             self,
             request: iam_policy_pb2.TestIamPermissionsRequest,
@@ -5741,89 +5836,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                    "body": "*",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/endpoints/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featurestores/*/entityTypes/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/models/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/endpoints/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/notebookRuntimeTemplates/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*}:testIamPermissions",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseTestIamPermissions._get_http_options()
+            )
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseTestIamPermissions._get_transcoded_request(
+                http_options, request
+            )
 
-            body = json.dumps(transcoded_request["body"])
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            body = _BaseFeaturestoreServiceRestTransport._BaseTestIamPermissions._get_request_body_json(
+                transcoded_request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
-                data=body,
+            response = (
+                FeaturestoreServiceRestTransport._TestIamPermissions._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -5831,8 +5873,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = iam_policy_pb2.TestIamPermissionsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
             return resp
 
@@ -5840,7 +5883,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def cancel_operation(self):
         return self._CancelOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _CancelOperation(FeaturestoreServiceRestStub):
+    class _CancelOperation(
+        _BaseFeaturestoreServiceRestTransport._BaseCancelOperation,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.CancelOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.CancelOperationRequest,
@@ -5862,402 +5934,29 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseCancelOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseCancelOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseCancelOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = FeaturestoreServiceRestTransport._CancelOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6271,7 +5970,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def delete_operation(self):
         return self._DeleteOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _DeleteOperation(FeaturestoreServiceRestStub):
+    class _DeleteOperation(
+        _BaseFeaturestoreServiceRestTransport._BaseDeleteOperation,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.DeleteOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.DeleteOperationRequest,
@@ -6293,438 +6021,29 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                     sent along with the request as metadata.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseDeleteOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseDeleteOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = FeaturestoreServiceRestTransport._DeleteOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -6738,7 +6057,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def get_operation(self):
         return self._GetOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _GetOperation(FeaturestoreServiceRestStub):
+    class _GetOperation(
+        _BaseFeaturestoreServiceRestTransport._BaseGetOperation,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.GetOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.GetOperationRequest,
@@ -6763,444 +6111,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 operations_pb2.Operation: Response from GetOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDeploymentJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseGetOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseGetOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseGetOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = FeaturestoreServiceRestTransport._GetOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7208,8 +6139,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
             return resp
 
@@ -7217,7 +6149,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def list_operations(self):
         return self._ListOperations(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _ListOperations(FeaturestoreServiceRestStub):
+    class _ListOperations(
+        _BaseFeaturestoreServiceRestTransport._BaseListOperations,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.ListOperations")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.ListOperationsRequest,
@@ -7242,440 +6203,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseListOperations._get_http_options()
+            )
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseListOperations._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseListOperations._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = FeaturestoreServiceRestTransport._ListOperations._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -7683,8 +6231,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.ListOperationsResponse()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
             return resp
 
@@ -7692,7 +6241,36 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
     def wait_operation(self):
         return self._WaitOperation(self._session, self._host, self._interceptor)  # type: ignore
 
-    class _WaitOperation(FeaturestoreServiceRestStub):
+    class _WaitOperation(
+        _BaseFeaturestoreServiceRestTransport._BaseWaitOperation,
+        FeaturestoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeaturestoreServiceRestTransport.WaitOperation")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
         def __call__(
             self,
             request: operations_pb2.WaitOperationRequest,
@@ -7717,436 +6295,27 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 operations_pb2.Operation: Response from WaitOperation method.
             """
 
-            http_options: List[Dict[str, str]] = [
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-            ]
-
+            http_options = (
+                _BaseFeaturestoreServiceRestTransport._BaseWaitOperation._get_http_options()
+            )
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
-            request_kwargs = json_format.MessageToDict(request)
-            transcoded_request = path_template.transcode(http_options, **request_kwargs)
-
-            uri = transcoded_request["uri"]
-            method = transcoded_request["method"]
+            transcoded_request = _BaseFeaturestoreServiceRestTransport._BaseWaitOperation._get_transcoded_request(
+                http_options, request
+            )
 
             # Jsonify the query params
-            query_params = json.loads(json.dumps(transcoded_request["query_params"]))
+            query_params = _BaseFeaturestoreServiceRestTransport._BaseWaitOperation._get_query_params_json(
+                transcoded_request
+            )
 
             # Send the request
-            headers = dict(metadata)
-            headers["Content-Type"] = "application/json"
-
-            response = getattr(self._session, method)(
-                "{host}{uri}".format(host=self._host, uri=uri),
-                timeout=timeout,
-                headers=headers,
-                params=rest_helpers.flatten_query_params(query_params),
+            response = FeaturestoreServiceRestTransport._WaitOperation._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
             )
 
             # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
@@ -8154,8 +6323,9 @@ class FeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
             if response.status_code >= 400:
                 raise core_exceptions.from_http_response(response)
 
+            content = response.content.decode("utf-8")
             resp = operations_pb2.Operation()
-            resp = json_format.Parse(response.content.decode("utf-8"), resp)
+            resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
             return resp
 

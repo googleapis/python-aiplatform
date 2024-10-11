@@ -24,7 +24,7 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
-from collections.abc import Iterable
+from collections.abc import Iterable, AsyncIterable
 from google.protobuf import json_format
 import json
 import math
@@ -36,6 +36,13 @@ from requests import Response
 from requests import Request, PreparedRequest
 from requests.sessions import Session
 from google.protobuf import json_format
+
+try:
+    from google.auth.aio import credentials as ga_credentials_async
+
+    HAS_GOOGLE_AUTH_AIO = True
+except ImportError:  # pragma: NO COVER
+    HAS_GOOGLE_AUTH_AIO = False
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -70,8 +77,22 @@ from google.protobuf import wrappers_pb2  # type: ignore
 import google.auth
 
 
+async def mock_async_gen(data, chunk_size=1):
+    for i in range(0, len(data)):  # pragma: NO COVER
+        chunk = data[i : i + chunk_size]
+        yield chunk.encode("utf-8")
+
+
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
+
+
+# TODO: use async auth anon credentials by default once the minimum version of google-auth is upgraded.
+# See related issue: https://github.com/googleapis/gapic-generator-python/issues/2107.
+def async_anonymous_credentials():
+    if HAS_GOOGLE_AUTH_AIO:
+        return ga_credentials_async.AnonymousCredentials()
+    return ga_credentials.AnonymousCredentials()
 
 
 # If default endpoint is localhost, then default mtls endpoint will be the same.
@@ -1173,25 +1194,6 @@ def test_create_study(request_type, transport: str = "grpc"):
     assert response.inactive_reason == "inactive_reason_value"
 
 
-def test_create_study_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_study), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateStudyRequest()
-
-
 def test_create_study_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -1256,32 +1258,6 @@ def test_create_study_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_study_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_study), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_study.Study(
-                name="name_value",
-                display_name="display_name_value",
-                state=gca_study.Study.State.ACTIVE,
-                inactive_reason="inactive_reason_value",
-            )
-        )
-        response = await client.create_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateStudyRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_study_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1289,7 +1265,7 @@ async def test_create_study_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1328,7 +1304,7 @@ async def test_create_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.CreateStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1400,7 +1376,7 @@ def test_create_study_field_headers():
 @pytest.mark.asyncio
 async def test_create_study_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1473,7 +1449,7 @@ def test_create_study_flattened_error():
 @pytest.mark.asyncio
 async def test_create_study_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1504,7 +1480,7 @@ async def test_create_study_flattened_async():
 @pytest.mark.asyncio
 async def test_create_study_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1557,25 +1533,6 @@ def test_get_study(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == study.Study.State.ACTIVE
     assert response.inactive_reason == "inactive_reason_value"
-
-
-def test_get_study_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_study), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetStudyRequest()
 
 
 def test_get_study_non_empty_request_with_auto_populated_field():
@@ -1642,38 +1599,12 @@ def test_get_study_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_study_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_study), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            study.Study(
-                name="name_value",
-                display_name="display_name_value",
-                state=study.Study.State.ACTIVE,
-                inactive_reason="inactive_reason_value",
-            )
-        )
-        response = await client.get_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetStudyRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_study_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1712,7 +1643,7 @@ async def test_get_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.GetStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1784,7 +1715,7 @@ def test_get_study_field_headers():
 @pytest.mark.asyncio
 async def test_get_study_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1852,7 +1783,7 @@ def test_get_study_flattened_error():
 @pytest.mark.asyncio
 async def test_get_study_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1879,7 +1810,7 @@ async def test_get_study_flattened_async():
 @pytest.mark.asyncio
 async def test_get_study_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1925,25 +1856,6 @@ def test_list_studies(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListStudiesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_studies_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_studies()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListStudiesRequest()
 
 
 def test_list_studies_non_empty_request_with_auto_populated_field():
@@ -2012,29 +1924,6 @@ def test_list_studies_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_studies_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            vizier_service.ListStudiesResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_studies()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListStudiesRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_studies_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2042,7 +1931,7 @@ async def test_list_studies_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2081,7 +1970,7 @@ async def test_list_studies_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.ListStudiesRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2147,7 +2036,7 @@ def test_list_studies_field_headers():
 @pytest.mark.asyncio
 async def test_list_studies_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2217,7 +2106,7 @@ def test_list_studies_flattened_error():
 @pytest.mark.asyncio
 async def test_list_studies_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2246,7 +2135,7 @@ async def test_list_studies_flattened_async():
 @pytest.mark.asyncio
 async def test_list_studies_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2356,7 +2245,7 @@ def test_list_studies_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_studies_async_pager():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2406,7 +2295,7 @@ async def test_list_studies_async_pager():
 @pytest.mark.asyncio
 async def test_list_studies_async_pages():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2485,25 +2374,6 @@ def test_delete_study(request_type, transport: str = "grpc"):
     assert response is None
 
 
-def test_delete_study_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteStudyRequest()
-
-
 def test_delete_study_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -2568,25 +2438,6 @@ def test_delete_study_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_study_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        response = await client.delete_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteStudyRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_study_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2594,7 +2445,7 @@ async def test_delete_study_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2633,7 +2484,7 @@ async def test_delete_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.DeleteStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2694,7 +2545,7 @@ def test_delete_study_field_headers():
 @pytest.mark.asyncio
 async def test_delete_study_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2762,7 +2613,7 @@ def test_delete_study_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_study_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2789,7 +2640,7 @@ async def test_delete_study_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_study_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2841,25 +2692,6 @@ def test_lookup_study(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.state == study.Study.State.ACTIVE
     assert response.inactive_reason == "inactive_reason_value"
-
-
-def test_lookup_study_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.lookup_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.LookupStudyRequest()
 
 
 def test_lookup_study_non_empty_request_with_auto_populated_field():
@@ -2928,32 +2760,6 @@ def test_lookup_study_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_lookup_study_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            study.Study(
-                name="name_value",
-                display_name="display_name_value",
-                state=study.Study.State.ACTIVE,
-                inactive_reason="inactive_reason_value",
-            )
-        )
-        response = await client.lookup_study()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.LookupStudyRequest()
-
-
-@pytest.mark.asyncio
 async def test_lookup_study_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2961,7 +2767,7 @@ async def test_lookup_study_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3000,7 +2806,7 @@ async def test_lookup_study_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.LookupStudyRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3072,7 +2878,7 @@ def test_lookup_study_field_headers():
 @pytest.mark.asyncio
 async def test_lookup_study_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3140,7 +2946,7 @@ def test_lookup_study_flattened_error():
 @pytest.mark.asyncio
 async def test_lookup_study_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3167,7 +2973,7 @@ async def test_lookup_study_flattened_async():
 @pytest.mark.asyncio
 async def test_lookup_study_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3210,25 +3016,6 @@ def test_suggest_trials(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_suggest_trials_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.suggest_trials()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.SuggestTrialsRequest()
 
 
 def test_suggest_trials_non_empty_request_with_auto_populated_field():
@@ -3302,27 +3089,6 @@ def test_suggest_trials_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_suggest_trials_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.suggest_trials()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.SuggestTrialsRequest()
-
-
-@pytest.mark.asyncio
 async def test_suggest_trials_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3330,7 +3096,7 @@ async def test_suggest_trials_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3374,7 +3140,7 @@ async def test_suggest_trials_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.SuggestTrialsRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3437,7 +3203,7 @@ def test_suggest_trials_field_headers():
 @pytest.mark.asyncio
 async def test_suggest_trials_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3512,25 +3278,6 @@ def test_create_trial(request_type, transport: str = "grpc"):
     assert response.custom_job == "custom_job_value"
 
 
-def test_create_trial_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateTrialRequest()
-
-
 def test_create_trial_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -3595,34 +3342,6 @@ def test_create_trial_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_trial_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            study.Trial(
-                name="name_value",
-                id="id_value",
-                state=study.Trial.State.REQUESTED,
-                client_id="client_id_value",
-                infeasible_reason="infeasible_reason_value",
-                custom_job="custom_job_value",
-            )
-        )
-        response = await client.create_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CreateTrialRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_trial_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3630,7 +3349,7 @@ async def test_create_trial_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3669,7 +3388,7 @@ async def test_create_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.CreateTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3745,7 +3464,7 @@ def test_create_trial_field_headers():
 @pytest.mark.asyncio
 async def test_create_trial_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3818,7 +3537,7 @@ def test_create_trial_flattened_error():
 @pytest.mark.asyncio
 async def test_create_trial_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3849,7 +3568,7 @@ async def test_create_trial_flattened_async():
 @pytest.mark.asyncio
 async def test_create_trial_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3906,25 +3625,6 @@ def test_get_trial(request_type, transport: str = "grpc"):
     assert response.client_id == "client_id_value"
     assert response.infeasible_reason == "infeasible_reason_value"
     assert response.custom_job == "custom_job_value"
-
-
-def test_get_trial_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetTrialRequest()
 
 
 def test_get_trial_non_empty_request_with_auto_populated_field():
@@ -3991,40 +3691,12 @@ def test_get_trial_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_trial_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            study.Trial(
-                name="name_value",
-                id="id_value",
-                state=study.Trial.State.REQUESTED,
-                client_id="client_id_value",
-                infeasible_reason="infeasible_reason_value",
-                custom_job="custom_job_value",
-            )
-        )
-        response = await client.get_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.GetTrialRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_trial_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4063,7 +3735,7 @@ async def test_get_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.GetTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4139,7 +3811,7 @@ def test_get_trial_field_headers():
 @pytest.mark.asyncio
 async def test_get_trial_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4207,7 +3879,7 @@ def test_get_trial_flattened_error():
 @pytest.mark.asyncio
 async def test_get_trial_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4234,7 +3906,7 @@ async def test_get_trial_flattened_async():
 @pytest.mark.asyncio
 async def test_get_trial_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4280,25 +3952,6 @@ def test_list_trials(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrialsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_trials_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_trials()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListTrialsRequest()
 
 
 def test_list_trials_non_empty_request_with_auto_populated_field():
@@ -4367,29 +4020,6 @@ def test_list_trials_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_trials_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            vizier_service.ListTrialsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_trials()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListTrialsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_trials_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4397,7 +4027,7 @@ async def test_list_trials_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4436,7 +4066,7 @@ async def test_list_trials_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.ListTrialsRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4502,7 +4132,7 @@ def test_list_trials_field_headers():
 @pytest.mark.asyncio
 async def test_list_trials_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4572,7 +4202,7 @@ def test_list_trials_flattened_error():
 @pytest.mark.asyncio
 async def test_list_trials_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4601,7 +4231,7 @@ async def test_list_trials_flattened_async():
 @pytest.mark.asyncio
 async def test_list_trials_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4711,7 +4341,7 @@ def test_list_trials_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_trials_async_pager():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4761,7 +4391,7 @@ async def test_list_trials_async_pager():
 @pytest.mark.asyncio
 async def test_list_trials_async_pages():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4855,27 +4485,6 @@ def test_add_trial_measurement(request_type, transport: str = "grpc"):
     assert response.custom_job == "custom_job_value"
 
 
-def test_add_trial_measurement_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_trial_measurement), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.add_trial_measurement()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.AddTrialMeasurementRequest()
-
-
 def test_add_trial_measurement_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -4947,36 +4556,6 @@ def test_add_trial_measurement_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_add_trial_measurement_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.add_trial_measurement), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            study.Trial(
-                name="name_value",
-                id="id_value",
-                state=study.Trial.State.REQUESTED,
-                client_id="client_id_value",
-                infeasible_reason="infeasible_reason_value",
-                custom_job="custom_job_value",
-            )
-        )
-        response = await client.add_trial_measurement()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.AddTrialMeasurementRequest()
-
-
-@pytest.mark.asyncio
 async def test_add_trial_measurement_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4984,7 +4563,7 @@ async def test_add_trial_measurement_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5024,7 +4603,7 @@ async def test_add_trial_measurement_async(
     request_type=vizier_service.AddTrialMeasurementRequest,
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5104,7 +4683,7 @@ def test_add_trial_measurement_field_headers():
 @pytest.mark.asyncio
 async def test_add_trial_measurement_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5179,25 +4758,6 @@ def test_complete_trial(request_type, transport: str = "grpc"):
     assert response.custom_job == "custom_job_value"
 
 
-def test_complete_trial_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.complete_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CompleteTrialRequest()
-
-
 def test_complete_trial_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -5264,34 +4824,6 @@ def test_complete_trial_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_complete_trial_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            study.Trial(
-                name="name_value",
-                id="id_value",
-                state=study.Trial.State.REQUESTED,
-                client_id="client_id_value",
-                infeasible_reason="infeasible_reason_value",
-                custom_job="custom_job_value",
-            )
-        )
-        response = await client.complete_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CompleteTrialRequest()
-
-
-@pytest.mark.asyncio
 async def test_complete_trial_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5299,7 +4831,7 @@ async def test_complete_trial_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5338,7 +4870,7 @@ async def test_complete_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.CompleteTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5414,7 +4946,7 @@ def test_complete_trial_field_headers():
 @pytest.mark.asyncio
 async def test_complete_trial_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5472,25 +5004,6 @@ def test_delete_trial(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_delete_trial_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteTrialRequest()
 
 
 def test_delete_trial_non_empty_request_with_auto_populated_field():
@@ -5557,25 +5070,6 @@ def test_delete_trial_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_trial_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-        response = await client.delete_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.DeleteTrialRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_trial_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5583,7 +5077,7 @@ async def test_delete_trial_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5622,7 +5116,7 @@ async def test_delete_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.DeleteTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5683,7 +5177,7 @@ def test_delete_trial_field_headers():
 @pytest.mark.asyncio
 async def test_delete_trial_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5751,7 +5245,7 @@ def test_delete_trial_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_trial_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5778,7 +5272,7 @@ async def test_delete_trial_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_trial_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5823,27 +5317,6 @@ def test_check_trial_early_stopping_state(request_type, transport: str = "grpc")
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_check_trial_early_stopping_state_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.check_trial_early_stopping_state), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.check_trial_early_stopping_state()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
 
 
 def test_check_trial_early_stopping_state_non_empty_request_with_auto_populated_field():
@@ -5922,29 +5395,6 @@ def test_check_trial_early_stopping_state_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_check_trial_early_stopping_state_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.check_trial_early_stopping_state), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.check_trial_early_stopping_state()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
-
-
-@pytest.mark.asyncio
 async def test_check_trial_early_stopping_state_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5952,7 +5402,7 @@ async def test_check_trial_early_stopping_state_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5997,7 +5447,7 @@ async def test_check_trial_early_stopping_state_async(
     request_type=vizier_service.CheckTrialEarlyStoppingStateRequest,
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6064,7 +5514,7 @@ def test_check_trial_early_stopping_state_field_headers():
 @pytest.mark.asyncio
 async def test_check_trial_early_stopping_state_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6141,25 +5591,6 @@ def test_stop_trial(request_type, transport: str = "grpc"):
     assert response.custom_job == "custom_job_value"
 
 
-def test_stop_trial_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.stop_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.StopTrialRequest()
-
-
 def test_stop_trial_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -6224,40 +5655,12 @@ def test_stop_trial_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_stop_trial_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            study.Trial(
-                name="name_value",
-                id="id_value",
-                state=study.Trial.State.REQUESTED,
-                client_id="client_id_value",
-                infeasible_reason="infeasible_reason_value",
-                custom_job="custom_job_value",
-            )
-        )
-        response = await client.stop_trial()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.StopTrialRequest()
-
-
-@pytest.mark.asyncio
 async def test_stop_trial_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6296,7 +5699,7 @@ async def test_stop_trial_async(
     transport: str = "grpc_asyncio", request_type=vizier_service.StopTrialRequest
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6372,7 +5775,7 @@ def test_stop_trial_field_headers():
 @pytest.mark.asyncio
 async def test_stop_trial_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6432,27 +5835,6 @@ def test_list_optimal_trials(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, vizier_service.ListOptimalTrialsResponse)
-
-
-def test_list_optimal_trials_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_optimal_trials), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_optimal_trials()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListOptimalTrialsRequest()
 
 
 def test_list_optimal_trials_non_empty_request_with_auto_populated_field():
@@ -6525,29 +5907,6 @@ def test_list_optimal_trials_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_optimal_trials_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_optimal_trials), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            vizier_service.ListOptimalTrialsResponse()
-        )
-        response = await client.list_optimal_trials()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == vizier_service.ListOptimalTrialsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_optimal_trials_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6555,7 +5914,7 @@ async def test_list_optimal_trials_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = VizierServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6595,7 +5954,7 @@ async def test_list_optimal_trials_async(
     request_type=vizier_service.ListOptimalTrialsRequest,
 ):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6662,7 +6021,7 @@ def test_list_optimal_trials_field_headers():
 @pytest.mark.asyncio
 async def test_list_optimal_trials_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6736,7 +6095,7 @@ def test_list_optimal_trials_flattened_error():
 @pytest.mark.asyncio
 async def test_list_optimal_trials_flattened_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6767,7 +6126,7 @@ async def test_list_optimal_trials_flattened_async():
 @pytest.mark.asyncio
 async def test_list_optimal_trials_flattened_error_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6779,6 +6138,3492 @@ async def test_list_optimal_trials_flattened_error_async():
         )
 
 
+def test_create_study_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.create_study in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.create_study] = mock_rpc
+
+        request = {}
+        client.create_study(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_study(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_create_study_rest_required_fields(
+    request_type=vizier_service.CreateStudyRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_study.Study()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_study.Study.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_study(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_study_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_study._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "study",
+            )
+        )
+    )
+
+
+def test_create_study_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_study.Study()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            study=gca_study.Study(name="name_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_study.Study.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_study(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{parent=projects/*/locations/*}/studies" % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_study_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_study(
+            vizier_service.CreateStudyRequest(),
+            parent="parent_value",
+            study=gca_study.Study(name="name_value"),
+        )
+
+
+def test_get_study_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.get_study in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.get_study] = mock_rpc
+
+        request = {}
+        client.get_study(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_study(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_get_study_rest_required_fields(request_type=vizier_service.GetStudyRequest):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = study.Study()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = study.Study.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_study(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_study_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_study._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_get_study_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = study.Study()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"name": "projects/sample1/locations/sample2/studies/sample3"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = study.Study.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_study(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{name=projects/*/locations/*/studies/*}" % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_study_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_study(
+            vizier_service.GetStudyRequest(),
+            name="name_value",
+        )
+
+
+def test_list_studies_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.list_studies in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.list_studies] = mock_rpc
+
+        request = {}
+        client.list_studies(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_studies(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_studies_rest_required_fields(
+    request_type=vizier_service.ListStudiesRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_studies._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_studies._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = vizier_service.ListStudiesResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = vizier_service.ListStudiesResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_studies(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_studies_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_studies._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+def test_list_studies_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vizier_service.ListStudiesResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = vizier_service.ListStudiesResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_studies(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{parent=projects/*/locations/*}/studies" % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_studies_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_studies(
+            vizier_service.ListStudiesRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_studies_rest_pager(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            vizier_service.ListStudiesResponse(
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                    study.Study(),
+                ],
+                next_page_token="abc",
+            ),
+            vizier_service.ListStudiesResponse(
+                studies=[],
+                next_page_token="def",
+            ),
+            vizier_service.ListStudiesResponse(
+                studies=[
+                    study.Study(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListStudiesResponse(
+                studies=[
+                    study.Study(),
+                    study.Study(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            vizier_service.ListStudiesResponse.to_json(x) for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        pager = client.list_studies(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, study.Study) for i in results)
+
+        pages = list(client.list_studies(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_delete_study_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.delete_study in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.delete_study] = mock_rpc
+
+        request = {}
+        client.delete_study(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.delete_study(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_delete_study_rest_required_fields(
+    request_type=vizier_service.DeleteStudyRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_study(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_study_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_study._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_delete_study_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"name": "projects/sample1/locations/sample2/studies/sample3"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_study(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{name=projects/*/locations/*/studies/*}" % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_study_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_study(
+            vizier_service.DeleteStudyRequest(),
+            name="name_value",
+        )
+
+
+def test_lookup_study_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.lookup_study in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.lookup_study] = mock_rpc
+
+        request = {}
+        client.lookup_study(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.lookup_study(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_lookup_study_rest_required_fields(
+    request_type=vizier_service.LookupStudyRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request_init["display_name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).lookup_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+    jsonified_request["displayName"] = "display_name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).lookup_study._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+    assert "displayName" in jsonified_request
+    assert jsonified_request["displayName"] == "display_name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = study.Study()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = study.Study.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.lookup_study(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_lookup_study_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.lookup_study._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "displayName",
+            )
+        )
+    )
+
+
+def test_lookup_study_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = study.Study()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = study.Study.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.lookup_study(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{parent=projects/*/locations/*}/studies:lookup"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_lookup_study_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.lookup_study(
+            vizier_service.LookupStudyRequest(),
+            parent="parent_value",
+        )
+
+
+def test_suggest_trials_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.suggest_trials in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.suggest_trials] = mock_rpc
+
+        request = {}
+        client.suggest_trials(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.suggest_trials(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_suggest_trials_rest_required_fields(
+    request_type=vizier_service.SuggestTrialsRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request_init["suggestion_count"] = 0
+    request_init["client_id"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).suggest_trials._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+    jsonified_request["suggestionCount"] = 1744
+    jsonified_request["clientId"] = "client_id_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).suggest_trials._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+    assert "suggestionCount" in jsonified_request
+    assert jsonified_request["suggestionCount"] == 1744
+    assert "clientId" in jsonified_request
+    assert jsonified_request["clientId"] == "client_id_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.suggest_trials(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_suggest_trials_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.suggest_trials._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "suggestionCount",
+                "clientId",
+            )
+        )
+    )
+
+
+def test_create_trial_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.create_trial in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.create_trial] = mock_rpc
+
+        request = {}
+        client.create_trial(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_trial(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_create_trial_rest_required_fields(
+    request_type=vizier_service.CreateTrialRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = study.Trial()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = study.Trial.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_trial(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_trial_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_trial._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "trial",
+            )
+        )
+    )
+
+
+def test_create_trial_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = study.Trial()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/studies/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            trial=study.Trial(name="name_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = study.Trial.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_trial(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{parent=projects/*/locations/*/studies/*}/trials"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_trial_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_trial(
+            vizier_service.CreateTrialRequest(),
+            parent="parent_value",
+            trial=study.Trial(name="name_value"),
+        )
+
+
+def test_get_trial_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.get_trial in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.get_trial] = mock_rpc
+
+        request = {}
+        client.get_trial(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_trial(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_get_trial_rest_required_fields(request_type=vizier_service.GetTrialRequest):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = study.Trial()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = study.Trial.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_trial(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_trial_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_trial._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_get_trial_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = study.Trial()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = study.Trial.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_trial(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{name=projects/*/locations/*/studies/*/trials/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_trial_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_trial(
+            vizier_service.GetTrialRequest(),
+            name="name_value",
+        )
+
+
+def test_list_trials_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.list_trials in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.list_trials] = mock_rpc
+
+        request = {}
+        client.list_trials(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_trials(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_trials_rest_required_fields(
+    request_type=vizier_service.ListTrialsRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_trials._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_trials._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = vizier_service.ListTrialsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = vizier_service.ListTrialsResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_trials(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_trials_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_trials._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+def test_list_trials_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vizier_service.ListTrialsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/studies/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = vizier_service.ListTrialsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_trials(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{parent=projects/*/locations/*/studies/*}/trials"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_trials_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_trials(
+            vizier_service.ListTrialsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_trials_rest_pager(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                    study.Trial(),
+                ],
+                next_page_token="abc",
+            ),
+            vizier_service.ListTrialsResponse(
+                trials=[],
+                next_page_token="def",
+            ),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                ],
+                next_page_token="ghi",
+            ),
+            vizier_service.ListTrialsResponse(
+                trials=[
+                    study.Trial(),
+                    study.Trial(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(vizier_service.ListTrialsResponse.to_json(x) for x in response)
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/studies/sample3"
+        }
+
+        pager = client.list_trials(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, study.Trial) for i in results)
+
+        pages = list(client.list_trials(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_add_trial_measurement_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.add_trial_measurement
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.add_trial_measurement
+        ] = mock_rpc
+
+        request = {}
+        client.add_trial_measurement(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.add_trial_measurement(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_add_trial_measurement_rest_required_fields(
+    request_type=vizier_service.AddTrialMeasurementRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["trial_name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).add_trial_measurement._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["trialName"] = "trial_name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).add_trial_measurement._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "trialName" in jsonified_request
+    assert jsonified_request["trialName"] == "trial_name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = study.Trial()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = study.Trial.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.add_trial_measurement(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_add_trial_measurement_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.add_trial_measurement._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "trialName",
+                "measurement",
+            )
+        )
+    )
+
+
+def test_complete_trial_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.complete_trial in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.complete_trial] = mock_rpc
+
+        request = {}
+        client.complete_trial(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.complete_trial(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_complete_trial_rest_required_fields(
+    request_type=vizier_service.CompleteTrialRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).complete_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).complete_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = study.Trial()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = study.Trial.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.complete_trial(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_complete_trial_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.complete_trial._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_delete_trial_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.delete_trial in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.delete_trial] = mock_rpc
+
+        request = {}
+        client.delete_trial(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.delete_trial(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_delete_trial_rest_required_fields(
+    request_type=vizier_service.DeleteTrialRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = None
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = ""
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_trial(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_trial_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_trial._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_delete_trial_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = ""
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_trial(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{name=projects/*/locations/*/studies/*/trials/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_trial_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_trial(
+            vizier_service.DeleteTrialRequest(),
+            name="name_value",
+        )
+
+
+def test_check_trial_early_stopping_state_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.check_trial_early_stopping_state
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.check_trial_early_stopping_state
+        ] = mock_rpc
+
+        request = {}
+        client.check_trial_early_stopping_state(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.check_trial_early_stopping_state(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_check_trial_early_stopping_state_rest_required_fields(
+    request_type=vizier_service.CheckTrialEarlyStoppingStateRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["trial_name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).check_trial_early_stopping_state._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["trialName"] = "trial_name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).check_trial_early_stopping_state._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "trialName" in jsonified_request
+    assert jsonified_request["trialName"] == "trial_name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.check_trial_early_stopping_state(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_check_trial_early_stopping_state_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = (
+        transport.check_trial_early_stopping_state._get_unset_required_fields({})
+    )
+    assert set(unset_fields) == (set(()) & set(("trialName",)))
+
+
+def test_stop_trial_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.stop_trial in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.stop_trial] = mock_rpc
+
+        request = {}
+        client.stop_trial(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.stop_trial(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_stop_trial_rest_required_fields(request_type=vizier_service.StopTrialRequest):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).stop_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).stop_trial._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = study.Trial()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = study.Trial.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.stop_trial(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_stop_trial_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.stop_trial._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_list_optimal_trials_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_optimal_trials in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_optimal_trials
+        ] = mock_rpc
+
+        request = {}
+        client.list_optimal_trials(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_optimal_trials(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_optimal_trials_rest_required_fields(
+    request_type=vizier_service.ListOptimalTrialsRequest,
+):
+    transport_class = transports.VizierServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_optimal_trials._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_optimal_trials._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = vizier_service.ListOptimalTrialsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = vizier_service.ListOptimalTrialsResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_optimal_trials(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_optimal_trials_rest_unset_required_fields():
+    transport = transports.VizierServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_optimal_trials._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("parent",)))
+
+
+def test_list_optimal_trials_rest_flattened():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vizier_service.ListOptimalTrialsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/studies/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = vizier_service.ListOptimalTrialsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_optimal_trials(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1/{parent=projects/*/locations/*/studies/*}/trials:listOptimalTrials"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_optimal_trials_rest_flattened_error(transport: str = "rest"):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_optimal_trials(
+            vizier_service.ListOptimalTrialsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_credentials_transport_error():
+    # It is an error to provide credentials and a transport instance.
+    transport = transports.VizierServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    with pytest.raises(ValueError):
+        client = VizierServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
+        )
+
+    # It is an error to provide a credentials file and a transport instance.
+    transport = transports.VizierServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    with pytest.raises(ValueError):
+        client = VizierServiceClient(
+            client_options={"credentials_file": "credentials.json"},
+            transport=transport,
+        )
+
+    # It is an error to provide an api_key and a transport instance.
+    transport = transports.VizierServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = VizierServiceClient(
+            client_options=options,
+            transport=transport,
+        )
+
+    # It is an error to provide an api_key and a credential.
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = VizierServiceClient(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+
+    # It is an error to provide scopes and a transport instance.
+    transport = transports.VizierServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    with pytest.raises(ValueError):
+        client = VizierServiceClient(
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
+        )
+
+
+def test_transport_instance():
+    # A client may be instantiated with a custom transport instance.
+    transport = transports.VizierServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    client = VizierServiceClient(transport=transport)
+    assert client.transport is transport
+
+
+def test_transport_get_channel():
+    # A client may be instantiated with a custom transport instance.
+    transport = transports.VizierServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    channel = transport.grpc_channel
+    assert channel
+
+    transport = transports.VizierServiceGrpcAsyncIOTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    channel = transport.grpc_channel
+    assert channel
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.VizierServiceGrpcTransport,
+        transports.VizierServiceGrpcAsyncIOTransport,
+        transports.VizierServiceRestTransport,
+    ],
+)
+def test_transport_adc(transport_class):
+    # Test default credentials are used if not provided.
+    with mock.patch.object(google.auth, "default") as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
+        transport_class()
+        adc.assert_called_once()
+
+
+def test_transport_kind_grpc():
+    transport = VizierServiceClient.get_transport_class("grpc")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "grpc"
+
+
+def test_initialize_client_w_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_study_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_study), "__call__") as call:
+        call.return_value = gca_study.Study()
+        client.create_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CreateStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_study_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_study), "__call__") as call:
+        call.return_value = study.Study()
+        client.get_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.GetStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_studies_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
+        call.return_value = vizier_service.ListStudiesResponse()
+        client.list_studies(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListStudiesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_study_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
+        call.return_value = None
+        client.delete_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.DeleteStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_lookup_study_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
+        call.return_value = study.Study()
+        client.lookup_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.LookupStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_suggest_trials_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.suggest_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.SuggestTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_trial_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
+        call.return_value = study.Trial()
+        client.create_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CreateTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_trial_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
+        call.return_value = study.Trial()
+        client.get_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.GetTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_trials_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
+        call.return_value = vizier_service.ListTrialsResponse()
+        client.list_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_trial_measurement_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_trial_measurement), "__call__"
+    ) as call:
+        call.return_value = study.Trial()
+        client.add_trial_measurement(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.AddTrialMeasurementRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_complete_trial_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
+        call.return_value = study.Trial()
+        client.complete_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CompleteTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_trial_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
+        call.return_value = None
+        client.delete_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.DeleteTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_check_trial_early_stopping_state_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.check_trial_early_stopping_state), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.check_trial_early_stopping_state(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CheckTrialEarlyStoppingStateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_stop_trial_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
+        call.return_value = study.Trial()
+        client.stop_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.StopTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_optimal_trials_empty_call_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_optimal_trials), "__call__"
+    ) as call:
+        call.return_value = vizier_service.ListOptimalTrialsResponse()
+        client.list_optimal_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListOptimalTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_grpc_asyncio():
+    transport = VizierServiceAsyncClient.get_transport_class("grpc_asyncio")(
+        credentials=async_anonymous_credentials()
+    )
+    assert transport.kind == "grpc_asyncio"
+
+
+def test_initialize_client_w_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_study_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_study.Study(
+                name="name_value",
+                display_name="display_name_value",
+                state=gca_study.Study.State.ACTIVE,
+                inactive_reason="inactive_reason_value",
+            )
+        )
+        await client.create_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CreateStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_study_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Study(
+                name="name_value",
+                display_name="display_name_value",
+                state=study.Study.State.ACTIVE,
+                inactive_reason="inactive_reason_value",
+            )
+        )
+        await client.get_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.GetStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_studies_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vizier_service.ListStudiesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_studies(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListStudiesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_study_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        await client.delete_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.DeleteStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_lookup_study_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Study(
+                name="name_value",
+                display_name="display_name_value",
+                state=study.Study.State.ACTIVE,
+                inactive_reason="inactive_reason_value",
+            )
+        )
+        await client.lookup_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.LookupStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_suggest_trials_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.suggest_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.SuggestTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_trial_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        await client.create_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CreateTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_trial_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        await client.get_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.GetTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_trials_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vizier_service.ListTrialsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_add_trial_measurement_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_trial_measurement), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        await client.add_trial_measurement(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.AddTrialMeasurementRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_complete_trial_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        await client.complete_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CompleteTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_trial_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        await client.delete_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.DeleteTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_check_trial_early_stopping_state_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.check_trial_early_stopping_state), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.check_trial_early_stopping_state(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CheckTrialEarlyStoppingStateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_stop_trial_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            study.Trial(
+                name="name_value",
+                id="id_value",
+                state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
+                custom_job="custom_job_value",
+            )
+        )
+        await client.stop_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.StopTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_optimal_trials_empty_call_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_optimal_trials), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vizier_service.ListOptimalTrialsResponse()
+        )
+        await client.list_optimal_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListOptimalTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_rest():
+    transport = VizierServiceClient.get_transport_class("rest")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "rest"
+
+
+def test_create_study_rest_bad_request(request_type=vizier_service.CreateStudyRequest):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_study(request)
+
+
 @pytest.mark.parametrize(
     "request_type",
     [
@@ -6786,10 +9631,9 @@ async def test_list_optimal_trials_flattened_error_async():
         dict,
     ],
 )
-def test_create_study_rest(request_type):
+def test_create_study_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -6952,13 +9796,13 @@ def test_create_study_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = gca_study.Study.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.create_study(request)
 
@@ -6970,134 +9814,6 @@ def test_create_study_rest(request_type):
     assert response.inactive_reason == "inactive_reason_value"
 
 
-def test_create_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.create_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.create_study] = mock_rpc
-
-        request = {}
-        client.create_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_create_study_rest_required_fields(
-    request_type=vizier_service.CreateStudyRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = gca_study.Study()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = gca_study.Study.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.create_study(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_create_study_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.create_study._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "parent",
-                "study",
-            )
-        )
-    )
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_create_study_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -7107,6 +9823,7 @@ def test_create_study_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -7128,10 +9845,10 @@ def test_create_study_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = gca_study.Study.to_json(gca_study.Study())
+        return_value = gca_study.Study.to_json(gca_study.Study())
+        req.return_value.content = return_value
 
         request = vizier_service.CreateStudyRequest()
         metadata = [
@@ -7153,16 +9870,12 @@ def test_create_study_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_create_study_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.CreateStudyRequest
-):
+def test_get_study_rest_bad_request(request_type=vizier_service.GetStudyRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {"name": "projects/sample1/locations/sample2/studies/sample3"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -7170,75 +9883,13 @@ def test_create_study_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.create_study(request)
-
-
-def test_create_study_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = gca_study.Study()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-            study=gca_study.Study(name="name_value"),
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = gca_study.Study.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.create_study(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{parent=projects/*/locations/*}/studies" % client.transport._host,
-            args[1],
-        )
-
-
-def test_create_study_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.create_study(
-            vizier_service.CreateStudyRequest(),
-            parent="parent_value",
-            study=gca_study.Study(name="name_value"),
-        )
-
-
-def test_create_study_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.get_study(request)
 
 
 @pytest.mark.parametrize(
@@ -7248,10 +9899,9 @@ def test_create_study_rest_error():
         dict,
     ],
 )
-def test_get_study_rest(request_type):
+def test_get_study_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -7269,13 +9919,13 @@ def test_get_study_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = study.Study.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.get_study(request)
 
@@ -7287,123 +9937,6 @@ def test_get_study_rest(request_type):
     assert response.inactive_reason == "inactive_reason_value"
 
 
-def test_get_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.get_study] = mock_rpc
-
-        request = {}
-        client.get_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_get_study_rest_required_fields(request_type=vizier_service.GetStudyRequest):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = study.Study()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = study.Study.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.get_study(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_get_study_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.get_study._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_get_study_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -7413,6 +9946,7 @@ def test_get_study_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -7432,10 +9966,10 @@ def test_get_study_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = study.Study.to_json(study.Study())
+        return_value = study.Study.to_json(study.Study())
+        req.return_value.content = return_value
 
         request = vizier_service.GetStudyRequest()
         metadata = [
@@ -7457,16 +9991,12 @@ def test_get_study_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_get_study_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.GetStudyRequest
-):
+def test_list_studies_rest_bad_request(request_type=vizier_service.ListStudiesRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/studies/sample3"}
+    request_init = {"parent": "projects/sample1/locations/sample2"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -7474,73 +10004,13 @@ def test_get_study_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.get_study(request)
-
-
-def test_get_study_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = study.Study()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {"name": "projects/sample1/locations/sample2/studies/sample3"}
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = study.Study.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.get_study(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{name=projects/*/locations/*/studies/*}" % client.transport._host,
-            args[1],
-        )
-
-
-def test_get_study_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.get_study(
-            vizier_service.GetStudyRequest(),
-            name="name_value",
-        )
-
-
-def test_get_study_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.list_studies(request)
 
 
 @pytest.mark.parametrize(
@@ -7550,10 +10020,9 @@ def test_get_study_rest_error():
         dict,
     ],
 )
-def test_list_studies_rest(request_type):
+def test_list_studies_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -7568,153 +10037,19 @@ def test_list_studies_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = vizier_service.ListStudiesResponse.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.list_studies(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListStudiesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_studies_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.list_studies in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.list_studies] = mock_rpc
-
-        request = {}
-        client.list_studies(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_studies(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_list_studies_rest_required_fields(
-    request_type=vizier_service.ListStudiesRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_studies._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_studies._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(
-        (
-            "page_size",
-            "page_token",
-        )
-    )
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = vizier_service.ListStudiesResponse()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = vizier_service.ListStudiesResponse.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.list_studies(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_list_studies_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.list_studies._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(
-            (
-                "pageSize",
-                "pageToken",
-            )
-        )
-        & set(("parent",))
-    )
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -7726,6 +10061,7 @@ def test_list_studies_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -7747,12 +10083,12 @@ def test_list_studies_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = vizier_service.ListStudiesResponse.to_json(
+        return_value = vizier_service.ListStudiesResponse.to_json(
             vizier_service.ListStudiesResponse()
         )
+        req.return_value.content = return_value
 
         request = vizier_service.ListStudiesRequest()
         metadata = [
@@ -7774,16 +10110,12 @@ def test_list_studies_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_list_studies_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.ListStudiesRequest
-):
+def test_delete_study_rest_bad_request(request_type=vizier_service.DeleteStudyRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {"name": "projects/sample1/locations/sample2/studies/sample3"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -7791,130 +10123,13 @@ def test_list_studies_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.list_studies(request)
-
-
-def test_list_studies_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = vizier_service.ListStudiesResponse()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = vizier_service.ListStudiesResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.list_studies(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{parent=projects/*/locations/*}/studies" % client.transport._host,
-            args[1],
-        )
-
-
-def test_list_studies_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.list_studies(
-            vizier_service.ListStudiesRequest(),
-            parent="parent_value",
-        )
-
-
-def test_list_studies_rest_pager(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # TODO(kbandes): remove this mock unless there's a good reason for it.
-        # with mock.patch.object(path_template, 'transcode') as transcode:
-        # Set the response as a series of pages
-        response = (
-            vizier_service.ListStudiesResponse(
-                studies=[
-                    study.Study(),
-                    study.Study(),
-                    study.Study(),
-                ],
-                next_page_token="abc",
-            ),
-            vizier_service.ListStudiesResponse(
-                studies=[],
-                next_page_token="def",
-            ),
-            vizier_service.ListStudiesResponse(
-                studies=[
-                    study.Study(),
-                ],
-                next_page_token="ghi",
-            ),
-            vizier_service.ListStudiesResponse(
-                studies=[
-                    study.Study(),
-                    study.Study(),
-                ],
-            ),
-        )
-        # Two responses for two calls
-        response = response + response
-
-        # Wrap the values into proper Response objs
-        response = tuple(
-            vizier_service.ListStudiesResponse.to_json(x) for x in response
-        )
-        return_values = tuple(Response() for i in response)
-        for return_val, response_val in zip(return_values, response):
-            return_val._content = response_val.encode("UTF-8")
-            return_val.status_code = 200
-        req.side_effect = return_values
-
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
-
-        pager = client.list_studies(request=sample_request)
-
-        results = list(pager)
-        assert len(results) == 6
-        assert all(isinstance(i, study.Study) for i in results)
-
-        pages = list(client.list_studies(request=sample_request).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
+        client.delete_study(request)
 
 
 @pytest.mark.parametrize(
@@ -7924,10 +10139,9 @@ def test_list_studies_rest_pager(transport: str = "rest"):
         dict,
     ],
 )
-def test_delete_study_rest(request_type):
+def test_delete_study_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -7940,132 +10154,15 @@ def test_delete_study_rest(request_type):
         return_value = None
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = ""
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.delete_study(request)
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_delete_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.delete_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.delete_study] = mock_rpc
-
-        request = {}
-        client.delete_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.delete_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_delete_study_rest_required_fields(
-    request_type=vizier_service.DeleteStudyRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = None
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "delete",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = ""
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.delete_study(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_delete_study_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.delete_study._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -8077,6 +10174,7 @@ def test_delete_study_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -8095,9 +10193,8 @@ def test_delete_study_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
 
         request = vizier_service.DeleteStudyRequest()
         metadata = [
@@ -8117,16 +10214,12 @@ def test_delete_study_rest_interceptors(null_interceptor):
         pre.assert_called_once()
 
 
-def test_delete_study_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.DeleteStudyRequest
-):
+def test_lookup_study_rest_bad_request(request_type=vizier_service.LookupStudyRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/studies/sample3"}
+    request_init = {"parent": "projects/sample1/locations/sample2"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -8134,71 +10227,13 @@ def test_delete_study_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_study(request)
-
-
-def test_delete_study_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {"name": "projects/sample1/locations/sample2/studies/sample3"}
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
+        response_value = mock.Mock()
         json_return_value = ""
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
         req.return_value = response_value
-
-        client.delete_study(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{name=projects/*/locations/*/studies/*}" % client.transport._host,
-            args[1],
-        )
-
-
-def test_delete_study_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.delete_study(
-            vizier_service.DeleteStudyRequest(),
-            name="name_value",
-        )
-
-
-def test_delete_study_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.lookup_study(request)
 
 
 @pytest.mark.parametrize(
@@ -8208,10 +10243,9 @@ def test_delete_study_rest_error():
         dict,
     ],
 )
-def test_lookup_study_rest(request_type):
+def test_lookup_study_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -8229,13 +10263,13 @@ def test_lookup_study_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = study.Study.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.lookup_study(request)
 
@@ -8247,138 +10281,6 @@ def test_lookup_study_rest(request_type):
     assert response.inactive_reason == "inactive_reason_value"
 
 
-def test_lookup_study_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.lookup_study in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.lookup_study] = mock_rpc
-
-        request = {}
-        client.lookup_study(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.lookup_study(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_lookup_study_rest_required_fields(
-    request_type=vizier_service.LookupStudyRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request_init["display_name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).lookup_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-    jsonified_request["displayName"] = "display_name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).lookup_study._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-    assert "displayName" in jsonified_request
-    assert jsonified_request["displayName"] == "display_name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = study.Study()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = study.Study.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.lookup_study(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_lookup_study_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.lookup_study._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "parent",
-                "displayName",
-            )
-        )
-    )
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_lookup_study_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -8388,6 +10290,7 @@ def test_lookup_study_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -8409,10 +10312,10 @@ def test_lookup_study_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = study.Study.to_json(study.Study())
+        return_value = study.Study.to_json(study.Study())
+        req.return_value.content = return_value
 
         request = vizier_service.LookupStudyRequest()
         metadata = [
@@ -8434,16 +10337,14 @@ def test_lookup_study_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_lookup_study_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.LookupStudyRequest
+def test_suggest_trials_rest_bad_request(
+    request_type=vizier_service.SuggestTrialsRequest,
 ):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {"parent": "projects/sample1/locations/sample2/studies/sample3"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -8451,74 +10352,13 @@ def test_lookup_study_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.lookup_study(request)
-
-
-def test_lookup_study_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = study.Study()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = study.Study.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.lookup_study(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{parent=projects/*/locations/*}/studies:lookup"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_lookup_study_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.lookup_study(
-            vizier_service.LookupStudyRequest(),
-            parent="parent_value",
-        )
-
-
-def test_lookup_study_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.suggest_trials(request)
 
 
 @pytest.mark.parametrize(
@@ -8528,10 +10368,9 @@ def test_lookup_study_rest_error():
         dict,
     ],
 )
-def test_suggest_trials_rest(request_type):
+def test_suggest_trials_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -8544,154 +10383,15 @@ def test_suggest_trials_rest(request_type):
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.suggest_trials(request)
 
     # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
-def test_suggest_trials_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.suggest_trials in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.suggest_trials] = mock_rpc
-
-        request = {}
-        client.suggest_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.suggest_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_suggest_trials_rest_required_fields(
-    request_type=vizier_service.SuggestTrialsRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request_init["suggestion_count"] = 0
-    request_init["client_id"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).suggest_trials._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-    jsonified_request["suggestionCount"] = 1744
-    jsonified_request["clientId"] = "client_id_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).suggest_trials._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-    assert "suggestionCount" in jsonified_request
-    assert jsonified_request["suggestionCount"] == 1744
-    assert "clientId" in jsonified_request
-    assert jsonified_request["clientId"] == "client_id_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.suggest_trials(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_suggest_trials_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.suggest_trials._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "parent",
-                "suggestionCount",
-                "clientId",
-            )
-        )
-    )
+    json_return_value = json_format.MessageToJson(return_value)
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -8703,6 +10403,7 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -8726,12 +10427,10 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
 
         request = vizier_service.SuggestTrialsRequest()
         metadata = [
@@ -8753,14 +10452,10 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_suggest_trials_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.SuggestTrialsRequest
-):
+def test_create_trial_rest_bad_request(request_type=vizier_service.CreateTrialRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {"parent": "projects/sample1/locations/sample2/studies/sample3"}
     request = request_type(**request_init)
@@ -8770,17 +10465,13 @@ def test_suggest_trials_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.suggest_trials(request)
-
-
-def test_suggest_trials_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.create_trial(request)
 
 
 @pytest.mark.parametrize(
@@ -8790,10 +10481,9 @@ def test_suggest_trials_rest_error():
         dict,
     ],
 )
-def test_create_trial_rest(request_type):
+def test_create_trial_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -8910,13 +10600,13 @@ def test_create_trial_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = study.Trial.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.create_trial(request)
 
@@ -8930,134 +10620,6 @@ def test_create_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_create_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.create_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.create_trial] = mock_rpc
-
-        request = {}
-        client.create_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.create_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_create_trial_rest_required_fields(
-    request_type=vizier_service.CreateTrialRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = study.Trial()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = study.Trial.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.create_trial(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_create_trial_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.create_trial._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "parent",
-                "trial",
-            )
-        )
-    )
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_create_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -9067,6 +10629,7 @@ def test_create_trial_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -9088,10 +10651,10 @@ def test_create_trial_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = study.Trial.to_json(study.Trial())
+        return_value = study.Trial.to_json(study.Trial())
+        req.return_value.content = return_value
 
         request = vizier_service.CreateTrialRequest()
         metadata = [
@@ -9113,16 +10676,14 @@ def test_create_trial_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_create_trial_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.CreateTrialRequest
-):
+def test_get_trial_rest_bad_request(request_type=vizier_service.GetTrialRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2/studies/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -9130,78 +10691,13 @@ def test_create_trial_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.create_trial(request)
-
-
-def test_create_trial_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = study.Trial()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "parent": "projects/sample1/locations/sample2/studies/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-            trial=study.Trial(name="name_value"),
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = study.Trial.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.create_trial(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{parent=projects/*/locations/*/studies/*}/trials"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_create_trial_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.create_trial(
-            vizier_service.CreateTrialRequest(),
-            parent="parent_value",
-            trial=study.Trial(name="name_value"),
-        )
-
-
-def test_create_trial_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.get_trial(request)
 
 
 @pytest.mark.parametrize(
@@ -9211,10 +10707,9 @@ def test_create_trial_rest_error():
         dict,
     ],
 )
-def test_get_trial_rest(request_type):
+def test_get_trial_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -9236,13 +10731,13 @@ def test_get_trial_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = study.Trial.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.get_trial(request)
 
@@ -9256,123 +10751,6 @@ def test_get_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_get_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.get_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.get_trial] = mock_rpc
-
-        request = {}
-        client.get_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.get_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_get_trial_rest_required_fields(request_type=vizier_service.GetTrialRequest):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = study.Trial()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = study.Trial.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.get_trial(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_get_trial_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.get_trial._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_get_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -9382,6 +10760,7 @@ def test_get_trial_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -9401,10 +10780,10 @@ def test_get_trial_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = study.Trial.to_json(study.Trial())
+        return_value = study.Trial.to_json(study.Trial())
+        req.return_value.content = return_value
 
         request = vizier_service.GetTrialRequest()
         metadata = [
@@ -9426,18 +10805,12 @@ def test_get_trial_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_get_trial_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.GetTrialRequest
-):
+def test_list_trials_rest_bad_request(request_type=vizier_service.ListTrialsRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
-    }
+    request_init = {"parent": "projects/sample1/locations/sample2/studies/sample3"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -9445,76 +10818,13 @@ def test_get_trial_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.get_trial(request)
-
-
-def test_get_trial_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = study.Trial()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = study.Trial.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.get_trial(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{name=projects/*/locations/*/studies/*/trials/*}"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_get_trial_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.get_trial(
-            vizier_service.GetTrialRequest(),
-            name="name_value",
-        )
-
-
-def test_get_trial_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.list_trials(request)
 
 
 @pytest.mark.parametrize(
@@ -9524,10 +10834,9 @@ def test_get_trial_rest_error():
         dict,
     ],
 )
-def test_list_trials_rest(request_type):
+def test_list_trials_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -9542,153 +10851,19 @@ def test_list_trials_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = vizier_service.ListTrialsResponse.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.list_trials(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrialsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_trials_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.list_trials in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.list_trials] = mock_rpc
-
-        request = {}
-        client.list_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_list_trials_rest_required_fields(
-    request_type=vizier_service.ListTrialsRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_trials._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_trials._get_unset_required_fields(jsonified_request)
-    # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(
-        (
-            "page_size",
-            "page_token",
-        )
-    )
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = vizier_service.ListTrialsResponse()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = vizier_service.ListTrialsResponse.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.list_trials(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_list_trials_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.list_trials._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(
-            (
-                "pageSize",
-                "pageToken",
-            )
-        )
-        & set(("parent",))
-    )
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -9700,6 +10875,7 @@ def test_list_trials_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -9721,12 +10897,12 @@ def test_list_trials_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = vizier_service.ListTrialsResponse.to_json(
+        return_value = vizier_service.ListTrialsResponse.to_json(
             vizier_service.ListTrialsResponse()
         )
+        req.return_value.content = return_value
 
         request = vizier_service.ListTrialsRequest()
         metadata = [
@@ -9748,16 +10924,16 @@ def test_list_trials_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_list_trials_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.ListTrialsRequest
+def test_add_trial_measurement_rest_bad_request(
+    request_type=vizier_service.AddTrialMeasurementRequest,
 ):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2/studies/sample3"}
+    request_init = {
+        "trial_name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -9765,133 +10941,13 @@ def test_list_trials_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.list_trials(request)
-
-
-def test_list_trials_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = vizier_service.ListTrialsResponse()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "parent": "projects/sample1/locations/sample2/studies/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = vizier_service.ListTrialsResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        client.list_trials(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{parent=projects/*/locations/*/studies/*}/trials"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_list_trials_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.list_trials(
-            vizier_service.ListTrialsRequest(),
-            parent="parent_value",
-        )
-
-
-def test_list_trials_rest_pager(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # TODO(kbandes): remove this mock unless there's a good reason for it.
-        # with mock.patch.object(path_template, 'transcode') as transcode:
-        # Set the response as a series of pages
-        response = (
-            vizier_service.ListTrialsResponse(
-                trials=[
-                    study.Trial(),
-                    study.Trial(),
-                    study.Trial(),
-                ],
-                next_page_token="abc",
-            ),
-            vizier_service.ListTrialsResponse(
-                trials=[],
-                next_page_token="def",
-            ),
-            vizier_service.ListTrialsResponse(
-                trials=[
-                    study.Trial(),
-                ],
-                next_page_token="ghi",
-            ),
-            vizier_service.ListTrialsResponse(
-                trials=[
-                    study.Trial(),
-                    study.Trial(),
-                ],
-            ),
-        )
-        # Two responses for two calls
-        response = response + response
-
-        # Wrap the values into proper Response objs
-        response = tuple(vizier_service.ListTrialsResponse.to_json(x) for x in response)
-        return_values = tuple(Response() for i in response)
-        for return_val, response_val in zip(return_values, response):
-            return_val._content = response_val.encode("UTF-8")
-            return_val.status_code = 200
-        req.side_effect = return_values
-
-        sample_request = {
-            "parent": "projects/sample1/locations/sample2/studies/sample3"
-        }
-
-        pager = client.list_trials(request=sample_request)
-
-        results = list(pager)
-        assert len(results) == 6
-        assert all(isinstance(i, study.Trial) for i in results)
-
-        pages = list(client.list_trials(request=sample_request).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
-            assert page_.raw_page.next_page_token == token
+        client.add_trial_measurement(request)
 
 
 @pytest.mark.parametrize(
@@ -9901,10 +10957,9 @@ def test_list_trials_rest_pager(transport: str = "rest"):
         dict,
     ],
 )
-def test_add_trial_measurement_rest(request_type):
+def test_add_trial_measurement_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -9926,13 +10981,13 @@ def test_add_trial_measurement_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = study.Trial.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.add_trial_measurement(request)
 
@@ -9946,139 +11001,6 @@ def test_add_trial_measurement_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_add_trial_measurement_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.add_trial_measurement
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.add_trial_measurement
-        ] = mock_rpc
-
-        request = {}
-        client.add_trial_measurement(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.add_trial_measurement(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_add_trial_measurement_rest_required_fields(
-    request_type=vizier_service.AddTrialMeasurementRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["trial_name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).add_trial_measurement._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["trialName"] = "trial_name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).add_trial_measurement._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "trialName" in jsonified_request
-    assert jsonified_request["trialName"] == "trial_name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = study.Trial()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = study.Trial.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.add_trial_measurement(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_add_trial_measurement_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.add_trial_measurement._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "trialName",
-                "measurement",
-            )
-        )
-    )
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_add_trial_measurement_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -10088,6 +11010,7 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -10109,10 +11032,10 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = study.Trial.to_json(study.Trial())
+        return_value = study.Trial.to_json(study.Trial())
+        req.return_value.content = return_value
 
         request = vizier_service.AddTrialMeasurementRequest()
         metadata = [
@@ -10134,17 +11057,15 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_add_trial_measurement_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.AddTrialMeasurementRequest
+def test_complete_trial_rest_bad_request(
+    request_type=vizier_service.CompleteTrialRequest,
 ):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
-        "trial_name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
+        "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
     }
     request = request_type(**request_init)
 
@@ -10153,17 +11074,13 @@ def test_add_trial_measurement_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.add_trial_measurement(request)
-
-
-def test_add_trial_measurement_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.complete_trial(request)
 
 
 @pytest.mark.parametrize(
@@ -10173,10 +11090,9 @@ def test_add_trial_measurement_rest_error():
         dict,
     ],
 )
-def test_complete_trial_rest(request_type):
+def test_complete_trial_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -10198,13 +11114,13 @@ def test_complete_trial_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = study.Trial.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.complete_trial(request)
 
@@ -10218,126 +11134,6 @@ def test_complete_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_complete_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.complete_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.complete_trial] = mock_rpc
-
-        request = {}
-        client.complete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.complete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_complete_trial_rest_required_fields(
-    request_type=vizier_service.CompleteTrialRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).complete_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).complete_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = study.Trial()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = study.Trial.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.complete_trial(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_complete_trial_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.complete_trial._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_complete_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -10347,6 +11143,7 @@ def test_complete_trial_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -10368,10 +11165,10 @@ def test_complete_trial_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = study.Trial.to_json(study.Trial())
+        return_value = study.Trial.to_json(study.Trial())
+        req.return_value.content = return_value
 
         request = vizier_service.CompleteTrialRequest()
         metadata = [
@@ -10393,14 +11190,10 @@ def test_complete_trial_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_complete_trial_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.CompleteTrialRequest
-):
+def test_delete_trial_rest_bad_request(request_type=vizier_service.DeleteTrialRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
         "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
@@ -10412,17 +11205,13 @@ def test_complete_trial_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.complete_trial(request)
-
-
-def test_complete_trial_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.delete_trial(request)
 
 
 @pytest.mark.parametrize(
@@ -10432,10 +11221,9 @@ def test_complete_trial_rest_error():
         dict,
     ],
 )
-def test_delete_trial_rest(request_type):
+def test_delete_trial_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -10450,132 +11238,15 @@ def test_delete_trial_rest(request_type):
         return_value = None
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = ""
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.delete_trial(request)
 
     # Establish that the response is the type that we expect.
     assert response is None
-
-
-def test_delete_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.delete_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.delete_trial] = mock_rpc
-
-        request = {}
-        client.delete_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.delete_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_delete_trial_rest_required_fields(
-    request_type=vizier_service.DeleteTrialRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = None
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "delete",
-                "query_params": pb_request,
-            }
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = ""
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.delete_trial(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_delete_trial_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.delete_trial._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10587,6 +11258,7 @@ def test_delete_trial_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -10605,9 +11277,8 @@ def test_delete_trial_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
 
         request = vizier_service.DeleteTrialRequest()
         metadata = [
@@ -10627,17 +11298,15 @@ def test_delete_trial_rest_interceptors(null_interceptor):
         pre.assert_called_once()
 
 
-def test_delete_trial_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.DeleteTrialRequest
+def test_check_trial_early_stopping_state_rest_bad_request(
+    request_type=vizier_service.CheckTrialEarlyStoppingStateRequest,
 ):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
-        "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
+        "trial_name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
     }
     request = request_type(**request_init)
 
@@ -10646,74 +11315,13 @@ def test_delete_trial_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_trial(request)
-
-
-def test_delete_trial_rest_flattened():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            name="name_value",
-        )
-        mock_args.update(sample_request)
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
+        response_value = mock.Mock()
         json_return_value = ""
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
         req.return_value = response_value
-
-        client.delete_trial(**mock_args)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{name=projects/*/locations/*/studies/*/trials/*}"
-            % client.transport._host,
-            args[1],
-        )
-
-
-def test_delete_trial_rest_flattened_error(transport: str = "rest"):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.delete_trial(
-            vizier_service.DeleteTrialRequest(),
-            name="name_value",
-        )
-
-
-def test_delete_trial_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.check_trial_early_stopping_state(request)
 
 
 @pytest.mark.parametrize(
@@ -10723,10 +11331,9 @@ def test_delete_trial_rest_error():
         dict,
     ],
 )
-def test_check_trial_early_stopping_state_rest(request_type):
+def test_check_trial_early_stopping_state_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -10741,144 +11348,15 @@ def test_check_trial_early_stopping_state_rest(request_type):
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.check_trial_early_stopping_state(request)
 
     # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
-
-
-def test_check_trial_early_stopping_state_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.check_trial_early_stopping_state
-            in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.check_trial_early_stopping_state
-        ] = mock_rpc
-
-        request = {}
-        client.check_trial_early_stopping_state(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.check_trial_early_stopping_state(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_check_trial_early_stopping_state_rest_required_fields(
-    request_type=vizier_service.CheckTrialEarlyStoppingStateRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["trial_name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).check_trial_early_stopping_state._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["trialName"] = "trial_name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).check_trial_early_stopping_state._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "trialName" in jsonified_request
-    assert jsonified_request["trialName"] == "trial_name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.check_trial_early_stopping_state(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_check_trial_early_stopping_state_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = (
-        transport.check_trial_early_stopping_state._get_unset_required_fields({})
-    )
-    assert set(unset_fields) == (set(()) & set(("trialName",)))
+    json_return_value = json_format.MessageToJson(return_value)
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10890,6 +11368,7 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -10913,12 +11392,10 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
 
         request = vizier_service.CheckTrialEarlyStoppingStateRequest()
         metadata = [
@@ -10940,18 +11417,13 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_check_trial_early_stopping_state_rest_bad_request(
-    transport: str = "rest",
-    request_type=vizier_service.CheckTrialEarlyStoppingStateRequest,
-):
+def test_stop_trial_rest_bad_request(request_type=vizier_service.StopTrialRequest):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
     request_init = {
-        "trial_name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
+        "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
     }
     request = request_type(**request_init)
 
@@ -10960,17 +11432,13 @@ def test_check_trial_early_stopping_state_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.check_trial_early_stopping_state(request)
-
-
-def test_check_trial_early_stopping_state_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.stop_trial(request)
 
 
 @pytest.mark.parametrize(
@@ -10980,10 +11448,9 @@ def test_check_trial_early_stopping_state_rest_error():
         dict,
     ],
 )
-def test_stop_trial_rest(request_type):
+def test_stop_trial_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -11005,13 +11472,13 @@ def test_stop_trial_rest(request_type):
         )
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = study.Trial.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.stop_trial(request)
 
@@ -11025,124 +11492,6 @@ def test_stop_trial_rest(request_type):
     assert response.custom_job == "custom_job_value"
 
 
-def test_stop_trial_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.stop_trial in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.stop_trial] = mock_rpc
-
-        request = {}
-        client.stop_trial(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.stop_trial(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_stop_trial_rest_required_fields(request_type=vizier_service.StopTrialRequest):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).stop_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).stop_trial._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = study.Trial()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = study.Trial.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.stop_trial(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_stop_trial_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.stop_trial._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_stop_trial_rest_interceptors(null_interceptor):
     transport = transports.VizierServiceRestTransport(
@@ -11152,6 +11501,7 @@ def test_stop_trial_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -11173,10 +11523,10 @@ def test_stop_trial_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = study.Trial.to_json(study.Trial())
+        return_value = study.Trial.to_json(study.Trial())
+        req.return_value.content = return_value
 
         request = vizier_service.StopTrialRequest()
         metadata = [
@@ -11198,18 +11548,14 @@ def test_stop_trial_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_stop_trial_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.StopTrialRequest
+def test_list_optimal_trials_rest_bad_request(
+    request_type=vizier_service.ListOptimalTrialsRequest,
 ):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-
     # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/studies/sample3/trials/sample4"
-    }
+    request_init = {"parent": "projects/sample1/locations/sample2/studies/sample3"}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -11217,17 +11563,13 @@ def test_stop_trial_rest_bad_request(
         core_exceptions.BadRequest
     ):
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
-        response_value.request = Request()
+        response_value.request = mock.Mock()
         req.return_value = response_value
-        client.stop_trial(request)
-
-
-def test_stop_trial_rest_error():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
+        client.list_optimal_trials(request)
 
 
 @pytest.mark.parametrize(
@@ -11237,10 +11579,9 @@ def test_stop_trial_rest_error():
         dict,
     ],
 )
-def test_list_optimal_trials_rest(request_type):
+def test_list_optimal_trials_rest_call_success(request_type):
     client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
 
     # send a request that will satisfy transcoding
@@ -11253,142 +11594,18 @@ def test_list_optimal_trials_rest(request_type):
         return_value = vizier_service.ListOptimalTrialsResponse()
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
+
         # Convert return value to protobuf type
         return_value = vizier_service.ListOptimalTrialsResponse.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
         response = client.list_optimal_trials(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, vizier_service.ListOptimalTrialsResponse)
-
-
-def test_list_optimal_trials_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._transport.list_optimal_trials in client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[
-            client._transport.list_optimal_trials
-        ] = mock_rpc
-
-        request = {}
-        client.list_optimal_trials(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        client.list_optimal_trials(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_list_optimal_trials_rest_required_fields(
-    request_type=vizier_service.ListOptimalTrialsRequest,
-):
-    transport_class = transports.VizierServiceRestTransport
-
-    request_init = {}
-    request_init["parent"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_optimal_trials._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["parent"] = "parent_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_optimal_trials._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
-
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = vizier_service.ListOptimalTrialsResponse()
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-
-            # Convert return value to protobuf type
-            return_value = vizier_service.ListOptimalTrialsResponse.pb(return_value)
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-
-            response = client.list_optimal_trials(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_list_optimal_trials_rest_unset_required_fields():
-    transport = transports.VizierServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.list_optimal_trials._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("parent",)))
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -11400,6 +11617,7 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
         else transports.VizierServiceRestInterceptor(),
     )
     client = VizierServiceClient(transport=transport)
+
     with mock.patch.object(
         type(client.transport._session), "request"
     ) as req, mock.patch.object(
@@ -11421,12 +11639,12 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
             "query_params": pb_message,
         }
 
-        req.return_value = Response()
+        req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = vizier_service.ListOptimalTrialsResponse.to_json(
+        return_value = vizier_service.ListOptimalTrialsResponse.to_json(
             vizier_service.ListOptimalTrialsResponse()
         )
+        req.return_value.content = return_value
 
         request = vizier_service.ListOptimalTrialsRequest()
         metadata = [
@@ -11448,17 +11666,15 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
         post.assert_called_once()
 
 
-def test_list_optimal_trials_rest_bad_request(
-    transport: str = "rest", request_type=vizier_service.ListOptimalTrialsRequest
-):
+def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
     client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        transport="rest",
     )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2/studies/sample3"}
-    request = request_type(**request_init)
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
 
     # Mock the http request call within the method and fake a BadRequest error.
     with mock.patch.object(Session, "request") as req, pytest.raises(
@@ -11466,181 +11682,923 @@ def test_list_optimal_trials_rest_bad_request(
     ):
         # Wrap the value into a proper Response obj
         response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        client.list_optimal_trials(request)
+        client.get_location(request)
 
 
-def test_list_optimal_trials_rest_flattened():
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
     client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(Session, "request") as req:
         # Designate an appropriate value for the returned response.
-        return_value = vizier_service.ListOptimalTrialsResponse()
-
-        # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "parent": "projects/sample1/locations/sample2/studies/sample3"
-        }
-
-        # get truthy value for each flattened field
-        mock_args = dict(
-            parent="parent_value",
-        )
-        mock_args.update(sample_request)
+        return_value = locations_pb2.Location()
 
         # Wrap the value into a proper Response obj
-        response_value = Response()
+        response_value = mock.Mock()
         response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = vizier_service.ListOptimalTrialsResponse.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode("UTF-8")
+
         req.return_value = response_value
 
-        client.list_optimal_trials(**mock_args)
+        response = client.get_location(request)
 
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(req.mock_calls) == 1
-        _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1/{parent=projects/*/locations/*/studies/*}/trials:listOptimalTrials"
-            % client.transport._host,
-            args[1],
-        )
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
 
 
-def test_list_optimal_trials_rest_flattened_error(transport: str = "rest"):
+def test_list_locations_rest_bad_request(
+    request_type=locations_pb2.ListLocationsRequest,
+):
     client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
 
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.list_optimal_trials(
-            vizier_service.ListOptimalTrialsRequest(),
-            parent="parent_value",
-        )
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
 
 
-def test_list_optimal_trials_rest_error():
+def test_get_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.GetIamPolicyRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.SetIamPolicyRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    request_type=iam_policy_pb2.TestIamPermissionsRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    request_type=operations_pb2.CancelOperationRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    request_type=operations_pb2.DeleteOperationRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    request_type=operations_pb2.GetOperationRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    request_type=operations_pb2.ListOperationsRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    request_type=operations_pb2.WaitOperationRequest,
+):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_initialize_client_w_rest():
     client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
+    assert client is not None
 
 
-def test_credentials_transport_error():
-    # It is an error to provide credentials and a transport instance.
-    transport = transports.VizierServiceGrpcTransport(
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_study_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    with pytest.raises(ValueError):
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
-        )
 
-    # It is an error to provide a credentials file and a transport instance.
-    transport = transports.VizierServiceGrpcTransport(
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_study), "__call__") as call:
+        client.create_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CreateStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_study_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    with pytest.raises(ValueError):
-        client = VizierServiceClient(
-            client_options={"credentials_file": "credentials.json"},
-            transport=transport,
-        )
 
-    # It is an error to provide an api_key and a transport instance.
-    transport = transports.VizierServiceGrpcTransport(
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_study), "__call__") as call:
+        client.get_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.GetStudyRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_studies_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    options = client_options.ClientOptions()
-    options.api_key = "api_key"
-    with pytest.raises(ValueError):
-        client = VizierServiceClient(
-            client_options=options,
-            transport=transport,
-        )
 
-    # It is an error to provide an api_key and a credential.
-    options = client_options.ClientOptions()
-    options.api_key = "api_key"
-    with pytest.raises(ValueError):
-        client = VizierServiceClient(
-            client_options=options, credentials=ga_credentials.AnonymousCredentials()
-        )
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
+        client.list_studies(request=None)
 
-    # It is an error to provide scopes and a transport instance.
-    transport = transports.VizierServiceGrpcTransport(
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListStudiesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_study_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    with pytest.raises(ValueError):
-        client = VizierServiceClient(
-            client_options={"scopes": ["1", "2"]},
-            transport=transport,
-        )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
+        client.delete_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.DeleteStudyRequest()
+
+        assert args[0] == request_msg
 
 
-def test_transport_instance():
-    # A client may be instantiated with a custom transport instance.
-    transport = transports.VizierServiceGrpcTransport(
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_lookup_study_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    client = VizierServiceClient(transport=transport)
-    assert client.transport is transport
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
+        client.lookup_study(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.LookupStudyRequest()
+
+        assert args[0] == request_msg
 
 
-def test_transport_get_channel():
-    # A client may be instantiated with a custom transport instance.
-    transport = transports.VizierServiceGrpcTransport(
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_suggest_trials_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    channel = transport.grpc_channel
-    assert channel
 
-    transport = transports.VizierServiceGrpcAsyncIOTransport(
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
+        client.suggest_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.SuggestTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_trial_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    channel = transport.grpc_channel
-    assert channel
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
+        client.create_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CreateTrialRequest()
+
+        assert args[0] == request_msg
 
 
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.VizierServiceGrpcTransport,
-        transports.VizierServiceGrpcAsyncIOTransport,
-        transports.VizierServiceRestTransport,
-    ],
-)
-def test_transport_adc(transport_class):
-    # Test default credentials are used if not provided.
-    with mock.patch.object(google.auth, "default") as adc:
-        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport_class()
-        adc.assert_called_once()
-
-
-@pytest.mark.parametrize(
-    "transport_name",
-    [
-        "grpc",
-        "rest",
-    ],
-)
-def test_transport_kind(transport_name):
-    transport = VizierServiceClient.get_transport_class(transport_name)(
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_trial_empty_call_rest():
+    client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
     )
-    assert transport.kind == transport_name
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
+        client.get_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.GetTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_trials_empty_call_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
+        client.list_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_add_trial_measurement_empty_call_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.add_trial_measurement), "__call__"
+    ) as call:
+        client.add_trial_measurement(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.AddTrialMeasurementRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_complete_trial_empty_call_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
+        client.complete_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CompleteTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_trial_empty_call_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
+        client.delete_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.DeleteTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_check_trial_early_stopping_state_empty_call_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.check_trial_early_stopping_state), "__call__"
+    ) as call:
+        client.check_trial_early_stopping_state(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.CheckTrialEarlyStoppingStateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_stop_trial_empty_call_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
+        client.stop_trial(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.StopTrialRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_optimal_trials_empty_call_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_optimal_trials), "__call__"
+    ) as call:
+        client.list_optimal_trials(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vizier_service.ListOptimalTrialsRequest()
+
+        assert args[0] == request_msg
+
+
+def test_vizier_service_rest_lro_client():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
 
 
 def test_transport_grpc_default():
@@ -11899,23 +12857,6 @@ def test_vizier_service_http_transport_client_cert_source_for_mtls():
             credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
         )
         mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
-
-
-def test_vizier_service_rest_lro_client():
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    transport = client.transport
-
-    # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.AbstractOperationsClient,
-    )
-
-    # Ensure that subsequent calls to the property send the exact same object.
-    assert transport.operations_client is transport.operations_client
 
 
 @pytest.mark.parametrize(
@@ -12395,607 +13336,6 @@ def test_client_with_default_client_info():
         prep.assert_called_once_with(client_info)
 
 
-@pytest.mark.asyncio
-async def test_transport_close_async():
-    client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-    with mock.patch.object(
-        type(getattr(client.transport, "grpc_channel")), "close"
-    ) as close:
-        async with client:
-            close.assert_not_called()
-        close.assert_called_once()
-
-
-def test_get_location_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_location(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.GetLocationRequest,
-        dict,
-    ],
-)
-def test_get_location_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.Location()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_location(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.Location)
-
-
-def test_list_locations_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict({"name": "projects/sample1"}, request)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_locations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.ListLocationsRequest,
-        dict,
-    ],
-)
-def test_list_locations_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.ListLocationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_locations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.ListLocationsResponse)
-
-
-def test_get_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.GetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_get_iam_policy_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_set_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.set_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.SetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_set_iam_policy_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.set_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_test_iam_permissions_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.test_iam_permissions(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.TestIamPermissionsRequest,
-        dict,
-    ],
-)
-def test_test_iam_permissions_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = iam_policy_pb2.TestIamPermissionsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.test_iam_permissions(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
-
-
-def test_cancel_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.cancel_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.CancelOperationRequest,
-        dict,
-    ],
-)
-def test_cancel_operation_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.cancel_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_delete_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.DeleteOperationRequest,
-        dict,
-    ],
-)
-def test_delete_operation_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.delete_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_get_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.GetOperationRequest,
-        dict,
-    ],
-)
-def test_get_operation_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
-def test_list_operations_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_operations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.ListOperationsRequest,
-        dict,
-    ],
-)
-def test_list_operations_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.ListOperationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_operations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.ListOperationsResponse)
-
-
-def test_wait_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
-):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.wait_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.WaitOperationRequest,
-        dict,
-    ],
-)
-def test_wait_operation_rest(request_type):
-    client = VizierServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.wait_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
 def test_delete_operation(transport: str = "grpc"):
     client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -13023,7 +13363,7 @@ def test_delete_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13076,7 +13416,7 @@ def test_delete_operation_field_headers():
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13121,7 +13461,7 @@ def test_delete_operation_from_dict():
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
@@ -13162,7 +13502,7 @@ def test_cancel_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13215,7 +13555,7 @@ def test_cancel_operation_field_headers():
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13260,7 +13600,7 @@ def test_cancel_operation_from_dict():
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
@@ -13301,7 +13641,7 @@ def test_wait_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13356,7 +13696,7 @@ def test_wait_operation_field_headers():
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13403,7 +13743,7 @@ def test_wait_operation_from_dict():
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
@@ -13446,7 +13786,7 @@ def test_get_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13501,7 +13841,7 @@ def test_get_operation_field_headers():
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13548,7 +13888,7 @@ def test_get_operation_from_dict():
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
@@ -13591,7 +13931,7 @@ def test_list_operations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13646,7 +13986,7 @@ def test_list_operations_field_headers():
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13693,7 +14033,7 @@ def test_list_operations_from_dict():
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
@@ -13736,7 +14076,7 @@ def test_list_locations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13791,7 +14131,7 @@ def test_list_locations_field_headers():
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -13838,7 +14178,7 @@ def test_list_locations_from_dict():
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -13881,7 +14221,7 @@ def test_get_location(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -13933,7 +14273,7 @@ def test_get_location_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = VizierServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials())
+    client = VizierServiceAsyncClient(credentials=async_anonymous_credentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -13979,7 +14319,7 @@ def test_get_location_from_dict():
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -14030,7 +14370,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -14095,7 +14435,7 @@ def test_set_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -14143,7 +14483,7 @@ def test_set_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
@@ -14196,7 +14536,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -14262,7 +14602,7 @@ def test_get_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -14310,7 +14650,7 @@ def test_get_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
@@ -14362,7 +14702,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -14429,7 +14769,7 @@ def test_test_iam_permissions_field_headers():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -14483,7 +14823,7 @@ def test_test_iam_permissions_from_dict():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
     client = VizierServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -14503,22 +14843,41 @@ async def test_test_iam_permissions_from_dict_async():
         call.assert_called()
 
 
-def test_transport_close():
-    transports = {
-        "rest": "_session",
-        "grpc": "_grpc_channel",
-    }
+def test_transport_close_grpc():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
-    for transport, close_name in transports.items():
-        client = VizierServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport
-        )
-        with mock.patch.object(
-            type(getattr(client.transport, close_name)), "close"
-        ) as close:
-            with client:
-                close.assert_not_called()
-            close.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_transport_close_grpc_asyncio():
+    client = VizierServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close_rest():
+    client = VizierServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_session")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
 
 def test_client_ctx():

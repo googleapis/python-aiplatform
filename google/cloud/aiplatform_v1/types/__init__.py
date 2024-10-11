@@ -44,6 +44,7 @@ from .content import (
     GroundingSupport,
     LogprobsResult,
     Part,
+    RetrievalMetadata,
     SafetyRating,
     SafetySetting,
     SearchEntryPoint,
@@ -978,6 +979,7 @@ from .tensorboard_time_series import (
     TensorboardTimeSeries,
 )
 from .tool import (
+    DynamicRetrievalConfig,
     FunctionCall,
     FunctionCallingConfig,
     FunctionDeclaration,
@@ -1067,6 +1069,7 @@ __all__ = (
     "GroundingSupport",
     "LogprobsResult",
     "Part",
+    "RetrievalMetadata",
     "SafetyRating",
     "SafetySetting",
     "SearchEntryPoint",
@@ -1811,6 +1814,7 @@ __all__ = (
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
+    "DynamicRetrievalConfig",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",

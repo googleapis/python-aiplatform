@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import inspect
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -244,6 +245,9 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             )
 
         # Wrap messages. This must be done after self._grpc_channel exists
+        self._wrap_with_kind = (
+            "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
+        )
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -1193,160 +1197,219 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
-            self.create_tensorboard: gapic_v1.method_async.wrap_method(
+            self.create_tensorboard: self._wrap_method(
                 self.create_tensorboard,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_tensorboard: gapic_v1.method_async.wrap_method(
+            self.get_tensorboard: self._wrap_method(
                 self.get_tensorboard,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.update_tensorboard: gapic_v1.method_async.wrap_method(
+            self.update_tensorboard: self._wrap_method(
                 self.update_tensorboard,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_tensorboards: gapic_v1.method_async.wrap_method(
+            self.list_tensorboards: self._wrap_method(
                 self.list_tensorboards,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_tensorboard: gapic_v1.method_async.wrap_method(
+            self.delete_tensorboard: self._wrap_method(
                 self.delete_tensorboard,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.read_tensorboard_usage: gapic_v1.method_async.wrap_method(
+            self.read_tensorboard_usage: self._wrap_method(
                 self.read_tensorboard_usage,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.read_tensorboard_size: gapic_v1.method_async.wrap_method(
+            self.read_tensorboard_size: self._wrap_method(
                 self.read_tensorboard_size,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.create_tensorboard_experiment: gapic_v1.method_async.wrap_method(
+            self.create_tensorboard_experiment: self._wrap_method(
                 self.create_tensorboard_experiment,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_tensorboard_experiment: gapic_v1.method_async.wrap_method(
+            self.get_tensorboard_experiment: self._wrap_method(
                 self.get_tensorboard_experiment,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.update_tensorboard_experiment: gapic_v1.method_async.wrap_method(
+            self.update_tensorboard_experiment: self._wrap_method(
                 self.update_tensorboard_experiment,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_tensorboard_experiments: gapic_v1.method_async.wrap_method(
+            self.list_tensorboard_experiments: self._wrap_method(
                 self.list_tensorboard_experiments,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_tensorboard_experiment: gapic_v1.method_async.wrap_method(
+            self.delete_tensorboard_experiment: self._wrap_method(
                 self.delete_tensorboard_experiment,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.create_tensorboard_run: gapic_v1.method_async.wrap_method(
+            self.create_tensorboard_run: self._wrap_method(
                 self.create_tensorboard_run,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.batch_create_tensorboard_runs: gapic_v1.method_async.wrap_method(
+            self.batch_create_tensorboard_runs: self._wrap_method(
                 self.batch_create_tensorboard_runs,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_tensorboard_run: gapic_v1.method_async.wrap_method(
+            self.get_tensorboard_run: self._wrap_method(
                 self.get_tensorboard_run,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.update_tensorboard_run: gapic_v1.method_async.wrap_method(
+            self.update_tensorboard_run: self._wrap_method(
                 self.update_tensorboard_run,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_tensorboard_runs: gapic_v1.method_async.wrap_method(
+            self.list_tensorboard_runs: self._wrap_method(
                 self.list_tensorboard_runs,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_tensorboard_run: gapic_v1.method_async.wrap_method(
+            self.delete_tensorboard_run: self._wrap_method(
                 self.delete_tensorboard_run,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.batch_create_tensorboard_time_series: gapic_v1.method_async.wrap_method(
+            self.batch_create_tensorboard_time_series: self._wrap_method(
                 self.batch_create_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.create_tensorboard_time_series: gapic_v1.method_async.wrap_method(
+            self.create_tensorboard_time_series: self._wrap_method(
                 self.create_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_tensorboard_time_series: gapic_v1.method_async.wrap_method(
+            self.get_tensorboard_time_series: self._wrap_method(
                 self.get_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.update_tensorboard_time_series: gapic_v1.method_async.wrap_method(
+            self.update_tensorboard_time_series: self._wrap_method(
                 self.update_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_tensorboard_time_series: gapic_v1.method_async.wrap_method(
+            self.list_tensorboard_time_series: self._wrap_method(
                 self.list_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_tensorboard_time_series: gapic_v1.method_async.wrap_method(
+            self.delete_tensorboard_time_series: self._wrap_method(
                 self.delete_tensorboard_time_series,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.batch_read_tensorboard_time_series_data: gapic_v1.method_async.wrap_method(
+            self.batch_read_tensorboard_time_series_data: self._wrap_method(
                 self.batch_read_tensorboard_time_series_data,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.read_tensorboard_time_series_data: gapic_v1.method_async.wrap_method(
+            self.read_tensorboard_time_series_data: self._wrap_method(
                 self.read_tensorboard_time_series_data,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.read_tensorboard_blob_data: gapic_v1.method_async.wrap_method(
+            self.read_tensorboard_blob_data: self._wrap_method(
                 self.read_tensorboard_blob_data,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.write_tensorboard_experiment_data: gapic_v1.method_async.wrap_method(
+            self.write_tensorboard_experiment_data: self._wrap_method(
                 self.write_tensorboard_experiment_data,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.write_tensorboard_run_data: gapic_v1.method_async.wrap_method(
+            self.write_tensorboard_run_data: self._wrap_method(
                 self.write_tensorboard_run_data,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.export_tensorboard_time_series_data: gapic_v1.method_async.wrap_method(
+            self.export_tensorboard_time_series_data: self._wrap_method(
                 self.export_tensorboard_time_series_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_location: self._wrap_method(
+                self.get_location,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_locations: self._wrap_method(
+                self.list_locations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_iam_policy: self._wrap_method(
+                self.get_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.set_iam_policy: self._wrap_method(
+                self.set_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.test_iam_permissions: self._wrap_method(
+                self.test_iam_permissions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_operation: self._wrap_method(
+                self.cancel_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_operation: self._wrap_method(
+                self.delete_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_operation: self._wrap_method(
+                self.get_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_operations: self._wrap_method(
+                self.list_operations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.wait_operation: self._wrap_method(
+                self.wait_operation,
                 default_timeout=None,
                 client_info=client_info,
             ),
         }
 
+    def _wrap_method(self, func, *args, **kwargs):
+        if self._wrap_with_kind:  # pragma: NO COVER
+            kwargs["kind"] = self.kind
+        return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
+
     def close(self):
         return self.grpc_channel.close()
+
+    @property
+    def kind(self) -> str:
+        return "grpc_asyncio"
 
     @property
     def delete_operation(
@@ -1391,7 +1454,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_operation" not in self._stubs:
+        if "wait_operation" not in self._stubs:
             self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,

@@ -24,7 +24,7 @@ except ImportError:  # pragma: NO COVER
 
 import grpc
 from grpc.experimental import aio
-from collections.abc import Iterable
+from collections.abc import Iterable, AsyncIterable
 from google.protobuf import json_format
 import json
 import math
@@ -36,6 +36,13 @@ from requests import Response
 from requests import Request, PreparedRequest
 from requests.sessions import Session
 from google.protobuf import json_format
+
+try:
+    from google.auth.aio import credentials as ga_credentials_async
+
+    HAS_GOOGLE_AUTH_AIO = True
+except ImportError:  # pragma: NO COVER
+    HAS_GOOGLE_AUTH_AIO = False
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -88,8 +95,22 @@ from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
+async def mock_async_gen(data, chunk_size=1):
+    for i in range(0, len(data)):  # pragma: NO COVER
+        chunk = data[i : i + chunk_size]
+        yield chunk.encode("utf-8")
+
+
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
+
+
+# TODO: use async auth anon credentials by default once the minimum version of google-auth is upgraded.
+# See related issue: https://github.com/googleapis/gapic-generator-python/issues/2107.
+def async_anonymous_credentials():
+    if HAS_GOOGLE_AUTH_AIO:
+        return ga_credentials_async.AnonymousCredentials()
+    return ga_credentials.AnonymousCredentials()
 
 
 # If default endpoint is localhost, then default mtls endpoint will be the same.
@@ -1212,27 +1233,6 @@ def test_create_notebook_runtime_template(request_type, transport: str = "grpc")
     assert isinstance(response, future.Future)
 
 
-def test_create_notebook_runtime_template_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_notebook_runtime_template), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.CreateNotebookRuntimeTemplateRequest()
-
-
 def test_create_notebook_runtime_template_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -1311,29 +1311,6 @@ def test_create_notebook_runtime_template_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_notebook_runtime_template_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_notebook_runtime_template), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.create_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.CreateNotebookRuntimeTemplateRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_notebook_runtime_template_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1341,7 +1318,7 @@ async def test_create_notebook_runtime_template_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1386,7 +1363,7 @@ async def test_create_notebook_runtime_template_async(
     request_type=notebook_service.CreateNotebookRuntimeTemplateRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1453,7 +1430,7 @@ def test_create_notebook_runtime_template_field_headers():
 @pytest.mark.asyncio
 async def test_create_notebook_runtime_template_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1541,7 +1518,7 @@ def test_create_notebook_runtime_template_flattened_error():
 @pytest.mark.asyncio
 async def test_create_notebook_runtime_template_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1582,7 +1559,7 @@ async def test_create_notebook_runtime_template_flattened_async():
 @pytest.mark.asyncio
 async def test_create_notebook_runtime_template_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1651,27 +1628,6 @@ def test_get_notebook_runtime_template(request_type, transport: str = "grpc"):
         == notebook_runtime.NotebookRuntimeType.USER_DEFINED
     )
     assert response.network_tags == ["network_tags_value"]
-
-
-def test_get_notebook_runtime_template_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_notebook_runtime_template), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.GetNotebookRuntimeTemplateRequest()
 
 
 def test_get_notebook_runtime_template_non_empty_request_with_auto_populated_field():
@@ -1745,38 +1701,6 @@ def test_get_notebook_runtime_template_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_notebook_runtime_template_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_notebook_runtime_template), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            notebook_runtime.NotebookRuntimeTemplate(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                is_default=True,
-                service_account="service_account_value",
-                etag="etag_value",
-                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
-                network_tags=["network_tags_value"],
-            )
-        )
-        response = await client.get_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.GetNotebookRuntimeTemplateRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_notebook_runtime_template_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -1784,7 +1708,7 @@ async def test_get_notebook_runtime_template_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -1824,7 +1748,7 @@ async def test_get_notebook_runtime_template_async(
     request_type=notebook_service.GetNotebookRuntimeTemplateRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -1911,7 +1835,7 @@ def test_get_notebook_runtime_template_field_headers():
 @pytest.mark.asyncio
 async def test_get_notebook_runtime_template_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1985,7 +1909,7 @@ def test_get_notebook_runtime_template_flattened_error():
 @pytest.mark.asyncio
 async def test_get_notebook_runtime_template_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2016,7 +1940,7 @@ async def test_get_notebook_runtime_template_flattened_async():
 @pytest.mark.asyncio
 async def test_get_notebook_runtime_template_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2064,27 +1988,6 @@ def test_list_notebook_runtime_templates(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListNotebookRuntimeTemplatesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_notebook_runtime_templates_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_notebook_runtime_templates), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_notebook_runtime_templates()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.ListNotebookRuntimeTemplatesRequest()
 
 
 def test_list_notebook_runtime_templates_non_empty_request_with_auto_populated_field():
@@ -2164,31 +2067,6 @@ def test_list_notebook_runtime_templates_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_notebook_runtime_templates_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_notebook_runtime_templates), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            notebook_service.ListNotebookRuntimeTemplatesResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_notebook_runtime_templates()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.ListNotebookRuntimeTemplatesRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_notebook_runtime_templates_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2196,7 +2074,7 @@ async def test_list_notebook_runtime_templates_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2236,7 +2114,7 @@ async def test_list_notebook_runtime_templates_async(
     request_type=notebook_service.ListNotebookRuntimeTemplatesRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2306,7 +2184,7 @@ def test_list_notebook_runtime_templates_field_headers():
 @pytest.mark.asyncio
 async def test_list_notebook_runtime_templates_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2380,7 +2258,7 @@ def test_list_notebook_runtime_templates_flattened_error():
 @pytest.mark.asyncio
 async def test_list_notebook_runtime_templates_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2411,7 +2289,7 @@ async def test_list_notebook_runtime_templates_flattened_async():
 @pytest.mark.asyncio
 async def test_list_notebook_runtime_templates_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -2529,7 +2407,7 @@ def test_list_notebook_runtime_templates_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_notebook_runtime_templates_async_pager():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2583,7 +2461,7 @@ async def test_list_notebook_runtime_templates_async_pager():
 @pytest.mark.asyncio
 async def test_list_notebook_runtime_templates_async_pages():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2666,27 +2544,6 @@ def test_delete_notebook_runtime_template(request_type, transport: str = "grpc")
     assert isinstance(response, future.Future)
 
 
-def test_delete_notebook_runtime_template_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_notebook_runtime_template), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.DeleteNotebookRuntimeTemplateRequest()
-
-
 def test_delete_notebook_runtime_template_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -2763,29 +2620,6 @@ def test_delete_notebook_runtime_template_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_notebook_runtime_template_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_notebook_runtime_template), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.DeleteNotebookRuntimeTemplateRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_notebook_runtime_template_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -2793,7 +2627,7 @@ async def test_delete_notebook_runtime_template_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -2838,7 +2672,7 @@ async def test_delete_notebook_runtime_template_async(
     request_type=notebook_service.DeleteNotebookRuntimeTemplateRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -2905,7 +2739,7 @@ def test_delete_notebook_runtime_template_field_headers():
 @pytest.mark.asyncio
 async def test_delete_notebook_runtime_template_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -2979,7 +2813,7 @@ def test_delete_notebook_runtime_template_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_notebook_runtime_template_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3010,7 +2844,7 @@ async def test_delete_notebook_runtime_template_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_notebook_runtime_template_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3075,27 +2909,6 @@ def test_update_notebook_runtime_template(request_type, transport: str = "grpc")
         == notebook_runtime.NotebookRuntimeType.USER_DEFINED
     )
     assert response.network_tags == ["network_tags_value"]
-
-
-def test_update_notebook_runtime_template_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_notebook_runtime_template), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.update_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.UpdateNotebookRuntimeTemplateRequest()
 
 
 def test_update_notebook_runtime_template_non_empty_request_with_auto_populated_field():
@@ -3165,38 +2978,6 @@ def test_update_notebook_runtime_template_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_update_notebook_runtime_template_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.update_notebook_runtime_template), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            notebook_runtime.NotebookRuntimeTemplate(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                is_default=True,
-                service_account="service_account_value",
-                etag="etag_value",
-                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
-                network_tags=["network_tags_value"],
-            )
-        )
-        response = await client.update_notebook_runtime_template()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.UpdateNotebookRuntimeTemplateRequest()
-
-
-@pytest.mark.asyncio
 async def test_update_notebook_runtime_template_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3204,7 +2985,7 @@ async def test_update_notebook_runtime_template_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3244,7 +3025,7 @@ async def test_update_notebook_runtime_template_async(
     request_type=notebook_service.UpdateNotebookRuntimeTemplateRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3331,7 +3112,7 @@ def test_update_notebook_runtime_template_field_headers():
 @pytest.mark.asyncio
 async def test_update_notebook_runtime_template_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3414,7 +3195,7 @@ def test_update_notebook_runtime_template_flattened_error():
 @pytest.mark.asyncio
 async def test_update_notebook_runtime_template_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3451,7 +3232,7 @@ async def test_update_notebook_runtime_template_flattened_async():
 @pytest.mark.asyncio
 async def test_update_notebook_runtime_template_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3499,27 +3280,6 @@ def test_assign_notebook_runtime(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_assign_notebook_runtime_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.assign_notebook_runtime), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.assign_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.AssignNotebookRuntimeRequest()
 
 
 def test_assign_notebook_runtime_non_empty_request_with_auto_populated_field():
@@ -3602,29 +3362,6 @@ def test_assign_notebook_runtime_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_assign_notebook_runtime_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.assign_notebook_runtime), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.assign_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.AssignNotebookRuntimeRequest()
-
-
-@pytest.mark.asyncio
 async def test_assign_notebook_runtime_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -3632,7 +3369,7 @@ async def test_assign_notebook_runtime_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -3677,7 +3414,7 @@ async def test_assign_notebook_runtime_async(
     request_type=notebook_service.AssignNotebookRuntimeRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -3744,7 +3481,7 @@ def test_assign_notebook_runtime_field_headers():
 @pytest.mark.asyncio
 async def test_assign_notebook_runtime_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -3833,7 +3570,7 @@ def test_assign_notebook_runtime_flattened_error():
 @pytest.mark.asyncio
 async def test_assign_notebook_runtime_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3876,7 +3613,7 @@ async def test_assign_notebook_runtime_flattened_async():
 @pytest.mark.asyncio
 async def test_assign_notebook_runtime_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -3960,27 +3697,6 @@ def test_get_notebook_runtime(request_type, transport: str = "grpc"):
     assert response.satisfies_pzi is True
 
 
-def test_get_notebook_runtime_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_notebook_runtime), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.GetNotebookRuntimeRequest()
-
-
 def test_get_notebook_runtime_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -4051,44 +3767,6 @@ def test_get_notebook_runtime_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_notebook_runtime_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_notebook_runtime), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            notebook_runtime.NotebookRuntime(
-                name="name_value",
-                runtime_user="runtime_user_value",
-                proxy_uri="proxy_uri_value",
-                health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
-                display_name="display_name_value",
-                description="description_value",
-                service_account="service_account_value",
-                runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
-                is_upgradable=True,
-                version="version_value",
-                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
-                network_tags=["network_tags_value"],
-                satisfies_pzs=True,
-                satisfies_pzi=True,
-            )
-        )
-        response = await client.get_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.GetNotebookRuntimeRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_notebook_runtime_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4096,7 +3774,7 @@ async def test_get_notebook_runtime_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4136,7 +3814,7 @@ async def test_get_notebook_runtime_async(
     request_type=notebook_service.GetNotebookRuntimeRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4237,7 +3915,7 @@ def test_get_notebook_runtime_field_headers():
 @pytest.mark.asyncio
 async def test_get_notebook_runtime_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4311,7 +3989,7 @@ def test_get_notebook_runtime_flattened_error():
 @pytest.mark.asyncio
 async def test_get_notebook_runtime_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4342,7 +4020,7 @@ async def test_get_notebook_runtime_flattened_async():
 @pytest.mark.asyncio
 async def test_get_notebook_runtime_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4390,27 +4068,6 @@ def test_list_notebook_runtimes(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListNotebookRuntimesPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_notebook_runtimes_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_notebook_runtimes), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_notebook_runtimes()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.ListNotebookRuntimesRequest()
 
 
 def test_list_notebook_runtimes_non_empty_request_with_auto_populated_field():
@@ -4490,31 +4147,6 @@ def test_list_notebook_runtimes_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_notebook_runtimes_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_notebook_runtimes), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            notebook_service.ListNotebookRuntimesResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_notebook_runtimes()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.ListNotebookRuntimesRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_notebook_runtimes_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -4522,7 +4154,7 @@ async def test_list_notebook_runtimes_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -4562,7 +4194,7 @@ async def test_list_notebook_runtimes_async(
     request_type=notebook_service.ListNotebookRuntimesRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -4632,7 +4264,7 @@ def test_list_notebook_runtimes_field_headers():
 @pytest.mark.asyncio
 async def test_list_notebook_runtimes_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -4706,7 +4338,7 @@ def test_list_notebook_runtimes_flattened_error():
 @pytest.mark.asyncio
 async def test_list_notebook_runtimes_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4737,7 +4369,7 @@ async def test_list_notebook_runtimes_flattened_async():
 @pytest.mark.asyncio
 async def test_list_notebook_runtimes_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -4851,7 +4483,7 @@ def test_list_notebook_runtimes_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_notebook_runtimes_async_pager():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4903,7 +4535,7 @@ async def test_list_notebook_runtimes_async_pager():
 @pytest.mark.asyncio
 async def test_list_notebook_runtimes_async_pages():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4986,27 +4618,6 @@ def test_delete_notebook_runtime(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_notebook_runtime_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_notebook_runtime), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.DeleteNotebookRuntimeRequest()
-
-
 def test_delete_notebook_runtime_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -5083,29 +4694,6 @@ def test_delete_notebook_runtime_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_notebook_runtime_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_notebook_runtime), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.DeleteNotebookRuntimeRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_notebook_runtime_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5113,7 +4701,7 @@ async def test_delete_notebook_runtime_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5158,7 +4746,7 @@ async def test_delete_notebook_runtime_async(
     request_type=notebook_service.DeleteNotebookRuntimeRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5225,7 +4813,7 @@ def test_delete_notebook_runtime_field_headers():
 @pytest.mark.asyncio
 async def test_delete_notebook_runtime_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5299,7 +4887,7 @@ def test_delete_notebook_runtime_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_notebook_runtime_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5330,7 +4918,7 @@ async def test_delete_notebook_runtime_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_notebook_runtime_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5375,27 +4963,6 @@ def test_upgrade_notebook_runtime(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_upgrade_notebook_runtime_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.upgrade_notebook_runtime), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.upgrade_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.UpgradeNotebookRuntimeRequest()
 
 
 def test_upgrade_notebook_runtime_non_empty_request_with_auto_populated_field():
@@ -5474,29 +5041,6 @@ def test_upgrade_notebook_runtime_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_upgrade_notebook_runtime_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.upgrade_notebook_runtime), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.upgrade_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.UpgradeNotebookRuntimeRequest()
-
-
-@pytest.mark.asyncio
 async def test_upgrade_notebook_runtime_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5504,7 +5048,7 @@ async def test_upgrade_notebook_runtime_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5549,7 +5093,7 @@ async def test_upgrade_notebook_runtime_async(
     request_type=notebook_service.UpgradeNotebookRuntimeRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -5616,7 +5160,7 @@ def test_upgrade_notebook_runtime_field_headers():
 @pytest.mark.asyncio
 async def test_upgrade_notebook_runtime_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -5690,7 +5234,7 @@ def test_upgrade_notebook_runtime_flattened_error():
 @pytest.mark.asyncio
 async def test_upgrade_notebook_runtime_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5721,7 +5265,7 @@ async def test_upgrade_notebook_runtime_flattened_async():
 @pytest.mark.asyncio
 async def test_upgrade_notebook_runtime_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -5766,27 +5310,6 @@ def test_start_notebook_runtime(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_start_notebook_runtime_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.start_notebook_runtime), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.start_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.StartNotebookRuntimeRequest()
 
 
 def test_start_notebook_runtime_non_empty_request_with_auto_populated_field():
@@ -5865,29 +5388,6 @@ def test_start_notebook_runtime_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_start_notebook_runtime_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.start_notebook_runtime), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.start_notebook_runtime()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.StartNotebookRuntimeRequest()
-
-
-@pytest.mark.asyncio
 async def test_start_notebook_runtime_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -5895,7 +5395,7 @@ async def test_start_notebook_runtime_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -5940,7 +5440,7 @@ async def test_start_notebook_runtime_async(
     request_type=notebook_service.StartNotebookRuntimeRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6007,7 +5507,7 @@ def test_start_notebook_runtime_field_headers():
 @pytest.mark.asyncio
 async def test_start_notebook_runtime_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6081,7 +5581,7 @@ def test_start_notebook_runtime_flattened_error():
 @pytest.mark.asyncio
 async def test_start_notebook_runtime_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6112,7 +5612,7 @@ async def test_start_notebook_runtime_flattened_async():
 @pytest.mark.asyncio
 async def test_start_notebook_runtime_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6157,27 +5657,6 @@ def test_create_notebook_execution_job(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
-
-
-def test_create_notebook_execution_job_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_notebook_execution_job), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.create_notebook_execution_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.CreateNotebookExecutionJobRequest()
 
 
 def test_create_notebook_execution_job_non_empty_request_with_auto_populated_field():
@@ -6258,29 +5737,6 @@ def test_create_notebook_execution_job_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_create_notebook_execution_job_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.create_notebook_execution_job), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.create_notebook_execution_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.CreateNotebookExecutionJobRequest()
-
-
-@pytest.mark.asyncio
 async def test_create_notebook_execution_job_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6288,7 +5744,7 @@ async def test_create_notebook_execution_job_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6333,7 +5789,7 @@ async def test_create_notebook_execution_job_async(
     request_type=notebook_service.CreateNotebookExecutionJobRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6400,7 +5856,7 @@ def test_create_notebook_execution_job_field_headers():
 @pytest.mark.asyncio
 async def test_create_notebook_execution_job_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6496,7 +5952,7 @@ def test_create_notebook_execution_job_flattened_error():
 @pytest.mark.asyncio
 async def test_create_notebook_execution_job_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6543,7 +5999,7 @@ async def test_create_notebook_execution_job_flattened_async():
 @pytest.mark.asyncio
 async def test_create_notebook_execution_job_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -6606,27 +6062,6 @@ def test_get_notebook_execution_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
-
-
-def test_get_notebook_execution_job_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_notebook_execution_job), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.get_notebook_execution_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.GetNotebookExecutionJobRequest()
 
 
 def test_get_notebook_execution_job_non_empty_request_with_auto_populated_field():
@@ -6700,34 +6135,6 @@ def test_get_notebook_execution_job_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_get_notebook_execution_job_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_notebook_execution_job), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            notebook_execution_job.NotebookExecutionJob(
-                name="name_value",
-                display_name="display_name_value",
-                schedule_resource_name="schedule_resource_name_value",
-                job_state=job_state.JobState.JOB_STATE_QUEUED,
-            )
-        )
-        response = await client.get_notebook_execution_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.GetNotebookExecutionJobRequest()
-
-
-@pytest.mark.asyncio
 async def test_get_notebook_execution_job_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -6735,7 +6142,7 @@ async def test_get_notebook_execution_job_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -6775,7 +6182,7 @@ async def test_get_notebook_execution_job_async(
     request_type=notebook_service.GetNotebookExecutionJobRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -6851,7 +6258,7 @@ def test_get_notebook_execution_job_field_headers():
 @pytest.mark.asyncio
 async def test_get_notebook_execution_job_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -6925,7 +6332,7 @@ def test_get_notebook_execution_job_flattened_error():
 @pytest.mark.asyncio
 async def test_get_notebook_execution_job_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6956,7 +6363,7 @@ async def test_get_notebook_execution_job_flattened_async():
 @pytest.mark.asyncio
 async def test_get_notebook_execution_job_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -7004,27 +6411,6 @@ def test_list_notebook_execution_jobs(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListNotebookExecutionJobsPager)
     assert response.next_page_token == "next_page_token_value"
-
-
-def test_list_notebook_execution_jobs_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_notebook_execution_jobs), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.list_notebook_execution_jobs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.ListNotebookExecutionJobsRequest()
 
 
 def test_list_notebook_execution_jobs_non_empty_request_with_auto_populated_field():
@@ -7104,31 +6490,6 @@ def test_list_notebook_execution_jobs_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_list_notebook_execution_jobs_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_notebook_execution_jobs), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            notebook_service.ListNotebookExecutionJobsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
-        response = await client.list_notebook_execution_jobs()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.ListNotebookExecutionJobsRequest()
-
-
-@pytest.mark.asyncio
 async def test_list_notebook_execution_jobs_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -7136,7 +6497,7 @@ async def test_list_notebook_execution_jobs_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7176,7 +6537,7 @@ async def test_list_notebook_execution_jobs_async(
     request_type=notebook_service.ListNotebookExecutionJobsRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7246,7 +6607,7 @@ def test_list_notebook_execution_jobs_field_headers():
 @pytest.mark.asyncio
 async def test_list_notebook_execution_jobs_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -7320,7 +6681,7 @@ def test_list_notebook_execution_jobs_flattened_error():
 @pytest.mark.asyncio
 async def test_list_notebook_execution_jobs_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7351,7 +6712,7 @@ async def test_list_notebook_execution_jobs_flattened_async():
 @pytest.mark.asyncio
 async def test_list_notebook_execution_jobs_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -7469,7 +6830,7 @@ def test_list_notebook_execution_jobs_pages(transport_name: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_notebook_execution_jobs_async_pager():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7524,7 +6885,7 @@ async def test_list_notebook_execution_jobs_async_pager():
 @pytest.mark.asyncio
 async def test_list_notebook_execution_jobs_async_pages():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7607,27 +6968,6 @@ def test_delete_notebook_execution_job(request_type, transport: str = "grpc"):
     assert isinstance(response, future.Future)
 
 
-def test_delete_notebook_execution_job_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_notebook_execution_job), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.delete_notebook_execution_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.DeleteNotebookExecutionJobRequest()
-
-
 def test_delete_notebook_execution_job_non_empty_request_with_auto_populated_field():
     # This test is a coverage failsafe to make sure that UUID4 fields are
     # automatically populated, according to AIP-4235, with non-empty requests.
@@ -7704,29 +7044,6 @@ def test_delete_notebook_execution_job_use_cached_wrapped_rpc():
 
 
 @pytest.mark.asyncio
-async def test_delete_notebook_execution_job_empty_call_async():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.delete_notebook_execution_job), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.delete_notebook_execution_job()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == notebook_service.DeleteNotebookExecutionJobRequest()
-
-
-@pytest.mark.asyncio
 async def test_delete_notebook_execution_job_async_use_cached_wrapped_rpc(
     transport: str = "grpc_asyncio",
 ):
@@ -7734,7 +7051,7 @@ async def test_delete_notebook_execution_job_async_use_cached_wrapped_rpc(
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
         client = NotebookServiceAsyncClient(
-            credentials=ga_credentials.AnonymousCredentials(),
+            credentials=async_anonymous_credentials(),
             transport=transport,
         )
 
@@ -7779,7 +7096,7 @@ async def test_delete_notebook_execution_job_async(
     request_type=notebook_service.DeleteNotebookExecutionJobRequest,
 ):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -7846,7 +7163,7 @@ def test_delete_notebook_execution_job_field_headers():
 @pytest.mark.asyncio
 async def test_delete_notebook_execution_job_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -7920,7 +7237,7 @@ def test_delete_notebook_execution_job_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_notebook_execution_job_flattened_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7951,7 +7268,7 @@ async def test_delete_notebook_execution_job_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_notebook_execution_job_flattened_error_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -7961,154 +7278,6 @@ async def test_delete_notebook_execution_job_flattened_error_async():
             notebook_service.DeleteNotebookExecutionJobRequest(),
             name="name_value",
         )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.CreateNotebookRuntimeTemplateRequest,
-        dict,
-    ],
-)
-def test_create_notebook_runtime_template_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request_init["notebook_runtime_template"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "is_default": True,
-        "machine_spec": {
-            "machine_type": "machine_type_value",
-            "accelerator_type": 1,
-            "accelerator_count": 1805,
-            "tpu_topology": "tpu_topology_value",
-            "reservation_affinity": {
-                "reservation_affinity_type": 1,
-                "key": "key_value",
-                "values": ["values_value1", "values_value2"],
-            },
-        },
-        "data_persistent_disk_spec": {
-            "disk_type": "disk_type_value",
-            "disk_size_gb": 1261,
-        },
-        "network_spec": {
-            "enable_internet_access": True,
-            "network": "network_value",
-            "subnetwork": "subnetwork_value",
-        },
-        "service_account": "service_account_value",
-        "etag": "etag_value",
-        "labels": {},
-        "idle_shutdown_config": {
-            "idle_timeout": {"seconds": 751, "nanos": 543},
-            "idle_shutdown_disabled": True,
-        },
-        "euc_config": {"euc_disabled": True, "bypass_actas_check": True},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "notebook_runtime_type": 1,
-        "shielded_vm_config": {"enable_secure_boot": True},
-        "network_tags": ["network_tags_value1", "network_tags_value2"],
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = notebook_service.CreateNotebookRuntimeTemplateRequest.meta.fields[
-        "notebook_runtime_template"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init[
-        "notebook_runtime_template"
-    ].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(
-                    0, len(request_init["notebook_runtime_template"][field])
-                ):
-                    del request_init["notebook_runtime_template"][field][i][subfield]
-            else:
-                del request_init["notebook_runtime_template"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_notebook_runtime_template(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_create_notebook_runtime_template_rest_use_cached_wrapped_rpc():
@@ -8249,92 +7418,6 @@ def test_create_notebook_runtime_template_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor,
-        "post_create_notebook_runtime_template",
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor,
-        "pre_create_notebook_runtime_template",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.CreateNotebookRuntimeTemplateRequest.pb(
-            notebook_service.CreateNotebookRuntimeTemplateRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.CreateNotebookRuntimeTemplateRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.create_notebook_runtime_template(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_notebook_runtime_template_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.CreateNotebookRuntimeTemplateRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_notebook_runtime_template(request)
-
-
 def test_create_notebook_runtime_template_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -8396,71 +7479,6 @@ def test_create_notebook_runtime_template_rest_flattened_error(transport: str = 
             ),
             notebook_runtime_template_id="notebook_runtime_template_id_value",
         )
-
-
-def test_create_notebook_runtime_template_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.GetNotebookRuntimeTemplateRequest,
-        dict,
-    ],
-)
-def test_get_notebook_runtime_template_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = notebook_runtime.NotebookRuntimeTemplate(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            is_default=True,
-            service_account="service_account_value",
-            etag="etag_value",
-            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
-            network_tags=["network_tags_value"],
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = notebook_runtime.NotebookRuntimeTemplate.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_notebook_runtime_template(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, notebook_runtime.NotebookRuntimeTemplate)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.is_default is True
-    assert response.service_account == "service_account_value"
-    assert response.etag == "etag_value"
-    assert (
-        response.notebook_runtime_type
-        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
-    )
-    assert response.network_tags == ["network_tags_value"]
 
 
 def test_get_notebook_runtime_template_rest_use_cached_wrapped_rpc():
@@ -8589,90 +7607,6 @@ def test_get_notebook_runtime_template_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime_template"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime_template"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.GetNotebookRuntimeTemplateRequest.pb(
-            notebook_service.GetNotebookRuntimeTemplateRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = notebook_runtime.NotebookRuntimeTemplate.to_json(
-            notebook_runtime.NotebookRuntimeTemplate()
-        )
-
-        request = notebook_service.GetNotebookRuntimeTemplateRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = notebook_runtime.NotebookRuntimeTemplate()
-
-        client.get_notebook_runtime_template(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_notebook_runtime_template_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.GetNotebookRuntimeTemplateRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_notebook_runtime_template(request)
-
-
 def test_get_notebook_runtime_template_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -8730,54 +7664,6 @@ def test_get_notebook_runtime_template_rest_flattened_error(transport: str = "re
             notebook_service.GetNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
-
-
-def test_get_notebook_runtime_template_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.ListNotebookRuntimeTemplatesRequest,
-        dict,
-    ],
-)
-def test_list_notebook_runtime_templates_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_notebook_runtime_templates(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListNotebookRuntimeTemplatesPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_notebook_runtime_templates_rest_use_cached_wrapped_rpc():
@@ -8929,91 +7815,6 @@ def test_list_notebook_runtime_templates_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.NotebookServiceRestInterceptor,
-        "post_list_notebook_runtime_templates",
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtime_templates"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.ListNotebookRuntimeTemplatesRequest.pb(
-            notebook_service.ListNotebookRuntimeTemplatesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            notebook_service.ListNotebookRuntimeTemplatesResponse.to_json(
-                notebook_service.ListNotebookRuntimeTemplatesResponse()
-            )
-        )
-
-        request = notebook_service.ListNotebookRuntimeTemplatesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
-
-        client.list_notebook_runtime_templates(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_notebook_runtime_templates_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.ListNotebookRuntimeTemplatesRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_notebook_runtime_templates(request)
-
-
 def test_list_notebook_runtime_templates_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -9139,43 +7940,6 @@ def test_list_notebook_runtime_templates_rest_pager(transport: str = "rest"):
         )
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.DeleteNotebookRuntimeTemplateRequest,
-        dict,
-    ],
-)
-def test_delete_notebook_runtime_template_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_notebook_runtime_template(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_notebook_runtime_template_rest_use_cached_wrapped_rpc():
@@ -9305,94 +8069,6 @@ def test_delete_notebook_runtime_template_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor,
-        "post_delete_notebook_runtime_template",
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor,
-        "pre_delete_notebook_runtime_template",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.DeleteNotebookRuntimeTemplateRequest.pb(
-            notebook_service.DeleteNotebookRuntimeTemplateRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.DeleteNotebookRuntimeTemplateRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_notebook_runtime_template(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_notebook_runtime_template_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.DeleteNotebookRuntimeTemplateRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_notebook_runtime_template(request)
-
-
 def test_delete_notebook_runtime_template_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -9448,186 +8124,6 @@ def test_delete_notebook_runtime_template_rest_flattened_error(transport: str = 
             notebook_service.DeleteNotebookRuntimeTemplateRequest(),
             name="name_value",
         )
-
-
-def test_delete_notebook_runtime_template_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.UpdateNotebookRuntimeTemplateRequest,
-        dict,
-    ],
-)
-def test_update_notebook_runtime_template_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "notebook_runtime_template": {
-            "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
-        }
-    }
-    request_init["notebook_runtime_template"] = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "is_default": True,
-        "machine_spec": {
-            "machine_type": "machine_type_value",
-            "accelerator_type": 1,
-            "accelerator_count": 1805,
-            "tpu_topology": "tpu_topology_value",
-            "reservation_affinity": {
-                "reservation_affinity_type": 1,
-                "key": "key_value",
-                "values": ["values_value1", "values_value2"],
-            },
-        },
-        "data_persistent_disk_spec": {
-            "disk_type": "disk_type_value",
-            "disk_size_gb": 1261,
-        },
-        "network_spec": {
-            "enable_internet_access": True,
-            "network": "network_value",
-            "subnetwork": "subnetwork_value",
-        },
-        "service_account": "service_account_value",
-        "etag": "etag_value",
-        "labels": {},
-        "idle_shutdown_config": {
-            "idle_timeout": {"seconds": 751, "nanos": 543},
-            "idle_shutdown_disabled": True,
-        },
-        "euc_config": {"euc_disabled": True, "bypass_actas_check": True},
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "notebook_runtime_type": 1,
-        "shielded_vm_config": {"enable_secure_boot": True},
-        "network_tags": ["network_tags_value1", "network_tags_value2"],
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = notebook_service.UpdateNotebookRuntimeTemplateRequest.meta.fields[
-        "notebook_runtime_template"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init[
-        "notebook_runtime_template"
-    ].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(
-                    0, len(request_init["notebook_runtime_template"][field])
-                ):
-                    del request_init["notebook_runtime_template"][field][i][subfield]
-            else:
-                del request_init["notebook_runtime_template"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = notebook_runtime.NotebookRuntimeTemplate(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            is_default=True,
-            service_account="service_account_value",
-            etag="etag_value",
-            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
-            network_tags=["network_tags_value"],
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = notebook_runtime.NotebookRuntimeTemplate.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.update_notebook_runtime_template(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, notebook_runtime.NotebookRuntimeTemplate)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.is_default is True
-    assert response.service_account == "service_account_value"
-    assert response.etag == "etag_value"
-    assert (
-        response.notebook_runtime_type
-        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
-    )
-    assert response.network_tags == ["network_tags_value"]
 
 
 def test_update_notebook_runtime_template_rest_use_cached_wrapped_rpc():
@@ -9762,94 +8258,6 @@ def test_update_notebook_runtime_template_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_update_notebook_runtime_template_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.NotebookServiceRestInterceptor,
-        "post_update_notebook_runtime_template",
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor,
-        "pre_update_notebook_runtime_template",
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.UpdateNotebookRuntimeTemplateRequest.pb(
-            notebook_service.UpdateNotebookRuntimeTemplateRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = notebook_runtime.NotebookRuntimeTemplate.to_json(
-            notebook_runtime.NotebookRuntimeTemplate()
-        )
-
-        request = notebook_service.UpdateNotebookRuntimeTemplateRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = notebook_runtime.NotebookRuntimeTemplate()
-
-        client.update_notebook_runtime_template(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_update_notebook_runtime_template_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.UpdateNotebookRuntimeTemplateRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "notebook_runtime_template": {
-            "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
-        }
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.update_notebook_runtime_template(request)
-
-
 def test_update_notebook_runtime_template_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -9915,47 +8323,6 @@ def test_update_notebook_runtime_template_rest_flattened_error(transport: str = 
             ),
             update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
-
-
-def test_update_notebook_runtime_template_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.AssignNotebookRuntimeRequest,
-        dict,
-    ],
-)
-def test_assign_notebook_runtime_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.assign_notebook_runtime(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_assign_notebook_runtime_rest_use_cached_wrapped_rpc():
@@ -10100,89 +8467,6 @@ def test_assign_notebook_runtime_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_assign_notebook_runtime"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_assign_notebook_runtime"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.AssignNotebookRuntimeRequest.pb(
-            notebook_service.AssignNotebookRuntimeRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.AssignNotebookRuntimeRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.assign_notebook_runtime(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_assign_notebook_runtime_rest_bad_request(
-    transport: str = "rest", request_type=notebook_service.AssignNotebookRuntimeRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.assign_notebook_runtime(request)
-
-
 def test_assign_notebook_runtime_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -10242,85 +8526,6 @@ def test_assign_notebook_runtime_rest_flattened_error(transport: str = "rest"):
             notebook_runtime=gca_notebook_runtime.NotebookRuntime(name="name_value"),
             notebook_runtime_id="notebook_runtime_id_value",
         )
-
-
-def test_assign_notebook_runtime_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.GetNotebookRuntimeRequest,
-        dict,
-    ],
-)
-def test_get_notebook_runtime_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = notebook_runtime.NotebookRuntime(
-            name="name_value",
-            runtime_user="runtime_user_value",
-            proxy_uri="proxy_uri_value",
-            health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
-            display_name="display_name_value",
-            description="description_value",
-            service_account="service_account_value",
-            runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
-            is_upgradable=True,
-            version="version_value",
-            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
-            network_tags=["network_tags_value"],
-            satisfies_pzs=True,
-            satisfies_pzi=True,
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = notebook_runtime.NotebookRuntime.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_notebook_runtime(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, notebook_runtime.NotebookRuntime)
-    assert response.name == "name_value"
-    assert response.runtime_user == "runtime_user_value"
-    assert response.proxy_uri == "proxy_uri_value"
-    assert response.health_state == notebook_runtime.NotebookRuntime.HealthState.HEALTHY
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.service_account == "service_account_value"
-    assert (
-        response.runtime_state == notebook_runtime.NotebookRuntime.RuntimeState.RUNNING
-    )
-    assert response.is_upgradable is True
-    assert response.version == "version_value"
-    assert (
-        response.notebook_runtime_type
-        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
-    )
-    assert response.network_tags == ["network_tags_value"]
-    assert response.satisfies_pzs is True
-    assert response.satisfies_pzi is True
 
 
 def test_get_notebook_runtime_rest_use_cached_wrapped_rpc():
@@ -10446,89 +8651,6 @@ def test_get_notebook_runtime_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_notebook_runtime_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.GetNotebookRuntimeRequest.pb(
-            notebook_service.GetNotebookRuntimeRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = notebook_runtime.NotebookRuntime.to_json(
-            notebook_runtime.NotebookRuntime()
-        )
-
-        request = notebook_service.GetNotebookRuntimeRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = notebook_runtime.NotebookRuntime()
-
-        client.get_notebook_runtime(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_notebook_runtime_rest_bad_request(
-    transport: str = "rest", request_type=notebook_service.GetNotebookRuntimeRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_notebook_runtime(request)
-
-
 def test_get_notebook_runtime_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -10586,52 +8708,6 @@ def test_get_notebook_runtime_rest_flattened_error(transport: str = "rest"):
             notebook_service.GetNotebookRuntimeRequest(),
             name="name_value",
         )
-
-
-def test_get_notebook_runtime_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.ListNotebookRuntimesRequest,
-        dict,
-    ],
-)
-def test_list_notebook_runtimes_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = notebook_service.ListNotebookRuntimesResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = notebook_service.ListNotebookRuntimesResponse.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_notebook_runtimes(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListNotebookRuntimesPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_notebook_runtimes_rest_use_cached_wrapped_rpc():
@@ -10781,89 +8857,6 @@ def test_list_notebook_runtimes_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_list_notebook_runtimes"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtimes"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.ListNotebookRuntimesRequest.pb(
-            notebook_service.ListNotebookRuntimesRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            notebook_service.ListNotebookRuntimesResponse.to_json(
-                notebook_service.ListNotebookRuntimesResponse()
-            )
-        )
-
-        request = notebook_service.ListNotebookRuntimesRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = notebook_service.ListNotebookRuntimesResponse()
-
-        client.list_notebook_runtimes(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_notebook_runtimes_rest_bad_request(
-    transport: str = "rest", request_type=notebook_service.ListNotebookRuntimesRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_notebook_runtimes(request)
-
-
 def test_list_notebook_runtimes_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -10982,43 +8975,6 @@ def test_list_notebook_runtimes_rest_pager(transport: str = "rest"):
         pages = list(client.list_notebook_runtimes(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.DeleteNotebookRuntimeRequest,
-        dict,
-    ],
-)
-def test_delete_notebook_runtime_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_notebook_runtime(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_notebook_runtime_rest_use_cached_wrapped_rpc():
@@ -11146,91 +9102,6 @@ def test_delete_notebook_runtime_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_delete_notebook_runtime"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_delete_notebook_runtime"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.DeleteNotebookRuntimeRequest.pb(
-            notebook_service.DeleteNotebookRuntimeRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.DeleteNotebookRuntimeRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_notebook_runtime(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_notebook_runtime_rest_bad_request(
-    transport: str = "rest", request_type=notebook_service.DeleteNotebookRuntimeRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_notebook_runtime(request)
-
-
 def test_delete_notebook_runtime_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -11286,49 +9157,6 @@ def test_delete_notebook_runtime_rest_flattened_error(transport: str = "rest"):
             notebook_service.DeleteNotebookRuntimeRequest(),
             name="name_value",
         )
-
-
-def test_delete_notebook_runtime_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.UpgradeNotebookRuntimeRequest,
-        dict,
-    ],
-)
-def test_upgrade_notebook_runtime_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.upgrade_notebook_runtime(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_upgrade_notebook_runtime_rest_use_cached_wrapped_rpc():
@@ -11457,91 +9285,6 @@ def test_upgrade_notebook_runtime_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_upgrade_notebook_runtime"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_upgrade_notebook_runtime"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.UpgradeNotebookRuntimeRequest.pb(
-            notebook_service.UpgradeNotebookRuntimeRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.UpgradeNotebookRuntimeRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.upgrade_notebook_runtime(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_upgrade_notebook_runtime_rest_bad_request(
-    transport: str = "rest", request_type=notebook_service.UpgradeNotebookRuntimeRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.upgrade_notebook_runtime(request)
-
-
 def test_upgrade_notebook_runtime_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -11597,49 +9340,6 @@ def test_upgrade_notebook_runtime_rest_flattened_error(transport: str = "rest"):
             notebook_service.UpgradeNotebookRuntimeRequest(),
             name="name_value",
         )
-
-
-def test_upgrade_notebook_runtime_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.StartNotebookRuntimeRequest,
-        dict,
-    ],
-)
-def test_start_notebook_runtime_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.start_notebook_runtime(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_start_notebook_runtime_rest_use_cached_wrapped_rpc():
@@ -11768,91 +9468,6 @@ def test_start_notebook_runtime_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_start_notebook_runtime_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_start_notebook_runtime"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_start_notebook_runtime"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.StartNotebookRuntimeRequest.pb(
-            notebook_service.StartNotebookRuntimeRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.StartNotebookRuntimeRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.start_notebook_runtime(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_start_notebook_runtime_rest_bad_request(
-    transport: str = "rest", request_type=notebook_service.StartNotebookRuntimeRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.start_notebook_runtime(request)
-
-
 def test_start_notebook_runtime_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -11908,149 +9523,6 @@ def test_start_notebook_runtime_rest_flattened_error(transport: str = "rest"):
             notebook_service.StartNotebookRuntimeRequest(),
             name="name_value",
         )
-
-
-def test_start_notebook_runtime_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.CreateNotebookExecutionJobRequest,
-        dict,
-    ],
-)
-def test_create_notebook_execution_job_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request_init["notebook_execution_job"] = {
-        "dataform_repository_source": {
-            "dataform_repository_resource_name": "dataform_repository_resource_name_value",
-            "commit_sha": "commit_sha_value",
-        },
-        "gcs_notebook_source": {"uri": "uri_value", "generation": "generation_value"},
-        "direct_notebook_source": {"content": b"content_blob"},
-        "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
-        "gcs_output_uri": "gcs_output_uri_value",
-        "execution_user": "execution_user_value",
-        "service_account": "service_account_value",
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "execution_timeout": {"seconds": 751, "nanos": 543},
-        "schedule_resource_name": "schedule_resource_name_value",
-        "job_state": 1,
-        "status": {
-            "code": 411,
-            "message": "message_value",
-            "details": [
-                {
-                    "type_url": "type.googleapis.com/google.protobuf.Duration",
-                    "value": b"\x08\x0c\x10\xdb\x07",
-                }
-            ],
-        },
-        "create_time": {"seconds": 751, "nanos": 543},
-        "update_time": {},
-        "labels": {},
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-    }
-    # The version of a generated dependency at test runtime may differ from the version used during generation.
-    # Delete any fields which are not present in the current runtime dependency
-    # See https://github.com/googleapis/gapic-generator-python/issues/1748
-
-    # Determine if the message type is proto-plus or protobuf
-    test_field = notebook_service.CreateNotebookExecutionJobRequest.meta.fields[
-        "notebook_execution_job"
-    ]
-
-    def get_message_fields(field):
-        # Given a field which is a message (composite type), return a list with
-        # all the fields of the message.
-        # If the field is not a composite type, return an empty list.
-        message_fields = []
-
-        if hasattr(field, "message") and field.message:
-            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
-
-            if is_field_type_proto_plus_type:
-                message_fields = field.message.meta.fields.values()
-            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
-                message_fields = field.message.DESCRIPTOR.fields
-        return message_fields
-
-    runtime_nested_fields = [
-        (field.name, nested_field.name)
-        for field in get_message_fields(test_field)
-        for nested_field in get_message_fields(field)
-    ]
-
-    subfields_not_in_runtime = []
-
-    # For each item in the sample request, create a list of sub fields which are not present at runtime
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init[
-        "notebook_execution_job"
-    ].items():  # pragma: NO COVER
-        result = None
-        is_repeated = False
-        # For repeated fields
-        if isinstance(value, list) and len(value):
-            is_repeated = True
-            result = value[0]
-        # For fields where the type is another message
-        if isinstance(value, dict):
-            result = value
-
-        if result and hasattr(result, "keys"):
-            for subfield in result.keys():
-                if (field, subfield) not in runtime_nested_fields:
-                    subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
-                    )
-
-    # Remove fields from the sample request which are not present in the runtime version of the dependency
-    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
-        field = subfield_to_delete.get("field")
-        field_repeated = subfield_to_delete.get("is_repeated")
-        subfield = subfield_to_delete.get("subfield")
-        if subfield:
-            if field_repeated:
-                for i in range(0, len(request_init["notebook_execution_job"][field])):
-                    del request_init["notebook_execution_job"][field][i][subfield]
-            else:
-                del request_init["notebook_execution_job"][field][subfield]
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.create_notebook_execution_job(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_create_notebook_execution_job_rest_use_cached_wrapped_rpc():
@@ -12191,90 +9663,6 @@ def test_create_notebook_execution_job_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_create_notebook_execution_job_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_create_notebook_execution_job"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_create_notebook_execution_job"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.CreateNotebookExecutionJobRequest.pb(
-            notebook_service.CreateNotebookExecutionJobRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.CreateNotebookExecutionJobRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.create_notebook_execution_job(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_create_notebook_execution_job_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.CreateNotebookExecutionJobRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.create_notebook_execution_job(request)
-
-
 def test_create_notebook_execution_job_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -12340,63 +9728,6 @@ def test_create_notebook_execution_job_rest_flattened_error(transport: str = "re
             ),
             notebook_execution_job_id="notebook_execution_job_id_value",
         )
-
-
-def test_create_notebook_execution_job_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.GetNotebookExecutionJobRequest,
-        dict,
-    ],
-)
-def test_get_notebook_execution_job_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = notebook_execution_job.NotebookExecutionJob(
-            name="name_value",
-            display_name="display_name_value",
-            schedule_resource_name="schedule_resource_name_value",
-            job_state=job_state.JobState.JOB_STATE_QUEUED,
-            notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
-            gcs_output_uri="gcs_output_uri_value",
-            execution_user="execution_user_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = notebook_execution_job.NotebookExecutionJob.pb(return_value)
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.get_notebook_execution_job(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, notebook_execution_job.NotebookExecutionJob)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.schedule_resource_name == "schedule_resource_name_value"
-    assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
 
 
 def test_get_notebook_execution_job_rest_use_cached_wrapped_rpc():
@@ -12525,90 +9856,6 @@ def test_get_notebook_execution_job_rest_unset_required_fields():
     assert set(unset_fields) == (set(("view",)) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_get_notebook_execution_job_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_get_notebook_execution_job"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_get_notebook_execution_job"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.GetNotebookExecutionJobRequest.pb(
-            notebook_service.GetNotebookExecutionJobRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = notebook_execution_job.NotebookExecutionJob.to_json(
-            notebook_execution_job.NotebookExecutionJob()
-        )
-
-        request = notebook_service.GetNotebookExecutionJobRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = notebook_execution_job.NotebookExecutionJob()
-
-        client.get_notebook_execution_job(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_get_notebook_execution_job_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.GetNotebookExecutionJobRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_notebook_execution_job(request)
-
-
 def test_get_notebook_execution_job_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -12666,54 +9913,6 @@ def test_get_notebook_execution_job_rest_flattened_error(transport: str = "rest"
             notebook_service.GetNotebookExecutionJobRequest(),
             name="name_value",
         )
-
-
-def test_get_notebook_execution_job_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.ListNotebookExecutionJobsRequest,
-        dict,
-    ],
-)
-def test_list_notebook_execution_jobs_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = notebook_service.ListNotebookExecutionJobsResponse(
-            next_page_token="next_page_token_value",
-        )
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        # Convert return value to protobuf type
-        return_value = notebook_service.ListNotebookExecutionJobsResponse.pb(
-            return_value
-        )
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.list_notebook_execution_jobs(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListNotebookExecutionJobsPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_notebook_execution_jobs_rest_use_cached_wrapped_rpc():
@@ -12863,90 +10062,6 @@ def test_list_notebook_execution_jobs_rest_unset_required_fields():
     )
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_list_notebook_execution_jobs_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_list_notebook_execution_jobs"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_list_notebook_execution_jobs"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.ListNotebookExecutionJobsRequest.pb(
-            notebook_service.ListNotebookExecutionJobsRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = (
-            notebook_service.ListNotebookExecutionJobsResponse.to_json(
-                notebook_service.ListNotebookExecutionJobsResponse()
-            )
-        )
-
-        request = notebook_service.ListNotebookExecutionJobsRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = notebook_service.ListNotebookExecutionJobsResponse()
-
-        client.list_notebook_execution_jobs(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_list_notebook_execution_jobs_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.ListNotebookExecutionJobsRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_notebook_execution_jobs(request)
-
-
 def test_list_notebook_execution_jobs_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -13070,43 +10185,6 @@ def test_list_notebook_execution_jobs_rest_pager(transport: str = "rest"):
         pages = list(client.list_notebook_execution_jobs(request=sample_request).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        notebook_service.DeleteNotebookExecutionJobRequest,
-        dict,
-    ],
-)
-def test_delete_notebook_execution_job_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        response = client.delete_notebook_execution_job(request)
-
-    # Establish that the response is the type that we expect.
-    assert response.operation.name == "operations/spam"
 
 
 def test_delete_notebook_execution_job_rest_use_cached_wrapped_rpc():
@@ -13236,92 +10314,6 @@ def test_delete_notebook_execution_job_rest_unset_required_fields():
     assert set(unset_fields) == (set(()) & set(("name",)))
 
 
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_delete_notebook_execution_job_rest_interceptors(null_interceptor):
-    transport = transports.NotebookServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.NotebookServiceRestInterceptor(),
-    )
-    client = NotebookServiceClient(transport=transport)
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "post_delete_notebook_execution_job"
-    ) as post, mock.patch.object(
-        transports.NotebookServiceRestInterceptor, "pre_delete_notebook_execution_job"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        pb_message = notebook_service.DeleteNotebookExecutionJobRequest.pb(
-            notebook_service.DeleteNotebookExecutionJobRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = Response()
-        req.return_value.status_code = 200
-        req.return_value.request = PreparedRequest()
-        req.return_value._content = json_format.MessageToJson(
-            operations_pb2.Operation()
-        )
-
-        request = notebook_service.DeleteNotebookExecutionJobRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-
-        client.delete_notebook_execution_job(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-
-
-def test_delete_notebook_execution_job_rest_bad_request(
-    transport: str = "rest",
-    request_type=notebook_service.DeleteNotebookExecutionJobRequest,
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {
-        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
-    }
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_notebook_execution_job(request)
-
-
 def test_delete_notebook_execution_job_rest_flattened():
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -13377,12 +10369,6 @@ def test_delete_notebook_execution_job_rest_flattened_error(transport: str = "re
             notebook_service.DeleteNotebookExecutionJobRequest(),
             name="name_value",
         )
-
-
-def test_delete_notebook_execution_job_rest_error():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
 
 
 def test_credentials_transport_error():
@@ -13477,18 +10463,4012 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+def test_transport_kind_grpc():
+    transport = NotebookServiceClient.get_transport_class("grpc")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "grpc"
+
+
+def test_initialize_client_w_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_notebook_runtime_template_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_notebook_runtime_template), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.CreateNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_notebook_runtime_template_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime_template), "__call__"
+    ) as call:
+        call.return_value = notebook_runtime.NotebookRuntimeTemplate()
+        client.get_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_notebook_runtime_templates_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtime_templates), "__call__"
+    ) as call:
+        call.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
+        client.list_notebook_runtime_templates(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookRuntimeTemplatesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_notebook_runtime_template_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime_template), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_notebook_runtime_template_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_notebook_runtime_template), "__call__"
+    ) as call:
+        call.return_value = notebook_runtime.NotebookRuntimeTemplate()
+        client.update_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.UpdateNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_assign_notebook_runtime_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.assign_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.assign_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.AssignNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_notebook_runtime_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = notebook_runtime.NotebookRuntime()
+        client.get_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_notebook_runtimes_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        call.return_value = notebook_service.ListNotebookRuntimesResponse()
+        client.list_notebook_runtimes(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookRuntimesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_notebook_runtime_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_upgrade_notebook_runtime_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.upgrade_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.UpgradeNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_start_notebook_runtime_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.start_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.StartNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_notebook_execution_job_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_notebook_execution_job), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.CreateNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_notebook_execution_job_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_execution_job), "__call__"
+    ) as call:
+        call.return_value = notebook_execution_job.NotebookExecutionJob()
+        client.get_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_notebook_execution_jobs_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_execution_jobs), "__call__"
+    ) as call:
+        call.return_value = notebook_service.ListNotebookExecutionJobsResponse()
+        client.list_notebook_execution_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookExecutionJobsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_notebook_execution_job_empty_call_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_execution_job), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_grpc_asyncio():
+    transport = NotebookServiceAsyncClient.get_transport_class("grpc_asyncio")(
+        credentials=async_anonymous_credentials()
+    )
+    assert transport.kind == "grpc_asyncio"
+
+
+def test_initialize_client_w_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_notebook_runtime_template_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_notebook_runtime_template), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.create_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.CreateNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_template_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime_template), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_runtime.NotebookRuntimeTemplate(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                is_default=True,
+                service_account="service_account_value",
+                etag="etag_value",
+                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+                network_tags=["network_tags_value"],
+            )
+        )
+        await client.get_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_notebook_runtime_templates_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtime_templates), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_service.ListNotebookRuntimeTemplatesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_notebook_runtime_templates(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookRuntimeTemplatesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_template_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime_template), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_notebook_runtime_template_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_notebook_runtime_template), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_runtime.NotebookRuntimeTemplate(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                is_default=True,
+                service_account="service_account_value",
+                etag="etag_value",
+                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+                network_tags=["network_tags_value"],
+            )
+        )
+        await client.update_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.UpdateNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_assign_notebook_runtime_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.assign_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.assign_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.AssignNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_notebook_runtime_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_runtime.NotebookRuntime(
+                name="name_value",
+                runtime_user="runtime_user_value",
+                proxy_uri="proxy_uri_value",
+                health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
+                display_name="display_name_value",
+                description="description_value",
+                service_account="service_account_value",
+                runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
+                is_upgradable=True,
+                version="version_value",
+                notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+                network_tags=["network_tags_value"],
+                satisfies_pzs=True,
+                satisfies_pzi=True,
+            )
+        )
+        await client.get_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_notebook_runtimes_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_service.ListNotebookRuntimesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_notebook_runtimes(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookRuntimesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_notebook_runtime_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_upgrade_notebook_runtime_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.upgrade_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.UpgradeNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_start_notebook_runtime_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.start_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.StartNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_notebook_execution_job_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_notebook_execution_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.create_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.CreateNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_notebook_execution_job_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_execution_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_execution_job.NotebookExecutionJob(
+                name="name_value",
+                display_name="display_name_value",
+                schedule_resource_name="schedule_resource_name_value",
+                job_state=job_state.JobState.JOB_STATE_QUEUED,
+            )
+        )
+        await client.get_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_notebook_execution_jobs_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_execution_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            notebook_service.ListNotebookExecutionJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_notebook_execution_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookExecutionJobsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_notebook_execution_job_empty_call_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_execution_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+def test_transport_kind_rest():
+    transport = NotebookServiceClient.get_transport_class("rest")(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+    assert transport.kind == "rest"
+
+
+def test_create_notebook_runtime_template_rest_bad_request(
+    request_type=notebook_service.CreateNotebookRuntimeTemplateRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_notebook_runtime_template(request)
+
+
 @pytest.mark.parametrize(
-    "transport_name",
+    "request_type",
     [
-        "grpc",
-        "rest",
+        notebook_service.CreateNotebookRuntimeTemplateRequest,
+        dict,
     ],
 )
-def test_transport_kind(transport_name):
-    transport = NotebookServiceClient.get_transport_class(transport_name)(
-        credentials=ga_credentials.AnonymousCredentials(),
+def test_create_notebook_runtime_template_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
-    assert transport.kind == transport_name
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["notebook_runtime_template"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "is_default": True,
+        "machine_spec": {
+            "machine_type": "machine_type_value",
+            "accelerator_type": 1,
+            "accelerator_count": 1805,
+            "tpu_topology": "tpu_topology_value",
+            "reservation_affinity": {
+                "reservation_affinity_type": 1,
+                "key": "key_value",
+                "values": ["values_value1", "values_value2"],
+            },
+        },
+        "data_persistent_disk_spec": {
+            "disk_type": "disk_type_value",
+            "disk_size_gb": 1261,
+        },
+        "network_spec": {
+            "enable_internet_access": True,
+            "network": "network_value",
+            "subnetwork": "subnetwork_value",
+        },
+        "service_account": "service_account_value",
+        "etag": "etag_value",
+        "labels": {},
+        "idle_shutdown_config": {
+            "idle_timeout": {"seconds": 751, "nanos": 543},
+            "idle_shutdown_disabled": True,
+        },
+        "euc_config": {"euc_disabled": True, "bypass_actas_check": True},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "notebook_runtime_type": 1,
+        "shielded_vm_config": {"enable_secure_boot": True},
+        "network_tags": ["network_tags_value1", "network_tags_value2"],
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = notebook_service.CreateNotebookRuntimeTemplateRequest.meta.fields[
+        "notebook_runtime_template"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "notebook_runtime_template"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(
+                    0, len(request_init["notebook_runtime_template"][field])
+                ):
+                    del request_init["notebook_runtime_template"][field][i][subfield]
+            else:
+                del request_init["notebook_runtime_template"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_notebook_runtime_template(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_notebook_runtime_template_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_create_notebook_runtime_template",
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "pre_create_notebook_runtime_template",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.CreateNotebookRuntimeTemplateRequest.pb(
+            notebook_service.CreateNotebookRuntimeTemplateRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.CreateNotebookRuntimeTemplateRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.create_notebook_runtime_template(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_notebook_runtime_template_rest_bad_request(
+    request_type=notebook_service.GetNotebookRuntimeTemplateRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_notebook_runtime_template(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.GetNotebookRuntimeTemplateRequest,
+        dict,
+    ],
+)
+def test_get_notebook_runtime_template_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_runtime.NotebookRuntimeTemplate(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            is_default=True,
+            service_account="service_account_value",
+            etag="etag_value",
+            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+            network_tags=["network_tags_value"],
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = notebook_runtime.NotebookRuntimeTemplate.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_notebook_runtime_template(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, notebook_runtime.NotebookRuntimeTemplate)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.is_default is True
+    assert response.service_account == "service_account_value"
+    assert response.etag == "etag_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_notebook_runtime_template_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime_template"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime_template"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.GetNotebookRuntimeTemplateRequest.pb(
+            notebook_service.GetNotebookRuntimeTemplateRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = notebook_runtime.NotebookRuntimeTemplate.to_json(
+            notebook_runtime.NotebookRuntimeTemplate()
+        )
+        req.return_value.content = return_value
+
+        request = notebook_service.GetNotebookRuntimeTemplateRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_runtime.NotebookRuntimeTemplate()
+
+        client.get_notebook_runtime_template(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_notebook_runtime_templates_rest_bad_request(
+    request_type=notebook_service.ListNotebookRuntimeTemplatesRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_notebook_runtime_templates(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.ListNotebookRuntimeTemplatesRequest,
+        dict,
+    ],
+)
+def test_list_notebook_runtime_templates_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_notebook_runtime_templates(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNotebookRuntimeTemplatesPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_notebook_runtime_templates_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_list_notebook_runtime_templates",
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtime_templates"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.ListNotebookRuntimeTemplatesRequest.pb(
+            notebook_service.ListNotebookRuntimeTemplatesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = notebook_service.ListNotebookRuntimeTemplatesResponse.to_json(
+            notebook_service.ListNotebookRuntimeTemplatesResponse()
+        )
+        req.return_value.content = return_value
+
+        request = notebook_service.ListNotebookRuntimeTemplatesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_service.ListNotebookRuntimeTemplatesResponse()
+
+        client.list_notebook_runtime_templates(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_notebook_runtime_template_rest_bad_request(
+    request_type=notebook_service.DeleteNotebookRuntimeTemplateRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_notebook_runtime_template(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.DeleteNotebookRuntimeTemplateRequest,
+        dict,
+    ],
+)
+def test_delete_notebook_runtime_template_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_notebook_runtime_template(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_notebook_runtime_template_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_delete_notebook_runtime_template",
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "pre_delete_notebook_runtime_template",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.DeleteNotebookRuntimeTemplateRequest.pb(
+            notebook_service.DeleteNotebookRuntimeTemplateRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.DeleteNotebookRuntimeTemplateRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_notebook_runtime_template(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_update_notebook_runtime_template_rest_bad_request(
+    request_type=notebook_service.UpdateNotebookRuntimeTemplateRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "notebook_runtime_template": {
+            "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
+        }
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.update_notebook_runtime_template(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.UpdateNotebookRuntimeTemplateRequest,
+        dict,
+    ],
+)
+def test_update_notebook_runtime_template_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "notebook_runtime_template": {
+            "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3"
+        }
+    }
+    request_init["notebook_runtime_template"] = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimeTemplates/sample3",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "is_default": True,
+        "machine_spec": {
+            "machine_type": "machine_type_value",
+            "accelerator_type": 1,
+            "accelerator_count": 1805,
+            "tpu_topology": "tpu_topology_value",
+            "reservation_affinity": {
+                "reservation_affinity_type": 1,
+                "key": "key_value",
+                "values": ["values_value1", "values_value2"],
+            },
+        },
+        "data_persistent_disk_spec": {
+            "disk_type": "disk_type_value",
+            "disk_size_gb": 1261,
+        },
+        "network_spec": {
+            "enable_internet_access": True,
+            "network": "network_value",
+            "subnetwork": "subnetwork_value",
+        },
+        "service_account": "service_account_value",
+        "etag": "etag_value",
+        "labels": {},
+        "idle_shutdown_config": {
+            "idle_timeout": {"seconds": 751, "nanos": 543},
+            "idle_shutdown_disabled": True,
+        },
+        "euc_config": {"euc_disabled": True, "bypass_actas_check": True},
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "notebook_runtime_type": 1,
+        "shielded_vm_config": {"enable_secure_boot": True},
+        "network_tags": ["network_tags_value1", "network_tags_value2"],
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = notebook_service.UpdateNotebookRuntimeTemplateRequest.meta.fields[
+        "notebook_runtime_template"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "notebook_runtime_template"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(
+                    0, len(request_init["notebook_runtime_template"][field])
+                ):
+                    del request_init["notebook_runtime_template"][field][i][subfield]
+            else:
+                del request_init["notebook_runtime_template"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_runtime.NotebookRuntimeTemplate(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            is_default=True,
+            service_account="service_account_value",
+            etag="etag_value",
+            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+            network_tags=["network_tags_value"],
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = notebook_runtime.NotebookRuntimeTemplate.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.update_notebook_runtime_template(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, notebook_runtime.NotebookRuntimeTemplate)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.is_default is True
+    assert response.service_account == "service_account_value"
+    assert response.etag == "etag_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_update_notebook_runtime_template_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "post_update_notebook_runtime_template",
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor,
+        "pre_update_notebook_runtime_template",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.UpdateNotebookRuntimeTemplateRequest.pb(
+            notebook_service.UpdateNotebookRuntimeTemplateRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = notebook_runtime.NotebookRuntimeTemplate.to_json(
+            notebook_runtime.NotebookRuntimeTemplate()
+        )
+        req.return_value.content = return_value
+
+        request = notebook_service.UpdateNotebookRuntimeTemplateRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_runtime.NotebookRuntimeTemplate()
+
+        client.update_notebook_runtime_template(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_assign_notebook_runtime_rest_bad_request(
+    request_type=notebook_service.AssignNotebookRuntimeRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.assign_notebook_runtime(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.AssignNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_assign_notebook_runtime_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.assign_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_assign_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_assign_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_assign_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.AssignNotebookRuntimeRequest.pb(
+            notebook_service.AssignNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.AssignNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.assign_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_notebook_runtime_rest_bad_request(
+    request_type=notebook_service.GetNotebookRuntimeRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_notebook_runtime(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.GetNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_get_notebook_runtime_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_runtime.NotebookRuntime(
+            name="name_value",
+            runtime_user="runtime_user_value",
+            proxy_uri="proxy_uri_value",
+            health_state=notebook_runtime.NotebookRuntime.HealthState.HEALTHY,
+            display_name="display_name_value",
+            description="description_value",
+            service_account="service_account_value",
+            runtime_state=notebook_runtime.NotebookRuntime.RuntimeState.RUNNING,
+            is_upgradable=True,
+            version="version_value",
+            notebook_runtime_type=notebook_runtime.NotebookRuntimeType.USER_DEFINED,
+            network_tags=["network_tags_value"],
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = notebook_runtime.NotebookRuntime.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, notebook_runtime.NotebookRuntime)
+    assert response.name == "name_value"
+    assert response.runtime_user == "runtime_user_value"
+    assert response.proxy_uri == "proxy_uri_value"
+    assert response.health_state == notebook_runtime.NotebookRuntime.HealthState.HEALTHY
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.service_account == "service_account_value"
+    assert (
+        response.runtime_state == notebook_runtime.NotebookRuntime.RuntimeState.RUNNING
+    )
+    assert response.is_upgradable is True
+    assert response.version == "version_value"
+    assert (
+        response.notebook_runtime_type
+        == notebook_runtime.NotebookRuntimeType.USER_DEFINED
+    )
+    assert response.network_tags == ["network_tags_value"]
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_get_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_get_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.GetNotebookRuntimeRequest.pb(
+            notebook_service.GetNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = notebook_runtime.NotebookRuntime.to_json(
+            notebook_runtime.NotebookRuntime()
+        )
+        req.return_value.content = return_value
+
+        request = notebook_service.GetNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_runtime.NotebookRuntime()
+
+        client.get_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_notebook_runtimes_rest_bad_request(
+    request_type=notebook_service.ListNotebookRuntimesRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_notebook_runtimes(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.ListNotebookRuntimesRequest,
+        dict,
+    ],
+)
+def test_list_notebook_runtimes_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_service.ListNotebookRuntimesResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = notebook_service.ListNotebookRuntimesResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_notebook_runtimes(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNotebookRuntimesPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_notebook_runtimes_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_list_notebook_runtimes"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_list_notebook_runtimes"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.ListNotebookRuntimesRequest.pb(
+            notebook_service.ListNotebookRuntimesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = notebook_service.ListNotebookRuntimesResponse.to_json(
+            notebook_service.ListNotebookRuntimesResponse()
+        )
+        req.return_value.content = return_value
+
+        request = notebook_service.ListNotebookRuntimesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_service.ListNotebookRuntimesResponse()
+
+        client.list_notebook_runtimes(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_notebook_runtime_rest_bad_request(
+    request_type=notebook_service.DeleteNotebookRuntimeRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_notebook_runtime(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.DeleteNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_delete_notebook_runtime_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_delete_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_delete_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.DeleteNotebookRuntimeRequest.pb(
+            notebook_service.DeleteNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.DeleteNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_upgrade_notebook_runtime_rest_bad_request(
+    request_type=notebook_service.UpgradeNotebookRuntimeRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.upgrade_notebook_runtime(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.UpgradeNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_upgrade_notebook_runtime_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.upgrade_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_upgrade_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_upgrade_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_upgrade_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.UpgradeNotebookRuntimeRequest.pb(
+            notebook_service.UpgradeNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.UpgradeNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.upgrade_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_start_notebook_runtime_rest_bad_request(
+    request_type=notebook_service.StartNotebookRuntimeRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.start_notebook_runtime(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.StartNotebookRuntimeRequest,
+        dict,
+    ],
+)
+def test_start_notebook_runtime_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookRuntimes/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.start_notebook_runtime(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_start_notebook_runtime_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_start_notebook_runtime"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_start_notebook_runtime"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.StartNotebookRuntimeRequest.pb(
+            notebook_service.StartNotebookRuntimeRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.StartNotebookRuntimeRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.start_notebook_runtime(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_notebook_execution_job_rest_bad_request(
+    request_type=notebook_service.CreateNotebookExecutionJobRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_notebook_execution_job(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.CreateNotebookExecutionJobRequest,
+        dict,
+    ],
+)
+def test_create_notebook_execution_job_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["notebook_execution_job"] = {
+        "dataform_repository_source": {
+            "dataform_repository_resource_name": "dataform_repository_resource_name_value",
+            "commit_sha": "commit_sha_value",
+        },
+        "gcs_notebook_source": {"uri": "uri_value", "generation": "generation_value"},
+        "direct_notebook_source": {"content": b"content_blob"},
+        "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+        "gcs_output_uri": "gcs_output_uri_value",
+        "execution_user": "execution_user_value",
+        "service_account": "service_account_value",
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "execution_timeout": {"seconds": 751, "nanos": 543},
+        "schedule_resource_name": "schedule_resource_name_value",
+        "job_state": 1,
+        "status": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "labels": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = notebook_service.CreateNotebookExecutionJobRequest.meta.fields[
+        "notebook_execution_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init[
+        "notebook_execution_job"
+    ].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["notebook_execution_job"][field])):
+                    del request_init["notebook_execution_job"][field][i][subfield]
+            else:
+                del request_init["notebook_execution_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_notebook_execution_job(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_notebook_execution_job_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_create_notebook_execution_job"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_create_notebook_execution_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.CreateNotebookExecutionJobRequest.pb(
+            notebook_service.CreateNotebookExecutionJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.CreateNotebookExecutionJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.create_notebook_execution_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_notebook_execution_job_rest_bad_request(
+    request_type=notebook_service.GetNotebookExecutionJobRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_notebook_execution_job(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.GetNotebookExecutionJobRequest,
+        dict,
+    ],
+)
+def test_get_notebook_execution_job_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_execution_job.NotebookExecutionJob(
+            name="name_value",
+            display_name="display_name_value",
+            schedule_resource_name="schedule_resource_name_value",
+            job_state=job_state.JobState.JOB_STATE_QUEUED,
+            notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
+            gcs_output_uri="gcs_output_uri_value",
+            execution_user="execution_user_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = notebook_execution_job.NotebookExecutionJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_notebook_execution_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, notebook_execution_job.NotebookExecutionJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.schedule_resource_name == "schedule_resource_name_value"
+    assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_notebook_execution_job_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_get_notebook_execution_job"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_get_notebook_execution_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.GetNotebookExecutionJobRequest.pb(
+            notebook_service.GetNotebookExecutionJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = notebook_execution_job.NotebookExecutionJob.to_json(
+            notebook_execution_job.NotebookExecutionJob()
+        )
+        req.return_value.content = return_value
+
+        request = notebook_service.GetNotebookExecutionJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_execution_job.NotebookExecutionJob()
+
+        client.get_notebook_execution_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_notebook_execution_jobs_rest_bad_request(
+    request_type=notebook_service.ListNotebookExecutionJobsRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_notebook_execution_jobs(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.ListNotebookExecutionJobsRequest,
+        dict,
+    ],
+)
+def test_list_notebook_execution_jobs_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = notebook_service.ListNotebookExecutionJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = notebook_service.ListNotebookExecutionJobsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_notebook_execution_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNotebookExecutionJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_notebook_execution_jobs_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_list_notebook_execution_jobs"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_list_notebook_execution_jobs"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.ListNotebookExecutionJobsRequest.pb(
+            notebook_service.ListNotebookExecutionJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = notebook_service.ListNotebookExecutionJobsResponse.to_json(
+            notebook_service.ListNotebookExecutionJobsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = notebook_service.ListNotebookExecutionJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = notebook_service.ListNotebookExecutionJobsResponse()
+
+        client.list_notebook_execution_jobs(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_notebook_execution_job_rest_bad_request(
+    request_type=notebook_service.DeleteNotebookExecutionJobRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_notebook_execution_job(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        notebook_service.DeleteNotebookExecutionJobRequest,
+        dict,
+    ],
+)
+def test_delete_notebook_execution_job_rest_call_success(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/notebookExecutionJobs/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_notebook_execution_job(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_notebook_execution_job_rest_interceptors(null_interceptor):
+    transport = transports.NotebookServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.NotebookServiceRestInterceptor(),
+    )
+    client = NotebookServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "post_delete_notebook_execution_job"
+    ) as post, mock.patch.object(
+        transports.NotebookServiceRestInterceptor, "pre_delete_notebook_execution_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = notebook_service.DeleteNotebookExecutionJobRequest.pb(
+            notebook_service.DeleteNotebookExecutionJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = notebook_service.DeleteNotebookExecutionJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_notebook_execution_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_location(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+def test_get_location_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_list_locations_rest_bad_request(
+    request_type=locations_pb2.ListLocationsRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_locations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+def test_list_locations_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_get_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.GetIamPolicyRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_get_iam_policy_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_set_iam_policy_rest_bad_request(
+    request_type=iam_policy_pb2.SetIamPolicyRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.set_iam_policy(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+def test_set_iam_policy_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+def test_test_iam_permissions_rest_bad_request(
+    request_type=iam_policy_pb2.TestIamPermissionsRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.test_iam_permissions(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+def test_test_iam_permissions_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+def test_cancel_operation_rest_bad_request(
+    request_type=operations_pb2.CancelOperationRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.cancel_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+def test_cancel_operation_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_rest_bad_request(
+    request_type=operations_pb2.DeleteOperationRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.delete_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+def test_delete_operation_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_get_operation_rest_bad_request(
+    request_type=operations_pb2.GetOperationRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.get_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+def test_get_operation_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_list_operations_rest_bad_request(
+    request_type=operations_pb2.ListOperationsRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.list_operations(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+def test_list_operations_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_wait_operation_rest_bad_request(
+    request_type=operations_pb2.WaitOperationRequest,
+):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = Request()
+        req.return_value = response_value
+        client.wait_operation(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+def test_wait_operation_rest(request_type):
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+
+        req.return_value = response_value
+
+        response = client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_initialize_client_w_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_notebook_runtime_template_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_notebook_runtime_template), "__call__"
+    ) as call:
+        client.create_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.CreateNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_notebook_runtime_template_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime_template), "__call__"
+    ) as call:
+        client.get_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_notebook_runtime_templates_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtime_templates), "__call__"
+    ) as call:
+        client.list_notebook_runtime_templates(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookRuntimeTemplatesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_notebook_runtime_template_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime_template), "__call__"
+    ) as call:
+        client.delete_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_update_notebook_runtime_template_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_notebook_runtime_template), "__call__"
+    ) as call:
+        client.update_notebook_runtime_template(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.UpdateNotebookRuntimeTemplateRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_assign_notebook_runtime_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.assign_notebook_runtime), "__call__"
+    ) as call:
+        client.assign_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.AssignNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_notebook_runtime_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_runtime), "__call__"
+    ) as call:
+        client.get_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_notebook_runtimes_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_runtimes), "__call__"
+    ) as call:
+        client.list_notebook_runtimes(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookRuntimesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_notebook_runtime_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_runtime), "__call__"
+    ) as call:
+        client.delete_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_upgrade_notebook_runtime_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upgrade_notebook_runtime), "__call__"
+    ) as call:
+        client.upgrade_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.UpgradeNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_start_notebook_runtime_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.start_notebook_runtime), "__call__"
+    ) as call:
+        client.start_notebook_runtime(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.StartNotebookRuntimeRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_notebook_execution_job_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_notebook_execution_job), "__call__"
+    ) as call:
+        client.create_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.CreateNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_notebook_execution_job_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_notebook_execution_job), "__call__"
+    ) as call:
+        client.get_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.GetNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_notebook_execution_jobs_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_notebook_execution_jobs), "__call__"
+    ) as call:
+        client.list_notebook_execution_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.ListNotebookExecutionJobsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_notebook_execution_job_empty_call_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_notebook_execution_job), "__call__"
+    ) as call:
+        client.delete_notebook_execution_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = notebook_service.DeleteNotebookExecutionJobRequest()
+
+        assert args[0] == request_msg
+
+
+def test_notebook_service_rest_lro_client():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AbstractOperationsClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
 
 
 def test_transport_grpc_default():
@@ -13747,23 +14727,6 @@ def test_notebook_service_http_transport_client_cert_source_for_mtls():
             credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
         )
         mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
-
-
-def test_notebook_service_rest_lro_client():
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    transport = client.transport
-
-    # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.AbstractOperationsClient,
-    )
-
-    # Ensure that subsequent calls to the property send the exact same object.
-    assert transport.operations_client is transport.operations_client
 
 
 @pytest.mark.parametrize(
@@ -14349,607 +15312,6 @@ def test_client_with_default_client_info():
         prep.assert_called_once_with(client_info)
 
 
-@pytest.mark.asyncio
-async def test_transport_close_async():
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
-    )
-    with mock.patch.object(
-        type(getattr(client.transport, "grpc_channel")), "close"
-    ) as close:
-        async with client:
-            close.assert_not_called()
-        close.assert_called_once()
-
-
-def test_get_location_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.GetLocationRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_location(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.GetLocationRequest,
-        dict,
-    ],
-)
-def test_get_location_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.Location()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_location(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.Location)
-
-
-def test_list_locations_rest_bad_request(
-    transport: str = "rest", request_type=locations_pb2.ListLocationsRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict({"name": "projects/sample1"}, request)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_locations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.ListLocationsRequest,
-        dict,
-    ],
-)
-def test_list_locations_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = locations_pb2.ListLocationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_locations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, locations_pb2.ListLocationsResponse)
-
-
-def test_get_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.GetIamPolicyRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.GetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_get_iam_policy_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_set_iam_policy_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.SetIamPolicyRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.set_iam_policy(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.SetIamPolicyRequest,
-        dict,
-    ],
-)
-def test_set_iam_policy_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = policy_pb2.Policy()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.set_iam_policy(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, policy_pb2.Policy)
-
-
-def test_test_iam_permissions_rest_bad_request(
-    transport: str = "rest", request_type=iam_policy_pb2.TestIamPermissionsRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.test_iam_permissions(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.TestIamPermissionsRequest,
-        dict,
-    ],
-)
-def test_test_iam_permissions_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = iam_policy_pb2.TestIamPermissionsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.test_iam_permissions(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
-
-
-def test_cancel_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.CancelOperationRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.cancel_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.CancelOperationRequest,
-        dict,
-    ],
-)
-def test_cancel_operation_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.cancel_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_delete_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.DeleteOperationRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.delete_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.DeleteOperationRequest,
-        dict,
-    ],
-)
-def test_delete_operation_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = None
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = "{}"
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.delete_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert response is None
-
-
-def test_get_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.GetOperationRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.get_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.GetOperationRequest,
-        dict,
-    ],
-)
-def test_get_operation_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.get_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
-def test_list_operations_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.ListOperationsRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.list_operations(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.ListOperationsRequest,
-        dict,
-    ],
-)
-def test_list_operations_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.ListOperationsResponse()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.list_operations(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.ListOperationsResponse)
-
-
-def test_wait_operation_rest_bad_request(
-    transport: str = "rest", request_type=operations_pb2.WaitOperationRequest
-):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 400
-        response_value.request = Request()
-        req.return_value = response_value
-        client.wait_operation(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.WaitOperationRequest,
-        dict,
-    ],
-)
-def test_wait_operation_rest(request_type):
-    client = NotebookServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
-    request = request_type(**request_init)
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation()
-
-        # Wrap the value into a proper Response obj
-        response_value = Response()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-
-        response_value._content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-
-        response = client.wait_operation(request)
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, operations_pb2.Operation)
-
-
 def test_delete_operation(transport: str = "grpc"):
     client = NotebookServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -14977,7 +15339,7 @@ def test_delete_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -15030,7 +15392,7 @@ def test_delete_operation_field_headers():
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -15075,7 +15437,7 @@ def test_delete_operation_from_dict():
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
@@ -15116,7 +15478,7 @@ def test_cancel_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -15169,7 +15531,7 @@ def test_cancel_operation_field_headers():
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -15214,7 +15576,7 @@ def test_cancel_operation_from_dict():
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
@@ -15255,7 +15617,7 @@ def test_wait_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -15310,7 +15672,7 @@ def test_wait_operation_field_headers():
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -15357,7 +15719,7 @@ def test_wait_operation_from_dict():
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
@@ -15400,7 +15762,7 @@ def test_get_operation(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -15455,7 +15817,7 @@ def test_get_operation_field_headers():
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -15502,7 +15864,7 @@ def test_get_operation_from_dict():
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
@@ -15545,7 +15907,7 @@ def test_list_operations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -15600,7 +15962,7 @@ def test_list_operations_field_headers():
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -15647,7 +16009,7 @@ def test_list_operations_from_dict():
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
@@ -15690,7 +16052,7 @@ def test_list_locations(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -15745,7 +16107,7 @@ def test_list_locations_field_headers():
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -15792,7 +16154,7 @@ def test_list_locations_from_dict():
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -15835,7 +16197,7 @@ def test_get_location(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -15887,9 +16249,7 @@ def test_get_location_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials()
-    )
+    client = NotebookServiceAsyncClient(credentials=async_anonymous_credentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -15935,7 +16295,7 @@ def test_get_location_from_dict():
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
@@ -15986,7 +16346,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -16051,7 +16411,7 @@ def test_set_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -16099,7 +16459,7 @@ def test_set_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
@@ -16152,7 +16512,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -16218,7 +16578,7 @@ def test_get_iam_policy_field_headers():
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -16266,7 +16626,7 @@ def test_get_iam_policy_from_dict():
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
@@ -16318,7 +16678,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
         transport=transport,
     )
 
@@ -16385,7 +16745,7 @@ def test_test_iam_permissions_field_headers():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -16439,7 +16799,7 @@ def test_test_iam_permissions_from_dict():
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
     client = NotebookServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
+        credentials=async_anonymous_credentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -16459,22 +16819,41 @@ async def test_test_iam_permissions_from_dict_async():
         call.assert_called()
 
 
-def test_transport_close():
-    transports = {
-        "rest": "_session",
-        "grpc": "_grpc_channel",
-    }
+def test_transport_close_grpc():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
-    for transport, close_name in transports.items():
-        client = NotebookServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport
-        )
-        with mock.patch.object(
-            type(getattr(client.transport, close_name)), "close"
-        ) as close:
-            with client:
-                close.assert_not_called()
-            close.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_transport_close_grpc_asyncio():
+    client = NotebookServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_grpc_channel")), "close"
+    ) as close:
+        async with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+def test_transport_close_rest():
+    client = NotebookServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_session")), "close"
+    ) as close:
+        with client:
+            close.assert_not_called()
+        close.assert_called_once()
 
 
 def test_client_ctx():

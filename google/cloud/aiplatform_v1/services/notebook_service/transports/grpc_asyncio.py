@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import inspect
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -236,6 +237,9 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
             )
 
         # Wrap messages. This must be done after self._grpc_channel exists
+        self._wrap_with_kind = (
+            "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
+        )
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -722,85 +726,144 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
-            self.create_notebook_runtime_template: gapic_v1.method_async.wrap_method(
+            self.create_notebook_runtime_template: self._wrap_method(
                 self.create_notebook_runtime_template,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_notebook_runtime_template: gapic_v1.method_async.wrap_method(
+            self.get_notebook_runtime_template: self._wrap_method(
                 self.get_notebook_runtime_template,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_notebook_runtime_templates: gapic_v1.method_async.wrap_method(
+            self.list_notebook_runtime_templates: self._wrap_method(
                 self.list_notebook_runtime_templates,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_notebook_runtime_template: gapic_v1.method_async.wrap_method(
+            self.delete_notebook_runtime_template: self._wrap_method(
                 self.delete_notebook_runtime_template,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.update_notebook_runtime_template: gapic_v1.method_async.wrap_method(
+            self.update_notebook_runtime_template: self._wrap_method(
                 self.update_notebook_runtime_template,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.assign_notebook_runtime: gapic_v1.method_async.wrap_method(
+            self.assign_notebook_runtime: self._wrap_method(
                 self.assign_notebook_runtime,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_notebook_runtime: gapic_v1.method_async.wrap_method(
+            self.get_notebook_runtime: self._wrap_method(
                 self.get_notebook_runtime,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_notebook_runtimes: gapic_v1.method_async.wrap_method(
+            self.list_notebook_runtimes: self._wrap_method(
                 self.list_notebook_runtimes,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_notebook_runtime: gapic_v1.method_async.wrap_method(
+            self.delete_notebook_runtime: self._wrap_method(
                 self.delete_notebook_runtime,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.upgrade_notebook_runtime: gapic_v1.method_async.wrap_method(
+            self.upgrade_notebook_runtime: self._wrap_method(
                 self.upgrade_notebook_runtime,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.start_notebook_runtime: gapic_v1.method_async.wrap_method(
+            self.start_notebook_runtime: self._wrap_method(
                 self.start_notebook_runtime,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.create_notebook_execution_job: gapic_v1.method_async.wrap_method(
+            self.create_notebook_execution_job: self._wrap_method(
                 self.create_notebook_execution_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.get_notebook_execution_job: gapic_v1.method_async.wrap_method(
+            self.get_notebook_execution_job: self._wrap_method(
                 self.get_notebook_execution_job,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.list_notebook_execution_jobs: gapic_v1.method_async.wrap_method(
+            self.list_notebook_execution_jobs: self._wrap_method(
                 self.list_notebook_execution_jobs,
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.delete_notebook_execution_job: gapic_v1.method_async.wrap_method(
+            self.delete_notebook_execution_job: self._wrap_method(
                 self.delete_notebook_execution_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_location: self._wrap_method(
+                self.get_location,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_locations: self._wrap_method(
+                self.list_locations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_iam_policy: self._wrap_method(
+                self.get_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.set_iam_policy: self._wrap_method(
+                self.set_iam_policy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.test_iam_permissions: self._wrap_method(
+                self.test_iam_permissions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_operation: self._wrap_method(
+                self.cancel_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_operation: self._wrap_method(
+                self.delete_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_operation: self._wrap_method(
+                self.get_operation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_operations: self._wrap_method(
+                self.list_operations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.wait_operation: self._wrap_method(
+                self.wait_operation,
                 default_timeout=None,
                 client_info=client_info,
             ),
         }
 
+    def _wrap_method(self, func, *args, **kwargs):
+        if self._wrap_with_kind:  # pragma: NO COVER
+            kwargs["kind"] = self.kind
+        return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
+
     def close(self):
         return self.grpc_channel.close()
+
+    @property
+    def kind(self) -> str:
+        return "grpc_asyncio"
 
     @property
     def delete_operation(
@@ -845,7 +908,7 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_operation" not in self._stubs:
+        if "wait_operation" not in self._stubs:
             self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
