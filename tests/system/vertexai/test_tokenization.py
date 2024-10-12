@@ -149,7 +149,7 @@ class TestTokenization(e2e_base.TestEndToEnd):
     ):
         # The Gemini 1.5 flash model requires the model version
         # number suffix (001) in staging only
-        if api_endpoint_env_name == STAGING_API_ENDPOINT:
+        if api_endpoint_env_name == STAGING_API_ENDPOINT and "-00" not in model_name:
             model_name = model_name + "-001"
         tokenizer = get_tokenizer_for_model(model_name)
         model = GenerativeModel(model_name)
