@@ -101,6 +101,19 @@ _IMAGE_VERIFICATION_PUBLISHER_MODEL_DICT = {
     },
 }
 
+_IMAGE_SEGMENTATION_PUBLISHER_MODEL_DICT = {
+    "name": "publishers/google/models/image-segmentation-001",
+    "version_id": "default",
+    "open_source_category": "PROPRIETARY",
+    "launch_stage": (gca_publisher_model.PublisherModel.LaunchStage.PRIVATE_PREVIEW),
+    "publisher_model_template": "projects/{project}/locations/{location}/publishers/google/models/image-segmentation-001",
+    "predict_schemata": {
+        "instance_schema_uri": "gs://google-cloud-aiplatform/schema/predict/instance/image_segmentation_model_1.0.0.yaml",
+        "parameters_schema_uri": "gs://google-cloud-aiplatfrom/schema/predict/params/image_segmentation_model_1.0.0.yaml",
+        "prediction_schema_uri": "gs://google-cloud-aiplatform/schema/predict/prediction/image_segmentation_model_1.0.0.yaml",
+    },
+}
+
 
 def make_image_base64(width: int, height: int) -> str:
     image: PIL_Image.Image = PIL_Image.new(mode="RGB", size=(width, height))
@@ -171,6 +184,20 @@ def make_image_upscale_response_gcs() -> Dict[str, Any]:
         "mimeType": "image/png",
     }
     return {"predictions": [predictions]}
+
+
+def make_image_segmentation_response(
+    width: int, height: int, count: int = 1
+) -> Dict[str, Any]:
+    predictions = []
+    for _ in range(count):
+        predictions.append(
+            {
+                "bytesBase64Encoded": make_image_base64(width, height),
+                "mimeType": "image/png",
+            }
+        )
+    return {"predictions": predictions}
 
 
 def generate_image_from_file(
@@ -1016,6 +1043,54 @@ class ImageVerificationModelTests:
         ):
             actual_results = model.verify_image(image=image)
             assert actual_results == [gca_prediction_response, "REJECT"]
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class ImageSegmentationModelTests:
+    """Unit tests for the image segmentation models."""
+
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_get_image_segmentation_results(self):
+        """Tests the image segmentation model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        with mock.patch.object(
+            target=model_garden_service_client.ModelGardenServiceClient,
+            attribute="get_publisher_model",
+            return_value=gca_publisher_model.PublisherModel(
+                _IMAGE_SEGMENTATION_PUBLISHER_MODEL_DICT
+            ),
+        ) as mock_get_publisher_model:
+            model = ga_vision_models.ImageSegmentationModel.from_pretrained(
+                "image-segmentation-001"
+            )
+            mock_get_publisher_model.assert_called_once_with(
+                name="publishers/google/models/image-segmentation-001",
+                retry=base._DEFAULT_RETRY,
+            )
+
+        image = generate_image_from_file()
+        image_segmentation_response = make_image_segmentation_response(640, 640)
+        gca_prediction_response = gca_prediction_service.PredictResponse()
+        gca_prediction_response.predictions.append(
+            image_segmentation_response["predictions"]
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_prediction_response,
+        ):
+            segmentation_response = model.segment_image(base_image=image)
+            assert len(segmentation_response) == 1
 
 
 @pytest.mark.usefixtures("google_auth_mock")

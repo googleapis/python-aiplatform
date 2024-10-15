@@ -15,15 +15,20 @@
 """Classes for working with vision models."""
 
 from vertexai.vision_models._vision_models import (
+    EntityLabel,
     GeneratedImage,
+    GeneratedMask,
     Image,
     ImageCaptioningModel,
     ImageGenerationModel,
     ImageGenerationResponse,
     ImageQnAModel,
+    ImageSegmentationModel,
+    ImageSegmentationResponse,
     ImageTextModel,
     MultiModalEmbeddingModel,
     MultiModalEmbeddingResponse,
+    Scribble,
     Video,
     VideoEmbedding,
     VideoSegmentConfig,
@@ -32,16 +37,21 @@ from vertexai.vision_models._vision_models import (
 )
 
 __all__ = [
+    "EntityLabel",
+    "GeneratedMask",
     "Image",
     "ImageGenerationModel",
     "ImageGenerationResponse",
     "ImageCaptioningModel",
     "ImageQnAModel",
+    "ImageSegmentationModel",
+    "ImageSegmentationResponse",
     "ImageTextModel",
     "WatermarkVerificationModel",
     "GeneratedImage",
     "MultiModalEmbeddingModel",
     "MultiModalEmbeddingResponse",
+    "Scribble",
     "Video",
     "VideoEmbedding",
     "VideoSegmentConfig",
