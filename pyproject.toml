@@ -4,9 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "google-cloud-aiplatform"
-authors = [
-  { name = "Google Cloud Platform", email = "googleapis-packages@google.com" },
-]
+authors = [{ name = "Google LLC", email = "googleapis-packages@google.com" }]
 license = { text = "Apache 2.0" }
 requires-python = ">=3.8"
 description = "Vertex AI API client library"
