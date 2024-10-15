@@ -22,7 +22,7 @@ import pytest
 from importlib import reload
 from unittest import mock
 from urllib import request as urllib_request
-from typing import Tuple
+from typing import Any, Tuple
 
 import pandas as pd
 from google.cloud import storage
@@ -78,6 +78,12 @@ from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
 )
+
+HAS_ASYNC_DEPS = True
+try:
+    from google.auth.aio.credentials import AnonymousCredentials
+except ImportError:
+    HAS_ASYNC_DEPS = False
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -1388,6 +1394,10 @@ def make_eval_classification_pipeline_job(state):
     )
 
 
+def get_client_api_transport(client: Any):
+    return client._transport.__class__.__name__.lower()
+
+
 @pytest.fixture
 def mock_pipeline_service_create():
     with mock.patch.object(
@@ -1837,6 +1847,10 @@ class TestLanguageModels:
             == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
         )
 
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
+
     def test_text_generation_preview_count_tokens(self):
         """Tests the text generation model."""
         aiplatform.init(
@@ -2074,11 +2088,22 @@ class TestLanguageModels:
     @pytest.mark.asyncio
     async def test_text_generation_async(self, api_transport):
         """Tests the text generation model."""
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            api_transport=api_transport,
-        )
+        if api_transport == "rest" and HAS_ASYNC_DEPS:
+            # Construct google.auth.aio.credentials.AnonymousCredentials
+            # for async REST transport.
+            async_credentials = AnonymousCredentials()
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=async_credentials,
+                api_transport=api_transport,
+            )
+        else:
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                api_transport=api_transport,
+            )
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
@@ -2098,22 +2123,38 @@ class TestLanguageModels:
             attribute="predict",
             return_value=gca_predict_response,
         ) as mock_predict:
-            response = await model.predict_async(
-                "What is the best recipe for banana bread? Recipe:",
-                max_output_tokens=128,
-                temperature=0.0,
-                top_p=1.0,
-                top_k=5,
-                stop_sequences=["\n"],
-            )
+            if not HAS_ASYNC_DEPS and api_transport == "rest":
+                # Should raise ImportError for async REST transport without async deps.
+                with pytest.raises(ImportError):
+                    await model.predict_async(
+                        "What is the best recipe for banana bread? Recipe:",
+                        max_output_tokens=128,
+                        temperature=0.0,
+                        top_p=1.0,
+                        top_k=5,
+                        stop_sequences=["\n"],
+                    )
+            else:
+                response = await model.predict_async(
+                    "What is the best recipe for banana bread? Recipe:",
+                    max_output_tokens=128,
+                    temperature=0.0,
+                    top_p=1.0,
+                    top_k=5,
+                    stop_sequences=["\n"],
+                )
+                prediction_parameters = mock_predict.call_args[1]["parameters"]
+                assert prediction_parameters["maxDecodeSteps"] == 128
+                assert prediction_parameters["temperature"] == 0.0
+                assert prediction_parameters["topP"] == 1.0
+                assert prediction_parameters["topK"] == 5
+                assert prediction_parameters["stopSequences"] == ["\n"]
+                assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
 
-        prediction_parameters = mock_predict.call_args[1]["parameters"]
-        assert prediction_parameters["maxDecodeSteps"] == 128
-        assert prediction_parameters["temperature"] == 0.0
-        assert prediction_parameters["topP"] == 1.0
-        assert prediction_parameters["topK"] == 5
-        assert prediction_parameters["stopSequences"] == ["\n"]
-        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+                assert api_transport in get_client_api_transport(
+                    model._endpoint._prediction_async_client._client
+                )
+                await model.close_async_client()
 
     @pytest.mark.asyncio
     async def test_text_generation_multiple_candidates_grounding_async(self):

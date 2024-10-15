@@ -15,9 +15,13 @@
 # limitations under the License.
 #
 
+import pytest
+
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import initializer as aiplatform_initializer
+from google.cloud.aiplatform_v1beta1.services import prediction_service
 from tests.system.aiplatform import e2e_base
 
 
@@ -39,3 +43,19 @@ class TestInitializer(e2e_base.TestEndToEnd):
         # init() with only project shouldn't overwrite creds
         aiplatform.init(project=e2e_base._PROJECT)
         assert aiplatform.initializer.global_config.credentials == creds
+
+    def test_init_rest_async_incorrect_credentials(self):
+        # Sync credentials should not be used for async REST transport.
+        creds = auth_credentials.AnonymousCredentials()
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            api_transport="rest",
+            credentials=creds
+        )
+
+        with pytest.raises(ValueError):
+            aiplatform_initializer.global_config.create_client(
+                client_class=prediction_service.PredictionServiceAsyncClient,
+                prediction_client=True,
+            )

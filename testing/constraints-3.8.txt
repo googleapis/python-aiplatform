@@ -3,7 +3,7 @@
 # are correct in setup.py
 # List *all* library dependencies and extras in this file.
 google-api-core==2.17.1 # Increased for gapic owlbot presubmit tests
-google-auth==2.14.1
+google-auth==2.14.1 # Tests google-auth without rest async support
 proto-plus==1.22.3
 protobuf
 mock==4.0.2

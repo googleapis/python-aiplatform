@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # This constraints file is required for unit tests.
 # List all library dependencies and extras in this file.
-google-api-core
+google-api-core==2.21.0 # Tests google-api-core with rest async support
+google-auth==2.35.0 # Tests google-auth with rest async support
 proto-plus
 protobuf
 mock==4.0.2

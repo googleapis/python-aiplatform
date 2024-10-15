@@ -16,6 +16,7 @@
 #
 
 # pylint: disable=protected-access, g-multiple-import
+from typing import Any
 
 import pytest
 
@@ -39,7 +40,12 @@ from vertexai.preview.language_models import (
     TextEmbeddingModel,
 )
 
+
 STAGING_DIR_URI = "gs://ucaip-samples-us-central1/tmp/staging"
+
+
+def get_client_api_transport(client: Any):
+    return client._transport.__class__.__name__.lower()
 
 
 class TestLanguageModels(e2e_base.TestEndToEnd):
@@ -84,15 +90,38 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         assert response.total_tokens
         assert response.total_billable_characters
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     async def test_text_generation_model_predict_async(self, api_transport):
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            api_transport=api_transport,
-        )
+        # Create async credentials from default credentials for async REST
+        if api_transport == "rest":
+            default_credentials, _ = auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            )
+            auth_req = auth.transport.requests.Request()
+            default_credentials.refresh(auth_req)
+
+            # Create async credentials from default credentials
+            from google.auth.aio.credentials import StaticCredentials
+
+            async_credentials = StaticCredentials(token=default_credentials.token)
+
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                credentials=async_credentials,
+                api_transport=api_transport,
+            )
+        else:
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                api_transport=api_transport,
+            )
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
@@ -106,6 +135,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             grounding_source=grounding_source,
         )
         assert response.text or response.is_blocked
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_async_client._client
+        )
+        await model.close_async_client()
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_text_generation_streaming(self, api_transport):
@@ -125,6 +158,9 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             top_k=5,
         ):
             assert response.text or response.is_blocked
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_preview_text_generation_from_pretrained(self, api_transport):
@@ -149,6 +185,9 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert response.text or response.is_blocked
 
         assert isinstance(model, preview_language_models.TextGenerationModel)
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_chat_on_chat_model(self, api_transport):
@@ -198,6 +237,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+        assert api_transport in get_client_api_transport(
+            chat_model._endpoint._prediction_client
+        )
+
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_chat_model_preview_count_tokens(self, api_transport):
         aiplatform.init(
@@ -226,14 +269,41 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
             > response_without_history.total_billable_characters
         )
 
+        assert api_transport in get_client_api_transport(
+            chat_model._endpoint._prediction_client
+        )
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     async def test_chat_model_async(self, api_transport):
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            api_transport=api_transport,
-        )
+        # Retrieve access token from ADC required to construct
+        # google.auth.aio.credentials.StaticCredentials for async REST transport.
+        # TODO: Update this when google.auth.aio.default is supported for async.
+        if api_transport == "rest":
+            default_credentials, _ = auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            )
+            auth_req = auth.transport.requests.Request()
+            default_credentials.refresh(auth_req)
+
+            # Construct google.auth.aio.credentials.StaticCredentials
+            # using the access token from ADC for async REST transport.
+            from google.auth.aio.credentials import StaticCredentials
+
+            async_credentials = StaticCredentials(token=default_credentials.token)
+
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                credentials=async_credentials,
+                api_transport=api_transport,
+            )
+        else:
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                api_transport=api_transport,
+            )
 
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
         grounding_source = language_models.GroundingSource.WebSearch()
@@ -278,6 +348,11 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+        await chat.close_async_client()
+        assert api_transport in get_client_api_transport(
+            chat_model._endpoint._prediction_async_client._client
+        )
+
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_chat_model_send_message_streaming(self, api_transport):
         aiplatform.init(
@@ -321,6 +396,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert chat.message_history[2].content == message2
         assert chat.message_history[3].author == chat.MODEL_AUTHOR
 
+        assert api_transport in get_client_api_transport(
+            chat_model._endpoint._prediction_async_client._client
+        )
+
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_text_embedding(self, api_transport):
         aiplatform.init(
@@ -345,11 +424,34 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
     @pytest.mark.asyncio
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     async def test_text_embedding_async(self, api_transport):
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            api_transport=api_transport,
-        )
+        # Retrieve access token from ADC required to construct
+        # google.auth.aio.credentials.StaticCredentials for async REST transport.
+        # TODO: Update this when google.auth.aio.default is supported for async.
+        if api_transport == "rest":
+            default_credentials, _ = auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            )
+            auth_req = auth.transport.requests.Request()
+            default_credentials.refresh(auth_req)
+
+            # Construct google.auth.aio.credentials.StaticCredentials
+            # using the access token from ADC for async REST transport.
+            from google.auth.aio.credentials import StaticCredentials
+
+            async_credentials = StaticCredentials(token=default_credentials.token)
+
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                credentials=async_credentials,
+                api_transport=api_transport,
+            )
+        else:
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                api_transport=api_transport,
+            )
 
         model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
         # One short text, one llong text (to check truncation)
@@ -363,6 +465,11 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert len(embeddings[1].values) == 768
         assert embeddings[1].statistics.token_count > 1000
         assert embeddings[1].statistics.truncated
+
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
+        await model.close_async_client()
 
     # TODO(b/339907038): Re-enable test after timeout issue is fixed.
     @pytest.mark.skip(reason="Causes system tests timeout")
@@ -480,6 +587,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
+
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_batch_prediction_for_textembedding(self, api_transport):
         source_uri = "gs://ucaip-samples-us-central1/model/llm/batch_prediction/batch_prediction_prompts_textembedding_dummy1.jsonl"
@@ -504,6 +615,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         job.delete()
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_batch_prediction_for_code_generation(self, api_transport):
@@ -530,6 +645,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
 
         assert gapic_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
+
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_code_generation_streaming(self, api_transport):
         aiplatform.init(
@@ -549,6 +668,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         ):
             assert response.text
 
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
+
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_code_chat_model_send_message_streaming(self, api_transport):
         aiplatform.init(
@@ -563,3 +686,7 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         message1 = "Please help write a function to calculate the max of two numbers"
         for response in chat.send_message_streaming(message1):
             assert response.text
+
+        assert api_transport in get_client_api_transport(
+            chat_model._endpoint._prediction_client
+        )
