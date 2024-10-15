@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import ModelGardenServiceTransport
 from .grpc import ModelGardenServiceGrpcTransport
 from .grpc_asyncio import ModelGardenServiceGrpcAsyncIOTransport
 from .rest import ModelGardenServiceRestTransport
 from .rest import ModelGardenServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncModelGardenServiceRestTransport
+    from .rest_asyncio import AsyncModelGardenServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncModelGardenServiceRestTransport",
+        "AsyncModelGardenServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -30,6 +44,8 @@ _transport_registry = (
 _transport_registry["grpc"] = ModelGardenServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = ModelGardenServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = ModelGardenServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncModelGardenServiceRestTransport
 
 __all__ = (
     "ModelGardenServiceTransport",
@@ -37,4 +53,4 @@ __all__ = (
     "ModelGardenServiceGrpcAsyncIOTransport",
     "ModelGardenServiceRestTransport",
     "ModelGardenServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

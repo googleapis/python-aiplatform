@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import GenAiCacheServiceTransport
 from .grpc import GenAiCacheServiceGrpcTransport
@@ -22,12 +22,28 @@ from .grpc_asyncio import GenAiCacheServiceGrpcAsyncIOTransport
 from .rest import GenAiCacheServiceRestTransport
 from .rest import GenAiCacheServiceRestInterceptor
 
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncGenAiCacheServiceRestTransport
+    from .rest_asyncio import AsyncGenAiCacheServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncGenAiCacheServiceRestTransport",
+        "AsyncGenAiCacheServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
+
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[GenAiCacheServiceTransport]]
 _transport_registry["grpc"] = GenAiCacheServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = GenAiCacheServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = GenAiCacheServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncGenAiCacheServiceRestTransport
 
 __all__ = (
     "GenAiCacheServiceTransport",
@@ -35,4 +51,4 @@ __all__ = (
     "GenAiCacheServiceGrpcAsyncIOTransport",
     "GenAiCacheServiceRestTransport",
     "GenAiCacheServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

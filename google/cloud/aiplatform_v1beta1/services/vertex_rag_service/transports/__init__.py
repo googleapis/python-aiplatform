@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import VertexRagServiceTransport
 from .grpc import VertexRagServiceGrpcTransport
@@ -22,12 +22,28 @@ from .grpc_asyncio import VertexRagServiceGrpcAsyncIOTransport
 from .rest import VertexRagServiceRestTransport
 from .rest import VertexRagServiceRestInterceptor
 
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncVertexRagServiceRestTransport
+    from .rest_asyncio import AsyncVertexRagServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncVertexRagServiceRestTransport",
+        "AsyncVertexRagServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
+
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[VertexRagServiceTransport]]
 _transport_registry["grpc"] = VertexRagServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = VertexRagServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = VertexRagServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncVertexRagServiceRestTransport
 
 __all__ = (
     "VertexRagServiceTransport",
@@ -35,4 +51,4 @@ __all__ = (
     "VertexRagServiceGrpcAsyncIOTransport",
     "VertexRagServiceRestTransport",
     "VertexRagServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

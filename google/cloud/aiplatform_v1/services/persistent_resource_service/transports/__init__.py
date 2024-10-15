@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import PersistentResourceServiceTransport
 from .grpc import PersistentResourceServiceGrpcTransport
 from .grpc_asyncio import PersistentResourceServiceGrpcAsyncIOTransport
 from .rest import PersistentResourceServiceRestTransport
 from .rest import PersistentResourceServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncPersistentResourceServiceRestTransport
+    from .rest_asyncio import AsyncPersistentResourceServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncPersistentResourceServiceRestTransport",
+        "AsyncPersistentResourceServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -30,6 +44,8 @@ _transport_registry = (
 _transport_registry["grpc"] = PersistentResourceServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = PersistentResourceServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = PersistentResourceServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncPersistentResourceServiceRestTransport
 
 __all__ = (
     "PersistentResourceServiceTransport",
@@ -37,4 +53,4 @@ __all__ = (
     "PersistentResourceServiceGrpcAsyncIOTransport",
     "PersistentResourceServiceRestTransport",
     "PersistentResourceServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

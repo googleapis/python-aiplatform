@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import ExtensionRegistryServiceTransport
 from .grpc import ExtensionRegistryServiceGrpcTransport
 from .grpc_asyncio import ExtensionRegistryServiceGrpcAsyncIOTransport
 from .rest import ExtensionRegistryServiceRestTransport
 from .rest import ExtensionRegistryServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncExtensionRegistryServiceRestTransport
+    from .rest_asyncio import AsyncExtensionRegistryServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncExtensionRegistryServiceRestTransport",
+        "AsyncExtensionRegistryServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -30,6 +44,8 @@ _transport_registry = (
 _transport_registry["grpc"] = ExtensionRegistryServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = ExtensionRegistryServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = ExtensionRegistryServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncExtensionRegistryServiceRestTransport
 
 __all__ = (
     "ExtensionRegistryServiceTransport",
@@ -37,4 +53,4 @@ __all__ = (
     "ExtensionRegistryServiceGrpcAsyncIOTransport",
     "ExtensionRegistryServiceRestTransport",
     "ExtensionRegistryServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES
