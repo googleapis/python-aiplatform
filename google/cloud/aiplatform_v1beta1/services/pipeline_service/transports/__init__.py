@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import PipelineServiceTransport
 from .grpc import PipelineServiceGrpcTransport
@@ -22,12 +22,28 @@ from .grpc_asyncio import PipelineServiceGrpcAsyncIOTransport
 from .rest import PipelineServiceRestTransport
 from .rest import PipelineServiceRestInterceptor
 
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncPipelineServiceRestTransport
+    from .rest_asyncio import AsyncPipelineServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncPipelineServiceRestTransport",
+        "AsyncPipelineServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
+
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[PipelineServiceTransport]]
 _transport_registry["grpc"] = PipelineServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = PipelineServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = PipelineServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncPipelineServiceRestTransport
 
 __all__ = (
     "PipelineServiceTransport",
@@ -35,4 +51,4 @@ __all__ = (
     "PipelineServiceGrpcAsyncIOTransport",
     "PipelineServiceRestTransport",
     "PipelineServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

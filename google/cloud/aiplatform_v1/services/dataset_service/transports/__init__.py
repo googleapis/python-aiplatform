@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import DatasetServiceTransport
 from .grpc import DatasetServiceGrpcTransport
@@ -22,12 +22,28 @@ from .grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
 from .rest import DatasetServiceRestTransport
 from .rest import DatasetServiceRestInterceptor
 
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncDatasetServiceRestTransport
+    from .rest_asyncio import AsyncDatasetServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncDatasetServiceRestTransport",
+        "AsyncDatasetServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
+
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[DatasetServiceTransport]]
 _transport_registry["grpc"] = DatasetServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = DatasetServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = DatasetServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncDatasetServiceRestTransport
 
 __all__ = (
     "DatasetServiceTransport",
@@ -35,4 +51,4 @@ __all__ = (
     "DatasetServiceGrpcAsyncIOTransport",
     "DatasetServiceRestTransport",
     "DatasetServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

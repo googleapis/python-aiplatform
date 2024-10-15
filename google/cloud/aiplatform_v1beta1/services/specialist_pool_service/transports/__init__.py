@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import SpecialistPoolServiceTransport
 from .grpc import SpecialistPoolServiceGrpcTransport
 from .grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
 from .rest import SpecialistPoolServiceRestTransport
 from .rest import SpecialistPoolServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncSpecialistPoolServiceRestTransport
+    from .rest_asyncio import AsyncSpecialistPoolServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncSpecialistPoolServiceRestTransport",
+        "AsyncSpecialistPoolServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -30,6 +44,8 @@ _transport_registry = (
 _transport_registry["grpc"] = SpecialistPoolServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = SpecialistPoolServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = SpecialistPoolServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncSpecialistPoolServiceRestTransport
 
 __all__ = (
     "SpecialistPoolServiceTransport",
@@ -37,4 +53,4 @@ __all__ = (
     "SpecialistPoolServiceGrpcAsyncIOTransport",
     "SpecialistPoolServiceRestTransport",
     "SpecialistPoolServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

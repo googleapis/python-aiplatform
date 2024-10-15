@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import JobServiceTransport
 from .grpc import JobServiceGrpcTransport
@@ -22,12 +22,28 @@ from .grpc_asyncio import JobServiceGrpcAsyncIOTransport
 from .rest import JobServiceRestTransport
 from .rest import JobServiceRestInterceptor
 
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncJobServiceRestTransport
+    from .rest_asyncio import AsyncJobServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncJobServiceRestTransport",
+        "AsyncJobServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
+
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
 _transport_registry["grpc"] = JobServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = JobServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = JobServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncJobServiceRestTransport
 
 __all__ = (
     "JobServiceTransport",
@@ -35,4 +51,4 @@ __all__ = (
     "JobServiceGrpcAsyncIOTransport",
     "JobServiceRestTransport",
     "JobServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

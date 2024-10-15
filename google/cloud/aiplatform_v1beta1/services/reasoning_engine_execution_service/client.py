@@ -62,6 +62,16 @@ from .transports.grpc import ReasoningEngineExecutionServiceGrpcTransport
 from .transports.grpc_asyncio import ReasoningEngineExecutionServiceGrpcAsyncIOTransport
 from .transports.rest import ReasoningEngineExecutionServiceRestTransport
 
+try:
+    from .transports.rest_asyncio import (
+        AsyncReasoningEngineExecutionServiceRestTransport,
+    )
+
+    HAS_ASYNC_REST_DEPENDENCIES = True
+except ImportError as e:  # pragma: NO COVER
+    HAS_ASYNC_REST_DEPENDENCIES = False
+    ASYNC_REST_EXCEPTION = e
+
 
 class ReasoningEngineExecutionServiceClientMeta(type):
     """Metaclass for the ReasoningEngineExecutionService client.
@@ -79,6 +89,10 @@ class ReasoningEngineExecutionServiceClientMeta(type):
         "grpc_asyncio"
     ] = ReasoningEngineExecutionServiceGrpcAsyncIOTransport
     _transport_registry["rest"] = ReasoningEngineExecutionServiceRestTransport
+    if HAS_ASYNC_REST_DEPENDENCIES:  # pragma: NO COVER
+        _transport_registry[
+            "rest_asyncio"
+        ] = AsyncReasoningEngineExecutionServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -94,6 +108,10 @@ class ReasoningEngineExecutionServiceClientMeta(type):
             The transport class to use.
         """
         # If a specific transport is requested, return that one.
+        if (
+            label == "rest_asyncio" and not HAS_ASYNC_REST_DEPENDENCIES
+        ):  # pragma: NO COVER
+            raise ASYNC_REST_EXCEPTION
         if label:
             return cls._transport_registry[label]
 
@@ -670,15 +688,6 @@ class ReasoningEngineExecutionServiceClient(
         )
 
         if not transport_provided:
-            import google.auth._default  # type: ignore
-
-            if api_key_value and hasattr(
-                google.auth._default, "get_api_key_credentials"
-            ):
-                credentials = google.auth._default.get_api_key_credentials(
-                    api_key_value
-                )
-
             transport_init: Union[
                 Type[ReasoningEngineExecutionServiceTransport],
                 Callable[..., ReasoningEngineExecutionServiceTransport],
@@ -689,6 +698,40 @@ class ReasoningEngineExecutionServiceClient(
                     Callable[..., ReasoningEngineExecutionServiceTransport], transport
                 )
             )
+
+            if "rest_asyncio" in str(transport_init):
+                unsupported_params = {
+                    "google.api_core.client_options.ClientOptions.credentials_file": self._client_options.credentials_file,
+                    "google.api_core.client_options.ClientOptions.scopes": self._client_options.scopes,
+                    "google.api_core.client_options.ClientOptions.quota_project_id": self._client_options.quota_project_id,
+                    "google.api_core.client_options.ClientOptions.client_cert_source": self._client_options.client_cert_source,
+                    "google.api_core.client_options.ClientOptions.api_audience": self._client_options.api_audience,
+                }
+                provided_unsupported_params = [
+                    name
+                    for name, value in unsupported_params.items()
+                    if value is not None
+                ]
+                if provided_unsupported_params:
+                    raise core_exceptions.AsyncRestUnsupportedParameterError(  # type: ignore
+                        f"The following provided parameters are not supported for `transport=rest_asyncio`: {', '.join(provided_unsupported_params)}"
+                    )
+                self._transport = transport_init(
+                    credentials=credentials,
+                    host=self._api_endpoint,
+                    client_info=client_info,
+                )
+                return
+
+            import google.auth._default  # type: ignore
+
+            if api_key_value and hasattr(
+                google.auth._default, "get_api_key_credentials"
+            ):
+                credentials = google.auth._default.get_api_key_credentials(
+                    api_key_value
+                )
+
             # initialize with the provided callable or the passed in class
             self._transport = transport_init(
                 credentials=credentials,
