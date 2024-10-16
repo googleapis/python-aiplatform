@@ -313,7 +313,7 @@ class EvalTask:
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
         evaluation_service_qps: Optional[float] = None,
-        retry_timeout: float = 600.0,
+        retry_timeout: float = 120.0,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask with an experiment.
 
@@ -370,7 +370,7 @@ class EvalTask:
         response_column_name: Optional[str] = None,
         baseline_model_response_column_name: Optional[str] = None,
         evaluation_service_qps: Optional[float] = None,
-        retry_timeout: float = 600.0,
+        retry_timeout: float = 120.0,
         output_file_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask.
