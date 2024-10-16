@@ -52,10 +52,11 @@ class _TensorBoardTracker:
     ):
         """upload only the existing data in the logdir and then return immediately
 
-        ```py
         Sample usage:
+
+        ```py
         aiplatform.init(location='us-central1', project='my-project')
-        aiplatform.upload_tb_log(tensorboard_id='123',tensorboard_experiment_name='my-experiment',logdir='my-logdir')
+        aiplatform.upload_tb_log(tensorboard_id='123', tensorboard_experiment_name='my-experiment', logdir='my-logdir')
         ```
 
         Args:
@@ -111,10 +112,11 @@ class _TensorBoardTracker:
         `start_upload_tb_log()` and before `end_upload_tb_log()` in a `try` statement, and call
         `end_upload_tb_log()` in `finally`.
 
-        ```py
         Sample usage:
+
+        ```py
         aiplatform.init(location='us-central1', project='my-project')
-        aiplatform.start_upload_tb_log(tensorboard_id='123',tensorboard_experiment_name='my-experiment',logdir='my-logdir')
+        aiplatform.start_upload_tb_log(tensorboard_id='123', tensorboard_experiment_name='my-experiment', logdir='my-logdir')
 
         try:
           # your code here
