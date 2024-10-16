@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import importlib
+import requests
 from google.api_core import operation as ga_operation
 from vertexai.preview import rag
 from vertexai.preview.rag.utils._gapic_utils import (
@@ -192,33 +193,32 @@ def list_rag_corpora_pager_mock():
         yield list_rag_corpora_pager_mock
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
-
-
 @pytest.fixture
 def upload_file_mock(authorized_session_mock):
     with patch.object(authorized_session_mock, "post") as mock_post:
-        mock_post.return_value = MockResponse(tc.TEST_RAG_FILE_JSON, 200)
+        response = requests.models.Response()
+        response._content = tc.TEST_RAG_FILE_JSON
+        response.status_code = 200
+        mock_post.return_value = response
         yield mock_post
 
 
 @pytest.fixture
 def upload_file_not_found_mock(authorized_session_mock):
     with patch.object(authorized_session_mock, "post") as mock_post:
-        mock_post.return_value = MockResponse(None, 404)
+        response = requests.models.Response()
+        response.status_code = 404
+        mock_post.return_value = response
         yield mock_post
 
 
 @pytest.fixture
 def upload_file_error_mock(authorized_session_mock):
     with patch.object(authorized_session_mock, "post") as mock_post:
-        mock_post.return_value = MockResponse(tc.TEST_RAG_FILE_JSON_ERROR, 200)
+        response = requests.models.Response()
+        response._content = tc.TEST_RAG_FILE_JSON_ERROR
+        response.status_code = 200
+        mock_post.return_value = response
         yield mock_post
 
 
