@@ -103,8 +103,8 @@ def _validate_metric_column_map(
     """Validates the column map for metric prompt template usage."""
     for metric in evaluation_run_config.metrics:
         if isinstance(
-            metric, metrics_base._ModelBasedMetric
-        ):  # pylint: disable=protected-access
+            metric, metrics_base._ModelBasedMetric  # pylint: disable=protected-access
+        ):
             for variable in prompt_template_base.PromptTemplate(
                 metric.metric_prompt_template
             ).variables:
@@ -122,6 +122,35 @@ def _validate_metric_column_map(
                         " The evaluation dataset columns are"
                         f" {list(evaluation_run_config.dataset.columns)}."
                     )
+
+
+def _validate_dataset_for_automatic_metrics(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+):
+    """Validates the required columns exist in the dataset for automatic metrics."""
+    if set(evaluation_run_config.metrics).intersection(
+        set(constants.Metric.AUTOMATIC_METRIC_LIST)
+    ):
+        if (
+            constants.Dataset.REFERENCE_COLUMN
+            not in evaluation_run_config.metric_column_mapping
+        ):
+            evaluation_run_config.metric_column_mapping[
+                constants.Dataset.REFERENCE_COLUMN
+            ] = constants.Dataset.REFERENCE_COLUMN
+        evaluation_run_config.validate_dataset_column(
+            constants.Dataset.REFERENCE_COLUMN
+        )
+        if (
+            constants.Dataset.MODEL_RESPONSE_COLUMN
+            not in evaluation_run_config.metric_column_mapping
+        ):
+            evaluation_run_config.metric_column_mapping[
+                constants.Dataset.MODEL_RESPONSE_COLUMN
+            ] = constants.Dataset.MODEL_RESPONSE_COLUMN
+        evaluation_run_config.validate_dataset_column(
+            constants.Dataset.MODEL_RESPONSE_COLUMN
+        )
 
 
 def _compute_custom_metrics(
@@ -392,8 +421,8 @@ def _run_model_inference(
     is_baseline_model = (
         response_column_name == constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN
     )
-    if response_column_name not in evaluation_run_config.metric_column_mapping:
-        if model:
+    if model:
+        if response_column_name not in evaluation_run_config.metric_column_mapping:
             if constants.Dataset.PROMPT_COLUMN in evaluation_run_config.dataset.columns:
                 t1 = time.perf_counter()
                 if isinstance(model, generative_models.GenerativeModel):
@@ -423,8 +452,7 @@ def _run_model_inference(
                     " the model. Mappings in `metric_column_mapping` do not"
                     " apply for model inference and are used for evaluation only."
                 )
-    else:
-        if model:
+        else:
             raise ValueError(
                 "The `model` parameter or `baseline_model` in pairwise metric is"
                 " specified, but the evaluation `dataset` contains model response"
@@ -840,20 +868,6 @@ def evaluate(
         retry_timeout=retry_timeout,
     )
 
-    if set(evaluation_run_config.metrics).intersection(
-        set(constants.Metric.AUTOMATIC_METRIC_LIST)
-    ):
-        if (
-            constants.Dataset.REFERENCE_COLUMN
-            not in evaluation_run_config.metric_column_mapping
-        ):
-            evaluation_run_config.metric_column_mapping[
-                constants.Dataset.REFERENCE_COLUMN
-            ] = constants.Dataset.REFERENCE_COLUMN
-        evaluation_run_config.validate_dataset_column(
-            constants.Dataset.REFERENCE_COLUMN
-        )
-
     if prompt_template:
         _assemble_prompt_for_dataset(evaluation_run_config, prompt_template)
 
@@ -862,12 +876,7 @@ def evaluate(
         evaluation_run_config=evaluation_run_config,
         response_column_name=constants.Dataset.MODEL_RESPONSE_COLUMN,
     )
-    evaluation_run_config.validate_dataset_column(
-        metric_column_mapping.get(
-            constants.Dataset.MODEL_RESPONSE_COLUMN,
-            constants.Dataset.MODEL_RESPONSE_COLUMN,
-        )
-    )
+    _validate_dataset_for_automatic_metrics(evaluation_run_config)
 
     pairwise_metric_exists = any(
         isinstance(metric, pairwise_metric.PairwiseMetric)
@@ -879,12 +888,6 @@ def evaluate(
             model=baseline_model,
             evaluation_run_config=evaluation_run_config,
             response_column_name=constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
-        )
-        evaluation_run_config.validate_dataset_column(
-            metric_column_mapping.get(
-                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
-                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
-            )
         )
 
     _validate_metric_column_map(evaluation_run_config)

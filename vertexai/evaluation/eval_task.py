@@ -71,18 +71,24 @@ class EvalTask:
             * baseline_model_response_column_name: "baseline_model_response"
 
         Requirement for different use cases:
-          * Bring-your-own-response: A `response` column is required. Response
-              column name can be customized by providing `response_column_name`
-              parameter. If a pairwise metric is used and a baseline model is
-              not provided, a `baseline_model_response` column is required.
-              Baseline model response column name can be customized by providing
-              `baseline_model_response_column_name` parameter. If the `response`
-              column or `baseline_model_response` column is present while the
+          * Bring-your-own-response (BYOR): You already have the data that you
+              want to evaluate stored in the dataset. Response column name can be
+              customized by providing `response_column_name` parameter, or in the
+              `metric_column_mapping`. For BYOR pairwise evaluation, the baseline
+              model response column name can be customized by providing
+              `baseline_model_response_column_name` parameter, or
+              in the `metric_column_mapping`. If the `response` column or
+              `baseline_model_response` column is present while the
               corresponding model is specified, an error will be raised.
-          * Perform model inference without a prompt template: A `prompt` column
-              in the evaluation dataset representing the input prompt to the
-              model is required and is used directly as input to the model.
-          * Perform model inference with a prompt template: Evaluation dataset
+
+          * Perform model inference without a prompt template: You have a dataset
+              containing the input prompts to the model and want to perform model
+              inference before evaluation. A column named `prompt` is required
+              in the evaluation dataset and is used directly as input to the model.
+
+          * Perform model inference with a prompt template: You have a dataset
+              containing the input variables to the prompt template and want to
+              assemble the prompts for model inference. Evaluation dataset
               must contain column names corresponding to the variable names in
               the prompt template. For example, if prompt template is
               "Instruction: {instruction}, context: {context}", the dataset must
@@ -371,8 +377,8 @@ class EvalTask:
 
         Args:
           model: A GenerativeModel instance or a custom model function to generate
-            responses to evaluate. If not provided, the evaluation is computed with
-            the `response` column in the `dataset`.
+            responses to evaluate. If not provided, the evaluation can be performed
+            in the bring-your-own-response (BYOR) mode.
           prompt_template: The prompt template to use for the evaluation. If not
             set, the prompt template that was used to create the EvalTask will be
             used.
@@ -380,9 +386,10 @@ class EvalTask:
             to if an experiment is set for this EvalTask. If not provided, a random
             unique experiment run name is used.
           response_column_name: The column name of model response in the dataset. If
-            provided, this will override the `response_column_name` of the `EvalTask`.
+            provided, this will override the `metric_column_mapping` of the `EvalTask`.
           baseline_model_response_column_name: The column name of baseline model
-            response in the dataset for pairwise metrics.
+            response in the dataset for pairwise metrics. If provided, this will
+            override the `metric_column_mapping` of the `EvalTask`
           evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
@@ -400,11 +407,11 @@ class EvalTask:
                 "`vertexai.init(experiment='experiment_name')`for logging this"
                 " evaluation run."
             )
-        self._verify_response_column_name(
+        self._verify_and_set_response_column_name(
             response_column_name=response_column_name,
             metric_column_mapping_key=constants.Dataset.MODEL_RESPONSE_COLUMN,
         )
-        self._verify_response_column_name(
+        self._verify_and_set_response_column_name(
             response_column_name=baseline_model_response_column_name,
             metric_column_mapping_key=constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
         )
@@ -503,10 +510,10 @@ class EvalTask:
             except (ValueError, TypeError) as e:
                 _LOGGER.warning(f"Experiment metadata logging failed: {str(e)}")
 
-    def _verify_response_column_name(
+    def _verify_and_set_response_column_name(
         self, response_column_name: str, metric_column_mapping_key: str
     ) -> None:
-        """Verifies if model response column name or baseline model response column name is valid."""
+        """Verifies and sets the model response column names."""
         if response_column_name:
             if response_column_name in self._dataset.columns:
                 self._metric_column_mapping[
