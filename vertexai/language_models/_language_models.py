@@ -267,7 +267,7 @@ class _TunableModelMixin(_LanguageModel, _GetTunedModelMixin):
             model_display_name: Custom display name for the tuned model.
             tuning_evaluation_spec: Specification for the model evaluation during tuning.
             default_context: The context to use for all training samples by default.
-            task_type: Type of task. Can be "RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT", "SEMANTIC_SIMILARITY", "CLASSIFICATION", "CLUSTERING", "QUESTION_ANSWERING", or "FACT_VERIFICATION".
+            task_type: Type of task. Can be "RETRIEVAL_QUERY", "RETRIEVAL_DOCUMENT", "SEMANTIC_SIMILARITY", "CLASSIFICATION", "CLUSTERING", "QUESTION_ANSWERING", "FACT_VERIFICATION", or "CODE_RETRIEVAL_QUERY".
             machine_type: Machine type. E.g., "a2-highgpu-1g". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
             accelerator: Kind of accelerator. E.g., "NVIDIA_TESLA_A100". See also: https://cloud.google.com/vertex-ai/docs/training/configure-compute.
             accelerator_count: Count of accelerators.
@@ -2286,7 +2286,7 @@ class _PreviewTunableTextEmbeddingModelMixin(_TunableModelMixin):
             task_type: The task type expected to be used during inference.
                 Valid values are `DEFAULT`, `RETRIEVAL_QUERY`, `RETRIEVAL_DOCUMENT`,
                 `SEMANTIC_SIMILARITY`, `CLASSIFICATION`, `CLUSTERING`,
-                `FACT_VERIFICATION`, and `QUESTION_ANSWERING`.
+                `QUESTION_ANSWERING`, `FACT_VERIFICATION`, and `CODE_RETRIEVAL_QUERY`.
             machine_type: The machine type to use for training. For information
                 about selecting the machine type that matches the accelerator
                 type and count you have selected, see
