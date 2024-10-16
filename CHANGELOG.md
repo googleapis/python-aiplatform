@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.71.0](https://github.com/googleapis/python-aiplatform/compare/v1.70.0...v1.71.0) (2024-10-16)
+
+
+### Features
+
+* Add support for task type (CODE_RETRIEVAL_QUERY) through get_embeddings. ([7246497](https://github.com/googleapis/python-aiplatform/commit/72464977dfe0068b5406653f65c0c4d99e887cc4))
+* GenAI - add labels ([92c13dd](https://github.com/googleapis/python-aiplatform/commit/92c13dd76e3e27f1386ac8b6a5625682c796ab16))
+* Support customizing bring-your-own-response eval use case to use any columns ([3e7bf81](https://github.com/googleapis/python-aiplatform/commit/3e7bf819d95167502be6b9f04c7b92e8415e5a68))
+* Support tuning new text & code embedding model in LLM SDK. ([4268f28](https://github.com/googleapis/python-aiplatform/commit/4268f282823f806418a8f0dc0bf65854381bd444))
+* Vision Models - onboard Image Segmentation. ([ae63a43](https://github.com/googleapis/python-aiplatform/commit/ae63a434d9833a5788348216c4a0b64313f653a8))
+
+
+### Documentation
+
+* A comment for field `partner_model_tuning_spec` in message `.google.cloud.aiplatform.v1beta1.TuningJob` is changed ([#4538](https://github.com/googleapis/python-aiplatform/issues/4538)) ([914c63c](https://github.com/googleapis/python-aiplatform/commit/914c63c91c8162350d792df4cbc70f3394134c3f))
+
 ## [1.70.0](https://github.com/googleapis/python-aiplatform/compare/v1.69.0...v1.70.0) (2024-10-08)
 
 
