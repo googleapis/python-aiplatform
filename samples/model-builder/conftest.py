@@ -1310,9 +1310,30 @@ def mock_index_endpoint():
 
 
 @pytest.fixture
+def mock_list_indexes(mock_index):
+    with patch.object(aiplatform.MatchingEngineIndex, "list") as mock:
+        mock.return_value = [mock_index, mock_index]
+        yield mock
+
+
+@pytest.fixture
 def mock_index_init(mock_index):
     with patch.object(aiplatform, "MatchingEngineIndex") as mock:
         mock.return_value = mock_index
+        yield mock
+
+
+@pytest.fixture
+def mock_index_update_embeddings(mock_index):
+    with patch.object(mock_index, "update_embeddings") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_index_update_metadata(mock_index):
+    with patch.object(mock_index, "update_metadata") as mock:
+        mock.return_value = None
         yield mock
 
 
@@ -1321,6 +1342,30 @@ def mock_index_upsert_datapoints(mock_index):
     with patch.object(mock_index, "upsert_datapoints") as mock_upsert:
         mock_upsert.return_value = None
         yield mock_upsert
+
+
+@pytest.fixture
+def mock_index_remove_datapoints(mock_index):
+    with patch.object(mock_index, "remove_datapoints") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_index_delete(mock_index):
+    with patch.object(mock_index, "delete") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_list_index_endpoints(mock_index_endpoint):
+    with patch.object(aiplatform.MatchingEngineIndexEndpoint, "list") as mock:
+        mock.return_value = [
+            mock_index_endpoint,
+            mock_index_endpoint,
+        ]
+        yield mock
 
 
 @pytest.fixture
@@ -1360,3 +1405,24 @@ def mock_index_endpoint_deploy_index(mock_index_endpoint):
     with patch.object(mock_index_endpoint, "deploy_index") as mock_deploy_index:
         mock_deploy_index.return_value = mock_index_endpoint
         yield mock_deploy_index
+
+
+@pytest.fixture
+def mock_index_endpoint_undeploy_index(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "undeploy_index") as mock:
+        mock.return_value = mock_index_endpoint
+        yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint_mutate_deployed_index(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "mutate_deployed_index") as mock:
+        mock.return_value = mock_index_endpoint
+        yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint_delete(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "delete") as mock:
+        mock.return_value = None
+        yield mock
