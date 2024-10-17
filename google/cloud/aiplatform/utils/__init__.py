@@ -288,25 +288,29 @@ def validate_labels(labels: Dict[str, str]):
             )
 
 
-def validate_region(region: str) -> bool:
+def validate_region(region: str, api_endpoint: Optional[str] = None) -> bool:
     """Validates region against supported regions.
 
     Args:
         region: region to validate
+        api_endpoint: Optional. The API endpoint to validate against.
     Returns:
         bool: True if no errors raised
     Raises:
         ValueError: If region is not in supported regions.
     """
+    if api_endpoint and constants.SEARCH_API_BASE_PATH in api_endpoint:
+        supported_regions = constants.SUPPORTED_REGIONS_SEARCH
+    else:
+        supported_regions = constants.SUPPORTED_REGIONS
+
     if not region:
-        raise ValueError(
-            f"Please provide a region, select from {constants.SUPPORTED_REGIONS}"
-        )
+        raise ValueError(f"Please provide a region, select from {supported_regions}")
 
     region = region.lower()
-    if region not in constants.SUPPORTED_REGIONS:
+    if region not in supported_regions:
         raise ValueError(
-            f"Unsupported region for Vertex AI, select from {constants.SUPPORTED_REGIONS}"
+            f"Unsupported region for Vertex AI, select from {supported_regions}"
         )
 
     return True

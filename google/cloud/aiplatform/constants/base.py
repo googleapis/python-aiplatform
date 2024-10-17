@@ -62,8 +62,18 @@ SUPPORTED_REGIONS = frozenset(
     }
 )
 
+SUPPORTED_REGIONS_SEARCH = frozenset(
+    {
+        "global",
+        "us",
+        "eu",
+    }
+)
+
 API_BASE_PATH = "aiplatform.googleapis.com"
 PREDICTION_API_BASE_PATH = API_BASE_PATH
+
+SEARCH_API_BASE_PATH = "discoveryengine.googleapis.com"
 
 # Batch Prediction
 BATCH_PREDICTION_INPUT_STORAGE_FORMATS = (

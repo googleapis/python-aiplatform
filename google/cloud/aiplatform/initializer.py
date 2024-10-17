@@ -147,7 +147,7 @@ class _Config:
         Args:
             project (str): The default project to use when making API calls.
             location (str): The default location to use when making API calls. If not
-                set defaults to us-central-1.
+                set defaults to us-central1.
             experiment (str): Optional. The experiment name.
             experiment_description (str): Optional. The description of the experiment.
             experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard, bool]):
@@ -222,7 +222,7 @@ class _Config:
                     + f"Valid transport types: {VALID_TRANSPORT_TYPES}"
                 )
         if location:
-            utils.validate_region(location)
+            utils.validate_region(location, api_endpoint)
         if experiment_description and experiment is None:
             raise ValueError(
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
@@ -644,6 +644,7 @@ class _FunctionWrapperThatAddsDefaultMetadata:
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
 global_config = _Config()
+search_config = _Config()
 
 global_pool = futures.ThreadPoolExecutor(
     max_workers=min(32, max(4, (os.cpu_count() or 0) * 5))
