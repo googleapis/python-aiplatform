@@ -674,8 +674,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
 
         self.authorized_session = None
+        self._async_authorized_session = None
         self.raw_predict_request_url = None
         self.stream_raw_predict_request_url = None
+        self.dedicated_predict_request_url = None
+        self.dedicated_raw_predict_request_url = None
+        self.dedicated_stream_raw_predict_request_url = None
 
     @property
     def _prediction_client(self) -> utils.PredictionClientWithOverride:
@@ -1072,8 +1076,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             credentials=credentials,
         )
         endpoint.authorized_session = None
+        endpoint._async_authorized_session = None
         endpoint.raw_predict_request_url = None
         endpoint.stream_raw_predict_request_url = None
+        endpoint.dedicated_predict_request_url = None
+        endpoint.dedicated_raw_predict_request_url = None
+        endpoint.dedicated_stream_raw_predict_request_url = None
 
         return endpoint
 
@@ -1155,6 +1163,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         new_traffic_split[deployed_model_id] = 0
 
         return new_traffic_split
+
+    @staticmethod
+    def _header_with_token(credentials: auth_credentials.Credentials) -> Dict[str, str]:
+        if not credentials.valid:
+            credentials.refresh(google_auth_requests.Request())
+
+        token = credentials.token
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        return headers
 
     @staticmethod
     def _validate_deploy_args(
@@ -2263,20 +2283,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     self.credentials
                 )
 
-            headers = {
-                "Content-Type": "application/json",
-            }
+            if self.dedicated_predict_request_url is None:
+                self.dedicated_predict_request_url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
 
-            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
             response = self.authorized_session.post(
-                url=url,
+                url=self.dedicated_predict_request_url,
                 data=json.dumps(
                     {
                         "instances": instances,
                         "parameters": parameters,
                     }
                 ),
-                headers=headers,
+                headers={
+                    "Content-Type": "application/json",
+                },
             )
 
             prediction_response = json.loads(response.text)
@@ -2318,11 +2338,16 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         *,
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
+        use_dedicated_endpoint: Optional[bool] = False,
     ) -> Prediction:
         """Make an asynchronous prediction against this Endpoint.
         Example usage:
             ```
             response = await my_endpoint.predict_async(instances=[...])
+            # For dedicated endpoint:
+            response = await my_endpoint.predict_async(
+                    instances=[...], use_dedicated_endpoint=True)
+
             my_predictions = response.predictions
             ```
 
@@ -2347,6 +2372,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
             timeout (float): Optional. The timeout for this request in seconds.
+            use_dedicated_endpoint (bool):
+                Optional. Default value is False. If set to True, the underlying prediction call will be made
+                using the dedicated endpoint dns.
 
         Returns:
             prediction (aiplatform.Prediction):
@@ -2354,27 +2382,74 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         """
         self.wait()
 
-        prediction_response = await self._prediction_async_client.predict(
-            endpoint=self._gca_resource.name,
-            instances=instances,
-            parameters=parameters,
-            timeout=timeout,
-        )
-        if prediction_response._pb.metadata:
-            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
-        else:
-            metadata = None
+        if use_dedicated_endpoint:
+            self._sync_gca_resource_if_skipped()
+            if (
+                not self._gca_resource.dedicated_endpoint_enabled
+                or self._gca_resource.dedicated_endpoint_dns is None
+            ):
+                raise ValueError(
+                    "Dedicated endpoint is not enabled or DNS is empty."
+                    "Please make sure endpoint has dedicated endpoint enabled"
+                    "and model are ready before making a prediction."
+                )
 
-        return Prediction(
-            predictions=[
-                json_format.MessageToDict(item)
-                for item in prediction_response.predictions.pb
-            ],
-            metadata=metadata,
-            deployed_model_id=prediction_response.deployed_model_id,
-            model_version_id=prediction_response.model_version_id,
-            model_resource_name=prediction_response.model,
-        )
+            try:
+                import aiohttp
+            except ImportError:
+                raise ImportError(
+                    "Cannot import aiohttp. Please install google-cloud-platform"
+                )
+            if not self._async_authorized_session:
+                self._async_authorized_session = aiohttp.ClientSession()
+
+            if self.dedicated_predict_request_url is None:
+                self.dedicated_predict_request_url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
+            url = self.dedicated_predict_request_url
+
+            body = json.dumps(
+                {
+                    "instances": instances,
+                    "parameters": parameters,
+                }
+            )
+
+            async with self._async_authorized_session.post(
+                url=url,
+                data=body,
+                headers=self._header_with_token(self.credentials),
+            ) as response:
+                text = await response.text()
+                prediction_response = json.loads(text)
+                return Prediction(
+                    predictions=prediction_response.get("predictions"),
+                    metadata=prediction_response.get("metadata"),
+                    deployed_model_id=prediction_response.get("deployedModelId"),
+                    model_resource_name=prediction_response.get("model"),
+                    model_version_id=prediction_response.get("modelVersionId"),
+                )
+        else:
+            prediction_response = await self._prediction_async_client.predict(
+                endpoint=self._gca_resource.name,
+                instances=instances,
+                parameters=parameters,
+                timeout=timeout,
+            )
+            if prediction_response._pb.metadata:
+                metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+            else:
+                metadata = None
+
+            return Prediction(
+                predictions=[
+                    json_format.MessageToDict(item)
+                    for item in prediction_response.predictions.pb
+                ],
+                metadata=metadata,
+                deployed_model_id=prediction_response.deployed_model_id,
+                model_version_id=prediction_response.model_version_id,
+                model_resource_name=prediction_response.model,
+            )
 
     def raw_predict(
         self,
@@ -2434,7 +2509,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "Please make sure endpoint has dedicated endpoint enabled"
                     "and model are ready before making a prediction."
                 )
-            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
+            if self.dedicated_raw_predict_request_url is None:
+                self.dedicated_raw_predict_request_url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
+            url = self.dedicated_raw_predict_request_url
 
         return self.authorized_session.post(url=url, data=body, headers=headers)
 
@@ -2507,7 +2584,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "Please make sure endpoint has dedicated endpoint enabled"
                     "and model are ready before making a prediction."
                 )
-            url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:streamRawPredict"
+            if self.stream_raw_predict_request_url is None:
+                self.stream_raw_predict_request_url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:streamRawPredict"
+            url = self.stream_raw_predict_request_url
 
         with self.authorized_session.post(
             url=url,
@@ -3554,21 +3633,12 @@ class PrivateEndpoint(Endpoint):
                     "address or DNS."
                 )
 
-            if not self.credentials.valid:
-                self.credentials.refresh(google_auth_requests.Request())
-
-            token = self.credentials.token
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-            }
-
             url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:predict"
             response = self._http_request(
                 method="POST",
                 url=url,
                 body=json.dumps({"instances": instances}),
-                headers=headers,
+                headers=super()._header_with_token(self.credentials),
             )
 
             prediction_response = json.loads(response.data)
