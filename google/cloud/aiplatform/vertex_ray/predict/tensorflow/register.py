@@ -20,7 +20,7 @@ import os
 import logging
 import ray
 from typing import Callable, Optional, Union, TYPE_CHECKING
-
+import warnings
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -30,6 +30,7 @@ from google.cloud.aiplatform.vertex_ray.predict.util import (
 )
 from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
+    _V2_9_WARNING_MESSAGE,
 )
 
 
@@ -99,7 +100,8 @@ def register_tensorflow(
     Raises:
         ValueError: Invalid Argument.
     """
-
+    if ray.__version__ == "2.9.3":
+        warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
     if tensorflow_version is None:
         tensorflow_version = constants._TENSORFLOW_VERSION
     artifact_uri = artifact_uri or initializer.global_config.staging_bucket

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import warnings
 import ray.data
 from ray.data.dataset import Dataset
 from typing import Any, Dict, Optional
@@ -32,6 +32,7 @@ except ImportError:
 
 from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
+    _V2_9_WARNING_MESSAGE,
 )
 
 
@@ -88,6 +89,7 @@ def read_bigquery(
     )
 
     if ray.__version__ == "2.9.3":
+        warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
         # Concurrency and override_num_blocks are not supported in 2.9.3
         return ray.data.read_datasource(
             datasource=datasource,
@@ -146,6 +148,8 @@ def write_bigquery(
         raise RuntimeError(_V2_4_WARNING_MESSAGE)
 
     elif ray.__version__ == "2.9.3" or ray.__version__ == "2.33.0":
+        if ray.__version__ == "2.9.3":
+            warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
         if ray_remote_args is None:
             ray_remote_args = {}
 

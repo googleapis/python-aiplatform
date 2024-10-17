@@ -54,7 +54,7 @@ _TEST_RESPONSE_RUNNING_1_POOL_RESIZE_0_WORKER.resource_pools[0].replica_count = 
 
 _TEST_V2_4_WARNING_MESSAGE = (
     "After google-cloud-aiplatform>1.53.0, using Ray version = 2.4 will result"
-    " in an error. Please use Ray version = 2.33.0 (default) or 2.9.3 instead."
+    " in an error. Please use Ray version = 2.33.0 (default)."
 )
 
 

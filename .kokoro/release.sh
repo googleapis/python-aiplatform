@@ -23,13 +23,13 @@ python3 -m releasetool publish-reporter-script > /tmp/publisher-script; source /
 export PYTHONUNBUFFERED=1
 
 # Move into the `google-cloud-aiplatform` package, build the distribution and upload.
-GCA_TWINE_PASSWORD=$(cat "${KOKORO_KEYSTORE_DIR}/73713_google-cloud-pypi-token-keystore-2")
+GCA_TWINE_PASSWORD=$(cat "${KOKORO_KEYSTORE_DIR}/73713_google-cloud-pypi-token-keystore-3")
 cd github/python-aiplatform
 python3 setup.py sdist bdist_wheel
 twine upload --username __token__ --password "${GCA_TWINE_PASSWORD}" dist/*
 
 # Move into the `vertexai` package, build the distribution and upload.
-VERTEXAI_TWINE_PASSWORD=$(cat "${KOKORO_KEYSTORE_DIR}/73713_vertexai-pypi-token-1")
+VERTEXAI_TWINE_PASSWORD=$(cat "${KOKORO_KEYSTORE_DIR}/73713_vertexai-pypi-token-2")
 cd pypi/_vertex_ai_placeholder
 python3 -m build
 twine upload --username __token__ --password "${VERTEXAI_TWINE_PASSWORD}" dist/*
