@@ -569,14 +569,7 @@ class _Config:
 
         # Do not pass "grpc", rely on gapic defaults unless "rest" is specified
         if self._api_transport == "rest":
-            if "Async" in client_class.__name__:
-                # Warn user that "rest" is not supported and use grpc instead
-                logging.warning(
-                    "REST is not supported for async clients, "
-                    + "falling back to grpc."
-                )
-            else:
-                kwargs["transport"] = self._api_transport
+            kwargs["transport"] = self._api_transport
 
         client = client_class(**kwargs)
         # We only wrap the client if the request_metadata is set at the creation time.
