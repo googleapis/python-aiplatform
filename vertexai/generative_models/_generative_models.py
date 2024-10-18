@@ -1932,7 +1932,17 @@ class Tool:
             google_search_retrieval=google_search_retrieval._raw_google_search_retrieval
         )
         return cls._from_gapic(raw_tool=raw_tool)
-
+    
+    @classmethod
+    def from_google_search_dynamic_retrieval(
+        cls,
+        google_search_dynamic_retrieval: "grounding.GoogleSearchDynamicRetrieval",
+    ) -> "Tool":
+        raw_tool = gapic_tool_types.Tool(
+            google_search_retrieval=google_search_dynamic_retrieval._raw_google_search_retrieval
+        )
+        return cls._from_gapic(raw_tool=raw_tool)
+    
     @classmethod
     def _from_gapic(
         cls,
@@ -2666,6 +2676,18 @@ class grounding:  # pylint: disable=invalid-name
             """Initializes a Google Search Retrieval tool."""
             self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
 
+
+    class GoogleSearchDynamicRetrieval:
+        r"""Tool to retrieve public web data for grounding, powered by
+        Google Search.
+        """
+
+        def __init__(self, threshold=.7):
+            """Initializes a Google Search Dynamic Retrieval tool."""
+            config = gapic_tool_types.DynamicRetrievalConfig(mode=1,
+                                                             dynamic_threshold=threshold)
+            self._raw_google_search_retrieval = \
+                gapic_tool_types.GoogleSearchRetrieval(dynamic_retrieval_config=config)
 
 class preview_grounding:  # pylint: disable=invalid-name
     """Grounding namespace (preview)."""
