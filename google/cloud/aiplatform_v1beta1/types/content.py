@@ -344,6 +344,11 @@ class GenerationConfig(proto.Message):
             Optional. Routing configuration.
 
             This field is a member of `oneof`_ ``_routing_config``.
+        audio_timestamp (bool):
+            Optional. If enabled, audio timestamp will be
+            included in the request to the model.
+
+            This field is a member of `oneof`_ ``_audio_timestamp``.
     """
 
     class RoutingConfig(proto.Message):
@@ -511,6 +516,11 @@ class GenerationConfig(proto.Message):
         number=17,
         optional=True,
         message=RoutingConfig,
+    )
+    audio_timestamp: bool = proto.Field(
+        proto.BOOL,
+        number=20,
+        optional=True,
     )
 
 
