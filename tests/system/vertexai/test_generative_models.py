@@ -98,7 +98,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     _temp_prefix = "temp_generative_models_test_"
 
     @pytest.fixture(scope="function", autouse=True)
-    def setup_method(self, api_endpoint_env_name):
+    def setup_method(self, api_endpoint_env_name, api_transport):
         super().setup_method()
         credentials, _ = auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
@@ -112,6 +112,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
             credentials=credentials,
             api_endpoint=api_endpoint,
+            api_transport=api_transport,
         )
 
     def test_generate_content_with_cached_content_from_text(
@@ -154,7 +155,8 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         finally:
             cached_content.delete()
 
-    def test_generate_content_from_text(self, api_endpoint_env_name):
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_generate_content_from_text(self, api_endpoint_env_name, api_transport):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.generate_content(
             "Why is sky blue?",
@@ -226,7 +228,8 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             )
 
     @pytest.mark.asyncio
-    async def test_generate_content_streaming_async(self, api_endpoint_env_name):
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    async def test_generate_content_streaming_async(self, api_endpoint_env_name, api_transport):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         async_stream = await model.generate_content_async(
             "Why is sky blue?",

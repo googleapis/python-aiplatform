@@ -555,8 +555,14 @@ class _Config:
             user_agent=user_agent,
         )
 
+        # Async rest requires async credentials
+        default_credentials = self.credentials
+        if self._api_transport == "rest" and "Async" in client_class.__name__ and default_credentials and not credentials:
+            from google.auth.aio.credentials import StaticCredentials as AsyncCredentials
+            default_credentials = AsyncCredentials(token=default_credentials.token)
+
         kwargs = {
-            "credentials": credentials or self.credentials,
+            "credentials": credentials or default_credentials,
             "client_options": self.get_client_options(
                 location_override=location_override,
                 prediction_client=prediction_client,
@@ -570,11 +576,8 @@ class _Config:
         # Do not pass "grpc", rely on gapic defaults unless "rest" is specified
         if self._api_transport == "rest":
             if "Async" in client_class.__name__:
-                # Warn user that "rest" is not supported and use grpc instead
-                logging.warning(
-                    "REST is not supported for async clients, "
-                    + "falling back to grpc."
-                )
+                # Need to specify rest_asyncio for async clients
+                kwargs["transport"] = "rest_asyncio"
             else:
                 kwargs["transport"] = self._api_transport
 
