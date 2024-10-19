@@ -4985,20 +4985,18 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             # Validating the model directory
             if not model_dir.exists():
                 raise ValueError(f"artifact_uri path does not exist: '{artifact_uri}'")
-            PREBUILT_IMAGE_RE = "(us|europe|asia)-docker.pkg.dev/vertex-ai/prediction/"
-            if re.match(PREBUILT_IMAGE_RE, serving_container_image_uri):
-                if not model_dir.is_dir():
-                    raise ValueError(
-                        f"artifact_uri path must be a directory: '{artifact_uri}' when using prebuilt image '{serving_container_image_uri}'"
-                    )
-                if not any(
-                    (model_dir / file_name).exists()
-                    for file_name in _SUPPORTED_MODEL_FILE_NAMES
-                ):
-                    raise ValueError(
-                        "artifact_uri directory does not contain any supported model files. "
-                        f"When using a prebuilt serving image, the upload method only supports the following model files: '{_SUPPORTED_MODEL_FILE_NAMES}'"
-                    )
+            if not model_dir.is_dir():
+                raise ValueError(
+                    f"artifact_uri path must be a directory: '{artifact_uri}' when using prebuilt image '{serving_container_image_uri}'"
+                )
+            if not any(
+                (model_dir / file_name).exists()
+                for file_name in _SUPPORTED_MODEL_FILE_NAMES
+            ):
+                raise ValueError(
+                    "artifact_uri directory does not contain any supported model files. "
+                    f"When using a prebuilt serving image, the upload method only supports the following model files: '{_SUPPORTED_MODEL_FILE_NAMES}'"
+                )
 
             # Uploading the model
             staged_data_uri = gcs_utils.stage_local_data_in_gcs(
