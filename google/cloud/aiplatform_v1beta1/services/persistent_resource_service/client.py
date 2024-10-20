@@ -72,6 +72,14 @@ from .transports.grpc import PersistentResourceServiceGrpcTransport
 from .transports.grpc_asyncio import PersistentResourceServiceGrpcAsyncIOTransport
 from .transports.rest import PersistentResourceServiceRestTransport
 
+try:
+    from .transports.rest_asyncio import AsyncPersistentResourceServiceRestTransport
+
+    HAS_ASYNC_REST_DEPENDENCIES = True
+except ImportError as e:  # pragma: NO COVER
+    HAS_ASYNC_REST_DEPENDENCIES = False
+    ASYNC_REST_EXCEPTION = e
+
 
 class PersistentResourceServiceClientMeta(type):
     """Metaclass for the PersistentResourceService client.
@@ -87,6 +95,10 @@ class PersistentResourceServiceClientMeta(type):
     _transport_registry["grpc"] = PersistentResourceServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = PersistentResourceServiceGrpcAsyncIOTransport
     _transport_registry["rest"] = PersistentResourceServiceRestTransport
+    if HAS_ASYNC_REST_DEPENDENCIES:  # pragma: NO COVER
+        _transport_registry[
+            "rest_asyncio"
+        ] = AsyncPersistentResourceServiceRestTransport
 
     def get_transport_class(
         cls,
@@ -102,6 +114,10 @@ class PersistentResourceServiceClientMeta(type):
             The transport class to use.
         """
         # If a specific transport is requested, return that one.
+        if (
+            label == "rest_asyncio" and not HAS_ASYNC_REST_DEPENDENCIES
+        ):  # pragma: NO COVER
+            raise ASYNC_REST_EXCEPTION
         if label:
             return cls._transport_registry[label]
 
@@ -759,6 +775,39 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
         )
 
         if not transport_provided:
+            transport_init: Union[
+                Type[PersistentResourceServiceTransport],
+                Callable[..., PersistentResourceServiceTransport],
+            ] = (
+                PersistentResourceServiceClient.get_transport_class(transport)
+                if isinstance(transport, str) or transport is None
+                else cast(Callable[..., PersistentResourceServiceTransport], transport)
+            )
+
+            if "rest_asyncio" in str(transport_init):
+                unsupported_params = {
+                    "google.api_core.client_options.ClientOptions.credentials_file": self._client_options.credentials_file,
+                    "google.api_core.client_options.ClientOptions.scopes": self._client_options.scopes,
+                    "google.api_core.client_options.ClientOptions.quota_project_id": self._client_options.quota_project_id,
+                    "google.api_core.client_options.ClientOptions.client_cert_source": self._client_options.client_cert_source,
+                    "google.api_core.client_options.ClientOptions.api_audience": self._client_options.api_audience,
+                }
+                provided_unsupported_params = [
+                    name
+                    for name, value in unsupported_params.items()
+                    if value is not None
+                ]
+                if provided_unsupported_params:
+                    raise core_exceptions.AsyncRestUnsupportedParameterError(  # type: ignore
+                        f"The following provided parameters are not supported for `transport=rest_asyncio`: {', '.join(provided_unsupported_params)}"
+                    )
+                self._transport = transport_init(
+                    credentials=credentials,
+                    host=self._api_endpoint,
+                    client_info=client_info,
+                )
+                return
+
             import google.auth._default  # type: ignore
 
             if api_key_value and hasattr(
@@ -768,14 +817,6 @@ class PersistentResourceServiceClient(metaclass=PersistentResourceServiceClientM
                     api_key_value
                 )
 
-            transport_init: Union[
-                Type[PersistentResourceServiceTransport],
-                Callable[..., PersistentResourceServiceTransport],
-            ] = (
-                PersistentResourceServiceClient.get_transport_class(transport)
-                if isinstance(transport, str) or transport is None
-                else cast(Callable[..., PersistentResourceServiceTransport], transport)
-            )
             # initialize with the provided callable or the passed in class
             self._transport = transport_init(
                 credentials=credentials,

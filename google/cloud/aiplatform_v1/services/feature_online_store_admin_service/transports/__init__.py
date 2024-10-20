@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import FeatureOnlineStoreAdminServiceTransport
 from .grpc import FeatureOnlineStoreAdminServiceGrpcTransport
 from .grpc_asyncio import FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport
 from .rest import FeatureOnlineStoreAdminServiceRestTransport
 from .rest import FeatureOnlineStoreAdminServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncFeatureOnlineStoreAdminServiceRestTransport
+    from .rest_asyncio import AsyncFeatureOnlineStoreAdminServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncFeatureOnlineStoreAdminServiceRestTransport",
+        "AsyncFeatureOnlineStoreAdminServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -30,6 +44,10 @@ _transport_registry = (
 _transport_registry["grpc"] = FeatureOnlineStoreAdminServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = FeatureOnlineStoreAdminServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry[
+        "rest_asyncio"
+    ] = AsyncFeatureOnlineStoreAdminServiceRestTransport
 
 __all__ = (
     "FeatureOnlineStoreAdminServiceTransport",
@@ -37,4 +55,4 @@ __all__ = (
     "FeatureOnlineStoreAdminServiceGrpcAsyncIOTransport",
     "FeatureOnlineStoreAdminServiceRestTransport",
     "FeatureOnlineStoreAdminServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

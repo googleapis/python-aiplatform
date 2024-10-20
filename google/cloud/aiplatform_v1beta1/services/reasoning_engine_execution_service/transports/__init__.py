@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import ReasoningEngineExecutionServiceTransport
 from .grpc import ReasoningEngineExecutionServiceGrpcTransport
 from .grpc_asyncio import ReasoningEngineExecutionServiceGrpcAsyncIOTransport
 from .rest import ReasoningEngineExecutionServiceRestTransport
 from .rest import ReasoningEngineExecutionServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncReasoningEngineExecutionServiceRestTransport
+    from .rest_asyncio import AsyncReasoningEngineExecutionServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncReasoningEngineExecutionServiceRestTransport",
+        "AsyncReasoningEngineExecutionServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -32,6 +46,10 @@ _transport_registry[
     "grpc_asyncio"
 ] = ReasoningEngineExecutionServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = ReasoningEngineExecutionServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry[
+        "rest_asyncio"
+    ] = AsyncReasoningEngineExecutionServiceRestTransport
 
 __all__ = (
     "ReasoningEngineExecutionServiceTransport",
@@ -39,4 +57,4 @@ __all__ = (
     "ReasoningEngineExecutionServiceGrpcAsyncIOTransport",
     "ReasoningEngineExecutionServiceRestTransport",
     "ReasoningEngineExecutionServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

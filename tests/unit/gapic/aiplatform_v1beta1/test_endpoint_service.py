@@ -32,6 +32,15 @@ import pytest
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
+
+try:
+    import aiohttp  # type: ignore
+    from google.auth.aio.transport.sessions import AsyncAuthorizedSession
+    from google.api_core.operations_v1 import AsyncOperationsRestClient
+
+    HAS_ASYNC_REST_EXTRA = True
+except ImportError:  # pragma: NO COVER
+    HAS_ASYNC_REST_EXTRA = False
 from requests import Response
 from requests import Request, PreparedRequest
 from requests.sessions import Session
@@ -8538,6 +8547,2474 @@ def test_endpoint_service_rest_lro_client():
     assert transport.operations_client is transport.operations_client
 
 
+def test_transport_kind_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = EndpointServiceAsyncClient.get_transport_class("rest_asyncio")(
+        credentials=async_anonymous_credentials()
+    )
+    assert transport.kind == "rest_asyncio"
+
+
+@pytest.mark.asyncio
+async def test_create_endpoint_rest_asyncio_bad_request(
+    request_type=endpoint_service.CreateEndpointRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.create_endpoint(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.CreateEndpointRequest,
+        dict,
+    ],
+)
+async def test_create_endpoint_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init["endpoint"] = {
+        "name": "name_value",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "deployed_models": [
+            {
+                "dedicated_resources": {
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
+                    },
+                    "min_replica_count": 1803,
+                    "max_replica_count": 1805,
+                    "autoscaling_metric_specs": [
+                        {"metric_name": "metric_name_value", "target": 647}
+                    ],
+                    "spot": True,
+                },
+                "automatic_resources": {
+                    "min_replica_count": 1803,
+                    "max_replica_count": 1805,
+                },
+                "shared_resources": "shared_resources_value",
+                "id": "id_value",
+                "model": "model_value",
+                "model_version_id": "model_version_id_value",
+                "display_name": "display_name_value",
+                "create_time": {"seconds": 751, "nanos": 543},
+                "explanation_spec": {
+                    "parameters": {
+                        "sampled_shapley_attribution": {"path_count": 1077},
+                        "integrated_gradients_attribution": {
+                            "step_count": 1092,
+                            "smooth_grad_config": {
+                                "noise_sigma": 0.11660000000000001,
+                                "feature_noise_sigma": {
+                                    "noise_sigma": [
+                                        {"name": "name_value", "sigma": 0.529}
+                                    ]
+                                },
+                                "noisy_sample_count": 1947,
+                            },
+                            "blur_baseline_config": {"max_blur_sigma": 0.1482},
+                        },
+                        "xrai_attribution": {
+                            "step_count": 1092,
+                            "smooth_grad_config": {},
+                            "blur_baseline_config": {},
+                        },
+                        "examples": {
+                            "example_gcs_source": {
+                                "data_format": 1,
+                                "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                            },
+                            "nearest_neighbor_search_config": {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "struct_value": {"fields": {}},
+                                "list_value": {"values": {}},
+                            },
+                            "presets": {"query": 1, "modality": 1},
+                            "gcs_source": {},
+                            "neighbor_count": 1494,
+                        },
+                        "top_k": 541,
+                        "output_indices": {},
+                    },
+                    "metadata": {
+                        "inputs": {},
+                        "outputs": {},
+                        "feature_attributions_schema_uri": "feature_attributions_schema_uri_value",
+                        "latent_space_source": "latent_space_source_value",
+                    },
+                },
+                "disable_explanations": True,
+                "service_account": "service_account_value",
+                "enable_container_logging": True,
+                "enable_access_logging": True,
+                "private_endpoints": {
+                    "predict_http_uri": "predict_http_uri_value",
+                    "explain_http_uri": "explain_http_uri_value",
+                    "health_http_uri": "health_http_uri_value",
+                    "service_attachment": "service_attachment_value",
+                },
+            }
+        ],
+        "traffic_split": {},
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {},
+        "update_time": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "network": "network_value",
+        "enable_private_service_connect": True,
+        "private_service_connect_config": {
+            "enable_private_service_connect": True,
+            "project_allowlist": [
+                "project_allowlist_value1",
+                "project_allowlist_value2",
+            ],
+            "enable_secure_private_service_connect": True,
+            "service_attachment": "service_attachment_value",
+        },
+        "model_deployment_monitoring_job": "model_deployment_monitoring_job_value",
+        "predict_request_response_logging_config": {
+            "enabled": True,
+            "sampling_rate": 0.13820000000000002,
+            "bigquery_destination": {"output_uri": "output_uri_value"},
+        },
+        "dedicated_endpoint_enabled": True,
+        "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = endpoint_service.CreateEndpointRequest.meta.fields["endpoint"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["endpoint"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["endpoint"][field])):
+                    del request_init["endpoint"][field][i][subfield]
+            else:
+                del request_init["endpoint"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.create_endpoint(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_create_endpoint_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_create_endpoint"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_create_endpoint"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.CreateEndpointRequest.pb(
+            endpoint_service.CreateEndpointRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.CreateEndpointRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.create_endpoint(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_get_endpoint_rest_asyncio_bad_request(
+    request_type=endpoint_service.GetEndpointRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.get_endpoint(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.GetEndpointRequest,
+        dict,
+    ],
+)
+async def test_get_endpoint_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = endpoint.Endpoint(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+            network="network_value",
+            enable_private_service_connect=True,
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            dedicated_endpoint_enabled=True,
+            dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = endpoint.Endpoint.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.get_endpoint(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, endpoint.Endpoint)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_get_endpoint_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_get_endpoint"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_get_endpoint"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.GetEndpointRequest.pb(
+            endpoint_service.GetEndpointRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = endpoint.Endpoint.to_json(endpoint.Endpoint())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.GetEndpointRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = endpoint.Endpoint()
+
+        await client.get_endpoint(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_list_endpoints_rest_asyncio_bad_request(
+    request_type=endpoint_service.ListEndpointsRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.list_endpoints(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.ListEndpointsRequest,
+        dict,
+    ],
+)
+async def test_list_endpoints_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = endpoint_service.ListEndpointsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = endpoint_service.ListEndpointsResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.list_endpoints(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListEndpointsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_list_endpoints_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_list_endpoints"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_list_endpoints"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.ListEndpointsRequest.pb(
+            endpoint_service.ListEndpointsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = endpoint_service.ListEndpointsResponse.to_json(
+            endpoint_service.ListEndpointsResponse()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.ListEndpointsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = endpoint_service.ListEndpointsResponse()
+
+        await client.list_endpoints(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_update_endpoint_rest_asyncio_bad_request(
+    request_type=endpoint_service.UpdateEndpointRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "endpoint": {"name": "projects/sample1/locations/sample2/endpoints/sample3"}
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.update_endpoint(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.UpdateEndpointRequest,
+        dict,
+    ],
+)
+async def test_update_endpoint_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "endpoint": {"name": "projects/sample1/locations/sample2/endpoints/sample3"}
+    }
+    request_init["endpoint"] = {
+        "name": "projects/sample1/locations/sample2/endpoints/sample3",
+        "display_name": "display_name_value",
+        "description": "description_value",
+        "deployed_models": [
+            {
+                "dedicated_resources": {
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
+                    },
+                    "min_replica_count": 1803,
+                    "max_replica_count": 1805,
+                    "autoscaling_metric_specs": [
+                        {"metric_name": "metric_name_value", "target": 647}
+                    ],
+                    "spot": True,
+                },
+                "automatic_resources": {
+                    "min_replica_count": 1803,
+                    "max_replica_count": 1805,
+                },
+                "shared_resources": "shared_resources_value",
+                "id": "id_value",
+                "model": "model_value",
+                "model_version_id": "model_version_id_value",
+                "display_name": "display_name_value",
+                "create_time": {"seconds": 751, "nanos": 543},
+                "explanation_spec": {
+                    "parameters": {
+                        "sampled_shapley_attribution": {"path_count": 1077},
+                        "integrated_gradients_attribution": {
+                            "step_count": 1092,
+                            "smooth_grad_config": {
+                                "noise_sigma": 0.11660000000000001,
+                                "feature_noise_sigma": {
+                                    "noise_sigma": [
+                                        {"name": "name_value", "sigma": 0.529}
+                                    ]
+                                },
+                                "noisy_sample_count": 1947,
+                            },
+                            "blur_baseline_config": {"max_blur_sigma": 0.1482},
+                        },
+                        "xrai_attribution": {
+                            "step_count": 1092,
+                            "smooth_grad_config": {},
+                            "blur_baseline_config": {},
+                        },
+                        "examples": {
+                            "example_gcs_source": {
+                                "data_format": 1,
+                                "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                            },
+                            "nearest_neighbor_search_config": {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "struct_value": {"fields": {}},
+                                "list_value": {"values": {}},
+                            },
+                            "presets": {"query": 1, "modality": 1},
+                            "gcs_source": {},
+                            "neighbor_count": 1494,
+                        },
+                        "top_k": 541,
+                        "output_indices": {},
+                    },
+                    "metadata": {
+                        "inputs": {},
+                        "outputs": {},
+                        "feature_attributions_schema_uri": "feature_attributions_schema_uri_value",
+                        "latent_space_source": "latent_space_source_value",
+                    },
+                },
+                "disable_explanations": True,
+                "service_account": "service_account_value",
+                "enable_container_logging": True,
+                "enable_access_logging": True,
+                "private_endpoints": {
+                    "predict_http_uri": "predict_http_uri_value",
+                    "explain_http_uri": "explain_http_uri_value",
+                    "health_http_uri": "health_http_uri_value",
+                    "service_attachment": "service_attachment_value",
+                },
+            }
+        ],
+        "traffic_split": {},
+        "etag": "etag_value",
+        "labels": {},
+        "create_time": {},
+        "update_time": {},
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "network": "network_value",
+        "enable_private_service_connect": True,
+        "private_service_connect_config": {
+            "enable_private_service_connect": True,
+            "project_allowlist": [
+                "project_allowlist_value1",
+                "project_allowlist_value2",
+            ],
+            "enable_secure_private_service_connect": True,
+            "service_attachment": "service_attachment_value",
+        },
+        "model_deployment_monitoring_job": "model_deployment_monitoring_job_value",
+        "predict_request_response_logging_config": {
+            "enabled": True,
+            "sampling_rate": 0.13820000000000002,
+            "bigquery_destination": {"output_uri": "output_uri_value"},
+        },
+        "dedicated_endpoint_enabled": True,
+        "dedicated_endpoint_dns": "dedicated_endpoint_dns_value",
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = endpoint_service.UpdateEndpointRequest.meta.fields["endpoint"]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["endpoint"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["endpoint"][field])):
+                    del request_init["endpoint"][field][i][subfield]
+            else:
+                del request_init["endpoint"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_endpoint.Endpoint(
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+            network="network_value",
+            enable_private_service_connect=True,
+            model_deployment_monitoring_job="model_deployment_monitoring_job_value",
+            dedicated_endpoint_enabled=True,
+            dedicated_endpoint_dns="dedicated_endpoint_dns_value",
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_endpoint.Endpoint.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.update_endpoint(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_endpoint.Endpoint)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.network == "network_value"
+    assert response.enable_private_service_connect is True
+    assert (
+        response.model_deployment_monitoring_job
+        == "model_deployment_monitoring_job_value"
+    )
+    assert response.dedicated_endpoint_enabled is True
+    assert response.dedicated_endpoint_dns == "dedicated_endpoint_dns_value"
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_update_endpoint_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_update_endpoint"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_update_endpoint"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.UpdateEndpointRequest.pb(
+            endpoint_service.UpdateEndpointRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_endpoint.Endpoint.to_json(gca_endpoint.Endpoint())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.UpdateEndpointRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_endpoint.Endpoint()
+
+        await client.update_endpoint(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_delete_endpoint_rest_asyncio_bad_request(
+    request_type=endpoint_service.DeleteEndpointRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.delete_endpoint(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.DeleteEndpointRequest,
+        dict,
+    ],
+)
+async def test_delete_endpoint_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"name": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.delete_endpoint(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_delete_endpoint_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_delete_endpoint"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_delete_endpoint"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.DeleteEndpointRequest.pb(
+            endpoint_service.DeleteEndpointRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.DeleteEndpointRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.delete_endpoint(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_deploy_model_rest_asyncio_bad_request(
+    request_type=endpoint_service.DeployModelRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.deploy_model(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.DeployModelRequest,
+        dict,
+    ],
+)
+async def test_deploy_model_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.deploy_model(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_deploy_model_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_deploy_model"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_deploy_model"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.DeployModelRequest.pb(
+            endpoint_service.DeployModelRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.DeployModelRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.deploy_model(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_undeploy_model_rest_asyncio_bad_request(
+    request_type=endpoint_service.UndeployModelRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.undeploy_model(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.UndeployModelRequest,
+        dict,
+    ],
+)
+async def test_undeploy_model_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.undeploy_model(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_undeploy_model_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_undeploy_model"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_undeploy_model"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.UndeployModelRequest.pb(
+            endpoint_service.UndeployModelRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.UndeployModelRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.undeploy_model(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_rest_asyncio_bad_request(
+    request_type=endpoint_service.MutateDeployedModelRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.mutate_deployed_model(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        endpoint_service.MutateDeployedModelRequest,
+        dict,
+    ],
+)
+async def test_mutate_deployed_model_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"endpoint": "projects/sample1/locations/sample2/endpoints/sample3"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.mutate_deployed_model(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_mutate_deployed_model_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncEndpointServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncEndpointServiceRestInterceptor(),
+    )
+    client = EndpointServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "post_mutate_deployed_model"
+    ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor, "pre_mutate_deployed_model"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = endpoint_service.MutateDeployedModelRequest.pb(
+            endpoint_service.MutateDeployedModelRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = endpoint_service.MutateDeployedModelRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.mutate_deployed_model(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_get_location_rest_asyncio_bad_request(
+    request_type=locations_pb2.GetLocationRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.get_location(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.GetLocationRequest,
+        dict,
+    ],
+)
+async def test_get_location_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.Location()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.get_location(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+@pytest.mark.asyncio
+async def test_list_locations_rest_asyncio_bad_request(
+    request_type=locations_pb2.ListLocationsRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.list_locations(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        locations_pb2.ListLocationsRequest,
+        dict,
+    ],
+)
+async def test_list_locations_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {"name": "projects/sample1"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = locations_pb2.ListLocationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.list_locations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_rest_asyncio_bad_request(
+    request_type=iam_policy_pb2.GetIamPolicyRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.get_iam_policy(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.GetIamPolicyRequest,
+        dict,
+    ],
+)
+async def test_get_iam_policy_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.get_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_rest_asyncio_bad_request(
+    request_type=iam_policy_pb2.SetIamPolicyRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.set_iam_policy(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.SetIamPolicyRequest,
+        dict,
+    ],
+)
+async def test_set_iam_policy_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = policy_pb2.Policy()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.set_iam_policy(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_rest_asyncio_bad_request(
+    request_type=iam_policy_pb2.TestIamPermissionsRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
+        request,
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.test_iam_permissions(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        iam_policy_pb2.TestIamPermissionsRequest,
+        dict,
+    ],
+)
+async def test_test_iam_permissions_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {
+        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
+    }
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.test_iam_permissions(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+
+@pytest.mark.asyncio
+async def test_cancel_operation_rest_asyncio_bad_request(
+    request_type=operations_pb2.CancelOperationRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.cancel_operation(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.CancelOperationRequest,
+        dict,
+    ],
+)
+async def test_cancel_operation_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.cancel_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+@pytest.mark.asyncio
+async def test_delete_operation_rest_asyncio_bad_request(
+    request_type=operations_pb2.DeleteOperationRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.delete_operation(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.DeleteOperationRequest,
+        dict,
+    ],
+)
+async def test_delete_operation_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = None
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = "{}"
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.delete_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+@pytest.mark.asyncio
+async def test_get_operation_rest_asyncio_bad_request(
+    request_type=operations_pb2.GetOperationRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.get_operation(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.GetOperationRequest,
+        dict,
+    ],
+)
+async def test_get_operation_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.get_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+@pytest.mark.asyncio
+async def test_list_operations_rest_asyncio_bad_request(
+    request_type=operations_pb2.ListOperationsRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.list_operations(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.ListOperationsRequest,
+        dict,
+    ],
+)
+async def test_list_operations_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.ListOperationsResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.list_operations(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+@pytest.mark.asyncio
+async def test_wait_operation_rest_asyncio_bad_request(
+    request_type=operations_pb2.WaitOperationRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    request = request_type()
+    request = json_format.ParseDict(
+        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
+    )
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.wait_operation(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        operations_pb2.WaitOperationRequest,
+        dict,
+    ],
+)
+async def test_wait_operation_rest_asyncio(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request = request_type(**request_init)
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+
+        req.return_value = response_value
+
+        response = await client.wait_operation(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_initialize_client_w_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    assert client is not None
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_endpoint_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.create_endpoint), "__call__") as call:
+        await client.create_endpoint(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.CreateEndpointRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_endpoint_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.get_endpoint), "__call__") as call:
+        await client.get_endpoint(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.GetEndpointRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_endpoints_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.list_endpoints), "__call__") as call:
+        await client.list_endpoints(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.ListEndpointsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_update_endpoint_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.update_endpoint), "__call__") as call:
+        await client.update_endpoint(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.UpdateEndpointRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_endpoint_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.delete_endpoint), "__call__") as call:
+        await client.delete_endpoint(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.DeleteEndpointRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_deploy_model_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.deploy_model), "__call__") as call:
+        await client.deploy_model(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.DeployModelRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_undeploy_model_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.undeploy_model), "__call__") as call:
+        await client.undeploy_model(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.UndeployModelRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_mutate_deployed_model_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.mutate_deployed_model), "__call__"
+    ) as call:
+        await client.mutate_deployed_model(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = endpoint_service.MutateDeployedModelRequest()
+
+        assert args[0] == request_msg
+
+
+def test_endpoint_service_rest_asyncio_lro_client():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+    transport = client.transport
+
+    # Ensure that we have an api-core operations client.
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.AsyncOperationsRestClient,
+    )
+
+    # Ensure that subsequent calls to the property send the exact same object.
+    assert transport.operations_client is transport.operations_client
+
+
+def test_unsupported_parameter_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    options = client_options.ClientOptions(quota_project_id="octopus")
+    with pytest.raises(core_exceptions.AsyncRestUnsupportedParameterError, match="google.api_core.client_options.ClientOptions.quota_project_id") as exc:  # type: ignore
+        client = EndpointServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport="rest_asyncio",
+            client_options=options,
+        )
+
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
     client = EndpointServiceClient(
@@ -10863,6 +13340,23 @@ def test_transport_close_rest():
         type(getattr(client.transport, "_session")), "close"
     ) as close:
         with client:
+            close.assert_not_called()
+        close.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_transport_close_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = EndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    with mock.patch.object(
+        type(getattr(client.transport, "_session")), "close"
+    ) as close:
+        async with client:
             close.assert_not_called()
         close.assert_called_once()
 

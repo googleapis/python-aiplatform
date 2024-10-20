@@ -1222,11 +1222,12 @@ class TestEvaluationErrors:
             metrics=[_TEST_POINTWISE_METRIC],
         )
         with pytest.raises(
-            KeyError,
+            ValueError,
             match=re.escape(
                 (
-                    "Required column `response` not found in the evaluation dataset."
-                    " The columns in the evaluation dataset are ['prompt']."
+                    "Cannot find the `response` column in the evaluation dataset"
+                    " to fill the metric prompt template for"
+                    " `test_pointwise_metric` metric."
                 )
             ),
         ):
@@ -1242,12 +1243,12 @@ class TestEvaluationErrors:
             metrics=[_TEST_PAIRWISE_METRIC],
         )
         with pytest.raises(
-            KeyError,
+            ValueError,
             match=re.escape(
                 (
-                    "Required column `baseline_model_response` not found in the"
-                    " evaluation dataset. The columns in the evaluation dataset are"
-                    " ['prompt', 'response']."
+                    "Cannot find the `baseline_model_response` column in the"
+                    " evaluation dataset to fill the metric prompt template for"
+                    " `test_pairwise_metric` metric."
                 )
             ),
         ):

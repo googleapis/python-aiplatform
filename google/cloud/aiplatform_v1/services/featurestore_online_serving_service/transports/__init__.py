@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import FeaturestoreOnlineServingServiceTransport
 from .grpc import FeaturestoreOnlineServingServiceGrpcTransport
 from .grpc_asyncio import FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
 from .rest import FeaturestoreOnlineServingServiceRestTransport
 from .rest import FeaturestoreOnlineServingServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncFeaturestoreOnlineServingServiceRestTransport
+    from .rest_asyncio import AsyncFeaturestoreOnlineServingServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncFeaturestoreOnlineServingServiceRestTransport",
+        "AsyncFeaturestoreOnlineServingServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -32,6 +46,10 @@ _transport_registry[
     "grpc_asyncio"
 ] = FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = FeaturestoreOnlineServingServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry[
+        "rest_asyncio"
+    ] = AsyncFeaturestoreOnlineServingServiceRestTransport
 
 __all__ = (
     "FeaturestoreOnlineServingServiceTransport",
@@ -39,4 +57,4 @@ __all__ = (
     "FeaturestoreOnlineServingServiceGrpcAsyncIOTransport",
     "FeaturestoreOnlineServingServiceRestTransport",
     "FeaturestoreOnlineServingServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

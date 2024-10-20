@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import DeploymentResourcePoolServiceTransport
 from .grpc import DeploymentResourcePoolServiceGrpcTransport
 from .grpc_asyncio import DeploymentResourcePoolServiceGrpcAsyncIOTransport
 from .rest import DeploymentResourcePoolServiceRestTransport
 from .rest import DeploymentResourcePoolServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncDeploymentResourcePoolServiceRestTransport
+    from .rest_asyncio import AsyncDeploymentResourcePoolServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncDeploymentResourcePoolServiceRestTransport",
+        "AsyncDeploymentResourcePoolServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -30,6 +44,10 @@ _transport_registry = (
 _transport_registry["grpc"] = DeploymentResourcePoolServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = DeploymentResourcePoolServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = DeploymentResourcePoolServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry[
+        "rest_asyncio"
+    ] = AsyncDeploymentResourcePoolServiceRestTransport
 
 __all__ = (
     "DeploymentResourcePoolServiceTransport",
@@ -37,4 +55,4 @@ __all__ = (
     "DeploymentResourcePoolServiceGrpcAsyncIOTransport",
     "DeploymentResourcePoolServiceRestTransport",
     "DeploymentResourcePoolServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import IndexServiceTransport
 from .grpc import IndexServiceGrpcTransport
@@ -22,12 +22,28 @@ from .grpc_asyncio import IndexServiceGrpcAsyncIOTransport
 from .rest import IndexServiceRestTransport
 from .rest import IndexServiceRestInterceptor
 
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncIndexServiceRestTransport
+    from .rest_asyncio import AsyncIndexServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncIndexServiceRestTransport",
+        "AsyncIndexServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
+
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[IndexServiceTransport]]
 _transport_registry["grpc"] = IndexServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = IndexServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = IndexServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncIndexServiceRestTransport
 
 __all__ = (
     "IndexServiceTransport",
@@ -35,4 +51,4 @@ __all__ = (
     "IndexServiceGrpcAsyncIOTransport",
     "IndexServiceRestTransport",
     "IndexServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

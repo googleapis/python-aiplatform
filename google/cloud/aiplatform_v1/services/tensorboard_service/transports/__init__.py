@@ -14,13 +14,27 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import TensorboardServiceTransport
 from .grpc import TensorboardServiceGrpcTransport
 from .grpc_asyncio import TensorboardServiceGrpcAsyncIOTransport
 from .rest import TensorboardServiceRestTransport
 from .rest import TensorboardServiceRestInterceptor
+
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncTensorboardServiceRestTransport
+    from .rest_asyncio import AsyncTensorboardServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncTensorboardServiceRestTransport",
+        "AsyncTensorboardServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
 
 
 # Compile a registry of transports.
@@ -30,6 +44,8 @@ _transport_registry = (
 _transport_registry["grpc"] = TensorboardServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = TensorboardServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = TensorboardServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncTensorboardServiceRestTransport
 
 __all__ = (
     "TensorboardServiceTransport",
@@ -37,4 +53,4 @@ __all__ = (
     "TensorboardServiceGrpcAsyncIOTransport",
     "TensorboardServiceRestTransport",
     "TensorboardServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES

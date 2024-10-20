@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Dict, Type
+from typing import Dict, Type, Tuple
 
 from .base import VizierServiceTransport
 from .grpc import VizierServiceGrpcTransport
@@ -22,12 +22,28 @@ from .grpc_asyncio import VizierServiceGrpcAsyncIOTransport
 from .rest import VizierServiceRestTransport
 from .rest import VizierServiceRestInterceptor
 
+ASYNC_REST_CLASSES: Tuple[str, ...]
+try:
+    from .rest_asyncio import AsyncVizierServiceRestTransport
+    from .rest_asyncio import AsyncVizierServiceRestInterceptor
+
+    ASYNC_REST_CLASSES = (
+        "AsyncVizierServiceRestTransport",
+        "AsyncVizierServiceRestInterceptor",
+    )
+    HAS_REST_ASYNC = True
+except ImportError:  # pragma: NO COVER
+    ASYNC_REST_CLASSES = ()
+    HAS_REST_ASYNC = False
+
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[VizierServiceTransport]]
 _transport_registry["grpc"] = VizierServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = VizierServiceGrpcAsyncIOTransport
 _transport_registry["rest"] = VizierServiceRestTransport
+if HAS_REST_ASYNC:  # pragma: NO COVER
+    _transport_registry["rest_asyncio"] = AsyncVizierServiceRestTransport
 
 __all__ = (
     "VizierServiceTransport",
@@ -35,4 +51,4 @@ __all__ = (
     "VizierServiceGrpcAsyncIOTransport",
     "VizierServiceRestTransport",
     "VizierServiceRestInterceptor",
-)
+) + ASYNC_REST_CLASSES
