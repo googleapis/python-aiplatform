@@ -378,6 +378,7 @@ VECTOR_SEARCH_INDEX = "123"
 VECTOR_SERACH_INDEX_DATAPOINTS = [
     {"datapoint_id": "datapoint_id_1", "feature_vector": [0.1]}
 ]
+VECTOR_SEARCH_INDEX_DATAPOINT_IDS = ["datapoint_id_1", "datapoint_id_2"]
 VECTOR_SEARCH_INDEX_ENDPOINT = "456"
 VECTOR_SEARCH_DEPLOYED_INDEX_ID = "789"
 VECTOR_SERACH_INDEX_QUERIES = [[0.1]]
@@ -402,5 +403,7 @@ VECTOR_SERACH_INDEX_HYBRID_QUERIES = [
     ),
 ]
 VECTOR_SEARCH_INDEX_DISPLAY_NAME = "my-vector-search-index"
+VECTOR_SEARCH_INDEX_DESCRIPTION = "test description"
+VECTOR_SEARCH_INDEX_LABELS = {"my_key": "my_value"}
 VECTOR_SEARCH_GCS_URI = "gs://fake-dir"
 VECTOR_SEARCH_INDEX_ENDPOINT_DISPLAY_NAME = "my-vector-search-index-endpoint"
