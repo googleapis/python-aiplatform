@@ -411,6 +411,7 @@ class LocalModel:
         gpu_capabilities: Optional[List[List[str]]] = None,
         container_ready_timeout: Optional[int] = None,
         container_ready_check_interval: Optional[int] = None,
+        container_environment_variables: Optional[dict[str, str]] = None,
     ) -> LocalEndpoint:
         """Deploys the local model instance to a local endpoint.
 
@@ -504,6 +505,8 @@ class LocalModel:
             A the local endpoint object.
         """
         envs = {env.name: env.value for env in self.serving_container_spec.env}
+        if container_environment_variables is not None:
+            envs.update(container_environment_variables)
         ports = [port.container_port for port in self.serving_container_spec.ports]
 
         return LocalEndpoint(
