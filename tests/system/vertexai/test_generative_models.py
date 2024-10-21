@@ -596,3 +596,18 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             response_with_si_and_tool.total_billable_characters
             > response_with_si.total_billable_characters
         )
+        # content + generation_config
+        response_with_generation_config = model.count_tokens(
+            content,
+            generation_config=generative_models.GenerationConfig(
+                response_schema=_RESPONSE_SCHEMA_STRUCT
+            ),
+        )
+        assert (
+            response_with_generation_config.total_tokens
+            > response_with_si_and_tool.total_tokens
+        )
+        assert (
+            response_with_generation_config.total_billable_characters
+            > response_with_si_and_tool.total_billable_characters
+        )

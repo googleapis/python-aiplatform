@@ -177,13 +177,7 @@ def _validate_generate_content_parameters(
         _validate_safety_settings_type_as_valid_sequence(safety_settings)
 
     if generation_config:
-        if not isinstance(
-            generation_config,
-            (gapic_content_types.GenerationConfig, GenerationConfig, Dict),
-        ):
-            raise TypeError(
-                "generation_config must either be a GenerationConfig object or a dictionary representation of it."
-            )
+        _validate_generation_config_type(generation_config)
 
     if tools:
         _validate_tools_type_as_valid_sequence(tools)
@@ -242,6 +236,17 @@ def _validate_safety_settings_type_as_valid_sequence(
                     + "item in a list must be a SafetySetting object."
                 )
 
+
+def _validate_generation_config_type(
+    generation_config: GenerationConfigType,
+) -> None:
+    if not isinstance(
+        generation_config,
+        (gapic_content_types.GenerationConfig, GenerationConfig, Dict),
+    ):
+        raise TypeError(
+            "generation_config must either be a GenerationConfig object or a dictionary representation of it."
+        )
 
 def _validate_tools_type_as_valid_sequence(tools: List["Tool"]):
     for tool in tools:
@@ -482,14 +487,7 @@ class _GenerativeModel:
 
         gapic_generation_config: Optional[gapic_content_types.GenerationConfig] = None
         if generation_config:
-            if isinstance(generation_config, gapic_content_types.GenerationConfig):
-                gapic_generation_config = generation_config
-            elif isinstance(generation_config, GenerationConfig):
-                gapic_generation_config = generation_config._raw_generation_config
-            elif isinstance(generation_config, Dict):
-                gapic_generation_config = gapic_content_types.GenerationConfig(
-                    **generation_config
-                )
+            gapic_generation_config = _to_generation_config(generation_config)
 
         gapic_safety_settings = None
         if safety_settings:
@@ -872,7 +870,11 @@ class _GenerativeModel:
         return async_generator()
 
     def count_tokens(
-        self, contents: ContentsType, *, tools: Optional[List["Tool"]] = None
+        self,
+        contents: ContentsType,
+        *,
+        tools: Optional[List["Tool"]] = None,
+        generation_config: Optional[GenerationConfigType] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens.
 
@@ -885,6 +887,7 @@ class _GenerativeModel:
                 * List[Union[str, Image, Part]],
                 * List[Content]
             tools: A list of tools (functions) that the model can try calling.
+            generation_config: Parameters for the generate_content method.
 
         Returns:
             A CountTokensResponse object that has the following attributes:
@@ -894,12 +897,14 @@ class _GenerativeModel:
         request = self._prepare_request(
             contents=contents,
             tools=tools,
+            generation_config=generation_config,
         )
         return self._gapic_count_tokens(
             prediction_resource_name=self._prediction_resource_name,
             contents=request.contents,
             system_instruction=request.system_instruction,
             tools=request.tools,
+            generation_config=request.generation_config,
         )
 
     async def count_tokens_async(
@@ -907,6 +912,7 @@ class _GenerativeModel:
         contents: ContentsType,
         *,
         tools: Optional[List["Tool"]] = None,
+        generation_config: Optional[GenerationConfigType] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         """Counts tokens asynchronously.
 
@@ -919,6 +925,7 @@ class _GenerativeModel:
                 * List[Union[str, Image, Part]],
                 * List[Content]
             tools: A list of tools (functions) that the model can try calling.
+            generation_config: Parameters for the generate_content method.
 
         Returns:
             And awaitable for a CountTokensResponse object that has the following attributes:
@@ -928,12 +935,14 @@ class _GenerativeModel:
         request = self._prepare_request(
             contents=contents,
             tools=tools,
+            generation_config=generation_config,
         )
         return await self._gapic_count_tokens_async(
             prediction_resource_name=self._prediction_resource_name,
             contents=request.contents,
             system_instruction=request.system_instruction,
             tools=request.tools,
+            generation_config=request.generation_config,
         )
 
     def _gapic_count_tokens(
@@ -942,6 +951,7 @@ class _GenerativeModel:
         contents: List[gapic_content_types.Content],
         system_instruction: Optional[gapic_content_types.Content] = None,
         tools: Optional[List[gapic_tool_types.Tool]] = None,
+        generation_config: Optional[gapic_content_types.GenerationConfig] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         request = gapic_prediction_service_types.CountTokensRequest(
             endpoint=prediction_resource_name,
@@ -949,7 +959,9 @@ class _GenerativeModel:
             contents=contents,
             system_instruction=system_instruction,
             tools=tools,
+            generation_config=generation_config,
         )
+        print("=====>", request)
         return self._prediction_client.count_tokens(request=request)
 
     async def _gapic_count_tokens_async(
@@ -958,6 +970,7 @@ class _GenerativeModel:
         contents: List[gapic_content_types.Content],
         system_instruction: Optional[gapic_content_types.Content] = None,
         tools: Optional[List[gapic_tool_types.Tool]] = None,
+        generation_config: Optional[gapic_content_types.GenerationConfig] = None,
     ) -> gapic_prediction_service_types.CountTokensResponse:
         request = gapic_prediction_service_types.CountTokensRequest(
             endpoint=prediction_resource_name,
@@ -965,7 +978,9 @@ class _GenerativeModel:
             contents=contents,
             system_instruction=system_instruction,
             tools=tools,
+            generation_config=generation_config,
         )
+        print("=====>", request)
         return await self._prediction_async_client.count_tokens(request=request)
 
     def compute_tokens(
@@ -2790,6 +2805,18 @@ def _to_content(
     return gapic_content_types.Content(parts=parts, role=role)
 
 
+def _to_generation_config(
+    generation_config: GenerationConfigType,
+) -> gapic_content_types.GenerationConfig:
+    """Converts generation config to gapic_prediction_service_types.GenerationConfig object."""
+    if isinstance(generation_config, gapic_content_types.GenerationConfig):
+        return generation_config
+    elif isinstance(generation_config, GenerationConfig):
+        return generation_config._raw_generation_config
+    elif isinstance(generation_config, Dict):
+        return gapic_content_types.GenerationConfig(**generation_config)
+
+
 def _append_response(
     base_response: GenerationResponse,
     new_response: GenerationResponse,
@@ -3186,6 +3213,7 @@ class GenerativeModel(_GenerativeModel):
         contents: List[types_v1.Content],
         system_instruction: Optional[types_v1.Content] = None,
         tools: Optional[List[types_v1.Tool]] = None,
+        generation_config: Optional[types_v1.GenerationConfig] = None,
     ) -> types_v1.CountTokensResponse:
         request = types_v1.CountTokensRequest(
             endpoint=prediction_resource_name,
@@ -3193,7 +3221,9 @@ class GenerativeModel(_GenerativeModel):
             contents=contents,
             system_instruction=system_instruction,
             tools=tools,
+            generation_config=generation_config,
         )
+        print("=====>", request)
         return self._llm_utility_client.count_tokens(request=request)
 
     async def _gapic_count_tokens_async(
@@ -3202,6 +3232,7 @@ class GenerativeModel(_GenerativeModel):
         contents: List[types_v1.Content],
         system_instruction: Optional[types_v1.Content] = None,
         tools: Optional[List[types_v1.Tool]] = None,
+        generation_config: Optional[types_v1.GenerationConfig] = None,
     ) -> types_v1.CountTokensResponse:
         request = types_v1.CountTokensRequest(
             endpoint=prediction_resource_name,
@@ -3209,7 +3240,9 @@ class GenerativeModel(_GenerativeModel):
             contents=contents,
             system_instruction=system_instruction,
             tools=tools,
+            generation_config=generation_config,
         )
+        print("=====>", request)
         return await self._llm_utility_async_client.count_tokens(request=request)
 
     # The compute_tokens methods need to be overridden since the request types differ.

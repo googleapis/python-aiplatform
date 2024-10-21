@@ -27,9 +27,13 @@ from vertexai.generative_models._generative_models import (
     Image,
     Tool,
     PartsType,
+    GenerationConfigType,
+    _validate_generation_config_type,
+    _validate_tools_type_as_valid_sequence,
     _validate_contents_type_as_valid_sequence,
     _content_types_to_gapic_contents,
     _to_content,
+    _to_generation_config,
 )
 
 from vertexai.tokenization._tokenizer_loading import (
@@ -172,7 +176,6 @@ def _to_gapic_contents(
     _validate_contents_type_as_valid_sequence(contents)
     _assert_no_image_contents_type(contents)
     gapic_contents = _content_types_to_gapic_contents(contents)
-    # _assert_text_only_content_types_sequence(gapic_contents)
     return gapic_contents
 
 
@@ -325,6 +328,18 @@ class _TextsAccumulator:
                 f"Function response argument contains unsupported types for token counting. Supported fields {counted_function_response}. Got {function_response}."
             )
 
+    def add_generation_config(
+        self, generation_config: gapic_content_types.GenerationConfig
+    ) -> None:
+        if generation_config.response_schema:
+            counted_generation_config = self._schema_traverse(
+                generation_config._pb.response_schema
+            )
+            if counted_generation_config._pb != generation_config._pb:
+                raise ValueError(
+                    f"Generation config argument contains unsupported types for token counting. Supported fields {counted_generation_config}. Got {generation_config}."
+                )
+
     def _function_declaration_traverse(
         self, function_declaration: gapic_tool_types.FunctionDeclaration
     ) -> gapic_tool_types.FunctionDeclaration:
@@ -450,6 +465,7 @@ class Tokenizer:
         *,
         tools: Optional[List["Tool"]] = None,
         system_instruction: Optional[PartsType] = None,
+        generation_config: Optional[GenerationConfigType] = None,
     ) -> CountTokensResult:
         r"""Counts the number of tokens in the text-only contents.
 
@@ -472,6 +488,11 @@ class Tokenizer:
             A CountTokensResult object containing the total number of tokens in
             the contents.
         """
+        if generation_config:
+            _validate_generation_config_type(generation_config)
+
+        if tools:
+            _validate_tools_type_as_valid_sequence(tools)
 
         text_accumulator = _TextsAccumulator()
         if _is_string_inputs(contents):
@@ -489,6 +510,10 @@ class Tokenizer:
                 text_accumulator.add_texts(system_instruction)
             else:
                 text_accumulator.add_content(_to_content(system_instruction))
+
+        if generation_config:
+            canonical_generation_config = _to_generation_config(generation_config)
+            text_accumulator.add_generation_config(canonical_generation_config)
 
         return self._sentencepiece_adapter.count_tokens(text_accumulator.get_texts())
 
