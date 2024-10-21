@@ -306,7 +306,7 @@ class TestRagDataManagement:
     def setup_method(self):
         importlib.reload(aiplatform.initializer)
         importlib.reload(aiplatform)
-        aiplatform.init()
+        aiplatform.init(project=tc.TEST_PROJECT, location=tc.TEST_REGION)
 
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
