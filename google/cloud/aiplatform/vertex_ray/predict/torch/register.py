@@ -16,11 +16,13 @@
 # limitations under the License.
 
 import os
+import warnings
 import ray
 from ray.air._internal.torch_utils import load_torch_model
 import tempfile
 from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
+    _V2_9_WARNING_MESSAGE,
 )
 from google.cloud.aiplatform.utils import gcs_utils
 from typing import Optional
@@ -71,6 +73,8 @@ def get_pytorch_model_from(
             f"Ray on Vertex does not support Ray version {ray_version} to"
             " convert PyTorch model artifacts yet. Please use Ray 2.9.3."
         )
+    if ray_version == "2.9.3":
+        warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
 
     try:
         return checkpoint.get_model()
