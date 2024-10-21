@@ -158,10 +158,8 @@ class QuotaLimit:
       https://cloud.google.com/vertex-ai/generative-ai/docs/quotas.
     """
 
-    # Default queries per minute (QPM) quota for `gemini-1.0-pro` base model.
-    GEMINI_1_0_PRO_GENERATE_CONTENT_REQUESTS_PER_MINUTE = 300
+    # Default Prediction Service QPS limit.
+    PREDICTION_SERVICE_QPS = 5
 
-    # Evaluation Service QPS limit can be computed by
-    # (GEMINI_1_5_PRO_GENERATE_CONTENT_REQUESTS_QPM / 60 / Number of Samples)
-    # 0.25 = 300 / 60 / 4
-    EVAL_SERVICE_QPS = 0.25
+    # Default Evaluation Service QPS limit.
+    EVAL_SERVICE_QPS = 1
