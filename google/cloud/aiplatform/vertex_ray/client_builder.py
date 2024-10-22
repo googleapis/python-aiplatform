@@ -177,7 +177,10 @@ class VertexRayClientBuilder(client_builder.ClientBuilder):
         public_address = self.response.resource_runtime.access_uris.get(
             "RAY_CLIENT_ENDPOINT"
         )
-        if public_address:
+        private_address = self.response.resource_runtime.access_uris.get(
+            "RAY_HEAD_NODE_INTERNAL_IP"
+        )
+        if public_address and not private_address:
             self._credentials = grpc.ssl_channel_credentials()
             bearer_token = _validation_utils.get_bearer_token()
             self._metadata = [
