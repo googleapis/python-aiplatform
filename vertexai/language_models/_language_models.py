@@ -197,6 +197,11 @@ class _GetTunedModelMixin(_model_garden_models._ModelGardenModel):
         tuned_model_deployments = tuned_vertex_model.gca_resource.deployed_models
         if len(tuned_model_deployments) == 0:
             # Deploying the model
+            warnings.warn(
+                "The model is not deployed."
+                " In the future SDK version this will become an error.",
+                category=PendingDeprecationWarning,
+            )
             endpoint_name = tuned_vertex_model.deploy().resource_name
         else:
             endpoint_name = tuned_model_deployments[0].endpoint
