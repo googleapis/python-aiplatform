@@ -2155,6 +2155,11 @@ def _fix_schema_dict_for_gapic_in_place(schema_dict: Dict[str, Any]) -> None:
     if properties := schema_dict.get("properties"):
         for property_schema in properties.values():
             _fix_schema_dict_for_gapic_in_place(property_schema)
+        if (
+            "property_ordering" not in schema_dict
+            and "propertyOrdering" not in schema_dict
+        ):
+            schema_dict["property_ordering"] = list(properties.keys())
 
     if any_of := (schema_dict.get("any_of") or schema_dict.get("anyOf")):
         for any_of_schema in any_of:
