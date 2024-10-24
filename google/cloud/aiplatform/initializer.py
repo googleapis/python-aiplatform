@@ -221,6 +221,12 @@ class _Config:
                     f"{api_transport} is not a valid transport type. "
                     + f"Valid transport types: {VALID_TRANSPORT_TYPES}"
                 )
+        else:
+            # Raise error if api_transport other than rest is specified for usage with API key.
+            if not project and not api_transport:
+                api_transport = "rest"
+            elif not project and api_transport != "rest":
+                raise ValueError(f"{api_transport} is not supported with API keys. ")
         if location:
             utils.validate_region(location)
         if experiment_description and experiment is None:
@@ -235,6 +241,11 @@ class _Config:
             if metadata._experiment_tracker.experiment_name:
                 logging.info("project/location updated, reset Experiment config.")
             metadata._experiment_tracker.reset()
+
+        if project and api_key:
+            logging.info(
+                "Both a project and API key have been provided. The project will take precedence over the API key."
+            )
 
         # Then we change the main state
         if api_endpoint is not None:
@@ -438,7 +449,18 @@ class _Config:
 
         api_endpoint = self.api_endpoint
 
+        if (
+            api_endpoint is None
+            and not self._project
+            and not self._location
+            and not location_override
+        ):
+            # Default endpoint is location invariant if using API key
+            api_endpoint = "aiplatform.googleapis.com"
+
+        # If both project and API key are passed in, project takes precedence.
         if api_endpoint is None:
+            # Form the default endpoint to use with no API key.
             if not (self.location or location_override):
                 raise ValueError(
                     "No location found. Provide or initialize SDK with a location."

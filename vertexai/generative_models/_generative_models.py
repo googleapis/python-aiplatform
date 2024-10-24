@@ -388,13 +388,25 @@ class _GenerativeModel:
     def _prediction_client(self) -> prediction_service.PredictionServiceClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_client_value", None):
-            self._prediction_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service.PredictionServiceClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                self._prediction_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=prediction_service.PredictionServiceClient,
+                        api_key=aiplatform_initializer.global_config.api_key,
+                        prediction_client=True,
+                    )
                 )
-            )
+            else:
+                self._prediction_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=prediction_service.PredictionServiceClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._prediction_client_value
 
     @property
@@ -403,26 +415,46 @@ class _GenerativeModel:
     ) -> prediction_service.PredictionServiceAsyncClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_async_client_value", None):
-            self._prediction_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service.PredictionServiceAsyncClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise RuntimeError(
+                    "Using an api key is not supported yet for async clients."
                 )
-            )
+            else:
+                self._prediction_async_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=prediction_service.PredictionServiceAsyncClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._prediction_async_client_value
 
     @property
     def _llm_utility_client(self) -> llm_utility_service.LlmUtilityServiceClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_llm_utility_client_value", None):
-            self._llm_utility_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service.LlmUtilityServiceClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                self._llm_utility_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=llm_utility_service.LlmUtilityServiceClient,
+                        api_key=aiplatform_initializer.global_config.api_key,
+                        prediction_client=True,
+                    )
                 )
-            )
+            else:
+                self._llm_utility_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=llm_utility_service.LlmUtilityServiceClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._llm_utility_client_value
 
     @property
@@ -431,13 +463,21 @@ class _GenerativeModel:
     ) -> llm_utility_service.LlmUtilityServiceAsyncClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_llm_utility_async_client_value", None):
-            self._llm_utility_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise RuntimeError(
+                    "Using an api key is not supported yet for async clients."
                 )
-            )
+            else:
+                self._llm_utility_async_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._llm_utility_async_client_value
 
     def _prepare_request(
