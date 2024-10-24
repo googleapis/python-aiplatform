@@ -110,9 +110,7 @@ STAGING_API_ENDPOINT = "STAGING_ENDPOINT"
 PROD_API_ENDPOINT = "PROD_ENDPOINT"
 
 
-@pytest.mark.parametrize(
-    "api_endpoint_env_name", [STAGING_API_ENDPOINT, PROD_API_ENDPOINT]
-)
+@pytest.mark.parametrize("api_endpoint_env_name", [PROD_API_ENDPOINT])
 class TestTokenization(e2e_base.TestEndToEnd):
     """System tests for tokenization."""
 

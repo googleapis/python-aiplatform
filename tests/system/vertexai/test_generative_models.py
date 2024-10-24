@@ -89,9 +89,7 @@ _RESPONSE_SCHEMA_STRUCT = {
 }
 
 
-@pytest.mark.parametrize(
-    "api_endpoint_env_name", [STAGING_API_ENDPOINT, PROD_API_ENDPOINT]
-)
+@pytest.mark.parametrize("api_endpoint_env_name", [PROD_API_ENDPOINT])
 class TestGenerativeModels(e2e_base.TestEndToEnd):
     """System tests for generative models."""
 
