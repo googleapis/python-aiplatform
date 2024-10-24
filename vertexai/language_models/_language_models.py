@@ -1159,7 +1159,6 @@ class VertexAISearch(_GroundingSourceBase):
 
 @dataclasses.dataclass
 class GroundingSource:
-
     WebSearch = WebSearch
     VertexAISearch = VertexAISearch
     InlineContext = InlineContext
@@ -1681,6 +1680,10 @@ class _TextGenerationModel(_LanguageModel):
                 deployed_model_id="",
             )
             yield _parse_text_generation_model_response(prediction_obj)
+
+    async def close_async_client(self) -> None:
+        if self._endpoint._prediction_async_client:
+            return await self._endpoint._prediction_async_client.transport.close()
 
 
 def _create_text_generation_prediction_request(
@@ -3243,12 +3246,10 @@ class _ChatSessionBaseWithCountTokensMixin(_ChatSessionBase):
 
 
 class _PreviewChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 
 class _PreviewCodeChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 

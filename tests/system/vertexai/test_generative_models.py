@@ -32,6 +32,8 @@ from vertexai.preview import (
 )
 from vertexai.preview import caching
 
+from typing import Any
+
 GEMINI_MODEL_NAME = "gemini-1.0-pro-002"
 GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
 GEMINI_15_MODEL_NAME = "gemini-1.5-pro-preview-0409"
@@ -58,6 +60,10 @@ def get_current_weather(location: str, unit: str = "centigrade"):
         unit=unit,
         weather="Super nice, but maybe a bit hot.",
     )
+
+
+def get_client_api_transport(client: Any):
+    return client._transport.__class__.__name__.lower()
 
 
 _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
@@ -90,19 +96,20 @@ _RESPONSE_SCHEMA_STRUCT = {
 
 
 @pytest.mark.parametrize("api_endpoint_env_name", [PROD_API_ENDPOINT])
+@pytest.mark.parametrize("api_transport", ["grpc", "rest"])
 class TestGenerativeModels(e2e_base.TestEndToEnd):
     """System tests for generative models."""
 
     _temp_prefix = "temp_generative_models_test_"
 
     @pytest.fixture(scope="function", autouse=True)
-    def setup_method(self, api_endpoint_env_name):
+    def setup_method(self, api_endpoint_env_name, api_transport):
         super().setup_method()
         credentials, _ = auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
         if api_endpoint_env_name == STAGING_API_ENDPOINT:
-            api_endpoint = os.getenv(api_endpoint_env_name)
+            api_endpoint = os.getenv(api_endpoint_env_name) or None
         else:
             api_endpoint = None
         aiplatform.init(
@@ -110,6 +117,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
             credentials=credentials,
             api_endpoint=api_endpoint,
+            api_transport=api_transport,
         )
 
     def test_generate_content_with_cached_content_from_text(
@@ -152,13 +160,14 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         finally:
             cached_content.delete()
 
-    def test_generate_content_from_text(self, api_endpoint_env_name):
+    def test_generate_content_from_text(self, api_endpoint_env_name, api_transport):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = model.generate_content(
             "Why is sky blue?",
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response.text
+        assert api_transport in get_client_api_transport(model._prediction_client)
 
     def test_generate_content_latency(self, api_endpoint_env_name):
         import time
@@ -201,13 +210,44 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert percent_latency <= 0.01
 
     @pytest.mark.asyncio
-    async def test_generate_content_async(self, api_endpoint_env_name):
+    async def test_generate_content_async(self, api_endpoint_env_name, api_transport):
+        # Retrieve access token from ADC required to construct
+        # google.auth.aio.credentials.StaticCredentials for async REST transport.
+        # TODO: Update this when google.auth.aio.default is supported for async.
+        if api_transport == "rest":
+            default_credentials, _ = auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            )
+            auth_req = auth.transport.requests.Request()
+            default_credentials.refresh(auth_req)
+            if api_endpoint_env_name == STAGING_API_ENDPOINT:
+                api_endpoint = os.getenv(api_endpoint_env_name)
+            else:
+                api_endpoint = None
+
+            # Construct google.auth.aio.credentials.StaticCredentials
+            # using the access token from ADC for async REST transport.
+            from google.auth.aio.credentials import StaticCredentials
+
+            async_credentials = StaticCredentials(token=default_credentials.token)
+
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                credentials=async_credentials,
+                api_endpoint=api_endpoint,
+                api_transport=api_transport,
+            )
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         response = await model.generate_content_async(
             "Why is sky blue?",
             generation_config=generative_models.GenerationConfig(temperature=0),
         )
         assert response.text
+        assert api_transport in get_client_api_transport(
+            model._prediction_async_client._client
+        )
+        await model.close_async_client()
 
     def test_generate_content_streaming(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
@@ -224,7 +264,36 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
             )
 
     @pytest.mark.asyncio
-    async def test_generate_content_streaming_async(self, api_endpoint_env_name):
+    async def test_generate_content_streaming_async(
+        self, api_endpoint_env_name, api_transport
+    ):
+        # Retrieve access token from ADC required to construct
+        # google.auth.aio.credentials.StaticCredentials for async REST transport.
+        # TODO: Update this when google.auth.aio.default is supported for async.
+        if api_transport == "rest":
+            default_credentials, _ = auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            )
+            auth_req = auth.transport.requests.Request()
+            default_credentials.refresh(auth_req)
+            if api_endpoint_env_name == STAGING_API_ENDPOINT:
+                api_endpoint = os.getenv(api_endpoint_env_name)
+            else:
+                api_endpoint = None
+
+            # Construct google.auth.aio.credentials.StaticCredentials
+            # using the access token from ADC for async REST transport.
+            from google.auth.aio.credentials import StaticCredentials
+
+            async_credentials = StaticCredentials(token=default_credentials.token)
+
+            aiplatform.init(
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                credentials=async_credentials,
+                api_endpoint=api_endpoint,
+                api_transport=api_transport,
+            )
         model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         async_stream = await model.generate_content_async(
             "Why is sky blue?",
@@ -237,6 +306,10 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
                 or chunk.candidates[0].finish_reason
                 is generative_models.FinishReason.STOP
             )
+        assert api_transport in get_client_api_transport(
+            model._prediction_async_client._client
+        )
+        await model.close_async_client()
 
     def test_generate_content_with_parameters(self, api_endpoint_env_name):
         model = generative_models.GenerativeModel(

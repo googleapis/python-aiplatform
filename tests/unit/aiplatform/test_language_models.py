@@ -79,6 +79,8 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
 )
 
+from typing import Any
+
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 
@@ -1388,6 +1390,10 @@ def make_eval_classification_pipeline_job(state):
     )
 
 
+def get_client_api_transport(client: Any):
+    return client._transport.__class__.__name__.lower()
+
+
 @pytest.fixture
 def mock_pipeline_service_create():
     with mock.patch.object(
@@ -1837,6 +1843,10 @@ class TestLanguageModels:
             == _TEST_TEXT_GENERATION_PREDICTION["safetyAttributes"]["scores"][0]
         )
 
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_client
+        )
+
     def test_text_generation_preview_count_tokens(self):
         """Tests the text generation model."""
         aiplatform.init(
@@ -2074,11 +2084,30 @@ class TestLanguageModels:
     @pytest.mark.asyncio
     async def test_text_generation_async(self, api_transport):
         """Tests the text generation model."""
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            api_transport=api_transport,
-        )
+        if api_transport == "rest":
+            from google import auth
+
+            default_credentials, _ = auth.default(
+                scopes=["https://www.googleapis.com/auth/cloud-platform"]
+            )
+
+            # Construct google.auth.aio.credentials.StaticCredentials
+            # using the access token from ADC for async REST transport.
+            from google.auth.aio.credentials import StaticCredentials
+
+            async_credentials = StaticCredentials(token=default_credentials.token)
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=async_credentials,
+                api_transport=api_transport,
+            )
+        else:
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                api_transport=api_transport,
+            )
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
@@ -2114,6 +2143,11 @@ class TestLanguageModels:
         assert prediction_parameters["topK"] == 5
         assert prediction_parameters["stopSequences"] == ["\n"]
         assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+
+        assert api_transport in get_client_api_transport(
+            model._endpoint._prediction_async_client._client
+        )
+        await model.close_async_client()
 
     @pytest.mark.asyncio
     async def test_text_generation_multiple_candidates_grounding_async(self):

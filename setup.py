@@ -138,6 +138,11 @@ ray_testing_extra_require = ray_extra_require + [
     "xgboost_ray",
 ]
 
+async_rest_extra_require = [
+    "google-api-core[grpc, async_rest] >= 2.21.0",
+    "google-auth[aiohttp] >= 2.35.0",
+]
+
 reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
     "google-cloud-trace < 2",
@@ -188,6 +193,7 @@ full_extra_require = list(
         + preview_extra_require
         + ray_extra_require
         + evaluation_extra_require
+        + async_rest_extra_require
     )
 )
 testing_extra_require = (
@@ -276,6 +282,7 @@ setuptools.setup(
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
         "tokenization": tokenization_extra_require,
+        "async_rest": async_rest_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[
