@@ -125,7 +125,10 @@ class TestRayData(e2e_base.TestEndToEnd):
                 # Path to the local directory that contains the my_script.py file
                 runtime_env={
                     "working_dir": temp_dir,
-                    "pip": ["google-cloud-aiplatform[ray]==" + SDK_VERSION],
+                    "pip": [
+                        "pandas==2.1.4",
+                        "google-cloud-aiplatform[ray]==" + SDK_VERSION,
+                    ],
                 },
             )
 
