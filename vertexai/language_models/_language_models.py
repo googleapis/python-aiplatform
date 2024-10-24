@@ -2562,26 +2562,28 @@ class _ChatModelBase(_LanguageModel):
 class ChatModel(_ChatModelBase, _TunableChatModelMixin, _RlhfTunableModelMixin):
     """ChatModel represents a language model that is capable of chat.
 
-    Examples::
+    Examples:
 
-        chat_model = ChatModel.from_pretrained("chat-bison@001")
+    ```py
+    chat_model = ChatModel.from_pretrained("chat-bison@001")
 
-        chat = chat_model.start_chat(
-            context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
-            examples=[
-                InputOutputTextPair(
-                    input_text="Who do you work for?",
-                    output_text="I work for Ned.",
-                ),
-                InputOutputTextPair(
-                    input_text="What do I like?",
-                    output_text="Ned likes watching movies.",
-                ),
-            ],
-            temperature=0.3,
-        )
+    chat = chat_model.start_chat(
+        context="My name is Ned. You are my personal assistant. My favorite movies are Lord of the Rings and Hobbit.",
+        examples=[
+            InputOutputTextPair(
+                input_text="Who do you work for?",
+                output_text="I work for Ned.",
+            ),
+            InputOutputTextPair(
+                input_text="What do I like?",
+                output_text="Ned likes watching movies.",
+            ),
+        ],
+        temperature=0.3,
+    )
 
-        chat.send_message("Do you know any cool events this weekend?")
+    chat.send_message("Do you know any cool events this weekend?")
+    ```
     """
 
     __module__ = "vertexai.language_models"
@@ -2639,15 +2641,18 @@ class CodeChatModel(_ChatModelBase, _TunableChatModelMixin):
     """CodeChatModel represents a model that is capable of completing code.
 
     Examples:
-        code_chat_model = CodeChatModel.from_pretrained("codechat-bison@001")
 
-        code_chat = code_chat_model.start_chat(
-            context="I'm writing a large-scale enterprise application.",
-            max_output_tokens=128,
-            temperature=0.2,
-        )
+    ```py
+    code_chat_model = CodeChatModel.from_pretrained("codechat-bison@001")
 
-        code_chat.send_message("Please help write a function to calculate the min of two numbers")
+    code_chat = code_chat_model.start_chat(
+        context="I'm writing a large-scale enterprise application.",
+        max_output_tokens=128,
+        temperature=0.2,
+    )
+
+    code_chat.send_message("Please help write a function to calculate the min of two numbers")
+    ```
     """
 
     __module__ = "vertexai.language_models"

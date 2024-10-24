@@ -30,7 +30,7 @@ import vertexai
 #### Initialization:
 
 ```python
-vertexai.init(project='my-project', location='us-central1')
+vertexai.init(project="my-project", location="us-central1")
 ```
 
 #### Basic generation:
@@ -189,18 +189,18 @@ import pandas as pd
 from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
 
 eval_dataset = pd.DataFrame({
-        "prompt"  : [...],
-        "reference": [...],
-        "response" : [...],
-        "baseline_model_response": [...],
+    "prompt": [...],
+    "reference": [...],
+    "response": [...],
+    "baseline_model_response": [...],
 })
 eval_task = EvalTask(
     dataset=eval_dataset,
     metrics=[
-            "bleu",
-            "rouge_l_sum",
-            MetricPromptTemplateExamples.Pointwise.FLUENCY,
-            MetricPromptTemplateExamples.Pairwise.SAFETY
+        "bleu",
+        "rouge_l_sum",
+        MetricPromptTemplateExamples.Pointwise.FLUENCY,
+        MetricPromptTemplateExamples.Pairwise.SAFETY
     ],
     experiment="my-experiment",
 )
@@ -214,7 +214,7 @@ from vertexai.generative_models import GenerativeModel
 
 eval_dataset = pd.DataFrame({
     "reference": [...],
-    "prompt"  : [...],
+    "prompt": [...],
 })
 result = EvalTask(
     dataset=eval_dataset,
@@ -234,7 +234,7 @@ from vertexai.evaluation import EvalTask, MetricPromptTemplateExamples
 from vertexai.generative_models import GenerativeModel
 
 eval_dataset = pd.DataFrame({
-    "context"    : [...],
+    "context": [...],
     "instruction": [...],
 })
 result = EvalTask(
@@ -260,13 +260,13 @@ def custom_model_fn(input: str) -> str:
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-        {"role": "user", "content": input}
+            {"role": "user", "content": input}
         ]
     )
     return response.choices[0].message.content
 
 eval_dataset = pd.DataFrame({
-    "prompt"  : [...],
+    "prompt": [...],
     "reference": [...],
 })
 result = EvalTask(
@@ -299,7 +299,7 @@ pairwise_groundedness = PairwiseMetric(
     baseline_model=baseline_model,
 )
 eval_dataset = pd.DataFrame({
-    "prompt"  : [...],
+    "prompt": [...],
 })
 result = EvalTask(
     dataset=eval_dataset,
