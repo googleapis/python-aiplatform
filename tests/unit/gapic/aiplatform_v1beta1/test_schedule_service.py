@@ -5720,6 +5720,13 @@ def test_create_schedule_rest_call_success(request_type):
                     "parameter_values": {},
                     "failure_policy": 1,
                     "input_artifacts": {},
+                    "default_runtime": {
+                        "persistent_resource_runtime_detail": {
+                            "persistent_resource_name": "persistent_resource_name_value",
+                            "task_resource_unavailable_wait_time_ms": 4030,
+                            "task_resource_unavailable_timeout_behavior": 1,
+                        }
+                    },
                 },
                 "encryption_spec": {"kms_key_name": "kms_key_name_value"},
                 "service_account": "service_account_value",
@@ -6837,6 +6844,13 @@ def test_update_schedule_rest_call_success(request_type):
                     "parameter_values": {},
                     "failure_policy": 1,
                     "input_artifacts": {},
+                    "default_runtime": {
+                        "persistent_resource_runtime_detail": {
+                            "persistent_resource_name": "persistent_resource_name_value",
+                            "task_resource_unavailable_wait_time_ms": 4030,
+                            "task_resource_unavailable_timeout_behavior": 1,
+                        }
+                    },
                 },
                 "encryption_spec": {"kms_key_name": "kms_key_name_value"},
                 "service_account": "service_account_value",
@@ -8157,6 +8171,13 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                     "parameter_values": {},
                     "failure_policy": 1,
                     "input_artifacts": {},
+                    "default_runtime": {
+                        "persistent_resource_runtime_detail": {
+                            "persistent_resource_name": "persistent_resource_name_value",
+                            "task_resource_unavailable_wait_time_ms": 4030,
+                            "task_resource_unavailable_timeout_behavior": 1,
+                        }
+                    },
                 },
                 "encryption_spec": {"kms_key_name": "kms_key_name_value"},
                 "service_account": "service_account_value",
@@ -9370,6 +9391,13 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                     "parameter_values": {},
                     "failure_policy": 1,
                     "input_artifacts": {},
+                    "default_runtime": {
+                        "persistent_resource_runtime_detail": {
+                            "persistent_resource_name": "persistent_resource_name_value",
+                            "task_resource_unavailable_wait_time_ms": 4030,
+                            "task_resource_unavailable_timeout_behavior": 1,
+                        }
+                    },
                 },
                 "encryption_spec": {"kms_key_name": "kms_key_name_value"},
                 "service_account": "service_account_value",
