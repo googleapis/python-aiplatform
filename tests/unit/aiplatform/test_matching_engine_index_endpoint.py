@@ -100,6 +100,8 @@ _TEST_AUTH_CONFIG_ALLOWED_ISSUERS = [
     "service-account-name-1@project-id.iam.gserviceaccount.com",
     "service-account-name-2@project-id.iam.gserviceaccount.com",
 ]
+_TEST_SIGNED_JWT = "signed_jwt"
+_TEST_AUTHORIZATION_METADATA = (("authorization", f"Bearer: {_TEST_SIGNED_JWT}"),)
 
 # deployment_updated
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
@@ -1134,7 +1136,9 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(batch_request)
+        index_endpoint_match_queries_mock.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_private_service_access_hybrid_search_match_queries(
@@ -1199,7 +1203,9 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(batch_request)
+        index_endpoint_match_queries_mock.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_private_service_access_index_endpoint_match_queries(
@@ -1251,7 +1257,64 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(batch_request)
+        index_endpoint_match_queries_mock.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_private_service_access_index_endpoint_match_queries_with_jwt(
+        self, index_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            queries=_TEST_QUERIES,
+            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
+            numeric_filter=_TEST_NUMERIC_FILTER,
+            signed_jwt=_TEST_SIGNED_JWT,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    low_level_batch_size=_TEST_LOW_LEVEL_BATCH_SIZE,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_QUERIES[i],
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                            numeric_restricts=_TEST_NUMERIC_NAMESPACE,
+                        )
+                        for i in range(len(_TEST_QUERIES))
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.assert_called_with(
+            batch_request, metadata=_TEST_AUTHORIZATION_METADATA
+        )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_access_endpoint_find_neighbor_queries(
@@ -1301,7 +1364,62 @@ class TestMatchingEngineIndexEndpoint:
                 )
             ]
         )
-        index_endpoint_match_queries_mock.assert_called_with(batch_match_request)
+        index_endpoint_match_queries_mock.assert_called_with(
+            batch_match_request, metadata=mock.ANY
+        )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_private_service_access_endpoint_find_neighbor_queries_with_jwt(
+        self, index_endpoint_match_queries_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_private_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_private_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            numeric_filter=_TEST_NUMERIC_FILTER,
+            signed_jwt=_TEST_SIGNED_JWT,
+        )
+
+        batch_match_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            float_val=test_query,
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                            numeric_restricts=_TEST_NUMERIC_NAMESPACE,
+                        )
+                        for test_query in _TEST_QUERIES
+                    ],
+                )
+            ]
+        )
+        index_endpoint_match_queries_mock.assert_called_with(
+            batch_match_request, metadata=_TEST_AUTHORIZATION_METADATA
+        )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_connect_endpoint_match_queries(
@@ -1349,7 +1467,9 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(batch_request)
+        index_endpoint_match_queries_mock.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_find_neighbors_queries_backward_compatibility(
@@ -1474,7 +1594,7 @@ class TestMatchingEngineIndexEndpoint:
         )
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
-    def test_index_public_endpoint_find_neiggbor_query_by_id(
+    def test_index_public_endpoint_find_neighbor_query_by_id(
         self, index_public_endpoint_match_queries_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1667,7 +1787,9 @@ class TestMatchingEngineIndexEndpoint:
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
         )
 
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_endpoint_read_index_datapoints_for_private_service_access(
@@ -1687,7 +1809,35 @@ class TestMatchingEngineIndexEndpoint:
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
         )
 
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
+
+        assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_read_index_datapoints_for_private_service_access_with_jwt(
+        self, index_endpoint_batch_get_embeddings_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        response = my_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            ids=["1", "2"],
+            signed_jwt=_TEST_SIGNED_JWT,
+        )
+
+        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
+        )
+
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+            batch_request, metadata=_TEST_AUTHORIZATION_METADATA
+        )
 
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
 
@@ -1713,7 +1863,9 @@ class TestMatchingEngineIndexEndpoint:
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
         )
 
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(batch_request)
+        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
 
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
 

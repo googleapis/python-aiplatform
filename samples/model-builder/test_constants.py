@@ -407,3 +407,4 @@ VECTOR_SEARCH_INDEX_DESCRIPTION = "test description"
 VECTOR_SEARCH_INDEX_LABELS = {"my_key": "my_value"}
 VECTOR_SEARCH_GCS_URI = "gs://fake-dir"
 VECTOR_SEARCH_INDEX_ENDPOINT_DISPLAY_NAME = "my-vector-search-index-endpoint"
+VECTOR_SEARCH_PRIVATE_ENDPOINT_SIGNED_JWT = "fake-signed-jwt"
