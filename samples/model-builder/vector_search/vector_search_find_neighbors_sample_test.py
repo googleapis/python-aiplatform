@@ -55,3 +55,34 @@ def test_vector_search_find_neighbors_sample(
         ],
         any_order=False,
     )
+
+
+def test_vector_search_find_neighbors_jwt_sample(
+    mock_sdk_init, mock_index_endpoint_init, mock_index_endpoint_find_neighbors
+):
+    vector_search_find_neighbors_sample.vector_search_find_neighbors_jwt(
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT,
+        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+        queries=constants.VECTOR_SERACH_INDEX_QUERIES,
+        num_neighbors=10,
+        signed_jwt=constants.VECTOR_SEARCH_PRIVATE_ENDPOINT_SIGNED_JWT,
+    )
+
+    # Check client initialization
+    mock_sdk_init.assert_called_with(
+        project=constants.PROJECT, location=constants.LOCATION
+    )
+
+    # Check index endpoint initialization with right index endpoint name
+    mock_index_endpoint_init.assert_called_with(
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT)
+
+    # Check index_endpoint.find_neighbors is called with right params.
+    mock_index_endpoint_find_neighbors.assert_called_with(
+        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+        queries=constants.VECTOR_SERACH_INDEX_QUERIES,
+        num_neighbors=10,
+        signed_jwt=constants.VECTOR_SEARCH_PRIVATE_ENDPOINT_SIGNED_JWT,
+    )

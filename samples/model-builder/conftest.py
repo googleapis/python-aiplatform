@@ -1383,6 +1383,20 @@ def mock_index_endpoint_find_neighbors(mock_index_endpoint):
 
 
 @pytest.fixture
+def mock_index_endpoint_match(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "match") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_index_endpoint_read_index_datapoints(mock_index_endpoint):
+    with patch.object(mock_index_endpoint, "read_index_datapoints") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
 def mock_index_create_tree_ah_index(mock_index):
     with patch.object(
         aiplatform.MatchingEngineIndex, "create_tree_ah_index"
