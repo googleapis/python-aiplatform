@@ -1387,6 +1387,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         return_full_datapoint: bool = False,
         numeric_filter: Optional[List[NumericNamespace]] = None,
         embedding_ids: Optional[List[str]] = None,
+        signed_jwt: Optional[str] = None,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index which is deployed to either public or private
@@ -1456,6 +1457,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                `embedding_ids` to lookup embedding values from dataset, if embedding
                with `embedding_ids` exists in the dataset, do nearest neighbor search.
 
+            signed_jwt (str):
+               Optional. A signed JWT for accessing the private endpoint.
+
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
@@ -1471,6 +1475,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 approx_num_neighbors=approx_num_neighbors,
                 fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
                 numeric_filter=numeric_filter,
+                signed_jwt=signed_jwt,
             )
 
         # Create the FindNeighbors request
@@ -1570,6 +1575,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         *,
         deployed_index_id: str,
         ids: List[str] = [],
+        signed_jwt: Optional[str] = None,
     ) -> List[gca_index_v1beta1.IndexDatapoint]:
         """Reads the datapoints/vectors of the given IDs on the specified
         deployed index which is deployed to public or private endpoint.
@@ -1587,6 +1593,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. The ID of the DeployedIndex to match the queries against.
             ids (List[str]):
                 Required. IDs of the datapoints to be searched for.
+            signed_jwt (str):
+               Optional. A signed JWT for accessing the private endpoint.
         Returns:
             List[gca_index_v1beta1.IndexDatapoint] - A list of datapoints/vectors of the given IDs.
         """
@@ -1595,6 +1603,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             embeddings = self._batch_get_embeddings(
                 deployed_index_id=deployed_index_id,
                 ids=ids,
+                signed_jwt=signed_jwt,
             )
 
             response = []
@@ -1641,6 +1650,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         *,
         deployed_index_id: str,
         ids: List[str] = [],
+        signed_jwt: Optional[str] = None,
     ) -> List[match_service_pb2.Embedding]:
         """
         Reads the datapoints/vectors of the given IDs on the specified index
@@ -1651,6 +1661,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. The ID of the DeployedIndex to match the queries against.
             ids (List[str]):
                 Required. IDs of the datapoints to be searched for.
+            signed_jwt:
+               Optional. A signed JWT for accessing the private endpoint.
         Returns:
             List[match_service_pb2.Embedding] - A list of datapoints/vectors of the given IDs.
         """
@@ -1665,7 +1677,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         for id in ids:
             batch_request.id.append(id)
-        response = stub.BatchGetEmbeddings(batch_request)
+        metadata = None
+        if signed_jwt:
+            metadata = (("authorization", f"Bearer: {signed_jwt}"),)
+        response = stub.BatchGetEmbeddings(batch_request, metadata=metadata)
 
         return response.embeddings
 
@@ -1680,6 +1695,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         fraction_leaf_nodes_to_search_override: Optional[float] = None,
         low_level_batch_size: int = 0,
         numeric_filter: Optional[List[NumericNamespace]] = None,
+        signed_jwt: Optional[str] = None,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index for private endpoint only.
@@ -1729,6 +1745,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 results. For example:
                 [NumericNamespace(name="cost", value_int=5, op="GREATER")]
                 will match datapoints that its cost is greater than 5.
+            signed_jwt (str):
+               Optional. A signed JWT for accessing the private endpoint.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
@@ -1809,7 +1827,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         batch_request.requests.append(batch_request_for_index)
 
         # Perform the request
-        response = stub.BatchMatch(batch_request)
+        metadata = None
+        if signed_jwt:
+            metadata = (("authorization", f"Bearer: {signed_jwt}"),)
+        response = stub.BatchMatch(batch_request, metadata=metadata)
 
         # Wrap the results in MatchNeighbor objects and return
         match_neighbors_response = []
