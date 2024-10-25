@@ -138,6 +138,13 @@ ray_testing_extra_require = ray_extra_require + [
     "xgboost_ray",
 ]
 
+# Don't add this to testing_extra_require so we can test behavior of the
+# libraries with and without async REST support.
+async_rest_extra_require = [
+    "google-api-core[grpc, async_rest] >= 2.21.0",
+    "google-auth[aiohttp] >= 2.35.0",
+]
+
 reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
     "google-cloud-trace < 2",
@@ -195,6 +202,7 @@ testing_extra_require = (
     + profiler_extra_require
     + tokenization_testing_extra_require
     + [
+        "aiohttp",  # Required for async_rest
         "bigframes; python_version>='3.10'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
@@ -276,6 +284,7 @@ setuptools.setup(
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
         "tokenization": tokenization_extra_require,
+        "async_rest": async_rest_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

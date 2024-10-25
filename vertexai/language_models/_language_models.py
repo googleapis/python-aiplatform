@@ -148,6 +148,10 @@ class _LanguageModel(_model_garden_models._ModelGardenModel):
             # This is a ModelRegistry resource name
             return self._endpoint.list_models()[0].model
 
+    async def close_async_client(self) -> None:
+        if self._endpoint._prediction_async_client:
+            return await self._endpoint._prediction_async_client.transport.close()
+
 
 @dataclasses.dataclass
 class _PredictionRequest:
@@ -1159,7 +1163,6 @@ class VertexAISearch(_GroundingSourceBase):
 
 @dataclasses.dataclass
 class GroundingSource:
-
     WebSearch = WebSearch
     VertexAISearch = VertexAISearch
     InlineContext = InlineContext
@@ -3243,12 +3246,10 @@ class _ChatSessionBaseWithCountTokensMixin(_ChatSessionBase):
 
 
 class _PreviewChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 
 class _PreviewCodeChatSession(_ChatSessionBaseWithCountTokensMixin):
-
     __module__ = "vertexai.preview.language_models"
 
 

@@ -577,8 +577,34 @@ class _Config:
             user_agent=user_agent,
         )
 
+        # Async rest requires async credentials
+        client_credentials = credentials or self.credentials
+        if self._api_transport == "rest" and "Async" in client_class.__name__:
+            try:
+                import google.auth.aio
+            except ImportError:
+                raise ImportError(
+                    "Async REST transport requires async credentials which is \n"
+                    + "only supported in google-auth >= 2.35.0. Reinstall "
+                    + "the SDK using the async_rest extras installation: \n"
+                    + "pip install google-cloud-aiplatform[async_rest]"
+                )
+            if not isinstance(
+                client_credentials, google.auth.aio.credentials.Credentials
+            ):
+                raise ValueError(
+                    "Async REST transport requires async credentials. "
+                    + "Configure the credentials parameter in vertexai.init()"
+                    + "with supported async credentials of type"
+                    + "google.auth.aio.credentials.Credentials.\n"
+                    + "Example:\n"
+                    + "from google.auth.aio.credentials import StaticCredentials\n"
+                    + "async_credentials = StaticCredentials(token=YOUR_TOKEN_HERE)\n"
+                    + "vertexai.init(project=PROJECT_ID, location=LOCATION, credentials=async_credentials)"
+                )
+
         kwargs = {
-            "credentials": credentials or self.credentials,
+            "credentials": client_credentials,
             "client_options": self.get_client_options(
                 location_override=location_override,
                 prediction_client=prediction_client,
@@ -592,11 +618,8 @@ class _Config:
         # Do not pass "grpc", rely on gapic defaults unless "rest" is specified
         if self._api_transport == "rest":
             if "Async" in client_class.__name__:
-                # Warn user that "rest" is not supported and use grpc instead
-                logging.warning(
-                    "REST is not supported for async clients, "
-                    + "falling back to grpc."
-                )
+                # Need to specify rest_asyncio for async clients
+                kwargs["transport"] = "rest_asyncio"
             else:
                 kwargs["transport"] = self._api_transport
 
