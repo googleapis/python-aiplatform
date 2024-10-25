@@ -1683,6 +1683,7 @@ class GenerationConfig:
         response_mime_type: Optional[str] = None,
         response_schema: Optional[Dict[str, Any]] = None,
         seed: Optional[int] = None,
+        audio_timestamp: Optional[bool] = None,
         routing_config: Optional["RoutingConfig"] = None,
         logprobs: Optional[int] = None,
         response_logprobs: Optional[bool] = None,
@@ -1712,6 +1713,7 @@ class GenerationConfig:
                 The model needs to be prompted to output the appropriate
                 response type, otherwise the behavior is undefined.
             response_schema: Output response schema of the genreated candidate text.
+            audio_timestamp: If true, the timestamp of the audio will be included in the response.
             routing_config: Model routing preference set in the request.
             logprobs: Logit probabilities.
             reponse_logprobs: If true, export the logprobs results in response.
@@ -1728,6 +1730,7 @@ class GenerationConfig:
                     max_output_tokens=100,
                     stop_sequences=["\n\n\n"],
                     seed=5,
+                    audio_timestamp=True,
                 )
             )
             ```
@@ -1750,6 +1753,7 @@ class GenerationConfig:
             response_mime_type=response_mime_type,
             response_schema=raw_schema,
             seed=seed,
+            audio_timestamp=audio_timestamp,
             logprobs=logprobs,
             response_logprobs=response_logprobs,
         )

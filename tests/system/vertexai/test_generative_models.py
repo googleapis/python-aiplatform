@@ -344,6 +344,18 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert response.text
         assert "Zootopia" in response.text
 
+    def test_generate_content_from_text_and_remote_audio(self, api_endpoint_env_name):
+        vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
+        audio_part = generative_models.Part.from_uri(
+            uri="gs://cloud-samples-data/audio/speech_16k.wav",
+            mime_type="audio/wav",
+        )
+        response = vision_model.generate_content(
+            contents=["What is in the audio?", audio_part],
+            generation_config=generative_models.GenerationConfig(audio_timestamp=True),
+        )
+        assert response.text
+
     def test_grounding_google_search_retriever(self, api_endpoint_env_name):
         model = preview_generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         google_search_retriever_tool = (

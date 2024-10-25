@@ -761,6 +761,33 @@ class TestGenerativeModels:
         )
         assert response4.text
 
+        model5 = generative_models.GenerativeModel("gemini-1.5-pro-002")
+        response5 = model5.generate_content(
+            contents=[
+                generative_models.Part.from_uri(
+                    "gs://cloud-samples-data/generative-ai/audio/pixel.mp3",
+                    mime_type="audio/mpeg",
+                ),
+                "What is the audio about?",
+            ],
+            generation_config=generative_models.GenerationConfig(
+                audio_timestamp=True,
+            ),
+            safety_settings=[
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=generative_models.SafetySetting.HarmBlockMethod.SEVERITY,
+                ),
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    method=generative_models.SafetySetting.HarmBlockMethod.PROBABILITY,
+                ),
+            ],
+        )
+        assert response5.text
+
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,
         attribute="generate_content",
