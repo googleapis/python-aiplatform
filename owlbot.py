@@ -89,6 +89,9 @@ for library in s.get_staging_dirs(default_version):
 
 s.remove_staging_dirs()
 
+# TODO(REMOVE BEFORE MERGING)
+has_generator_updates = True
+
 # only run post processor when there are changes to the generated code
 if has_generator_updates:
     # ----------------------------------------------------------------------------
