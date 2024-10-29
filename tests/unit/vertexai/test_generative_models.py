@@ -538,13 +538,16 @@ def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.parametrize("api_transport", ["grpc", "rest"])
 class TestGenerativeModels:
     """Unit tests for the generative models."""
 
-    def setup_method(self):
+    @pytest.fixture(scope="function", autouse=True)
+    def setup_method(self, api_transport: str):
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            api_transport=api_transport,
         )
 
     def teardown_method(self):
@@ -663,7 +666,9 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
-    def test_generate_content(self, generative_models: generative_models):
+    def test_generate_content(
+        self, generative_models: generative_models, api_transport: str
+    ):
         model = generative_models.GenerativeModel("gemini-pro")
         response = model.generate_content("Why is sky blue?")
         assert response.text

@@ -911,6 +911,10 @@ class _GenerativeModel:
 
         return async_generator()
 
+    async def _close_async_client(self) -> None:
+        if self._prediction_async_client:
+            return await self._prediction_async_client.transport.close()
+
     def count_tokens(
         self, contents: ContentsType, *, tools: Optional[List["Tool"]] = None
     ) -> gapic_prediction_service_types.CountTokensResponse:

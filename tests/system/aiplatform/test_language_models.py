@@ -86,12 +86,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert response.total_billable_characters
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
-    async def test_text_generation_model_predict_async(self, api_transport):
+    async def test_text_generation_model_predict_async(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-            api_transport=api_transport,
         )
 
         model = TextGenerationModel.from_pretrained("google/text-bison@001")
@@ -227,12 +225,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
-    async def test_chat_model_async(self, api_transport):
+    async def test_chat_model_async(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-            api_transport=api_transport,
         )
 
         chat_model = ChatModel.from_pretrained("google/chat-bison@001")
@@ -343,12 +339,10 @@ class TestLanguageModels(e2e_base.TestEndToEnd):
         assert embeddings[1].statistics.truncated
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
-    async def test_text_embedding_async(self, api_transport):
+    async def test_text_embedding_async(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-            api_transport=api_transport,
         )
 
         model = TextEmbeddingModel.from_pretrained("google/textembedding-gecko@001")
