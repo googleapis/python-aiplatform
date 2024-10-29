@@ -52,19 +52,8 @@ class TabularDataset(datasets._ColumnNamesDataset):
     my_dataset = aiplatform.TabularDataset.create(
         display_name="my-dataset", gcs_source=['gs://path/to/my/dataset.csv'])
     ```
-
-    The following code shows you how to create and import a tabular
-    dataset in two distinct steps.
-
-    ```py
-    my_dataset = aiplatform.TextDataset.create(
-        display_name="my-dataset")
-
-    my_dataset.import(
-        gcs_source=['gs://path/to/my/dataset.csv']
-        import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
-    )
-    ```
+    Contrary to unstructured datasets, creating and importing a tabular dataset
+    can only be done in a single step.
 
     If you create a tabular dataset with a pandas
     [`DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html),
@@ -108,10 +97,11 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 Optional. The URI to one or more Google Cloud Storage buckets that contain
                 your datasets. For example, `str: "gs://bucket/file.csv"` or
                 `Sequence[str]: ["gs://bucket/file1.csv",
-                "gs://bucket/file2.csv"]`.
+                "gs://bucket/file2.csv"]`. Either `gcs_source` or `bq_source` must be specified.
             bq_source (str):
                 Optional. The URI to a BigQuery table that's used as an input source. For
-                example, `bq://project.dataset.table_name`.
+                example, `bq://project.dataset.table_name`. Either `gcs_source`
+                or `bq_source` must be specified.
             project (str):
                 Optional. The name of the Google Cloud project to which this
                 `TabularDataset` is uploaded. This overrides the project that
