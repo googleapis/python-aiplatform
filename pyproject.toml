@@ -1,0 +1,200 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "google-cloud-aiplatform"
+authors = [{ name = "Google LLC", email = "googleapis-packages@google.com" }]
+license = { text = "Apache 2.0" }
+requires-python = ">=3.8"
+description = "Vertex AI API client library"
+readme = "README.rst"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Internet",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "google-api-core[grpc] >= 1.34.1, < 3.0.0dev, != 2.0.*, != 2.1.*, != 2.2.*, != 2.3.*, != 2.4.*, != 2.5.*, != 2.6.*, != 2.7.*",
+  "google-auth >= 2.14.1, < 3.0.0dev",
+  "proto-plus >= 1.22.3, < 2.0.0dev",
+  "protobuf >= 3.20.2, < 6.0.0dev, != 4.21.0, != 4.21.1, != 4.21.2, != 4.21.3, != 4.21.4, != 4.21.5",
+  "packaging >= 14.3",
+  "google-cloud-storage >= 1.32.0, < 3.0.0dev",
+  "google-cloud-bigquery >= 1.15.0, < 4.0.0dev, != 3.20.0",
+  "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
+  "shapely < 3.0.0dev",
+  "pydantic < 3",
+  "docstring_parser < 1",
+]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/googleapis/python-aiplatform"
+
+[project.optional-dependencies]
+endpoint = ["requests >= 2.28.1"]
+full = [
+  "google-cloud-aiplatform[tensorboard_extra_require]",
+  "google-cloud-aiplatform[metadata_extra_require]",
+  "google-cloud-aiplatform[xai_extra_require]",
+  "google-cloud-aiplatform[lit_extra_require]",
+  "google-cloud-aiplatform[featurestore_extra_require]",
+  "google-cloud-aiplatform[pipelines_extra_require]",
+  "google-cloud-aiplatform[datasets_extra_require]",
+  "google-cloud-aiplatform[endpoint_extra_require]",
+  "google-cloud-aiplatform[vizier_extra_require]",
+  "google-cloud-aiplatform[prediction_extra_require]",
+  "google-cloud-aiplatform[private_endpoints_extra_require]",
+  "google-cloud-aiplatform[autologging_extra_require]",
+  "google-cloud-aiplatform[preview_extra_require]",
+  "google-cloud-aiplatform[ray_extra_require]",
+  "google-cloud-aiplatform[evaluation_extra_require]",
+]
+metadata = ["pandas >= 1.0.0", "numpy>=1.15.0"]
+tensorboard = [
+  "tensorflow >=2.3.0, < 3.0.0dev; python_version <= '3.11'",
+  "google-cloud-aiplatform[profiler_extra_require]",
+]
+testing = [
+  "google-cloud-aiplatform[full_extra_require]",
+  "google-cloud-aiplatform[profiler_extra_require]",
+  "google-cloud-aiplatform[tokenization_testing_extra_require]",
+  "bigframes; python_version >= '3.10'",
+  # google-api-core 2.x is required since kfp requires protobuf > 4
+  "google-api-core >= 2.11, < 3.0.0",
+  "grpcio-testing",
+  "ipython",
+  "kfp >= 2.6.0, < 3.0.0",
+  "pytest-asyncio",
+  "pytest-xdist",
+  "scikit-learn",
+  # Lazy import requires > 2.12.0
+  "tensorflow == 2.13.0; python_version <= '3.11'",
+  "tensorflow == 2.16.1; python_version > '3.11'",
+  # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
+  # future versions fix this issue
+  "torch >= 2.0.0, < 2.1.0; python_version <= '3.11'",
+  "torch >= 2.2.0; python_version > '3.11'",
+  "requests-toolbelt < 1.0.0",
+  "immutabledict",
+  "xgboost",
+]
+xai = ["tensorflow >=2.3.0, < 3.0.0dev"]
+lit = [
+  "tensorflow >= 2.3.0, < 3.0.0dev",
+  "pandas >= 1.0.0",
+  "lit-nlp == 0.4.0",
+  "explainable-ai-sdk >= 1.0.0",
+]
+cloud_profiler = [
+  "tensorboard-plugin-profile >= 2.4.0, < 3.0.0dev",
+  "werkzeug >= 2.0.0, < 2.1.0dev",
+  "tensorflow >=2.4.0, < 3.0.0dev",
+]
+pipelines = ["pyyaml >= 5.3.1, < 7"]
+vizier = ["google-vizier >= 0.1.6"]
+prediction = [
+  "docker >= 5.0.3",
+  "fastapi >= 0.71.0, <= 0.114.0",
+  "httpx >= 0.23.0, < 0.25.0",     # Optional dependency of fastapi
+  "starlette >= 0.17.1",
+  "uvicorn[standard] >= 0.16.0",
+]
+datasets = [
+  "pyarrow >= 3.0.0, < 8.0dev; python_version < '3.11'",
+  "pyarrow >= 10.0.1; python_version == '3.11'",
+  "pyarrow >= 14.0.0; python_version >= '3.12'",
+]
+private_endpoints = ["urllib3 >=1.21.1, < 1.27", "requests >= 2.28.1"]
+autologging = ["mlflow >= 1.27.0, <= 2.16.0"]
+preview = []
+ray = [
+  """ray[default] >= 2.4, <= 2.33.0, != 2.5.*, != 2.6.*, != 2.7.*, \
+  != 2.8.*, !=2.9.0, !=2.9.1, !=2.9.2, !=2.10.*, !=2.11.*, !=2.12.*, !=2.13.*, \
+  != 2.14.*, !=2.15.*, !=2.16.*, !=2.17.*, !=2.18.*, !=2.19.*, !=2.20.*, \
+  != 2.21.*, !=2.22.*, !=2.23.*, !=2.24.*, !=2.25.*, !=2.26.*, !=2.27.*, \
+  != 2.28.*, !=2.29.*, !=2.30.*, !=2.31.*, !=2.32.*; python_version<'3.11'""",
+  # To avoid  ImportError: cannot import name 'packaging' from 'pkg_resources'
+  "setuptools < 70.0.0",
+  # Ray Data v2.4 in Python 3.11 is broken, but got fixed in Ray v2.5.
+  "ray[default] >= 2.5, <= 2.33.0; python_version == '3.11'",
+  "google-cloud-bigquery-storage",
+  "google-cloud-bigquery",
+  "pandas >= 1.0.0",
+  "pyarrow >= 6.0.1",
+  "immutabledict",
+]
+ray_testing = [
+  "google-cloud-aiplatform[ray_extra_require]",
+  "pytest-xdist",
+  # ray train extras required for prediction tests
+  "ray[train]",
+  # Framework version constraints copied from testing_extra_require
+  "scikit-learn",
+  "tensorflow",
+  "torch >= 2.0.0, < 2.1.0",
+  "xgboost",
+  "xgboost_ray",
+]
+reasoningengine = [
+  "cloudpickle >= 3.0, < 4.0",
+  "google-cloud-trace < 2",
+  "opentelemetry-sdk < 2",
+  "opentelemetry-exporter-gcp-trace < 2",
+  "pydantic >= 2.6.3, < 3",
+]
+evaluation = ["pandas >= 1.0.0, < 2.2.0", "tqdm >= 4.23.0"]
+langchain = [
+  "langchain >= 0.1.16, < 0.3",
+  "langchain-core < 0.3",
+  "langchain-google-vertexai < 2",
+  "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
+  "tenacity <= 8.3",
+  "orjson <= 3.10.6",
+]
+langchain_testing = [
+  "google-cloud-aiplatform[langchain_extra_require]",
+  "google-cloud-aiplatform[reasoning_engine_extra_require]",
+  "absl-py",
+  "pytest-xdist",
+]
+tokenization = ["sentencepiece >= 0.2.0"]
+
+[project.scripts]
+tb-gcp-uploader = "google.cloud.aiplatform.tensorboard.uploader_main:run_main"
+
+[tool.setuptools]
+package-dir = { vertex_ray = "google/cloud/aiplatform/vertex_ray" }
+
+[tool.setuptools.dynamic]
+version = { attr = "google.cloud.aiplatform.version.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["google*", "vertexai*", "vertex_ray*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.html.j2"]
