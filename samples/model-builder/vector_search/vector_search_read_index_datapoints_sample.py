@@ -60,4 +60,3 @@ def vector_search_read_index_datapoints_jwt(
     return resp
 
 #  [END aiplatform_sdk_vector_search_read_index_datapoints_jwt_sample]
-

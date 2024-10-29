@@ -133,4 +133,3 @@ def vector_search_find_neighbors_jwt(
     return resp
 
 #  [END aiplatform_sdk_vector_search_find_neighbors_jwt_sample]
-

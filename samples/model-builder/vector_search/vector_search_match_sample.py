@@ -64,4 +64,3 @@ def vector_search_match_jwt(
     return resp
 
 #  [END aiplatform_sdk_vector_search_match_jwt_sample]
-
