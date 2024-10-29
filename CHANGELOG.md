@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.71.0](https://github.com/googleapis/python-aiplatform/compare/v1.70.0...v1.71.0) (2024-10-29)
+
+
+### Features
+
+* Add `text` field for Grounding metadata support chunk output ([8a65b1d](https://github.com/googleapis/python-aiplatform/commit/8a65b1d6457c3335d96f448e6d20b210c9a6acd3))
+* Add audio_timestamp to GenerationConfig ([8a65b1d](https://github.com/googleapis/python-aiplatform/commit/8a65b1d6457c3335d96f448e6d20b210c9a6acd3))
+* Add private async REST support for transport override ([c0b31e2](https://github.com/googleapis/python-aiplatform/commit/c0b31e267b15b3ff9c0a2abaad2462958713cc41))
+* Add support for self-signed JWT for queries on private endpoints ([5025d03](https://github.com/googleapis/python-aiplatform/commit/5025d03d808971102995113a871c2ef78c2fb013))
+* Add support for task type (CODE_RETRIEVAL_QUERY) through get_embeddings. ([7246497](https://github.com/googleapis/python-aiplatform/commit/72464977dfe0068b5406653f65c0c4d99e887cc4))
+* From vertexai.batch_prediction import BatchPredictionJob ([fe53922](https://github.com/googleapis/python-aiplatform/commit/fe53922b40ae7f22d5612e649c6cdb0c0a4ae0b6))
+* GenAI - add labels ([92c13dd](https://github.com/googleapis/python-aiplatform/commit/92c13dd76e3e27f1386ac8b6a5625682c796ab16))
+* GenAI - Added `audio_timestamp` to `GenerationConfig`. ([91c2120](https://github.com/googleapis/python-aiplatform/commit/91c2120eb962a09c9b24a7f7058e00737a271eab))
+* GenAI - Added Anthropic models support in GenAI batch prediction ([0866009](https://github.com/googleapis/python-aiplatform/commit/0866009719e35f615950ee30a23fb82b9b8668f5))
+* GenAI - Tuning - Added support for tuned model rebasing. Added `rebase_tuned_model` to `vertexai.preview.tuning.sft`. ([2cef97f](https://github.com/googleapis/python-aiplatform/commit/2cef97f31bf4d0410c76b73da03805120605ef0c))
+* Introduce DefaultRuntime to PipelineJob ([8a65b1d](https://github.com/googleapis/python-aiplatform/commit/8a65b1d6457c3335d96f448e6d20b210c9a6acd3))
+* Release API key support for GenerateContent to Public Preview ([a4d4e46](https://github.com/googleapis/python-aiplatform/commit/a4d4e4691a173960f4f28f408ee26297151223c4))
+* Support customizing bring-your-own-response eval use case to use any columns ([3e7bf81](https://github.com/googleapis/python-aiplatform/commit/3e7bf819d95167502be6b9f04c7b92e8415e5a68))
+* Support PSC-I ingress in Ray Client ([da76253](https://github.com/googleapis/python-aiplatform/commit/da76253f3b53e81386e0c6e4e2b647cfc4feda2e))
+* Support tuning new text & code embedding model in LLM SDK. ([4268f28](https://github.com/googleapis/python-aiplatform/commit/4268f282823f806418a8f0dc0bf65854381bd444))
+* Update Experiment run names to be compatible with One Platform API ([c4b9ec2](https://github.com/googleapis/python-aiplatform/commit/c4b9ec279ce55842373da1734d2bebc5c6d66513))
+* Vision Models - onboard Image Segmentation. ([ae63a43](https://github.com/googleapis/python-aiplatform/commit/ae63a434d9833a5788348216c4a0b64313f653a8))
+
+
+### Bug Fixes
+
+* Add deprecation warning to Ray version 2.9.3 ([0ce106b](https://github.com/googleapis/python-aiplatform/commit/0ce106b944ce63dfbfa86e4e9efc5ebe317c8a53))
+
+
+### Documentation
+
+* A comment for field `partner_model_tuning_spec` in message `.google.cloud.aiplatform.v1beta1.TuningJob` is changed ([#4538](https://github.com/googleapis/python-aiplatform/issues/4538)) ([914c63c](https://github.com/googleapis/python-aiplatform/commit/914c63c91c8162350d792df4cbc70f3394134c3f))
+* Comment update ([b04196b](https://github.com/googleapis/python-aiplatform/commit/b04196b257236b10ca168dffbcc5039889073246))
+* Update the documentation for the `tabular_dataset` class ([82bb938](https://github.com/googleapis/python-aiplatform/commit/82bb9389deeadb428943ed957cfa460c8f807839))
+
 ## [1.70.0](https://github.com/googleapis/python-aiplatform/compare/v1.69.0...v1.70.0) (2024-10-08)
 
 
