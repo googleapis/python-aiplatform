@@ -335,17 +335,19 @@ class ImageGenerationModel(
 ):
     """Generates images from text prompt.
 
-    Examples::
+    Examples:
 
-        model = ImageGenerationModel.from_pretrained("imagegeneration@002")
-        response = model.generate_images(
-            prompt="Astronaut riding a horse",
-            # Optional:
-            number_of_images=1,
-            seed=0,
-        )
-        response[0].show()
-        response[0].save("image1.png")
+    ```py
+    model = ImageGenerationModel.from_pretrained("imagegeneration@002")
+    response = model.generate_images(
+        prompt="Astronaut riding a horse",
+        # Optional:
+        number_of_images=1,
+        seed=0,
+    )
+    response[0].show()
+    response[0].save("image1.png")
+    ```
     """
 
     __module__ = "vertexai.preview.vision_models"
@@ -1055,16 +1057,18 @@ class ImageCaptioningModel(
 ):
     """Generates captions from image.
 
-    Examples::
+    Examples:
 
-        model = ImageCaptioningModel.from_pretrained("imagetext@001")
-        image = Image.load_from_file("image.png")
-        captions = model.get_captions(
-            image=image,
-            # Optional:
-            number_of_results=1,
-            language="en",
-        )
+    ```py
+    model = ImageCaptioningModel.from_pretrained("imagetext@001")
+    image = Image.load_from_file("image.png")
+    captions = model.get_captions(
+        image=image,
+        # Optional:
+        number_of_results=1,
+        language="en",
+    )
+    ```
     """
 
     __module__ = "vertexai.vision_models"
@@ -1120,16 +1124,18 @@ class ImageQnAModel(
 ):
     """Answers questions about an image.
 
-    Examples::
+    Examples:
 
-        model = ImageQnAModel.from_pretrained("imagetext@001")
-        image = Image.load_from_file("image.png")
-        answers = model.ask_question(
-            image=image,
-            question="What color is the car in this image?",
-            # Optional:
-            number_of_results=1,
-        )
+    ```py
+    model = ImageQnAModel.from_pretrained("imagetext@001")
+    image = Image.load_from_file("image.png")
+    answers = model.ask_question(
+        image=image,
+        question="What color is the car in this image?",
+        # Optional:
+        number_of_results=1,
+    )
+    ```
     """
 
     __module__ = "vertexai.vision_models"
@@ -1177,20 +1183,22 @@ class ImageQnAModel(
 class MultiModalEmbeddingModel(_model_garden_models._ModelGardenModel):
     """Generates embedding vectors from images and videos.
 
-    Examples::
+    Examples:
 
-        model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
-        image = Image.load_from_file("image.png")
-        video = Video.load_from_file("video.mp4")
+    ```py
+    model = MultiModalEmbeddingModel.from_pretrained("multimodalembedding@001")
+    image = Image.load_from_file("image.png")
+    video = Video.load_from_file("video.mp4")
 
-        embeddings = model.get_embeddings(
-            image=image,
-            video=video,
-            contextual_text="Hello world",
-        )
-        image_embedding = embeddings.image_embedding
-        video_embeddings = embeddings.video_embeddings
-        text_embedding = embeddings.text_embedding
+    embeddings = model.get_embeddings(
+        image=image,
+        video=video,
+        contextual_text="Hello world",
+    )
+    image_embedding = embeddings.image_embedding
+    video_embeddings = embeddings.video_embeddings
+    text_embedding = embeddings.text_embedding
+    ```
     """
 
     __module__ = "vertexai.vision_models"
@@ -1323,24 +1331,26 @@ class MultiModalEmbeddingResponse:
 class ImageTextModel(ImageCaptioningModel, ImageQnAModel):
     """Generates text from images.
 
-    Examples::
+    Examples:
 
-        model = ImageTextModel.from_pretrained("imagetext@001")
-        image = Image.load_from_file("image.png")
+    ```py
+    model = ImageTextModel.from_pretrained("imagetext@001")
+    image = Image.load_from_file("image.png")
 
-        captions = model.get_captions(
-            image=image,
-            # Optional:
-            number_of_results=1,
-            language="en",
-        )
+    captions = model.get_captions(
+        image=image,
+        # Optional:
+        number_of_results=1,
+        language="en",
+    )
 
-        answers = model.ask_question(
-            image=image,
-            question="What color is the car in this image?",
-            # Optional:
-            number_of_results=1,
-        )
+    answers = model.ask_question(
+        image=image,
+        question="What color is the car in this image?",
+        # Optional:
+        number_of_results=1,
+    )
+    ```
     """
 
     __module__ = "vertexai.vision_models"

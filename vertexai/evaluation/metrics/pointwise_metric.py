@@ -27,7 +27,7 @@ from vertexai.evaluation.metrics import (
 class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-access
     """A Model-based Pointwise Metric.
 
-    A model-based evaluation metric that evaluate a single generative model's
+    A model-based evaluation metric that evaluates a single generative model's
     response.
 
     For more details on when to use model-based pointwise metrics, see
@@ -35,26 +35,26 @@ class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acc
 
     Usage Examples:
 
-        ```
-        candidate_model = GenerativeModel("gemini-1.5-pro")
-        eval_dataset = pd.DataFrame({
-            "prompt"  : [...],
-        })
-        fluency_metric = PointwiseMetric(
-            metric="fluency",
-            metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template('fluency'),
-        )
-        pointwise_eval_task = EvalTask(
-            dataset=eval_dataset,
-            metrics=[
-                fluency_metric,
-                MetricPromptTemplateExamples.Pointwise.GROUNDEDNESS,
-            ],
-        )
-        pointwise_result = pointwise_eval_task.evaluate(
-            model=candidate_model,
-        )
-        ```
+    ```py
+    candidate_model = GenerativeModel("gemini-1.5-pro")
+    eval_dataset = pd.DataFrame({
+        "prompt": [...],
+    })
+    fluency_metric = PointwiseMetric(
+        metric="fluency",
+        metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template("fluency"),
+    )
+    pointwise_eval_task = EvalTask(
+        dataset=eval_dataset,
+        metrics=[
+            fluency_metric,
+            MetricPromptTemplateExamples.Pointwise.GROUNDEDNESS,
+        ],
+    )
+    pointwise_result = pointwise_eval_task.evaluate(
+        model=candidate_model,
+    )
+    ```
     """
 
     def __init__(

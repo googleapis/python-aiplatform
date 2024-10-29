@@ -1567,15 +1567,22 @@ class ModelMonitoringJob(base.VertexAiStatefulResource):
 
        Example Usage:
 
-            my_monitoring_job = aiplatform.ModelMonitoringJob(
-                model_monitoring_job_name='projects/123/locations/us-central1/modelMonitors/\
-                my_model_monitor_id/modelMonitoringJobs/my_monitoring_job_id'
-            )
-            or
-            my_monitoring_job = aiplatform.aiplatform.ModelMonitoringJob(
-                model_monitoring_job_name='my_monitoring_job_id',
-                model_monitor_id='my_model_monitor_id',
-            )
+        ```py
+        my_monitoring_job = aiplatform.ModelMonitoringJob(
+            model_monitoring_job_name='projects/123/locations/us-central1/modelMonitors/\
+            my_model_monitor_id/modelMonitoringJobs/my_monitoring_job_id'
+        )
+        ```
+        
+        or
+
+        ```py
+        my_monitoring_job = aiplatform.aiplatform.ModelMonitoringJob(
+            model_monitoring_job_name='my_monitoring_job_id',
+            model_monitor_id='my_model_monitor_id',
+        )
+        ```
+        
        Args:
             model_monitoring_job_name (str):
                 Required. The resource name for the Model Monitoring Job if

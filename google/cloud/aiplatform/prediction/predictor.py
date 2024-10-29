@@ -30,9 +30,9 @@ class Predictor(ABC):
     When using the default ``PredictionHandler``, the ``Predictor`` will be invoked as
     follows:
 
-    .. code-block:: python
-
-        predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input)))
+    ```py
+    predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input)))
+    ```
 
     """
 

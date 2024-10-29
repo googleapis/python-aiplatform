@@ -115,9 +115,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 retrieve the model. This overrides the project that was set by
                 `aiplatform.init`.
             location (str):
-                Optional. The Google Cloud region where this from where the
-                model is retrieved. This region overrides the region that was
-                set by `aiplatform.init`.
+                Optional. The Google Cloud region where the model is retrieved.
+                This region overrides the region that was set by `aiplatform.init`.
             credentials (auth_credentials.Credentials):
                 Optional. The credentials that are used to retrieve the model.
                 These credentials override the credentials set by
@@ -157,7 +156,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If `model_encryption_spec_key_name` is set, the traind model is
+                If `model_encryption_spec_key_name` is set, the trained model is
                 secured by this key.
 
                 This `model_encryption_spec_key_name` overrides the
@@ -281,7 +280,8 @@ class _TrainingJob(base.VertexAiStatefulResource):
         passed in without knowing the `training_task_definition`.
 
         Example usage:
-        ```
+        
+        ```py
         aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
             'projects/.../locations/.../trainingPipelines/12345'
         )
@@ -2785,6 +2785,7 @@ class CustomTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Training Job from a Python script.
 
+        ```py
         job = aiplatform.CustomTrainingJob(
             display_name='test-train',
             script_path='test_script.py',
@@ -2795,11 +2796,14 @@ class CustomTrainingJob(_CustomTrainingJob):
             model_serving_container_health_route='metadata,
             labels={'key': 'value'},
         )
+        ```
 
         Usage with Dataset:
 
+        ```py
         ds = aiplatform.TabularDataset(
-            'projects/my-project/locations/us-central1/datasets/12345')
+            'projects/my-project/locations/us-central1/datasets/12345',
+        )
 
         job.run(
             ds,
@@ -2807,11 +2811,13 @@ class CustomTrainingJob(_CustomTrainingJob):
             model_display_name='my-trained-model',
             model_labels={'key': 'value'},
         )
+        ```
 
         Usage without Dataset:
 
-        job.run(replica_count=1, model_display_name='my-trained-model)
-
+        ```py
+        job.run(replica_count=1, model_display_name='my-trained-model')
+        ```
 
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
@@ -4328,6 +4334,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Container Training Job.
 
+        ```py
         job = aiplatform.CustomContainerTrainingJob(
             display_name='test-train',
             container_uri='gcr.io/my_project_id/my_image_name:tag',
@@ -4337,11 +4344,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model_serving_container_health_route='metadata,
             labels={'key': 'value'},
         )
+        ```
 
         Usage with Dataset:
 
+        ```py
         ds = aiplatform.TabularDataset(
-            'projects/my-project/locations/us-central1/datasets/12345')
+            'projects/my-project/locations/us-central1/datasets/12345',
+        )
 
         job.run(
             ds,
@@ -4349,11 +4359,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model_display_name='my-trained-model',
             model_labels={'key': 'value'},
         )
+        ```
 
         Usage without Dataset:
 
-        job.run(replica_count=1, model_display_name='my-trained-model)
-
+        ```py
+        job.run(replica_count=1, model_display_name='my-trained-model')
+        ```
 
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
@@ -5774,10 +5786,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
-        """Constructs a AutoML Tabular Training Job.
+        """Constructs an AutoML Tabular Training Job.
 
         Example usage:
 
+        ```py
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name="my_display_name",
             optimization_prediction_type="classification",
@@ -5785,6 +5798,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             column_specs={"column_1": "auto", "column_2": "numeric"},
             labels={'key': 'value'},
         )
+        ```
 
         Args:
             display_name (str):
@@ -6507,7 +6521,7 @@ class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
     by the
     [`SequenceToSequencePlusForecastingTrainingJob`](https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.SequenceToSequencePlusForecastingTrainingJob)
     and
-    [`TemporalFusionTransformerForecastingTrainingJob`]https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.TemporalFusionTransformerForecastingTrainingJob)
+    [`TemporalFusionTransformerForecastingTrainingJob`](https://cloud.google.com/python/docs/reference/aiplatform/latest/google.cloud.aiplatform.TemporalFusionTransformerForecastingTrainingJob)
     classes respectively, then `AutoML` is likely the best training method for
     your forecasting predictions.
 
@@ -7473,6 +7487,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         container](https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/sdk/SDK_Custom_Training_Python_Package_Managed_Text_Dataset_Tensorflow_Serving_Container.ipynb)
         notebook.
 
+        ```py
         job = aiplatform.CustomPythonPackageTrainingJob(
             display_name='test-train',
             python_package_gcs_uri='gs://my-bucket/my-python-package.tar.gz',
@@ -7483,27 +7498,32 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model_serving_container_health_route='metadata,
             labels={'key': 'value'},
         )
+        ```
 
         Usage with Dataset:
 
-            ds = aiplatform.TabularDataset(
-                'projects/my-project/locations/us-central1/datasets/12345'
-            )
+        ```py
+        ds = aiplatform.TabularDataset(
+            'projects/my-project/locations/us-central1/datasets/12345',
+        )
 
-            job.run(
-                ds,
-                replica_count=1,
-                model_display_name='my-trained-model',
-                model_labels={'key': 'value'},
-            )
+        job.run(
+            ds,
+            replica_count=1,
+            model_display_name='my-trained-model',
+            model_labels={'key': 'value'},
+        )
+        ```
 
         Usage without Dataset:
 
-            job.run(
-                replica_count=1,
-                model_display_name='my-trained-model',
-                model_labels={'key': 'value'},
-            )
+        ```py
+        job.run(
+            replica_count=1,
+            model_display_name='my-trained-model',
+            model_labels={'key': 'value'},
+        )
+        ```
 
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
@@ -8466,7 +8486,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
-        """Constructs a AutoML Video Training Job.
+        """Constructs an AutoML Video Training Job.
 
         Args:
             display_name (str):
@@ -8926,7 +8946,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         training_encryption_spec_key_name: Optional[str] = None,
         model_encryption_spec_key_name: Optional[str] = None,
     ):
-        """Constructs a AutoML Text Training Job.
+        """Constructs an AutoML Text Training Job.
 
         Args:
             display_name (str):

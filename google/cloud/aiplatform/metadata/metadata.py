@@ -700,17 +700,18 @@ class _ExperimentTracker:
         Supported model frameworks: sklearn, xgboost, tensorflow.
 
         Example usage:
+
         ```py
-            model = LinearRegression()
-            model.fit(X, y)
-            aiplatform.init(
-                project="my-project",
-                location="my-location",
-                staging_bucket="gs://my-bucket",
-                experiment="my-exp"
-            )
-            with aiplatform.start_run("my-run"):
-                aiplatform.log_model(model, "my-sklearn-model")
+        model = LinearRegression()
+        model.fit(X, y)
+        aiplatform.init(
+            project="my-project",
+            location="my-location",
+            staging_bucket="gs://my-bucket",
+            experiment="my-exp"
+        )
+        with aiplatform.start_run("my-run"):
+            aiplatform.log_model(model, "my-sklearn-model")
         ```
 
         Args:
@@ -925,20 +926,21 @@ class _ExperimentTracker:
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> execution.Execution:
         """
-        Create and starts a new Metadata Execution or resumes a previously created Execution.
+        Creates and starts a new Metadata Execution or resumes a previously created Execution.
 
         To start a new execution:
 
         ```py
-        with aiplatform.start_execution(schema_title='system.ContainerExecution', display_name='trainer) as exc:
-          exc.assign_input_artifacts([my_artifact])
-          model = aiplatform.Artifact.create(uri='gs://my-uri', schema_title='system.Model')
-          exc.assign_output_artifacts([model])
+        with aiplatform.start_execution(schema_title="system.ContainerExecution", display_name="trainer") as exc:
+            exc.assign_input_artifacts([my_artifact])
+            model = aiplatform.Artifact.create(uri="gs://my-uri", schema_title="system.Model")
+            exc.assign_output_artifacts([model])
         ```
 
         To continue a previously created execution:
+
         ```py
-        with aiplatform.start_execution(resource_id='my-exc', resume=True) as exc:
+        with aiplatform.start_execution(resource_id="my-exc", resume=True) as exc:
             ...
         ```
         Args:
