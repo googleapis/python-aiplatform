@@ -41,6 +41,7 @@ GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
 GEMINI_15_MODEL_NAME = "gemini-1.5-pro-preview-0409"
 GEMINI_15_PRO_MODEL_NAME = "gemini-1.5-pro-001"
 SMART_ROUTER_NAME = "smart-router-001"
+GEMINI_15_PRO_2_MODEL_NAME = "gemini-1.5-pro-002"
 
 STAGING_API_ENDPOINT = "STAGING_ENDPOINT"
 PROD_API_ENDPOINT = "PROD_ENDPOINT"
@@ -413,7 +414,7 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     def test_generate_content_from_text_and_remote_audio(
         self, api_endpoint_env_name, api_transport
     ):
-        vision_model = generative_models.GenerativeModel(GEMINI_VISION_MODEL_NAME)
+        vision_model = generative_models.GenerativeModel(GEMINI_15_PRO_2_MODEL_NAME)
         audio_part = generative_models.Part.from_uri(
             uri="gs://cloud-samples-data/audio/speech_16k.wav",
             mime_type="audio/wav",
