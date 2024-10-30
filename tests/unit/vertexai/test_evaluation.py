@@ -113,6 +113,7 @@ _TEST_METRICS = (
     Pointwise.SUMMARIZATION_QUALITY,
     Pointwise.VERBOSITY,
     Pointwise.QUESTION_ANSWERING_QUALITY,
+    Pointwise.POINTWISE_SAFETY,
     _TEST_POINTWISE_METRIC,
     _TEST_PAIRWISE_METRIC,
 )
@@ -1562,7 +1563,7 @@ class TestPromptTemplate:
             == _EXPECTED_POINTWISE_PROMPT_TEMPLATE_WITH_DEFAULT_VALUES.strip()
         )
 
-    def test_pairtwise_metric_prompt_template(self):
+    def test_pairwise_metric_prompt_template(self):
         pairwise_metric_prompt_template = evaluation.PairwiseMetricPromptTemplate(
             criteria={"metric1": "summarization"},
             rating_rubric={"A": "good", "B": "good"},
@@ -1577,7 +1578,7 @@ class TestPromptTemplate:
             == _EXPECTED_PAIRWISE_PROMPT_TEMPLATE.strip()
         )
 
-    def test_pairtwise_metric_prompt_template_with_default_values(self):
+    def test_pairwise_metric_prompt_template_with_default_values(self):
         pairwise_metric_prompt_template = evaluation.PairwiseMetricPromptTemplate(
             criteria=_CRITERIA,
             rating_rubric=_PAIRWISE_RATING_RUBRIC,

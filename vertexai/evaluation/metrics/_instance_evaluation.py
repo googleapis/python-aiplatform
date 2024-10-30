@@ -259,6 +259,18 @@ def build_request(
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path, pairwise_metric_input=instance
         )
+    elif metric_name == constants.Metric.POINTWISE_SAFETY:
+        instance = gapic_eval_service_types.PointwiseSafetyMetricInput(
+            metric_spec=metric_spec,
+            instance=gapic_eval_service_types.PointwiseSafetyMetricInstance(
+                prediction=response,
+                prompt=reference,
+            ),
+        )
+        return gapic_eval_service_types.EvaluateInstancesRequest(
+            location=location_path,
+            pointwise_metric_input=instance,
+        )
     else:
         raise ValueError(f"Unknown metric type: {metric_name}")
 

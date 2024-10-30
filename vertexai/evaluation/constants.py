@@ -38,6 +38,7 @@ class Metric:
     QUESTION_ANSWERING_QUALITY = "question_answering_quality"
     MULTI_TURN_CHAT_QUALITY = "multi_turn_chat_quality"
     MULTI_TURN_SAFETY = "multi_turn_safety"
+    POINTWISE_SAFETY = "pointwise_safety"
 
     # Model-based Pairwise Metrics.
     PAIRWISE_COHERENCE = "pairwise_coherence"
@@ -94,6 +95,7 @@ class Metric:
         QUESTION_ANSWERING_QUALITY,
         MULTI_TURN_CHAT_QUALITY,
         MULTI_TURN_SAFETY,
+        POINTWISE_SAFETY,
     )
 
     PAIRWISE_METRIC_PROMPT_TEMPLATE_EXAMPLE_LIST = (
