@@ -414,19 +414,17 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
     def test_generate_content_from_text_and_remote_audio(
         self, api_endpoint_env_name, api_transport
     ):
-        vision_model = generative_models.GenerativeModel(GEMINI_15_PRO_2_MODEL_NAME)
+        pro_model = generative_models.GenerativeModel(GEMINI_15_PRO_2_MODEL_NAME)
         audio_part = generative_models.Part.from_uri(
-            uri="gs://cloud-samples-data/audio/speech_16k.wav",
-            mime_type="audio/wav",
+            uri="gs://cloud-samples-data/generative-ai/audio/pixel.mp3",
+            mime_type="audio/mp3",
         )
-        response = vision_model.generate_content(
+        response = pro_model.generate_content(
             contents=["What is in the audio?", audio_part],
             generation_config=generative_models.GenerationConfig(audio_timestamp=True),
         )
         assert response.text
-        assert api_transport in get_client_api_transport(
-            vision_model._prediction_client
-        )
+        assert api_transport in get_client_api_transport(pro_model._prediction_client)
 
     def test_grounding_google_search_retriever(self, api_endpoint_env_name):
         model = preview_generative_models.GenerativeModel(GEMINI_MODEL_NAME)
