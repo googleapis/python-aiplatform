@@ -17,6 +17,70 @@ from typing import List
 from google.cloud import aiplatform
 
 
+#  [START aiplatform_sdk_vector_search_match_hybrid_queries_sample]
+def vector_search_match_hybrid_queries(
+    project: str,
+    location: str,
+    index_endpoint_name: str,
+    deployed_index_id: str,
+    num_neighbors: int,
+) -> List[List[aiplatform.matching_engine.matching_engine_index_endpoint.MatchNeighbor]]:
+    """Query the vector search index.
+
+    Args:
+        project (str): Required. Project ID
+        location (str): Required. The region name
+        index_endpoint_name (str): Required. Index endpoint to run the query
+        against. The endpoint must be a private endpoint.
+        deployed_index_id (str): Required. The ID of the DeployedIndex to run
+        the queries against.
+        num_neighbors (int): Required. The number of neighbors to return.
+
+    Returns:
+        List[List[aiplatform.matching_engine.matching_engine_index_endpoint.MatchNeighbor]] - A list of nearest neighbors for each query.
+    """
+    # Initialize the Vertex AI client
+    aiplatform.init(project=project, location=location)
+
+    # Create the index endpoint instance from an existing endpoint.
+    my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+        index_endpoint_name=index_endpoint_name
+    )
+
+    # Example queries containing hybrid datapoints, sparse-only datapoints, and
+    # dense-only datapoints.
+    hybrid_queries = [
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            dense_embedding=[1, 2, 3],
+            sparse_embedding_dimensions=[10, 20, 30],
+            sparse_embedding_values=[1.0, 1.0, 1.0],
+            rrf_ranking_alpha=0.5,
+        ),
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            dense_embedding=[1, 2, 3],
+            sparse_embedding_dimensions=[10, 20, 30],
+            sparse_embedding_values=[0.1, 0.2, 0.3],
+        ),
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            sparse_embedding_dimensions=[10, 20, 30],
+            sparse_embedding_values=[0.1, 0.2, 0.3],
+        ),
+        aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
+            dense_embedding=[1, 2, 3]
+        ),
+    ]
+
+    # Query the index endpoint for matches.
+    resp = my_index_endpoint.match(
+        deployed_index_id=deployed_index_id,
+        queries=hybrid_queries,
+        num_neighbors=num_neighbors,
+    )
+    return resp
+
+#  [END aiplatform_sdk_vector_search_match_hybrid_queries_sample]
+
+
 #  [START aiplatform_sdk_vector_search_match_jwt_sample]
 def vector_search_match_jwt(
     project: str,

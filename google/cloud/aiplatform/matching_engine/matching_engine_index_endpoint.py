@@ -426,8 +426,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Private services access must already be configured for the network.
                 If left unspecified, the network set with aiplatform.init will be used.
 
-                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-                projects/{project}/global/networks/{network}. Where
+                Format: projects/{project}/global/networks/{network}, where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
             public_endpoint_enabled (bool):

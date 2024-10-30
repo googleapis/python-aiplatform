@@ -12,8 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import test_constants as constants
 from vector_search import vector_search_match_sample
+
+
+def test_vector_search_match_hybrid_queries_sample(
+    mock_sdk_init, mock_index_endpoint_init, mock_index_endpoint_match
+):
+    vector_search_match_sample.vector_search_match_hybrid_queries(
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT,
+        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+        num_neighbors=10,
+    )
+
+    # Check client initialization
+    mock_sdk_init.assert_called_with(
+        project=constants.PROJECT, location=constants.LOCATION
+    )
+
+    # Check index endpoint initialization with right index endpoint name
+    mock_index_endpoint_init.assert_called_with(
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT)
+
+    # Check index_endpoint.match is called with right params.
+    mock_index_endpoint_match.assert_called_with(
+        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+        queries=mock.ANY,
+        num_neighbors=10,
+    )
 
 
 def test_vector_search_match_jwt_sample(
