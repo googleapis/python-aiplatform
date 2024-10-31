@@ -147,8 +147,10 @@ from .encryption_spec import (
     EncryptionSpec,
 )
 from .endpoint import (
+    ClientConnectionConfig,
     DeployedModel,
     Endpoint,
+    FasterDeploymentConfig,
     PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
 )
@@ -168,6 +170,8 @@ from .endpoint_service import (
     UndeployModelOperationMetadata,
     UndeployModelRequest,
     UndeployModelResponse,
+    UpdateEndpointLongRunningRequest,
+    UpdateEndpointOperationMetadata,
     UpdateEndpointRequest,
 )
 from .entity_type import (
@@ -1096,7 +1100,9 @@ from .tensorboard_time_series import (
     TensorboardTimeSeries,
 )
 from .tool import (
+    CodeExecutionResult,
     DynamicRetrievalConfig,
+    ExecutableCode,
     FunctionCall,
     FunctionCallingConfig,
     FunctionDeclaration,
@@ -1308,8 +1314,10 @@ __all__ = (
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
     "EncryptionSpec",
+    "ClientConnectionConfig",
     "DeployedModel",
     "Endpoint",
+    "FasterDeploymentConfig",
     "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "CreateEndpointOperationMetadata",
@@ -1327,6 +1335,8 @@ __all__ = (
     "UndeployModelOperationMetadata",
     "UndeployModelRequest",
     "UndeployModelResponse",
+    "UpdateEndpointLongRunningRequest",
+    "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "EntityType",
     "EnvVar",
@@ -2067,7 +2077,9 @@ __all__ = (
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
+    "CodeExecutionResult",
     "DynamicRetrievalConfig",
+    "ExecutableCode",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",

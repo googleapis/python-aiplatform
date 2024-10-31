@@ -200,8 +200,10 @@ from .types.deployment_resource_pool_service import (
 )
 from .types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
 from .types.encryption_spec import EncryptionSpec
+from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
@@ -219,6 +221,8 @@ from .types.endpoint_service import MutateDeployedModelResponse
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
+from .types.endpoint_service import UpdateEndpointLongRunningRequest
+from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
@@ -971,7 +975,9 @@ from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
 from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
+from .types.tool import CodeExecutionResult
 from .types.tool import DynamicRetrievalConfig
+from .types.tool import ExecutableCode
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
@@ -1178,6 +1184,8 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "ClientConnectionConfig",
+    "CodeExecutionResult",
     "CoherenceInput",
     "CoherenceInstance",
     "CoherenceResult",
@@ -1370,6 +1378,7 @@ __all__ = (
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
+    "ExecutableCode",
     "ExecuteExtensionRequest",
     "ExecuteExtensionResponse",
     "Execution",
@@ -1400,6 +1409,7 @@ __all__ = (
     "ExtensionOperation",
     "ExtensionPrivateServiceConnectConfig",
     "ExtensionRegistryServiceClient",
+    "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
     "FeatureNoiseSigma",
@@ -2017,6 +2027,8 @@ __all__ = (
     "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "UpdateEndpointLongRunningRequest",
+    "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",

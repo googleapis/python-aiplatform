@@ -604,6 +604,35 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
         return self._stubs["start_notebook_runtime"]
 
     @property
+    def stop_notebook_runtime(
+        self,
+    ) -> Callable[
+        [notebook_service.StopNotebookRuntimeRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the stop notebook runtime method over gRPC.
+
+        Stops a NotebookRuntime.
+
+        Returns:
+            Callable[[~.StopNotebookRuntimeRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "stop_notebook_runtime" not in self._stubs:
+            self._stubs["stop_notebook_runtime"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.NotebookService/StopNotebookRuntime",
+                request_serializer=notebook_service.StopNotebookRuntimeRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["stop_notebook_runtime"]
+
+    @property
     def create_notebook_execution_job(
         self,
     ) -> Callable[
@@ -778,6 +807,11 @@ class NotebookServiceGrpcAsyncIOTransport(NotebookServiceTransport):
             ),
             self.start_notebook_runtime: self._wrap_method(
                 self.start_notebook_runtime,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.stop_notebook_runtime: self._wrap_method(
+                self.stop_notebook_runtime,
                 default_timeout=None,
                 client_info=client_info,
             ),
