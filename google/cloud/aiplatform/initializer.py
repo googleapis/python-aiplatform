@@ -51,7 +51,7 @@ try:
 
     AsyncCredentials = google.auth.aio.credentials.Credentials
     _HAS_ASYNC_CRED_DEPS = True
-except ImportError:
+except (ImportError, AttributeError):
     AsyncCredentials = Any
     _HAS_ASYNC_CRED_DEPS = False
 
