@@ -44,7 +44,7 @@ def test_vector_search_create_index_sample(
         approximate_neighbors_count=ANY,
         leaf_node_embedding_count=ANY,
         leaf_nodes_to_search_percent=ANY,
-        index_update_method="batch_update",
+        index_update_method="BATCH_UPDATE",
         distance_measure_type=ANY,
     )
 
@@ -75,6 +75,6 @@ def test_vector_search_create_streaming_index_sample(
         approximate_neighbors_count=ANY,
         leaf_node_embedding_count=ANY,
         leaf_nodes_to_search_percent=ANY,
-        index_update_method="stream_update",
+        index_update_method="STREAM_UPDATE",
         distance_measure_type=ANY,
     )
