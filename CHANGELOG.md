@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.71.1](https://github.com/googleapis/python-aiplatform/compare/v1.71.0...v1.71.1) (2024-10-31)
+
+
+### Bug Fixes
+
+* Audio_timestamp is supported only for some of the models ([df7269e](https://github.com/googleapis/python-aiplatform/commit/df7269eebfab8fa41b18e718b9e70097bdec1201))
+* Ignore AttributeError exception when importing google.auth.aio ([832fe60](https://github.com/googleapis/python-aiplatform/commit/832fe60264177afa78257893b28f4f66d3c736a7))
+* System test case media input file non existent ([c0718e1](https://github.com/googleapis/python-aiplatform/commit/c0718e1126cf6ebc9eeb75c21421d62c2088a340))
+
 ## [1.71.0](https://github.com/googleapis/python-aiplatform/compare/v1.70.0...v1.71.0) (2024-10-29)
 
 
