@@ -418,11 +418,11 @@ class VertexRagStore(proto.Message):
 
 class VertexAISearch(proto.Message):
     r"""Retrieve from Vertex AI Search datastore for grounding.
-    See https://cloud.google.com/vertex-ai-search-and-conversation
+    See https://cloud.google.com/products/agent-builder
 
     Attributes:
         datastore (str):
-            Required. Fully-qualified Vertex AI Search's datastore
+            Required. Fully-qualified Vertex AI Search data store
             resource ID. Format:
             ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}``
     """

@@ -22,7 +22,7 @@ import pickle
 import ray
 import tempfile
 from typing import Optional, TYPE_CHECKING
-
+import warnings
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -33,6 +33,7 @@ from google.cloud.aiplatform.vertex_ray.predict.util import (
 )
 from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
+    _V2_9_WARNING_MESSAGE,
 )
 
 
@@ -102,7 +103,8 @@ def register_xgboost(
             f"Ray version {ray_version} is not supported to upload XGBoost"
             " model to Vertex Model Registry yet. Please use Ray 2.9.3."
         )
-
+    if ray_version == "2.9.3":
+        warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
     artifact_uri = artifact_uri or initializer.global_config.staging_bucket
     predict_utils.validate_artifact_uri(artifact_uri)
     display_model_name = (

@@ -344,6 +344,11 @@ class GenerationConfig(proto.Message):
             Optional. Routing configuration.
 
             This field is a member of `oneof`_ ``_routing_config``.
+        audio_timestamp (bool):
+            Optional. If enabled, audio timestamp will be
+            included in the request to the model.
+
+            This field is a member of `oneof`_ ``_audio_timestamp``.
     """
 
     class RoutingConfig(proto.Message):
@@ -511,6 +516,11 @@ class GenerationConfig(proto.Message):
         number=17,
         optional=True,
         message=RoutingConfig,
+    )
+    audio_timestamp: bool = proto.Field(
+        proto.BOOL,
+        number=20,
+        optional=True,
     )
 
 
@@ -1049,6 +1059,10 @@ class GroundingChunk(proto.Message):
                 Title of the attribution.
 
                 This field is a member of `oneof`_ ``_title``.
+            text (str):
+                Text of the attribution.
+
+                This field is a member of `oneof`_ ``_text``.
         """
 
         uri: str = proto.Field(
@@ -1059,6 +1073,11 @@ class GroundingChunk(proto.Message):
         title: str = proto.Field(
             proto.STRING,
             number=2,
+            optional=True,
+        )
+        text: str = proto.Field(
+            proto.STRING,
+            number=3,
             optional=True,
         )
 
@@ -1203,12 +1222,12 @@ class RetrievalMetadata(proto.Message):
     Attributes:
         google_search_dynamic_retrieval_score (float):
             Optional. Score indicating how likely information from
-            google search could help answer the prompt. The score is in
-            the range [0, 1], where 0 is the least likely and 1 is the
-            most likely. This score is only populated when google search
-            grounding and dynamic retrieval is enabled. It will be
-            compared to the threshold to determine whether to trigger
-            google search.
+            Google Search could help answer the prompt. The score is in
+            the range ``[0, 1]``, where 0 is the least likely and 1 is
+            the most likely. This score is only populated when Google
+            Search grounding and dynamic retrieval is enabled. It will
+            be compared to the threshold to determine whether to trigger
+            Google Search.
     """
 
     google_search_dynamic_retrieval_score: float = proto.Field(

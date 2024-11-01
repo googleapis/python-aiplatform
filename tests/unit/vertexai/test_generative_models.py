@@ -158,6 +158,23 @@ _RENAMING_INPUT_SCHEMA = {
                 },
             ],
         },
+        "ordered": {
+            "type": "OBJECT",
+            "properties": {
+                "a": {"type": "stRIng"},
+                "b": {"type": "Integer"},
+                "c": {
+                    "type": "objeCT",
+                    "properties": {
+                        "x": {"type": "string"},
+                        "y": {"type": "number"},
+                        "z": {"type": "integer"},
+                    },
+                    "property_ordering": ["z", "y", "x"],
+                },
+            },
+            "propertyOrdering": ["b", "a", "c"],
+        },
     },
 }
 _RENAMING_EXPECTED_SCHEMA = {
@@ -191,7 +208,25 @@ _RENAMING_EXPECTED_SCHEMA = {
                 },
             ],
         },
+        "ordered": {
+            "type_": "OBJECT",
+            "properties": {
+                "a": {"type_": "STRING"},
+                "b": {"type_": "INTEGER"},
+                "c": {
+                    "type_": "OBJECT",
+                    "properties": {
+                        "x": {"type_": "STRING"},
+                        "y": {"type_": "NUMBER"},
+                        "z": {"type_": "INTEGER"},
+                    },
+                    "property_ordering": ["z", "y", "x"],  # explicit order kept
+                },
+            },
+            "property_ordering": ["b", "a", "c"],  # explicit order kept
+        },
     },
+    "property_ordering": ["names", "date", "ordered"],  # implicit order added
 }
 
 
@@ -503,13 +538,16 @@ def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.parametrize("api_transport", ["grpc", "rest"])
 class TestGenerativeModels:
     """Unit tests for the generative models."""
 
-    def setup_method(self):
+    @pytest.fixture(scope="function", autouse=True)
+    def setup_method(self, api_transport: str):
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
+            api_transport=api_transport,
         )
 
     def teardown_method(self):
@@ -628,7 +666,9 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
-    def test_generate_content(self, generative_models: generative_models):
+    def test_generate_content(
+        self, generative_models: generative_models, api_transport: str
+    ):
         model = generative_models.GenerativeModel("gemini-pro")
         response = model.generate_content("Why is sky blue?")
         assert response.text
@@ -725,6 +765,33 @@ class TestGenerativeModels:
             labels={"label1": "value1", "label2": "value2"},
         )
         assert response4.text
+
+        model5 = generative_models.GenerativeModel("gemini-1.5-pro-002")
+        response5 = model5.generate_content(
+            contents=[
+                generative_models.Part.from_uri(
+                    "gs://cloud-samples-data/generative-ai/audio/pixel.mp3",
+                    mime_type="audio/mpeg",
+                ),
+                "What is the audio about?",
+            ],
+            generation_config=generative_models.GenerationConfig(
+                audio_timestamp=True,
+            ),
+            safety_settings=[
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                    method=generative_models.SafetySetting.HarmBlockMethod.SEVERITY,
+                ),
+                generative_models.SafetySetting(
+                    category=generative_models.SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=generative_models.SafetySetting.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+                    method=generative_models.SafetySetting.HarmBlockMethod.PROBABILITY,
+                ),
+            ],
+        )
+        assert response5.text
 
     @mock.patch.object(
         target=prediction_service.PredictionServiceClient,

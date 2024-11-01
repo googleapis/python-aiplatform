@@ -43,6 +43,7 @@ from tensorboard.util import tb_logging
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
 DEFAULT_RUN_NAME = "default"
 DEFAULT_PROFILE_RUN_NAME = "profile"
+REPLACE_PATTERN = "[^a-zA-Z0-9\n-]"
 
 logger = tb_logging.get_logger()
 logger.setLevel(logging.WARNING)
@@ -50,7 +51,7 @@ logger.setLevel(logging.WARNING)
 
 def reformat_run_name(run_name: str) -> str:
     """Reformats the run name to be compatible with One Platform."""
-    return run_name.replace("/", "-").replace("_", "-")
+    return re.sub(REPLACE_PATTERN, "-", run_name)
 
 
 class RateLimiter:

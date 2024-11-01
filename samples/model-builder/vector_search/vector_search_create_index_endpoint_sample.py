@@ -40,3 +40,68 @@ def vector_search_create_index_endpoint(
 
 
 #  [END aiplatform_sdk_vector_search_create_index_endpoint_sample]
+
+
+#  [START aiplatform_sdk_vector_search_create_index_endpoint_vpc_sample]
+def vector_search_create_index_endpoint_vpc(
+    project: str, location: str, display_name: str, network: str
+) -> aiplatform.MatchingEngineIndexEndpoint:
+    """Create a vector search index endpoint within a VPC network.
+
+    Args:
+        project (str): Required. Project ID
+        location (str): Required. The region name
+        display_name (str): Required. The index endpoint display name
+        network(str): Required. The VPC network name, in the format of
+            projects/{project number}/global/networks/{network name}.
+
+    Returns:
+        aiplatform.MatchingEngineIndexEndpoint - The created index endpoint.
+    """
+    # Initialize the Vertex AI client
+    aiplatform.init(project=project, location=location)
+
+    # Create Index Endpoint
+    index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
+        display_name=display_name,
+        network=network,
+        description="Matching Engine VPC Index Endpoint",
+    )
+
+    return index_endpoint
+
+
+#  [END aiplatform_sdk_vector_search_create_index_endpoint_vpc_sample]
+
+
+#  [START aiplatform_sdk_vector_search_create_index_endpoint_psc_sample]
+def vector_search_create_index_endpoint_private_service_connect(
+    project: str, location: str, display_name: str, project_allowlist: list[str]
+) -> aiplatform.MatchingEngineIndexEndpoint:
+    """Create a vector search index endpoint with Private Service Connect enabled.
+
+    Args:
+        project (str): Required. Project ID
+        location (str): Required. The region name
+        display_name (str): Required. The index endpoint display name
+        project_allowlist (list[str]): Required. A list of projects from which
+            the forwarding rule will be able to target the service attachment.
+
+    Returns:
+        aiplatform.MatchingEngineIndexEndpoint - The created index endpoint.
+    """
+    # Initialize the Vertex AI client
+    aiplatform.init(project=project, location=location)
+
+    # Create Index Endpoint
+    index_endpoint = aiplatform.MatchingEngineIndexEndpoint.create(
+        display_name=display_name,
+        description="Matching Engine VPC Index Endpoint",
+        enable_private_service_connect=True,
+        project_allowlist=project_allowlist,
+    )
+
+    return index_endpoint
+
+
+#  [END aiplatform_sdk_vector_search_create_index_endpoint_psc_sample]

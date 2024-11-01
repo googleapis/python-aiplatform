@@ -19,6 +19,7 @@ import copy
 import logging
 import time
 from typing import Dict, List, Optional
+import warnings
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -46,6 +47,7 @@ from google.cloud.aiplatform.vertex_ray.util import (
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.cloud.aiplatform.vertex_ray.util._validation_utils import (
     _V2_4_WARNING_MESSAGE,
+    _V2_9_WARNING_MESSAGE,
 )
 
 
@@ -154,6 +156,8 @@ def create_ray_cluster(
         )
     if ray_version == "2.4":
         raise RuntimeError(_V2_4_WARNING_MESSAGE)
+    if ray_version == "2.9.3":
+        warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
     local_ray_verion = _validation_utils.get_local_ray_version()
     if ray_version != local_ray_verion:
         if custom_images is None and head_node_type.custom_image is None:

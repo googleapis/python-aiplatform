@@ -388,13 +388,25 @@ class _GenerativeModel:
     def _prediction_client(self) -> prediction_service.PredictionServiceClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_client_value", None):
-            self._prediction_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service.PredictionServiceClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                self._prediction_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=prediction_service.PredictionServiceClient,
+                        api_key=aiplatform_initializer.global_config.api_key,
+                        prediction_client=True,
+                    )
                 )
-            )
+            else:
+                self._prediction_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=prediction_service.PredictionServiceClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._prediction_client_value
 
     @property
@@ -403,26 +415,46 @@ class _GenerativeModel:
     ) -> prediction_service.PredictionServiceAsyncClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_async_client_value", None):
-            self._prediction_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service.PredictionServiceAsyncClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise RuntimeError(
+                    "Using an api key is not supported yet for async clients."
                 )
-            )
+            else:
+                self._prediction_async_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=prediction_service.PredictionServiceAsyncClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._prediction_async_client_value
 
     @property
     def _llm_utility_client(self) -> llm_utility_service.LlmUtilityServiceClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_llm_utility_client_value", None):
-            self._llm_utility_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service.LlmUtilityServiceClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                self._llm_utility_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=llm_utility_service.LlmUtilityServiceClient,
+                        api_key=aiplatform_initializer.global_config.api_key,
+                        prediction_client=True,
+                    )
                 )
-            )
+            else:
+                self._llm_utility_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=llm_utility_service.LlmUtilityServiceClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._llm_utility_client_value
 
     @property
@@ -431,13 +463,21 @@ class _GenerativeModel:
     ) -> llm_utility_service.LlmUtilityServiceAsyncClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_llm_utility_async_client_value", None):
-            self._llm_utility_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
-                    location_override=self._location,
-                    prediction_client=True,
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise RuntimeError(
+                    "Using an api key is not supported yet for async clients."
                 )
-            )
+            else:
+                self._llm_utility_async_client_value = (
+                    aiplatform_initializer.global_config.create_client(
+                        client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
+                        location_override=self._location,
+                        prediction_client=True,
+                    )
+                )
         return self._llm_utility_async_client_value
 
     def _prepare_request(
@@ -870,6 +910,10 @@ class _GenerativeModel:
                 yield self._parse_response(chunk)
 
         return async_generator()
+
+    async def _close_async_client(self) -> None:
+        if self._prediction_async_client:
+            return await self._prediction_async_client.transport.close()
 
     def count_tokens(
         self, contents: ContentsType, *, tools: Optional[List["Tool"]] = None
@@ -1643,6 +1687,7 @@ class GenerationConfig:
         response_mime_type: Optional[str] = None,
         response_schema: Optional[Dict[str, Any]] = None,
         seed: Optional[int] = None,
+        audio_timestamp: Optional[bool] = None,
         routing_config: Optional["RoutingConfig"] = None,
         logprobs: Optional[int] = None,
         response_logprobs: Optional[bool] = None,
@@ -1672,6 +1717,7 @@ class GenerationConfig:
                 The model needs to be prompted to output the appropriate
                 response type, otherwise the behavior is undefined.
             response_schema: Output response schema of the genreated candidate text.
+            audio_timestamp: If true, the timestamp of the audio will be included in the response.
             routing_config: Model routing preference set in the request.
             logprobs: Logit probabilities.
             reponse_logprobs: If true, export the logprobs results in response.
@@ -1688,6 +1734,7 @@ class GenerationConfig:
                     max_output_tokens=100,
                     stop_sequences=["\n\n\n"],
                     seed=5,
+                    audio_timestamp=True,
                 )
             )
             ```
@@ -1710,6 +1757,7 @@ class GenerationConfig:
             response_mime_type=response_mime_type,
             response_schema=raw_schema,
             seed=seed,
+            audio_timestamp=audio_timestamp,
             logprobs=logprobs,
             response_logprobs=response_logprobs,
         )
@@ -2155,6 +2203,11 @@ def _fix_schema_dict_for_gapic_in_place(schema_dict: Dict[str, Any]) -> None:
     if properties := schema_dict.get("properties"):
         for property_schema in properties.values():
             _fix_schema_dict_for_gapic_in_place(property_schema)
+        if (
+            "property_ordering" not in schema_dict
+            and "propertyOrdering" not in schema_dict
+        ):
+            schema_dict["property_ordering"] = list(properties.keys())
 
     if any_of := (schema_dict.get("any_of") or schema_dict.get("anyOf")):
         for any_of_schema in any_of:

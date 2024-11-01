@@ -23,7 +23,7 @@ import inspect
 import logging
 import os
 import types
-from typing import Iterator, List, Optional, Sequence, Tuple, Type, TypeVar, Union
+from typing import Any, Iterator, List, Optional, Sequence, Tuple, Type, TypeVar, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -45,6 +45,15 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1 as gca_encryption_spec_v1,
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
+
+try:
+    import google.auth.aio
+
+    AsyncCredentials = google.auth.aio.credentials.Credentials
+    _HAS_ASYNC_CRED_DEPS = True
+except (ImportError, AttributeError):
+    AsyncCredentials = Any
+    _HAS_ASYNC_CRED_DEPS = False
 
 _TVertexAiServiceClientWithOverride = TypeVar(
     "_TVertexAiServiceClientWithOverride",
@@ -121,6 +130,7 @@ class _Config:
         self._api_transport = None
         self._request_metadata = None
         self._resource_type = None
+        self._async_rest_credentials = None
 
     def init(
         self,
@@ -221,6 +231,12 @@ class _Config:
                     f"{api_transport} is not a valid transport type. "
                     + f"Valid transport types: {VALID_TRANSPORT_TYPES}"
                 )
+        else:
+            # Raise error if api_transport other than rest is specified for usage with API key.
+            if not project and not api_transport:
+                api_transport = "rest"
+            elif not project and api_transport != "rest":
+                raise ValueError(f"{api_transport} is not supported with API keys. ")
         if location:
             utils.validate_region(location)
         if experiment_description and experiment is None:
@@ -235,6 +251,11 @@ class _Config:
             if metadata._experiment_tracker.experiment_name:
                 logging.info("project/location updated, reset Experiment config.")
             metadata._experiment_tracker.reset()
+
+        if project and api_key:
+            logging.info(
+                "Both a project and API key have been provided. The project will take precedence over the API key."
+            )
 
         # Then we change the main state
         if api_endpoint is not None:
@@ -438,7 +459,18 @@ class _Config:
 
         api_endpoint = self.api_endpoint
 
+        if (
+            api_endpoint is None
+            and not self._project
+            and not self._location
+            and not location_override
+        ):
+            # Default endpoint is location invariant if using API key
+            api_endpoint = "aiplatform.googleapis.com"
+
+        # If both project and API key are passed in, project takes precedence.
         if api_endpoint is None:
+            # Form the default endpoint to use with no API key.
             if not (self.location or location_override):
                 raise ValueError(
                     "No location found. Provide or initialize SDK with a location."
@@ -568,15 +600,24 @@ class _Config:
         }
 
         # Do not pass "grpc", rely on gapic defaults unless "rest" is specified
-        if self._api_transport == "rest":
-            if "Async" in client_class.__name__:
-                # Warn user that "rest" is not supported and use grpc instead
-                logging.warning(
-                    "REST is not supported for async clients, "
-                    + "falling back to grpc."
-                )
+        if self._api_transport == "rest" and "Async" in client_class.__name__:
+            # User requests async rest
+            if self._async_rest_credentials:
+                # Rest async recieves credentials from _async_rest_credentials
+                kwargs["credentials"] = self._async_rest_credentials
+                kwargs["transport"] = "rest_asyncio"
             else:
-                kwargs["transport"] = self._api_transport
+                # Rest async was specified, but no async credentials were set.
+                # Fallback to gRPC instead.
+                logging.warning(
+                    "REST async clients requires async credentials set using "
+                    + "aiplatform.initializer._set_async_rest_credentials().\n"
+                    + "Falling back to grpc since no async rest credentials "
+                    + "were detected."
+                )
+        elif self._api_transport == "rest":
+            # User requests sync REST
+            kwargs["transport"] = self._api_transport
 
         client = client_class(**kwargs)
         # We only wrap the client if the request_metadata is set at the creation time.
@@ -648,6 +689,29 @@ global_config = _Config()
 global_pool = futures.ThreadPoolExecutor(
     max_workers=min(32, max(4, (os.cpu_count() or 0) * 5))
 )
+
+
+def _set_async_rest_credentials(credentials: AsyncCredentials):
+    """Private method to set async REST credentials."""
+    if global_config._api_transport != "rest":
+        raise ValueError(
+            "Async REST credentials can only be set when using REST transport."
+        )
+    elif not _HAS_ASYNC_CRED_DEPS or not isinstance(credentials, AsyncCredentials):
+        raise ValueError(
+            "Async REST transport requires async credentials of type"
+            + f"{AsyncCredentials} which is only supported in "
+            + "google-auth >= 2.35.0.\n\n"
+            + "Install the following dependencies:\n"
+            + "pip install google-api-core[grpc, async_rest] >= 2.21.0\n"
+            + "pip install google-auth[aiohttp] >= 2.35.0\n\n"
+            + "Example usage:\n"
+            + "from google.auth.aio.credentials import StaticCredentials\n"
+            + "async_credentials = StaticCredentials(token=YOUR_TOKEN_HERE)\n"
+            + "aiplatform.initializer._set_async_rest_credentials("
+            + "credentials=async_credentials)"
+        )
+    global_config._async_rest_credentials = credentials
 
 
 def _get_function_name_from_stack_frame(frame) -> str:

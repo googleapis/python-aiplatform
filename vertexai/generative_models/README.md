@@ -138,6 +138,8 @@ print(chat.send_message(
 
 ### Automatic Function calling
 
+Note: The `FunctionDeclaration.from_func` converter does not support nested types for parameters. Please provide full `FunctionDeclaration` instead.
+
 ```
 from vertexai.preview.generative_models import GenerativeModel, Tool, FunctionDeclaration, AutomaticFunctionCallingResponder
 

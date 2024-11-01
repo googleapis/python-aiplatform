@@ -370,6 +370,8 @@ class _TextsAccumulator:
         if "required" in schema:
             self._texts.extend(schema.required)
             counted_schema.required = schema.required
+        if "property_ordering" in schema:
+            counted_schema.property_ordering = schema.property_ordering
         if "items" in schema:
             counted_schema_items = self._schema_traverse(schema.items)
             counted_schema.items = counted_schema_items

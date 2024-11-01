@@ -225,6 +225,12 @@ class PipelineJob(proto.Message):
                 The runtime artifacts of the PipelineJob. The
                 key will be the input artifact name and the
                 value would be one of the InputArtifact.
+            default_runtime (google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.DefaultRuntime):
+                Optional. The default runtime for the
+                PipelineJob. If not provided, Vertex Custom
+                Job(on demand) is used as the runtime. For
+                Vertex Custom Job, please refer to
+                https://cloud.google.com/vertex-ai/docs/training/overview.
         """
 
         class InputArtifact(proto.Message):
@@ -247,6 +253,75 @@ class PipelineJob(proto.Message):
                 proto.STRING,
                 number=1,
                 oneof="kind",
+            )
+
+        class PersistentResourceRuntimeDetail(proto.Message):
+            r"""Persistent resource based runtime detail. For more
+            information, refer to
+            https://cloud.google.com/vertex-ai/docs/training/persistent-resource-overview
+
+            Attributes:
+                persistent_resource_name (str):
+                    Persistent resource name. Format:
+                    ``projects/{project}/locations/{location}/persistentResources/{persistent_resource}``
+                task_resource_unavailable_wait_time_ms (int):
+                    The max time a pipeline task waits for the
+                    required CPU, memory, or accelerator resource to
+                    become available from the specified persistent
+                    resource. Default wait time is 0.
+                task_resource_unavailable_timeout_behavior (google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail.TaskResourceUnavailableTimeoutBehavior):
+                    Specifies the behavior to take if the timeout
+                    is reached.
+            """
+
+            class TaskResourceUnavailableTimeoutBehavior(proto.Enum):
+                r"""An enum that specifies the behavior to take if the timeout is
+                reached.
+
+                Values:
+                    TASK_RESOURCE_UNAVAILABLE_TIMEOUT_BEHAVIOR_UNSPECIFIED (0):
+                        Unspecified. Behavior is same as ``FAIL``.
+                    FAIL (1):
+                        Fail the task if the timeout is reached.
+                    FALL_BACK_TO_ON_DEMAND (2):
+                        Fall back to on-demand execution if the
+                        timeout is reached.
+                """
+                TASK_RESOURCE_UNAVAILABLE_TIMEOUT_BEHAVIOR_UNSPECIFIED = 0
+                FAIL = 1
+                FALL_BACK_TO_ON_DEMAND = 2
+
+            persistent_resource_name: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            task_resource_unavailable_wait_time_ms: int = proto.Field(
+                proto.INT64,
+                number=2,
+            )
+            task_resource_unavailable_timeout_behavior: "PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail.TaskResourceUnavailableTimeoutBehavior" = proto.Field(
+                proto.ENUM,
+                number=3,
+                enum="PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail.TaskResourceUnavailableTimeoutBehavior",
+            )
+
+        class DefaultRuntime(proto.Message):
+            r"""The default runtime for the PipelineJob.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                persistent_resource_runtime_detail (google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail):
+                    Persistent resource based runtime detail.
+
+                    This field is a member of `oneof`_ ``runtime_detail``.
+            """
+
+            persistent_resource_runtime_detail: "PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail" = proto.Field(
+                proto.MESSAGE,
+                number=1,
+                oneof="runtime_detail",
+                message="PipelineJob.RuntimeConfig.PersistentResourceRuntimeDetail",
             )
 
         parameters: MutableMapping[str, gca_value.Value] = proto.MapField(
@@ -277,6 +352,11 @@ class PipelineJob(proto.Message):
             proto.MESSAGE,
             number=5,
             message="PipelineJob.RuntimeConfig.InputArtifact",
+        )
+        default_runtime: "PipelineJob.RuntimeConfig.DefaultRuntime" = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            message="PipelineJob.RuntimeConfig.DefaultRuntime",
         )
 
     name: str = proto.Field(

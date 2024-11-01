@@ -34,6 +34,7 @@ _LOGGER = aiplatform_base.Logger(__name__)
 
 _GEMINI_MODEL_PATTERN = r"publishers/google/models/gemini"
 _LLAMA_MODEL_PATTERN = r"publishers/meta/models/llama"
+_CLAUDE_MODEL_PATTERN = r"publishers/anthropic/models/claude"
 _GEMINI_TUNED_MODEL_PATTERN = r"^projects/[0-9]+?/locations/[0-9a-z-]+?/models/[0-9]+?$"
 
 
@@ -287,6 +288,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             # publisher model full name
             not model_name.startswith("publishers/google/models/")
             and not model_name.startswith("publishers/meta/models/")
+            and not model_name.startswith("publishers/anthropic/models/")
             # tuned model full resource name
             and not re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
         ):
@@ -312,6 +314,10 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
 
         if re.search(_LLAMA_MODEL_PATTERN, model_name):
             # Model is a Llama3 model.
+            return True
+
+        if re.search(_CLAUDE_MODEL_PATTERN, model_name):
+            # Model is a claude model.
             return True
 
         return False

@@ -25,6 +25,8 @@ from urllib import request as urllib_request
 from typing import Tuple
 
 import pandas as pd
+
+import google.auth
 from google.cloud import storage
 
 from google.cloud import aiplatform
@@ -78,6 +80,16 @@ from google.cloud.aiplatform_v1 import Execution as GapicExecution
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
 )
+
+
+try:
+    from google.auth.aio.credentials import (
+        AnonymousCredentials as AsyncAnonymousCredentials,
+    )
+
+    _HAS_ASYNC_CRED_DEPS = True
+except ImportError:
+    _HAS_ASYNC_CRED_DEPS = False
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -1388,6 +1400,10 @@ def make_eval_classification_pipeline_job(state):
     )
 
 
+def get_client_api_transport(client):
+    return client._transport.__class__.__name__.lower()
+
+
 @pytest.fixture
 def mock_pipeline_service_create():
     with mock.patch.object(
@@ -2070,8 +2086,8 @@ class TestLanguageModels:
                 == _EXPECTED_PARSED_GROUNDING_METADATA
             )
 
-    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     @pytest.mark.asyncio
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     async def test_text_generation_async(self, api_transport):
         """Tests the text generation model."""
         aiplatform.init(
@@ -2079,6 +2095,29 @@ class TestLanguageModels:
             location=_TEST_LOCATION,
             api_transport=api_transport,
         )
+        if api_transport == "rest":
+            # Should raise ValueError for setting async REST credentials
+            # with sync credentials.
+            with pytest.raises(ValueError):
+                aiplatform.initializer._set_async_rest_credentials(
+                    google.auth.credentials.AnonymousCredentials()
+                )
+            # If there are async credentials deps, create async REST credentials.
+            # Otherwise, it will fallback to gRPC
+            if _HAS_ASYNC_CRED_DEPS:
+                # Construct google.auth.aio.credentials.AnonymousCredentials
+                # for async REST transport.
+                aiplatform.initializer._set_async_rest_credentials(
+                    AsyncAnonymousCredentials()
+                )
+        else:
+            # Should raise ValueError for setting async REST credentials
+            # for non-REST transport.
+            with pytest.raises(ValueError):
+                aiplatform.initializer._set_async_rest_credentials(
+                    google.auth.credentials.AnonymousCredentials()
+                )
+
         with mock.patch.object(
             target=model_garden_service_client.ModelGardenServiceClient,
             attribute="get_publisher_model",
@@ -2106,14 +2145,25 @@ class TestLanguageModels:
                 top_k=5,
                 stop_sequences=["\n"],
             )
+            prediction_parameters = mock_predict.call_args[1]["parameters"]
+            assert prediction_parameters["maxDecodeSteps"] == 128
+            assert prediction_parameters["temperature"] == 0.0
+            assert prediction_parameters["topP"] == 1.0
+            assert prediction_parameters["topK"] == 5
+            assert prediction_parameters["stopSequences"] == ["\n"]
+            assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
 
-        prediction_parameters = mock_predict.call_args[1]["parameters"]
-        assert prediction_parameters["maxDecodeSteps"] == 128
-        assert prediction_parameters["temperature"] == 0.0
-        assert prediction_parameters["topP"] == 1.0
-        assert prediction_parameters["topK"] == 5
-        assert prediction_parameters["stopSequences"] == ["\n"]
-        assert response.text == _TEST_TEXT_GENERATION_PREDICTION["content"]
+            if _HAS_ASYNC_CRED_DEPS:
+                assert api_transport in get_client_api_transport(
+                    model._endpoint._prediction_async_client._client
+                )
+            else:
+                # Assert that grpc was used as a fallback.
+                assert "grpc" in get_client_api_transport(
+                    model._endpoint._prediction_async_client._client
+                )
+
+            await model._endpoint._prediction_async_client.transport.close()
 
     @pytest.mark.asyncio
     async def test_text_generation_multiple_candidates_grounding_async(self):

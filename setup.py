@@ -147,7 +147,7 @@ reasoning_engine_extra_require = [
 ]
 
 evaluation_extra_require = [
-    "pandas >= 1.0.0, < 2.2.0",
+    "pandas >= 1.0.0",
     "tqdm>=4.23.0",
 ]
 
@@ -195,6 +195,9 @@ testing_extra_require = (
     + profiler_extra_require
     + tokenization_testing_extra_require
     + [
+        # aiohttp is required for async rest tests (need google-auth[aiohttp],
+        # but can't specify extras in constraints files)
+        "aiohttp",
         "bigframes; python_version>='3.10'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
