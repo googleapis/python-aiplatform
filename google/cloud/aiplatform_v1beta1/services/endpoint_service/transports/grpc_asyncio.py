@@ -379,6 +379,35 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         return self._stubs["update_endpoint"]
 
     @property
+    def update_endpoint_long_running(
+        self,
+    ) -> Callable[
+        [endpoint_service.UpdateEndpointLongRunningRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update endpoint long running method over gRPC.
+
+        Updates an Endpoint with a long running operation.
+
+        Returns:
+            Callable[[~.UpdateEndpointLongRunningRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_endpoint_long_running" not in self._stubs:
+            self._stubs["update_endpoint_long_running"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpointLongRunning",
+                request_serializer=endpoint_service.UpdateEndpointLongRunningRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_endpoint_long_running"]
+
+    @property
     def delete_endpoint(
         self,
     ) -> Callable[
@@ -518,6 +547,11 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             self.update_endpoint: self._wrap_method(
                 self.update_endpoint,
                 default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.update_endpoint_long_running: self._wrap_method(
+                self.update_endpoint_long_running,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.delete_endpoint: self._wrap_method(
