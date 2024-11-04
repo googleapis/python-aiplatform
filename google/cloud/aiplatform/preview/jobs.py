@@ -15,9 +15,8 @@
 # limitations under the License.
 #
 
-from typing import Dict, List, Optional, Union
-
 import copy
+from typing import Dict, List, Optional, Union
 import uuid
 
 from google.api_core import retry
@@ -25,22 +24,19 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
+from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import (
-    custom_job_v1beta1 as gca_custom_job_compat,
-    hyperparameter_tuning_job_v1beta1 as gca_hyperparameter_tuning_job_compat,
-    job_state as gca_job_state,
-    job_state_v1beta1 as gca_job_state_v1beta1,
-    study_v1beta1,
-)
-from google.cloud.aiplatform.compat.types import (
-    execution_v1beta1 as gcs_execution_compat,
-)
+from google.cloud.aiplatform.compat.types import custom_job_v1beta1 as gca_custom_job_compat
+from google.cloud.aiplatform.compat.types import execution_v1beta1 as gcs_execution_compat
+from google.cloud.aiplatform.compat.types import hyperparameter_tuning_job_v1beta1 as gca_hyperparameter_tuning_job_compat
 from google.cloud.aiplatform.compat.types import io_v1beta1 as gca_io_compat
+from google.cloud.aiplatform.compat.types import job_state as gca_job_state
+from google.cloud.aiplatform.compat.types import job_state_v1beta1 as gca_job_state_v1beta1
+from google.cloud.aiplatform.compat.types import service_networking_v1beta1 as gca_service_networking_compat
+from google.cloud.aiplatform.compat.types import study_v1beta1
 from google.cloud.aiplatform.metadata import constants as metadata_constants
-from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform.utils import console_utils
 import proto
 
@@ -87,6 +83,9 @@ class CustomJob(jobs.CustomJob):
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         persistent_resource_id: Optional[str] = None,
+        psc_interface_config: Optional[
+            gca_service_networking_compat.PscInterfaceConfig
+        ] = None,
     ):
         """Deprecated. Please use the GA (non-preview) version of this class.
 
@@ -167,6 +166,8 @@ class CustomJob(jobs.CustomJob):
                 on-demand short-live machines. The network and CMEK configs on
                 the job should be consistent with those on the PersistentResource,
                 otherwise, the job will be rejected.
+            psc_interface_config (service_networking.PscInterfaceConfig):
+                Optional. Configuration for PSC-I for PipelineJob.
 
         Raises:
             RuntimeError: If staging bucket was not set using aiplatform.init
@@ -212,6 +213,7 @@ class CustomJob(jobs.CustomJob):
                     output_uri_prefix=base_output_dir
                 ),
                 persistent_resource_id=persistent_resource_id,
+                psc_interface_config=psc_interface_config,
             ),
             labels=labels,
             encryption_spec=initializer.global_config.get_encryption_spec(
