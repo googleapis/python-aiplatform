@@ -22,10 +22,12 @@ import datetime
 import importlib
 from typing import Dict, Iterable
 from unittest import mock
+from unittest.mock import patch
 import uuid
 
 from google import auth
 from google.auth import credentials as auth_credentials
+from google.cloud import storage
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import compat
@@ -34,18 +36,17 @@ from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform_v1beta1.services import gen_ai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import job_state
-from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
+from google.cloud.aiplatform_v1beta1.types import (
+    tuning_job as gca_tuning_job,
+)
 from vertexai.preview import tuning
 from vertexai.preview.tuning import (
     sft as preview_supervised_tuning,
 )
-from vertexai.tuning import sft as supervised_tuning
 from vertexai.tuning import _distillation
-from google.cloud import storage
-
+from vertexai.tuning import partner_model_tuning
+from vertexai.tuning import sft as supervised_tuning
 import pytest
-
-from unittest.mock import patch
 
 from google.rpc import status_pb2
 
@@ -283,6 +284,47 @@ class TestgenerativeModelTuning:
         assert not tuning_job.has_succeeded
 
         # Refreshing the job
+        tuning_job.refresh()
+        assert tuning_job.state == job_state.JobState.JOB_STATE_RUNNING
+        assert not tuning_job.has_ended
+        assert not tuning_job.has_succeeded
+
+        # Refreshing the job
+        tuning_job.refresh()
+        assert tuning_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
+        assert tuning_job.has_ended
+        assert tuning_job.has_succeeded
+        assert tuning_job.tuned_model_name
+
+    @mock.patch.object(
+        target=tuning.TuningJob,
+        attribute="client_class",
+        new=MockTuningJobClientWithOverride,
+    )
+    def test_genai_tuning_service_partner_model_tuning(self):
+        partner_model_train = partner_model_tuning.train
+        tuning_job = partner_model_train(
+            base_model="llama3-8b-instruct-maas",
+            training_dataset_uri="gs://some-bucket/some_dataset.jsonl",
+            tuned_model_display_name="tuned-llama3-8b-instruct-maas",
+            validation_dataset_uri="gs://some-bucket/some_dataset.jsonl",
+            hyper_parameters={
+                "learning_rate": 0.0001,
+                "batch_size": 32,
+                "num_epochs": 10,
+            },
+        )
+        assert tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not tuning_job.has_ended
+        assert not tuning_job.has_succeeded
+
+        # Refreshing the job.
+        tuning_job.refresh()
+        assert tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not tuning_job.has_ended
+        assert not tuning_job.has_succeeded
+
+        # Refreshing the job.
         tuning_job.refresh()
         assert tuning_job.state == job_state.JobState.JOB_STATE_RUNNING
         assert not tuning_job.has_ended

@@ -131,6 +131,7 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
         tuning_spec: Union[
             gca_tuning_job_types.SupervisedTuningSpec,
             gca_tuning_job_types.DistillationSpec,
+            gca_tuning_job_types.PartnerModelTuningSpec,
         ],
         tuned_model_display_name: Optional[str] = None,
         description: Optional[str] = None,
@@ -197,6 +198,8 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
             gca_tuning_job.supervised_tuning_spec = tuning_spec
         elif isinstance(tuning_spec, gca_tuning_job_types.DistillationSpec):
             gca_tuning_job.distillation_spec = tuning_spec
+        elif isinstance(tuning_spec, gca_tuning_job_types.PartnerModelTuningSpec):
+            gca_tuning_job.partner_model_tuning_spec = tuning_spec
         else:
             raise RuntimeError(f"Unsupported tuning_spec kind: {tuning_spec}")
 
