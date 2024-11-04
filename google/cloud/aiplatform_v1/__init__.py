@@ -705,6 +705,9 @@ from .types.notebook_service import ListNotebookRuntimeTemplatesResponse
 from .types.notebook_service import StartNotebookRuntimeOperationMetadata
 from .types.notebook_service import StartNotebookRuntimeRequest
 from .types.notebook_service import StartNotebookRuntimeResponse
+from .types.notebook_service import StopNotebookRuntimeOperationMetadata
+from .types.notebook_service import StopNotebookRuntimeRequest
+from .types.notebook_service import StopNotebookRuntimeResponse
 from .types.notebook_service import UpdateNotebookRuntimeTemplateRequest
 from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
@@ -1640,6 +1643,9 @@ __all__ = (
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
     "StartNotebookRuntimeResponse",
+    "StopNotebookRuntimeOperationMetadata",
+    "StopNotebookRuntimeRequest",
+    "StopNotebookRuntimeResponse",
     "StopTrialRequest",
     "StratifiedSplit",
     "StreamDirectPredictRequest",

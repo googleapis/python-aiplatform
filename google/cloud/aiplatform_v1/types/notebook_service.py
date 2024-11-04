@@ -50,6 +50,9 @@ __protobuf__ = proto.module(
         "StartNotebookRuntimeRequest",
         "StartNotebookRuntimeOperationMetadata",
         "StartNotebookRuntimeResponse",
+        "StopNotebookRuntimeRequest",
+        "StopNotebookRuntimeOperationMetadata",
+        "StopNotebookRuntimeResponse",
         "CreateNotebookExecutionJobRequest",
         "CreateNotebookExecutionJobOperationMetadata",
         "GetNotebookExecutionJobRequest",
@@ -647,6 +650,49 @@ class StartNotebookRuntimeOperationMetadata(proto.Message):
 class StartNotebookRuntimeResponse(proto.Message):
     r"""Response message for
     [NotebookService.StartNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.StartNotebookRuntime].
+
+    """
+
+
+class StopNotebookRuntimeRequest(proto.Message):
+    r"""Request message for
+    [NotebookService.StopNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.StopNotebookRuntime].
+
+    Attributes:
+        name (str):
+            Required. The name of the NotebookRuntime
+            resource to be stopped. Instead of checking
+            whether the name is in valid NotebookRuntime
+            resource name format, directly throw NotFound
+            exception if there is no such NotebookRuntime in
+            spanner.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class StopNotebookRuntimeOperationMetadata(proto.Message):
+    r"""Metadata information for
+    [NotebookService.StopNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.StopNotebookRuntime].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class StopNotebookRuntimeResponse(proto.Message):
+    r"""Response message for
+    [NotebookService.StopNotebookRuntime][google.cloud.aiplatform.v1.NotebookService.StopNotebookRuntime].
 
     """
 

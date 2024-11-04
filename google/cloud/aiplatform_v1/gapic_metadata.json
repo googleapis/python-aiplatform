@@ -3361,6 +3361,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
+              ]
+            },
             "UpdateNotebookRuntimeTemplate": {
               "methods": [
                 "update_notebook_runtime_template"
@@ -3441,6 +3446,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
+              ]
+            },
             "UpdateNotebookRuntimeTemplate": {
               "methods": [
                 "update_notebook_runtime_template"
@@ -3519,6 +3529,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
               ]
             },
             "UpdateNotebookRuntimeTemplate": {

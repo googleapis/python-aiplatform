@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "1.71.1"
+    "version": "0.1.0"
   },
   "snippets": [
     {
@@ -5290,6 +5290,167 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_endpoint_service_undeploy_model_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceAsyncClient",
+          "shortName": "EndpointServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceAsyncClient.update_endpoint_long_running",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpointLongRunning",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.EndpointService",
+            "shortName": "EndpointService"
+          },
+          "shortName": "UpdateEndpointLongRunning"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateEndpointLongRunningRequest"
+          },
+          {
+            "name": "endpoint",
+            "type": "google.cloud.aiplatform_v1beta1.types.Endpoint"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_endpoint_long_running"
+      },
+      "description": "Sample for UpdateEndpointLongRunning",
+      "file": "aiplatform_v1beta1_generated_endpoint_service_update_endpoint_long_running_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_EndpointService_UpdateEndpointLongRunning_async",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 49,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_endpoint_service_update_endpoint_long_running_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceClient",
+          "shortName": "EndpointServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.EndpointServiceClient.update_endpoint_long_running",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpointLongRunning",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.EndpointService",
+            "shortName": "EndpointService"
+          },
+          "shortName": "UpdateEndpointLongRunning"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateEndpointLongRunningRequest"
+          },
+          {
+            "name": "endpoint",
+            "type": "google.cloud.aiplatform_v1beta1.types.Endpoint"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, str]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_endpoint_long_running"
+      },
+      "description": "Sample for UpdateEndpointLongRunning",
+      "file": "aiplatform_v1beta1_generated_endpoint_service_update_endpoint_long_running_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_EndpointService_UpdateEndpointLongRunning_sync",
+      "segments": [
+        {
+          "end": 58,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 58,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 55,
+          "start": 49,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 59,
+          "start": 56,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_endpoint_service_update_endpoint_long_running_sync.py"
     },
     {
       "canonical": true,

@@ -4645,6 +4645,14 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "name": "name_value",
                                     "response": {},
                                 },
+                                "executable_code": {
+                                    "language": 1,
+                                    "code": "code_value",
+                                },
+                                "code_execution_result": {
+                                    "outcome": 1,
+                                    "output": "output_value",
+                                },
                                 "video_metadata": {
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
@@ -6196,6 +6204,14 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "function_response": {
                                     "name": "name_value",
                                     "response": {},
+                                },
+                                "executable_code": {
+                                    "language": 1,
+                                    "code": "code_value",
+                                },
+                                "code_execution_result": {
+                                    "outcome": 1,
+                                    "output": "output_value",
                                 },
                                 "video_metadata": {
                                     "start_offset": {"seconds": 751, "nanos": 543},

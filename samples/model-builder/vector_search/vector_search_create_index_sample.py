@@ -40,7 +40,7 @@ def vector_search_create_index(
         approximate_neighbors_count=150,
         leaf_node_embedding_count=500,
         leaf_nodes_to_search_percent=7,
-        index_update_method="batch_update",  # Options: stream_update, batch_update
+        index_update_method="BATCH_UPDATE",  # Options: STREAM_UPDATE, BATCH_UPDATE
         distance_measure_type=aiplatform.matching_engine.matching_engine_index_config.DistanceMeasureType.DOT_PRODUCT_DISTANCE,
     )
 
@@ -73,7 +73,7 @@ def vector_search_create_streaming_index(
         approximate_neighbors_count=150,
         leaf_node_embedding_count=500,
         leaf_nodes_to_search_percent=7,
-        index_update_method="stream_update",  # Options: stream_update, batch_update
+        index_update_method="STREAM_UPDATE",  # Options: STREAM_UPDATE, BATCH_UPDATE
         distance_measure_type=aiplatform.matching_engine.matching_engine_index_config.DistanceMeasureType.DOT_PRODUCT_DISTANCE,
     )
 
