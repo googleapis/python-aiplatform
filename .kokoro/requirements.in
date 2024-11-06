@@ -4,7 +4,7 @@ importlib-metadata
 typing-extensions
 twine
 wheel
-setuptools
+setuptools==70.0.0
 nox>=2022.11.21 # required to remove dependency on py
 charset-normalizer<3
 click<8.1.0
