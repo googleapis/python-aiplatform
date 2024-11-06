@@ -1291,6 +1291,7 @@ class TestMultiModalEmbeddingModels:
         assert embedding_response.image_embedding == test_embeddings
         assert embedding_response.text_embedding == test_embeddings
 
+    @pytest.mark.skip(reason="tracked in b/377587672.")
     def test_image_embedding_model_with_storage_url(self):
         aiplatform.init(
             project=_TEST_PROJECT,
