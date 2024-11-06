@@ -317,6 +317,20 @@ _MOCK_POINTEWISE_RESULT = (
         )
     ),
 )
+_MOCK_PAIRWISE_RESULT = (
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        pairwise_metric_result=gapic_evaluation_service_types.PairwiseMetricResult(
+            pairwise_choice=gapic_evaluation_service_types.PairwiseChoice.BASELINE,
+            explanation="explanation",
+        )
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        pairwise_metric_result=gapic_evaluation_service_types.PairwiseMetricResult(
+            pairwise_choice=gapic_evaluation_service_types.PairwiseChoice.BASELINE,
+            explanation="explanation",
+        )
+    ),
+)
 _MOCK_SUMMARIZATION_QUALITY_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         pointwise_metric_result=gapic_evaluation_service_types.PointwiseMetricResult(
@@ -1215,6 +1229,40 @@ class TestEvaluationErrors:
         ):
             test_eval_task.evaluate(model=mock.MagicMock())
         _TEST_PAIRWISE_METRIC._baseline_model = None
+
+    def test_evaluate_baseline_model_provided_but_no_baseline_response_column(self):
+        mock_baseline_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_baseline_model.generate_content.return_value = (
+            _MOCK_MODEL_INFERENCE_RESPONSE
+        )
+        mock_baseline_model._model_name = "publishers/google/model/gemini-pro"
+        _TEST_PAIRWISE_METRIC._baseline_model = mock_baseline_model
+
+        mock_candidate_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_candidate_model.generate_content.return_value = (
+            _MOCK_MODEL_INFERENCE_RESPONSE
+        )
+        mock_candidate_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        mock_metric_results = _MOCK_PAIRWISE_RESULT
+        eval_dataset = _TEST_EVAL_DATASET_WITHOUT_RESPONSE.copy(deep=True)
+        test_eval_task = EvalTask(
+            dataset=eval_dataset,
+            metrics=[_TEST_PAIRWISE_METRIC],
+        )
+        with mock.patch.object(
+            target=gapic_evaluation_services.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate(
+                model=mock_candidate_model,
+            )
+        _TEST_PAIRWISE_METRIC._baseline_model = None
+        assert test_result.summary_metrics["row_count"] == 2
 
     def test_evaluate_response_column_and_model_not_provided(self):
         test_eval_task = EvalTask(
