@@ -997,6 +997,7 @@ from .reasoning_engine import (
 from .reasoning_engine_execution_service import (
     QueryReasoningEngineRequest,
     QueryReasoningEngineResponse,
+    StreamQueryReasoningEngineRequest,
 )
 from .reasoning_engine_service import (
     CreateReasoningEngineOperationMetadata,
@@ -2025,6 +2026,7 @@ __all__ = (
     "ReasoningEngineSpec",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
+    "StreamQueryReasoningEngineRequest",
     "CreateReasoningEngineOperationMetadata",
     "CreateReasoningEngineRequest",
     "DeleteReasoningEngineRequest",

@@ -16,11 +16,12 @@
 import abc
 import inspect
 import io
+import json
 import os
 import sys
 import tarfile
 import typing
-from typing import Optional, Protocol, Sequence, Union, List
+from typing import Any, Iterable, List, Optional, Protocol, Sequence, Union
 
 from google.api_core import exceptions
 from google.cloud import storage
@@ -51,6 +52,24 @@ class Queryable(Protocol):
 
 
 @typing.runtime_checkable
+class StreamQueryable(Protocol):
+    """Protocol for Reasoning Engine applications that can stream responses."""
+
+    @abc.abstractmethod
+    def stream_query(self, **kwargs):
+        """Stream responses to serve the user query."""
+
+
+@typing.runtime_checkable
+class OperationRegistrable(Protocol):
+    """Protocol for applications that has registered operations."""
+
+    @abc.abstractmethod
+    def register_operations(self, **kwargs):
+        """Register the user provided operations (modes and methods)."""
+
+
+@typing.runtime_checkable
 class Cloneable(Protocol):
     """Protocol for Reasoning Engine applications that can be cloned."""
 
@@ -59,7 +78,97 @@ class Cloneable(Protocol):
         """Return a clone of the object."""
 
 
-class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
+def _query_operation(name: str, description: str = None):
+    def _method(self, **kwargs) -> _utils.JsonDict:
+        response = self.execution_api_client.query_reasoning_engine(
+            request=types.QueryReasoningEngineRequest(
+                name=self.resource_name,
+                input=kwargs,
+                class_method=name,
+            ),
+        )
+        output = _utils.to_dict(response)
+        if "output" in output:
+            return output.get("output")
+        return output
+    _method.__name__ = name
+    if description:
+        _method.__doc__ = description
+    return _method
+
+
+def _stream_query_operation(name: str, description: str = None):
+    def _method(self, **kwargs) -> Iterable[Any]:
+        response = self.execution_api_client.stream_query_reasoning_engine(
+            request=types.StreamQueryReasoningEngineRequest(
+                name=self.resource_name,
+                input=kwargs,
+                class_method=name,
+            ),
+        )
+        for chunk in response:
+            result = chunk
+            if "application/json" in chunk.content_type:
+                if not chunk.data:
+                    # To discard the last chunk (which has no data).
+                    continue
+                try:
+                    result = chunk.data.decode("utf-8")
+                except Exception as e:
+                    _LOGGER.warning(f"failed to decode: {chunk.data}. Exception: {e}")
+                    yield result
+                    continue
+                try:
+                    result = json.loads(result)
+                except Exception as e:
+                    if "Extra data: line 2 column 1" in str(e):
+                        # Handle the case where the chunk is a namedtuple that
+                        # contains multiple dictionaries delimited by newlines.
+                        for line in result.split("\n"):
+                            if line:
+                                try:
+                                    line = json.loads(line)
+                                except Exception as e:
+                                    _LOGGER.warning(
+                                        f"failed to parse json: {result}. Exception: {e}"
+                                    )
+                                yield line
+                        # Continue since we have yielded the content.
+                        continue
+                    else:
+                        _LOGGER.warning(
+                            f"failed to parse json: {result}. Exception: {e}"
+                        )
+            yield result
+
+    _method.__name__ = name
+    if description:
+        _method.__doc__ = description
+    return _method
+
+
+def _generate_methods(obj: "ReasoningEngine"):
+    spec = _utils.to_dict(obj.gca_resource.spec)
+    class_methods = spec.get("classMethods") or spec.get("class_methods", [])
+    for class_method in class_methods:
+        api_mode = class_method.get("api_mode")
+        method_name = class_method.get("name")
+        method_description = class_method.get("description")
+        if api_mode == "":
+            query_method = _query_operation(
+                name=method_name,
+                description=method_description,
+            )
+            setattr(obj, method_name, query_method.__get__(obj))
+        elif api_mode == "stream":
+            stream_query_method = _stream_query_operation(
+                name=method_name,
+                description=method_description,
+            )
+            setattr(obj, method_name, stream_query_method.__get__(obj))
+
+
+class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
     """Represents a Vertex AI Reasoning Engine resource."""
 
     client_class = aip_utils.ReasoningEngineClientWithOverride
@@ -84,6 +193,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             client_class=aip_utils.ReasoningEngineExecutionClientWithOverride,
         )
         self._gca_resource = self._get_gca_resource(resource_name=reasoning_engine_name)
+        try:
+            _generate_methods(self)
+        except Exception as e:
+            _LOGGER.warning(f"failed to generate methods: {e}")
         self._operation_schemas = None
 
     @property
@@ -242,14 +355,32 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         reasoning_engine_spec = types.ReasoningEngineSpec(
             package_spec=package_spec,
         )
-        try:
-            schema_dict = _utils.generate_schema(
-                reasoning_engine.query,
-                schema_name=f"{type(reasoning_engine).__name__}_query",
+        if not isinstance(reasoning_engine, OperationRegistrable):
+            def register_operations(self):
+                operations = {}
+                if isinstance(reasoning_engine, Queryable):
+                    operations[""] = ["query"]
+                if isinstance(reasoning_engine, StreamQueryable):
+                    operations["stream"] = ["stream_query"]
+                return operations
+            reasoning_engine.register_operations = (
+                register_operations.__get__(reasoning_engine)
             )
-            reasoning_engine_spec.class_methods.append(_utils.to_proto(schema_dict))
-        except Exception as e:
-            _LOGGER.warning(f"failed to generate schema: {e}")
+        if not reasoning_engine.register_operations():
+            raise ValueError("ReasoningEngine does not support any operations.")
+        for mode, method_names in reasoning_engine.register_operations().items():
+            for method_name in method_names:
+                try:
+                    schema_dict = _utils.generate_schema(
+                        getattr(reasoning_engine, method_name),
+                        schema_name=method_name,
+                    )
+                except Exception as e:
+                    schema_dict = {}
+                    _LOGGER.warning(f"failed to generate schema: {e}")
+                class_method = _utils.to_proto(schema_dict)
+                class_method["api_mode"] = mode
+                reasoning_engine_spec.class_methods.append(class_method)
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
@@ -279,6 +410,10 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             credentials=sdk_resource.credentials,
             location_override=sdk_resource.location,
         )
+        try:
+            _generate_methods(sdk_resource)
+        except Exception as e:
+            _LOGGER.warning(f"failed to generate methods: {e}")
         sdk_resource._operation_schemas = None
         return sdk_resource
 
@@ -414,30 +549,6 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         if self._operation_schemas is None:
             self._operation_schemas = spec.get("class_methods", [])
         return self._operation_schemas
-
-    def query(self, **kwargs) -> _utils.JsonDict:
-        """Runs the Reasoning Engine to serve the user query.
-
-        This will be based on the `.query(...)` method of the python object that
-        was passed in when creating the Reasoning Engine.
-
-        Args:
-            **kwargs:
-                Optional. The arguments of the `.query(...)` method.
-
-        Returns:
-            dict[str, Any]: The response from serving the user query.
-        """
-        response = self.execution_api_client.query_reasoning_engine(
-            request=types.QueryReasoningEngineRequest(
-                name=self.resource_name,
-                input=kwargs,
-            ),
-        )
-        output = _utils.to_dict(response)
-        if "output" in output:
-            return output.get("output")
-        return output
 
 
 def _validate_sys_version_or_raise(sys_version: str) -> None:
