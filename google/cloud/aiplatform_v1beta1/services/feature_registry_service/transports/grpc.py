@@ -27,6 +27,11 @@ import grpc  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature_group
+from google.cloud.aiplatform_v1beta1.types import feature_monitor
+from google.cloud.aiplatform_v1beta1.types import feature_monitor_job
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor_job as gca_feature_monitor_job,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_registry_service
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -430,6 +435,34 @@ class FeatureRegistryServiceGrpcTransport(FeatureRegistryServiceTransport):
         return self._stubs["create_feature"]
 
     @property
+    def batch_create_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchCreateFeaturesRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the batch create features method over gRPC.
+
+        Creates a batch of Features in a given FeatureGroup.
+
+        Returns:
+            Callable[[~.BatchCreateFeaturesRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_create_features" not in self._stubs:
+            self._stubs["batch_create_features"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/BatchCreateFeatures",
+                request_serializer=featurestore_service.BatchCreateFeaturesRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_create_features"]
+
+    @property
     def get_feature(
         self,
     ) -> Callable[[featurestore_service.GetFeatureRequest], feature.Feature]:
@@ -539,6 +572,208 @@ class FeatureRegistryServiceGrpcTransport(FeatureRegistryServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_feature"]
+
+    @property
+    def create_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.CreateFeatureMonitorRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the create feature monitor method over gRPC.
+
+        Creates a new FeatureMonitor in a given project,
+        location and FeatureGroup.
+
+        Returns:
+            Callable[[~.CreateFeatureMonitorRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_feature_monitor" not in self._stubs:
+            self._stubs["create_feature_monitor"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeatureMonitor",
+                request_serializer=feature_registry_service.CreateFeatureMonitorRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["create_feature_monitor"]
+
+    @property
+    def get_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.GetFeatureMonitorRequest],
+        feature_monitor.FeatureMonitor,
+    ]:
+        r"""Return a callable for the get feature monitor method over gRPC.
+
+        Gets details of a single FeatureMonitor.
+
+        Returns:
+            Callable[[~.GetFeatureMonitorRequest],
+                    ~.FeatureMonitor]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_feature_monitor" not in self._stubs:
+            self._stubs["get_feature_monitor"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/GetFeatureMonitor",
+                request_serializer=feature_registry_service.GetFeatureMonitorRequest.serialize,
+                response_deserializer=feature_monitor.FeatureMonitor.deserialize,
+            )
+        return self._stubs["get_feature_monitor"]
+
+    @property
+    def list_feature_monitors(
+        self,
+    ) -> Callable[
+        [feature_registry_service.ListFeatureMonitorsRequest],
+        feature_registry_service.ListFeatureMonitorsResponse,
+    ]:
+        r"""Return a callable for the list feature monitors method over gRPC.
+
+        Lists FeatureGroups in a given project and location.
+
+        Returns:
+            Callable[[~.ListFeatureMonitorsRequest],
+                    ~.ListFeatureMonitorsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_feature_monitors" not in self._stubs:
+            self._stubs["list_feature_monitors"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/ListFeatureMonitors",
+                request_serializer=feature_registry_service.ListFeatureMonitorsRequest.serialize,
+                response_deserializer=feature_registry_service.ListFeatureMonitorsResponse.deserialize,
+            )
+        return self._stubs["list_feature_monitors"]
+
+    @property
+    def delete_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.DeleteFeatureMonitorRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the delete feature monitor method over gRPC.
+
+        Deletes a single FeatureMonitor.
+
+        Returns:
+            Callable[[~.DeleteFeatureMonitorRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_feature_monitor" not in self._stubs:
+            self._stubs["delete_feature_monitor"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/DeleteFeatureMonitor",
+                request_serializer=feature_registry_service.DeleteFeatureMonitorRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_feature_monitor"]
+
+    @property
+    def create_feature_monitor_job(
+        self,
+    ) -> Callable[
+        [feature_registry_service.CreateFeatureMonitorJobRequest],
+        gca_feature_monitor_job.FeatureMonitorJob,
+    ]:
+        r"""Return a callable for the create feature monitor job method over gRPC.
+
+        Creates a new feature monitor job.
+
+        Returns:
+            Callable[[~.CreateFeatureMonitorJobRequest],
+                    ~.FeatureMonitorJob]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_feature_monitor_job" not in self._stubs:
+            self._stubs["create_feature_monitor_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeatureMonitorJob",
+                request_serializer=feature_registry_service.CreateFeatureMonitorJobRequest.serialize,
+                response_deserializer=gca_feature_monitor_job.FeatureMonitorJob.deserialize,
+            )
+        return self._stubs["create_feature_monitor_job"]
+
+    @property
+    def get_feature_monitor_job(
+        self,
+    ) -> Callable[
+        [feature_registry_service.GetFeatureMonitorJobRequest],
+        feature_monitor_job.FeatureMonitorJob,
+    ]:
+        r"""Return a callable for the get feature monitor job method over gRPC.
+
+        Get a feature monitor job.
+
+        Returns:
+            Callable[[~.GetFeatureMonitorJobRequest],
+                    ~.FeatureMonitorJob]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_feature_monitor_job" not in self._stubs:
+            self._stubs["get_feature_monitor_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/GetFeatureMonitorJob",
+                request_serializer=feature_registry_service.GetFeatureMonitorJobRequest.serialize,
+                response_deserializer=feature_monitor_job.FeatureMonitorJob.deserialize,
+            )
+        return self._stubs["get_feature_monitor_job"]
+
+    @property
+    def list_feature_monitor_jobs(
+        self,
+    ) -> Callable[
+        [feature_registry_service.ListFeatureMonitorJobsRequest],
+        feature_registry_service.ListFeatureMonitorJobsResponse,
+    ]:
+        r"""Return a callable for the list feature monitor jobs method over gRPC.
+
+        List feature monitor jobs.
+
+        Returns:
+            Callable[[~.ListFeatureMonitorJobsRequest],
+                    ~.ListFeatureMonitorJobsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_feature_monitor_jobs" not in self._stubs:
+            self._stubs["list_feature_monitor_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/ListFeatureMonitorJobs",
+                request_serializer=feature_registry_service.ListFeatureMonitorJobsRequest.serialize,
+                response_deserializer=feature_registry_service.ListFeatureMonitorJobsResponse.deserialize,
+            )
+        return self._stubs["list_feature_monitor_jobs"]
 
     def close(self):
         self.grpc_channel.close()

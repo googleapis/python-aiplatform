@@ -377,6 +377,10 @@ class DeployedModel(proto.Message):
             is configured.
         faster_deployment_config (google.cloud.aiplatform_v1beta1.types.FasterDeploymentConfig):
             Configuration for faster model deployment.
+        system_labels (MutableMapping[str, str]):
+            System labels to apply to Model Garden
+            deployments. System labels are managed by Google
+            for internal use only.
     """
 
     dedicated_resources: machine_resources.DedicatedResources = proto.Field(
@@ -447,6 +451,11 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=23,
         message="FasterDeploymentConfig",
+    )
+    system_labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=28,
     )
 
 

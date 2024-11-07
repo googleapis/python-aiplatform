@@ -20,6 +20,10 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import feature_group as gca_feature_group
+from google.cloud.aiplatform_v1beta1.types import feature_monitor as gca_feature_monitor
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor_job as gca_feature_monitor_job,
+)
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -33,10 +37,20 @@ __protobuf__ = proto.module(
         "ListFeatureGroupsResponse",
         "UpdateFeatureGroupRequest",
         "DeleteFeatureGroupRequest",
+        "CreateFeatureMonitorRequest",
+        "GetFeatureMonitorRequest",
+        "ListFeatureMonitorsRequest",
+        "DeleteFeatureMonitorRequest",
+        "ListFeatureMonitorsResponse",
         "CreateFeatureGroupOperationMetadata",
         "UpdateFeatureGroupOperationMetadata",
         "CreateRegistryFeatureOperationMetadata",
         "UpdateFeatureOperationMetadata",
+        "CreateFeatureMonitorOperationMetadata",
+        "CreateFeatureMonitorJobRequest",
+        "GetFeatureMonitorJobRequest",
+        "ListFeatureMonitorJobsRequest",
+        "ListFeatureMonitorJobsResponse",
     },
 )
 
@@ -57,7 +71,7 @@ class CreateFeatureGroupRequest(proto.Message):
             become the final component of the FeatureGroup's resource
             name.
 
-            This value may be up to 60 characters, and valid characters
+            This value may be up to 128 characters, and valid characters
             are ``[a-z0-9_]``. The first character cannot be a number.
 
             The value must be unique within the project and location.
@@ -262,6 +276,180 @@ class DeleteFeatureGroupRequest(proto.Message):
     )
 
 
+class CreateFeatureMonitorRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.CreateFeatureMonitorRequest][].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of FeatureGroup to create
+            FeatureMonitor. Format:
+            ``projects/{project}/locations/{location}/featureGroups/{featuregroup}``
+        feature_monitor (google.cloud.aiplatform_v1beta1.types.FeatureMonitor):
+            Required. The Monitor to create.
+        feature_monitor_id (str):
+            Required. The ID to use for this FeatureMonitor, which will
+            become the final component of the FeatureGroup's resource
+            name.
+
+            This value may be up to 60 characters, and valid characters
+            are ``[a-z0-9_]``. The first character cannot be a number.
+
+            The value must be unique within the FeatureGroup.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    feature_monitor: gca_feature_monitor.FeatureMonitor = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_feature_monitor.FeatureMonitor,
+    )
+    feature_monitor_id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class GetFeatureMonitorRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.GetFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureMonitor].
+
+    Attributes:
+        name (str):
+            Required. The name of the FeatureMonitor
+            resource.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ListFeatureMonitorsRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the FeatureGroup to list
+            FeatureMonitors. Format:
+            ``projects/{project}/locations/{location}/featureGroups/{featureGroup}``
+        filter (str):
+            Optional. Lists the FeatureMonitors that match the filter
+            expression. The following fields are supported:
+
+            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+               ``<=``, and ``>=`` comparisons. Values must be in RFC
+               3339 format.
+            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+               ``<=``, and ``>=`` comparisons. Values must be in RFC
+               3339 format.
+            -  ``labels``: Supports key-value equality and key presence.
+
+            Examples:
+
+            -  ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
+               FeatureMonitors created or updated after 2020-01-01.
+            -  ``labels.env = "prod"`` FeatureGroups with label "env"
+               set to "prod".
+        page_size (int):
+            Optional. The maximum number of FeatureGroups
+            to return. The service may return fewer than
+            this value. If unspecified, at most 100
+            FeatureMonitors will be returned. The maximum
+            value is 100; any value greater than 100 will be
+            coerced to 100.
+        page_token (str):
+            Optional. A page token, received from a previous
+            [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors]
+            call. Provide this to retrieve the subsequent page.
+
+            When paginating, all other parameters provided to
+            [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors]
+            must match the call that provided the page token.
+        order_by (str):
+            Optional. A comma-separated list of fields to order by,
+            sorted in ascending order. Use "desc" after a field name for
+            descending. Supported Fields:
+
+            -  ``create_time``
+            -  ``update_time``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    order_by: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+
+
+class DeleteFeatureMonitorRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.DeleteFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeatureMonitor].
+
+    Attributes:
+        name (str):
+            Required. The name of the FeatureMonitor to be deleted.
+            Format:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ListFeatureMonitorsResponse(proto.Message):
+    r"""Response message for
+    [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors].
+
+    Attributes:
+        feature_monitors (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureMonitor]):
+            The FeatureMonitors matching the request.
+        next_page_token (str):
+            A token, which can be sent as
+            [ListFeatureMonitorsRequest.page_token][google.cloud.aiplatform.v1beta1.ListFeatureMonitorsRequest.page_token]
+            to retrieve the next page. If this field is omitted, there
+            are no subsequent pages.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    feature_monitors: MutableSequence[
+        gca_feature_monitor.FeatureMonitor
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature_monitor.FeatureMonitor,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
 class CreateFeatureGroupOperationMetadata(proto.Message):
     r"""Details of operations that perform create FeatureGroup.
 
@@ -319,6 +507,165 @@ class UpdateFeatureOperationMetadata(proto.Message):
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+
+
+class CreateFeatureMonitorOperationMetadata(proto.Message):
+    r"""Details of operations that perform create FeatureMonitor.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for Feature.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class CreateFeatureMonitorJobRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.CreateFeatureMonitorJobRequest][].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of FeatureMonitor to create
+            FeatureMonitorJob. Format:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}``
+        feature_monitor_job (google.cloud.aiplatform_v1beta1.types.FeatureMonitorJob):
+            Required. The Monitor to create.
+        feature_monitor_job_id (int):
+            Optional. Output only. System-generated ID
+            for feature monitor job.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    feature_monitor_job: gca_feature_monitor_job.FeatureMonitorJob = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_feature_monitor_job.FeatureMonitorJob,
+    )
+    feature_monitor_job_id: int = proto.Field(
+        proto.INT64,
+        number=3,
+    )
+
+
+class GetFeatureMonitorJobRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.GetFeatureMonitorJob][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureMonitorJob].
+
+    Attributes:
+        name (str):
+            Required. The name of the FeatureMonitorJob resource.
+            Format:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}/featureMonitorJobs/{feature_monitor_job}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ListFeatureMonitorJobsRequest(proto.Message):
+    r"""Request message for
+    [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the FeatureMonitor to list
+            FeatureMonitorJobs. Format:
+            ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}``
+        filter (str):
+            Optional. Lists the FeatureMonitorJobs that match the filter
+            expression. The following fields are supported:
+
+            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+               ``<=``, and ``>=`` comparisons. Values must be
+
+            Examples:
+
+            -  ``create_time > "2020-01-01"`` FeatureMonitorJobs created
+               after 2020-01-01.
+        page_size (int):
+            Optional. The maximum number of
+            FeatureMonitorJobs to return. The service may
+            return fewer than this value. If unspecified, at
+            most 100 FeatureMonitorJobs will be returned.
+            The maximum value is 100; any value greater than
+            100 will be coerced to 100.
+        page_token (str):
+            Optional. A page token, received from a previous
+            [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs]
+            call. Provide this to retrieve the subsequent page.
+
+            When paginating, all other parameters provided to
+            [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs]
+            must match the call that provided the page token.
+        order_by (str):
+            Optional. A comma-separated list of fields to order by,
+            sorted in ascending order. Use "desc" after a field name for
+            descending. Supported Fields:
+
+            -  ``create_time``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    order_by: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+
+
+class ListFeatureMonitorJobsResponse(proto.Message):
+    r"""Response message for
+    [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs].
+
+    Attributes:
+        feature_monitor_jobs (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureMonitorJob]):
+            The FeatureMonitorJobs matching the request.
+        next_page_token (str):
+            A token, which can be sent as
+            [ListFeatureMonitorJobsRequest.page_token][google.cloud.aiplatform.v1beta1.ListFeatureMonitorJobsRequest.page_token]
+            to retrieve the next page. If this field is omitted, there
+            are no subsequent pages.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    feature_monitor_jobs: MutableSequence[
+        gca_feature_monitor_job.FeatureMonitorJob
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature_monitor_job.FeatureMonitorJob,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
