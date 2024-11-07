@@ -1032,6 +1032,11 @@
         "grpc": {
           "libraryClient": "FeatureRegistryServiceClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -1040,6 +1045,16 @@
             "CreateFeatureGroup": {
               "methods": [
                 "create_feature_group"
+              ]
+            },
+            "CreateFeatureMonitor": {
+              "methods": [
+                "create_feature_monitor"
+              ]
+            },
+            "CreateFeatureMonitorJob": {
+              "methods": [
+                "create_feature_monitor_job"
               ]
             },
             "DeleteFeature": {
@@ -1052,6 +1067,11 @@
                 "delete_feature_group"
               ]
             },
+            "DeleteFeatureMonitor": {
+              "methods": [
+                "delete_feature_monitor"
+              ]
+            },
             "GetFeature": {
               "methods": [
                 "get_feature"
@@ -1062,9 +1082,29 @@
                 "get_feature_group"
               ]
             },
+            "GetFeatureMonitor": {
+              "methods": [
+                "get_feature_monitor"
+              ]
+            },
+            "GetFeatureMonitorJob": {
+              "methods": [
+                "get_feature_monitor_job"
+              ]
+            },
             "ListFeatureGroups": {
               "methods": [
                 "list_feature_groups"
+              ]
+            },
+            "ListFeatureMonitorJobs": {
+              "methods": [
+                "list_feature_monitor_jobs"
+              ]
+            },
+            "ListFeatureMonitors": {
+              "methods": [
+                "list_feature_monitors"
               ]
             },
             "ListFeatures": {
@@ -1087,6 +1127,11 @@
         "grpc-async": {
           "libraryClient": "FeatureRegistryServiceAsyncClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -1095,6 +1140,16 @@
             "CreateFeatureGroup": {
               "methods": [
                 "create_feature_group"
+              ]
+            },
+            "CreateFeatureMonitor": {
+              "methods": [
+                "create_feature_monitor"
+              ]
+            },
+            "CreateFeatureMonitorJob": {
+              "methods": [
+                "create_feature_monitor_job"
               ]
             },
             "DeleteFeature": {
@@ -1107,6 +1162,11 @@
                 "delete_feature_group"
               ]
             },
+            "DeleteFeatureMonitor": {
+              "methods": [
+                "delete_feature_monitor"
+              ]
+            },
             "GetFeature": {
               "methods": [
                 "get_feature"
@@ -1117,9 +1177,29 @@
                 "get_feature_group"
               ]
             },
+            "GetFeatureMonitor": {
+              "methods": [
+                "get_feature_monitor"
+              ]
+            },
+            "GetFeatureMonitorJob": {
+              "methods": [
+                "get_feature_monitor_job"
+              ]
+            },
             "ListFeatureGroups": {
               "methods": [
                 "list_feature_groups"
+              ]
+            },
+            "ListFeatureMonitorJobs": {
+              "methods": [
+                "list_feature_monitor_jobs"
+              ]
+            },
+            "ListFeatureMonitors": {
+              "methods": [
+                "list_feature_monitors"
               ]
             },
             "ListFeatures": {
@@ -1142,6 +1222,11 @@
         "rest": {
           "libraryClient": "FeatureRegistryServiceClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -1150,6 +1235,16 @@
             "CreateFeatureGroup": {
               "methods": [
                 "create_feature_group"
+              ]
+            },
+            "CreateFeatureMonitor": {
+              "methods": [
+                "create_feature_monitor"
+              ]
+            },
+            "CreateFeatureMonitorJob": {
+              "methods": [
+                "create_feature_monitor_job"
               ]
             },
             "DeleteFeature": {
@@ -1162,6 +1257,11 @@
                 "delete_feature_group"
               ]
             },
+            "DeleteFeatureMonitor": {
+              "methods": [
+                "delete_feature_monitor"
+              ]
+            },
             "GetFeature": {
               "methods": [
                 "get_feature"
@@ -1172,9 +1272,29 @@
                 "get_feature_group"
               ]
             },
+            "GetFeatureMonitor": {
+              "methods": [
+                "get_feature_monitor"
+              ]
+            },
+            "GetFeatureMonitorJob": {
+              "methods": [
+                "get_feature_monitor_job"
+              ]
+            },
             "ListFeatureGroups": {
               "methods": [
                 "list_feature_groups"
+              ]
+            },
+            "ListFeatureMonitorJobs": {
+              "methods": [
+                "list_feature_monitor_jobs"
+              ]
+            },
+            "ListFeatureMonitors": {
+              "methods": [
+                "list_feature_monitors"
               ]
             },
             "ListFeatures": {
@@ -3812,6 +3932,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
+              ]
+            },
             "UpdateNotebookRuntimeTemplate": {
               "methods": [
                 "update_notebook_runtime_template"
@@ -3892,6 +4017,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
+              ]
+            },
             "UpdateNotebookRuntimeTemplate": {
               "methods": [
                 "update_notebook_runtime_template"
@@ -3970,6 +4100,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
               ]
             },
             "UpdateNotebookRuntimeTemplate": {

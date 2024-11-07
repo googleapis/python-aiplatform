@@ -2292,10 +2292,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1.types.BatchCreateFeaturesRequest, dict]):
                 The request object. Request message for
                 [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
+                Request message for
+                [FeatureRegistryService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.BatchCreateFeatures].
             parent (str):
-                Required. The resource name of the EntityType to create
-                the batch of Features under. Format:
+                Required. The resource name of the
+                EntityType/FeatureGroup to create the batch of Features
+                under. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2303,10 +2307,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             requests (MutableSequence[google.cloud.aiplatform_v1.types.CreateFeatureRequest]):
                 Required. The request message specifying the Features to
                 create. All Features must be created under the same
-                parent EntityType. The ``parent`` field in each child
-                request message can be omitted. If ``parent`` is set in
-                a child request, then the value must match the
-                ``parent`` value in this request message.
+                parent EntityType / FeatureGroup. The ``parent`` field
+                in each child request message can be omitted. If
+                ``parent`` is set in a child request, then the value
+                must match the ``parent`` value in this request message.
 
                 This corresponds to the ``requests`` field
                 on the ``request`` instance; if ``request`` is provided, this

@@ -60,7 +60,7 @@ class Tool(proto.Message):
             [FunctionResponse][content.part.function_response] for each
             function call in the next turn. Based on the function
             responses, Model will generate the final response back to
-            the user. Maximum 64 function declarations can be provided.
+            the user. Maximum 128 function declarations can be provided.
         retrieval (google.cloud.aiplatform_v1.types.Retrieval):
             Optional. Retrieval tool type.
             System will always execute the provided
@@ -94,9 +94,10 @@ class FunctionDeclaration(proto.Message):
     r"""Structured representation of a function declaration as defined by
     the `OpenAPI 3.0
     specification <https://spec.openapis.org/oas/v3.0.3>`__. Included in
-    this declaration are the function name and parameters. This
-    FunctionDeclaration is a representation of a block of code that can
-    be used as a ``Tool`` by the model and executed by the client.
+    this declaration are the function name, description, parameters and
+    response type. This FunctionDeclaration is a representation of a
+    block of code that can be used as a ``Tool`` by the model and
+    executed by the client.
 
     Attributes:
         name (str):
@@ -131,6 +132,12 @@ class FunctionDeclaration(proto.Message):
             required:
 
              - param1
+        response (google.cloud.aiplatform_v1.types.Schema):
+            Optional. Describes the output from this
+            function in JSON Schema format. Reflects the
+            Open API 3.03 Response Object. The Schema
+            defines the type used for the response value of
+            the function.
     """
 
     name: str = proto.Field(
@@ -144,6 +151,11 @@ class FunctionDeclaration(proto.Message):
     parameters: openapi.Schema = proto.Field(
         proto.MESSAGE,
         number=3,
+        message=openapi.Schema,
+    )
+    response: openapi.Schema = proto.Field(
+        proto.MESSAGE,
+        number=4,
         message=openapi.Schema,
     )
 
@@ -187,7 +199,11 @@ class FunctionResponse(proto.Message):
             [FunctionDeclaration.name] and [FunctionCall.name].
         response (google.protobuf.struct_pb2.Struct):
             Required. The function response in JSON
-            object format.
+            object format. Use "output" key to specify
+            function output and "error" key to specify error
+            details (if any). If "output" and "error" keys
+            are not specified, then whole "response" is
+            treated as function output.
     """
 
     name: str = proto.Field(

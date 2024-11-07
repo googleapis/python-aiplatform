@@ -167,6 +167,11 @@ class FeatureRegistryServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_create_features: gapic_v1.method.wrap_method(
+                self.batch_create_features,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_feature: gapic_v1.method.wrap_method(
                 self.get_feature,
                 default_timeout=None,
@@ -306,6 +311,15 @@ class FeatureRegistryServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [featurestore_service.CreateFeatureRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_create_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchCreateFeaturesRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

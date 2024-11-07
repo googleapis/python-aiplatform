@@ -365,6 +365,10 @@ class DeployedModel(proto.Message):
             This field is populated if
             [network][google.cloud.aiplatform.v1.Endpoint.network] is
             configured.
+        system_labels (MutableMapping[str, str]):
+            System labels to apply to Model Garden
+            deployments. System labels are managed by Google
+            for internal use only.
     """
 
     dedicated_resources: machine_resources.DedicatedResources = proto.Field(
@@ -430,6 +434,11 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=14,
         message="PrivateEndpoints",
+    )
+    system_labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=28,
     )
 
 

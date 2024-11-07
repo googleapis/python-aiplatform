@@ -859,6 +859,11 @@
         "grpc": {
           "libraryClient": "FeatureRegistryServiceClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -914,6 +919,11 @@
         "grpc-async": {
           "libraryClient": "FeatureRegistryServiceAsyncClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -969,6 +979,11 @@
         "rest": {
           "libraryClient": "FeatureRegistryServiceClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"

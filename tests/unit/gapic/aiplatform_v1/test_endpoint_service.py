@@ -6440,6 +6440,7 @@ def test_create_endpoint_rest_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "system_labels": {},
             }
         ],
         "traffic_split": {},
@@ -7010,6 +7011,7 @@ def test_update_endpoint_rest_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "system_labels": {},
             }
         ],
         "traffic_split": {},
@@ -8611,6 +8613,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "system_labels": {},
             }
         ],
         "traffic_split": {},
@@ -9229,6 +9232,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "system_labels": {},
             }
         ],
         "traffic_split": {},
