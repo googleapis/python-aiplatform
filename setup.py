@@ -156,8 +156,6 @@ langchain_extra_require = [
     "langchain-core < 0.3",
     "langchain-google-vertexai < 2",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
-    "tenacity <= 8.3",
-    "orjson <= 3.10.6",
 ]
 
 langchain_testing_extra_require = list(
