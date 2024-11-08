@@ -87,6 +87,7 @@ from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_ser
 from google.cloud.aiplatform_v1beta1.types import feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view as gca_feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
+from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.location import locations_pb2
@@ -11076,6 +11077,12 @@ def test_create_feature_view_rest_call_success(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
+        },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
@@ -11588,6 +11595,12 @@ def test_update_feature_view_rest_call_success(request_type):
             "crowding_column": "crowding_column_value",
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
+        },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
         },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
@@ -14220,6 +14233,12 @@ async def test_create_feature_view_rest_asyncio_call_success(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
+        },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
@@ -14781,6 +14800,12 @@ async def test_update_feature_view_rest_asyncio_call_success(request_type):
             "crowding_column": "crowding_column_value",
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
+        },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
         },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
