@@ -118,6 +118,15 @@ class TuningJob(proto.Message):
             TuningJob. If this is set, then all resources
             created by the TuningJob will be encrypted with
             the provided encryption key.
+        service_account (str):
+            The service account that the tuningJob workload runs as. If
+            not specified, the Vertex AI Secure Fine-Tuned Service Agent
+            in the project will be used. See
+            https://cloud.google.com/iam/docs/service-agents#vertex-ai-secure-fine-tuning-service-agent
+
+            Users starting the pipeline must have the
+            ``iam.serviceAccounts.actAs`` permission on this service
+            account.
     """
 
     base_model: str = proto.Field(
@@ -196,6 +205,10 @@ class TuningJob(proto.Message):
         proto.MESSAGE,
         number=16,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    service_account: str = proto.Field(
+        proto.STRING,
+        number=22,
     )
 
 
