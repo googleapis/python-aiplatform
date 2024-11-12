@@ -66,6 +66,7 @@ import urllib3
 from google.protobuf import field_mask_pb2
 
 
+# Project and location constants
 _TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
