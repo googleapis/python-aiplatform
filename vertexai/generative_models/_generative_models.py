@@ -3152,6 +3152,15 @@ class GenerativeModel(_GenerativeModel):
     def _prediction_client(self) -> prediction_service_v1.PredictionServiceClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_client_value", None):
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise ValueError(
+                    "Api keys are only supported with the preview namespace. "
+                    "Import the preview namespace instead:\n"
+                    "from vertexai.preview import generative_models"
+                )
             self._prediction_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service_v1.PredictionServiceClient,
@@ -3167,6 +3176,15 @@ class GenerativeModel(_GenerativeModel):
     ) -> prediction_service_v1.PredictionServiceAsyncClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_async_client_value", None):
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise ValueError(
+                    "Api keys are only supported with the preview namespace. "
+                    "Import the preview namespace instead:\n"
+                    "from vertexai.preview import generative_models"
+                )
             self._prediction_async_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service_v1.PredictionServiceAsyncClient,
