@@ -232,6 +232,10 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import MetricxInput
+from .types.evaluation_service import MetricxInstance
+from .types.evaluation_service import MetricxResult
+from .types.evaluation_service import MetricxSpec
 from .types.evaluation_service import PairwiseMetricInput
 from .types.evaluation_service import PairwiseMetricInstance
 from .types.evaluation_service import PairwiseMetricResult
@@ -1444,6 +1448,10 @@ __all__ = (
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "MetricxInput",
+    "MetricxInstance",
+    "MetricxResult",
+    "MetricxSpec",
     "MigratableResource",
     "MigrateResourceRequest",
     "MigrateResourceResponse",

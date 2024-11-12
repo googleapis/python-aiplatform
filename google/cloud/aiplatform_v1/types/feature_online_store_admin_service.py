@@ -480,6 +480,7 @@ class UpdateFeatureViewRequest(proto.Message):
             -  ``feature_registry_source.feature_groups``
             -  ``sync_config``
             -  ``sync_config.cron``
+            -  ``optimized_config.automatic_resources``
     """
 
     feature_view: gca_feature_view.FeatureView = proto.Field(

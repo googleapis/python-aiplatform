@@ -1524,6 +1524,7 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
                 -  ``feature_registry_source.feature_groups``
                 -  ``sync_config``
                 -  ``sync_config.cron``
+                -  ``optimized_config.automatic_resources``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

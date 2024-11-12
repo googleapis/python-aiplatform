@@ -999,6 +999,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1.types.GetDatasetRequest, dict]):
                 The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
+                Next ID: 4
             name (str):
                 Required. The name of the Dataset
                 resource.
@@ -2123,6 +2124,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1.types.GetDatasetVersionRequest, dict]):
                 The request object. Request message for
                 [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
+                Next ID: 4
             name (str):
                 Required. The resource name of the Dataset version to
                 delete. Format:
@@ -3002,6 +3004,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListAnnotationsPager:
         r"""Lists Annotations belongs to a dataitem
+        This RPC is only available in InternalDatasetService. It
+        is only used for exporting conversation data to CCAI
+        Insights.
 
         .. code-block:: python
 
