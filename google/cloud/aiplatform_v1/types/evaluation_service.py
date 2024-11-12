@@ -125,6 +125,10 @@ __protobuf__ = proto.module(
         "ToolParameterKVMatchInstance",
         "ToolParameterKVMatchResults",
         "ToolParameterKVMatchMetricValue",
+        "CometInput",
+        "CometSpec",
+        "CometInstance",
+        "CometResult",
         "MetricxInput",
         "MetricxSpec",
         "MetricxInstance",
@@ -264,6 +268,11 @@ class EvaluateInstancesRequest(proto.Message):
         tool_parameter_kv_match_input (google.cloud.aiplatform_v1.types.ToolParameterKVMatchInput):
             Input for tool parameter key value match
             metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        comet_input (google.cloud.aiplatform_v1.types.CometInput):
+            Translation metrics.
+            Input for Comet metric.
 
             This field is a member of `oneof`_ ``metric_inputs``.
         metricx_input (google.cloud.aiplatform_v1.types.MetricxInput):
@@ -420,6 +429,12 @@ class EvaluateInstancesRequest(proto.Message):
         oneof="metric_inputs",
         message="ToolParameterKVMatchInput",
     )
+    comet_input: "CometInput" = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        oneof="metric_inputs",
+        message="CometInput",
+    )
     metricx_input: "MetricxInput" = proto.Field(
         proto.MESSAGE,
         number=32,
@@ -546,6 +561,11 @@ class EvaluateInstancesResponse(proto.Message):
         tool_parameter_kv_match_results (google.cloud.aiplatform_v1.types.ToolParameterKVMatchResults):
             Results for tool parameter key value match
             metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        comet_result (google.cloud.aiplatform_v1.types.CometResult):
+            Translation metrics.
+            Result for Comet metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
         metricx_result (google.cloud.aiplatform_v1.types.MetricxResult):
@@ -699,6 +719,12 @@ class EvaluateInstancesResponse(proto.Message):
         number=21,
         oneof="evaluation_results",
         message="ToolParameterKVMatchResults",
+    )
+    comet_result: "CometResult" = proto.Field(
+        proto.MESSAGE,
+        number=29,
+        oneof="evaluation_results",
+        message="CometResult",
     )
     metricx_result: "MetricxResult" = proto.Field(
         proto.MESSAGE,
@@ -3227,6 +3253,137 @@ class ToolParameterKVMatchMetricValue(proto.Message):
         score (float):
             Output only. Tool parameter key value match
             score.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class CometInput(proto.Message):
+    r"""Input for Comet metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1.types.CometSpec):
+            Required. Spec for comet metric.
+        instance (google.cloud.aiplatform_v1.types.CometInstance):
+            Required. Comet instance.
+    """
+
+    metric_spec: "CometSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="CometSpec",
+    )
+    instance: "CometInstance" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="CometInstance",
+    )
+
+
+class CometSpec(proto.Message):
+    r"""Spec for Comet metric.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        version (google.cloud.aiplatform_v1.types.CometSpec.CometVersion):
+            Required. Which version to use for
+            evaluation.
+
+            This field is a member of `oneof`_ ``_version``.
+        source_language (str):
+            Optional. Source language in BCP-47 format.
+        target_language (str):
+            Optional. Target language in BCP-47 format.
+            Covers both prediction and reference.
+    """
+
+    class CometVersion(proto.Enum):
+        r"""Comet version options.
+
+        Values:
+            COMET_VERSION_UNSPECIFIED (0):
+                Comet version unspecified.
+            COMET_22_SRC_REF (2):
+                Comet 22 for translation + source + reference
+                (source-reference-combined).
+        """
+        COMET_VERSION_UNSPECIFIED = 0
+        COMET_22_SRC_REF = 2
+
+    version: CometVersion = proto.Field(
+        proto.ENUM,
+        number=1,
+        optional=True,
+        enum=CometVersion,
+    )
+    source_language: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    target_language: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class CometInstance(proto.Message):
+    r"""Spec for Comet instance - The fields used for evaluation are
+    dependent on the comet version.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        prediction (str):
+            Required. Output of the evaluated model.
+
+            This field is a member of `oneof`_ ``_prediction``.
+        reference (str):
+            Optional. Ground truth used to compare
+            against the prediction.
+
+            This field is a member of `oneof`_ ``_reference``.
+        source (str):
+            Optional. Source text in original language.
+
+            This field is a member of `oneof`_ ``_source``.
+    """
+
+    prediction: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+    reference: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+    source: str = proto.Field(
+        proto.STRING,
+        number=3,
+        optional=True,
+    )
+
+
+class CometResult(proto.Message):
+    r"""Spec for Comet result - calculates the comet score for the
+    given instance using the version specified in the spec.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. Comet score. Range depends on
+            version.
 
             This field is a member of `oneof`_ ``_score``.
     """

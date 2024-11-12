@@ -805,8 +805,9 @@ class ListNotebookExecutionJobsRequest(proto.Message):
             Optional. The standard list page size.
         page_token (str):
             Optional. The standard list page token. Typically obtained
-            via [ListNotebookExecutionJobs.next_page_token][] of the
-            previous
+            via
+            [ListNotebookExecutionJobsResponse.next_page_token][google.cloud.aiplatform.v1.ListNotebookExecutionJobsResponse.next_page_token]
+            of the previous
             [NotebookService.ListNotebookExecutionJobs][google.cloud.aiplatform.v1.NotebookService.ListNotebookExecutionJobs]
             call.
         order_by (str):
@@ -860,8 +861,8 @@ class ListNotebookExecutionJobsResponse(proto.Message):
             requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            [ListNotebookExecutionJobs.page_token][] to obtain that
-            page.
+            [ListNotebookExecutionJobsRequest.page_token][google.cloud.aiplatform.v1.ListNotebookExecutionJobsRequest.page_token]
+            to obtain that page.
     """
 
     @property

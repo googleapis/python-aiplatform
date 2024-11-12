@@ -1991,7 +1991,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteEntityTypeRequest, dict]):
                 The request object. Request message for
-                [FeaturestoreService.DeleteEntityTypes][].
+                [FeaturestoreService.DeleteEntityType][google.cloud.aiplatform.v1.FeaturestoreService.DeleteEntityType].
             name (str):
                 Required. The name of the EntityType to be deleted.
                 Format:

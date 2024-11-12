@@ -2102,7 +2102,7 @@ class FeatureOnlineStoreAdminServiceClient(
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteFeatureViewRequest, dict]):
                 The request object. Request message for
-                [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+                [FeatureOnlineStoreAdminService.DeleteFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.DeleteFeatureView].
             name (str):
                 Required. The name of the FeatureView to be deleted.
                 Format:

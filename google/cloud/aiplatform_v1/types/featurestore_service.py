@@ -1090,7 +1090,8 @@ class UpdateEntityTypeRequest(proto.Message):
 
 
 class DeleteEntityTypeRequest(proto.Message):
-    r"""Request message for [FeaturestoreService.DeleteEntityTypes][].
+    r"""Request message for
+    [FeaturestoreService.DeleteEntityType][google.cloud.aiplatform.v1.FeaturestoreService.DeleteEntityType].
 
     Attributes:
         name (str):

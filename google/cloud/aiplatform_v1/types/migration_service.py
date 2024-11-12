@@ -457,7 +457,7 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
                 This field is a member of `oneof`_ ``result``.
             request (google.cloud.aiplatform_v1.types.MigrateResourceRequest):
                 It's the same as the value in
-                [MigrateResourceRequest.migrate_resource_requests][].
+                [BatchMigrateResourcesRequest.migrate_resource_requests][google.cloud.aiplatform.v1.BatchMigrateResourcesRequest.migrate_resource_requests].
         """
 
         error: status_pb2.Status = proto.Field(

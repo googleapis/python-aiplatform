@@ -368,8 +368,9 @@ class MutateDeployedIndexRequest(proto.Message):
         deployed_index (google.cloud.aiplatform_v1.types.DeployedIndex):
             Required. The DeployedIndex to be updated within the
             IndexEndpoint. Currently, the updatable fields are
-            [DeployedIndex][automatic_resources] and
-            [DeployedIndex][dedicated_resources]
+            [DeployedIndex.automatic_resources][google.cloud.aiplatform.v1.DeployedIndex.automatic_resources]
+            and
+            [DeployedIndex.dedicated_resources][google.cloud.aiplatform.v1.DeployedIndex.dedicated_resources]
     """
 
     index_endpoint: str = proto.Field(

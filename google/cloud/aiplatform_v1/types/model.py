@@ -292,7 +292,7 @@ class Model(proto.Message):
 
             Only populated when the Model is trained by a
             TrainingPipeline with
-            [data_input_config][TrainingPipeline.data_input_config].
+            [data_input_config][google.cloud.aiplatform.v1.TrainingPipeline.input_data_config].
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
             Model. If set, this Model and all sub-resources

@@ -97,10 +97,10 @@ class Schema(proto.Message):
             Optional. Possible values of the element of primitive type
             with enum format. Examples:
 
-            1. We can define direction as :
-               ``{type:STRING, format:enum, enum:["EAST", "NORTH", "SOUTH", "WEST"]}``
-            2. We can define apartment number as :
-               ``{type:INTEGER, format:enum, enum:["101", "201", "301"]}``
+            1. We can define direction as : {type:STRING, format:enum,
+               enum:["EAST", NORTH", "SOUTH", "WEST"]}
+            2. We can define apartment number as : {type:INTEGER,
+               format:enum, enum:["101", "201", "301"]}
         properties (MutableMapping[str, google.cloud.aiplatform_v1.types.Schema]):
             Optional. SCHEMA FIELDS FOR TYPE OBJECT
             Properties of Type.OBJECT.

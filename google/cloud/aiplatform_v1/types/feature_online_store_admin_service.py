@@ -497,7 +497,7 @@ class UpdateFeatureViewRequest(proto.Message):
 
 class DeleteFeatureViewRequest(proto.Message):
     r"""Request message for
-    [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+    [FeatureOnlineStoreAdminService.DeleteFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.DeleteFeatureView].
 
     Attributes:
         name (str):

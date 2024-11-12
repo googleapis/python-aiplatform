@@ -213,6 +213,10 @@ from .types.evaluation_service import CoherenceInput
 from .types.evaluation_service import CoherenceInstance
 from .types.evaluation_service import CoherenceResult
 from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import CometInput
+from .types.evaluation_service import CometInstance
+from .types.evaluation_service import CometResult
+from .types.evaluation_service import CometSpec
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
 from .types.evaluation_service import ExactMatchInput
@@ -1027,6 +1031,10 @@ __all__ = (
     "CoherenceInstance",
     "CoherenceResult",
     "CoherenceSpec",
+    "CometInput",
+    "CometInstance",
+    "CometResult",
+    "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
