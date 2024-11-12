@@ -1,5 +1,54 @@
 # Changelog
 
+## [1.72.0](https://github.com/googleapis/python-aiplatform/compare/v1.71.1...v1.72.0) (2024-11-12)
+
+
+### Features
+
+* Add AdvancedCompleteQuery API ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add BatchCreateFeatures rpc to feature_registry_service.proto ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+* Add BillingEstimation in data store ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add code execution tool API ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add fast_tryout_enabled to FasterDeploymentConfig message in aiplatform v1beta1 endpoint.proto ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add Feature Monitoring API to Feature Store ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+* Add field `protobuf_pythonic_types_enabled` to message `ExperimentalFeatures` ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+* Add GroundedGenerationService API ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add lite search API to allow public website search with API key ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add new PscInterfaceConfig field to custom_job.proto ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add one_box_page_size on search ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add Sitemap APIs to preview channel ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add StopNotebookRuntime method ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add StopNotebookRuntime method ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Add system labels field to model garden deployments ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+* Add UpdateEndpointLongRunning API in v1beta1 version ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Adding fast_tryout_enabled option to Vertex public preview SDK ([98288b8](https://github.com/googleapis/python-aiplatform/commit/98288b8b2d6ab5592e67cca1bd8914df3a1f19e7))
+* Increase the upperbounds on langchain dependencies to support v0.3+ ([1fca9c0](https://github.com/googleapis/python-aiplatform/commit/1fca9c058d7d8993f6d0c28580f6e0b899e4e83a))
+* Support advanced boost search ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Support Google Workspace search ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Support natural language understanding search ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Support query regex in control match rules ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Support search personalization to preview channel ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+
+
+### Bug Fixes
+
+* Add timeout to prediction rawPredict/streamRawPredict ([b7de16a](https://github.com/googleapis/python-aiplatform/commit/b7de16ae21b2934bc9195bf4bfc14d56adaf7701))
+* Convert float values with no decimals to integers in FunctionCall. ([a1857ed](https://github.com/googleapis/python-aiplatform/commit/a1857ed9bc97b9c6e367a8fa06b62883540a6638))
+* Deepcopy error from baseline_model in pairwiseMetric ([ccc5c85](https://github.com/googleapis/python-aiplatform/commit/ccc5c85a8ba39728f710fe64e8afbe98f84bf50e))
+
+
+### Documentation
+
+* A comment for field `feature_group_id` in message `.google.cloud.aiplatform.v1.CreateFeatureGroupRequest` is changed ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+* A comment for field `unit` in message `.google.api.QuotaLimit` is changed ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+* A comment for message `BatchCreateFeaturesRequest` is modified to call out BatchCreateFeatures ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+* Deprecate asynchronous mode in answer generation ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Deprecate extractive_answers in answer generation ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Keep the API doc up-to-date with recent changes ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* **samples:** Fixed Vertex AI Vector Search Create Index `index_update_method` ([7dff586](https://github.com/googleapis/python-aiplatform/commit/7dff586f38ef53887dca733741f874686d16563d))
+* Update documentation ([169dd44](https://github.com/googleapis/python-aiplatform/commit/169dd447703d7734a0b979cb77a0ab84ef8df68f))
+* Update feature creation message commentary ([acf3113](https://github.com/googleapis/python-aiplatform/commit/acf31138177fbcc29e469c863615cfa70b4ccc19))
+
 ## [1.71.1](https://github.com/googleapis/python-aiplatform/compare/v1.71.0...v1.71.1) (2024-10-31)
 
 
