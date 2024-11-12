@@ -80,6 +80,7 @@ _TEST_ID_3 = test_constants.EndpointConstants._TEST_ID_3
 _TEST_DESCRIPTION = "test-description"
 _TEST_REQUEST_METADATA = ()
 _TEST_TIMEOUT = None
+_TEST_PREDICT_TIMEOUT = 100
 
 _TEST_ENDPOINT_NAME = test_constants.EndpointConstants._TEST_ENDPOINT_NAME
 _TEST_ENDPOINT_NAME_2 = test_constants.EndpointConstants._TEST_ENDPOINT_NAME_2
@@ -2387,6 +2388,34 @@ class TestEndpoint:
             url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:predict",
             data='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
             headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_predict_dedicated_endpoint_with_timeout(self, predict_endpoint_http_mock):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        test_prediction = test_endpoint.predict(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            use_dedicated_endpoint=True,
+            timeout=_TEST_PREDICT_TIMEOUT,
+        )
+
+        true_prediction = models.Prediction(
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
+            model_version_id=_TEST_VERSION_ID,
+            model_resource_name=_TEST_MODEL_NAME,
+        )
+
+        assert true_prediction == test_prediction
+        predict_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:predict",
+            data='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
+            headers={"Content-Type": "application/json"},
+            timeout=_TEST_PREDICT_TIMEOUT,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -2432,6 +2461,40 @@ class TestEndpoint:
             url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict",
             data=_TEST_RAW_INPUTS,
             headers={"Content-Type": "application/json"},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
+    def test_raw_predict_dedicated_endpoint_with_timeout(
+        self, predict_endpoint_http_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        test_prediction = test_endpoint.raw_predict(
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            use_dedicated_endpoint=True,
+            timeout=_TEST_PREDICT_TIMEOUT,
+        )
+
+        true_prediction = requests.Response()
+        true_prediction.status_code = 200
+        true_prediction._content = json.dumps(
+            {
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+                "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+                "model": _TEST_MODEL_NAME,
+                "modelVersionId": "1",
+            }
+        ).encode("utf-8")
+        assert true_prediction.status_code == test_prediction.status_code
+        assert true_prediction.text == test_prediction.text
+        predict_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_DEDICATED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=_TEST_PREDICT_TIMEOUT,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")

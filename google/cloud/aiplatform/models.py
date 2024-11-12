@@ -2229,6 +2229,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 body=json.dumps({"instances": instances, "parameters": parameters}),
                 headers={"Content-Type": "application/json"},
                 use_dedicated_endpoint=use_dedicated_endpoint,
+                timeout=timeout,
             )
             json_response = raw_predict_response.json()
             return Prediction(
@@ -2277,6 +2278,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     }
                 ),
                 headers=headers,
+                timeout=timeout,
             )
 
             prediction_response = json.loads(response.text)
@@ -2382,6 +2384,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         headers: Dict[str, str],
         *,
         use_dedicated_endpoint: Optional[bool] = False,
+        timeout: Optional[float] = None,
     ) -> requests.models.Response:
         """Makes a prediction request using arbitrary headers.
 
@@ -2408,6 +2411,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             use_dedicated_endpoint (bool):
                 Optional. Default value is False. If set to True, the underlying prediction call will be made
                 using the dedicated endpoint dns.
+            timeout (float): Optional. The timeout for this request in seconds.
 
         Returns:
             A requests.models.Response object containing the status code and prediction results.
@@ -2435,8 +2439,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "and model are ready before making a prediction."
                 )
             url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
-
-        return self.authorized_session.post(url=url, data=body, headers=headers)
+        return self.authorized_session.post(
+            url=url, data=body, headers=headers, timeout=timeout
+        )
 
     def stream_raw_predict(
         self,
@@ -2444,6 +2449,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         headers: Dict[str, str],
         *,
         use_dedicated_endpoint: Optional[bool] = False,
+        timeout: Optional[float] = None,
     ) -> Iterator[requests.models.Response]:
         """Makes a streaming prediction request using arbitrary headers.
 
@@ -2480,6 +2486,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             use_dedicated_endpoint (bool):
                 Optional. Default value is False. If set to True, the underlying prediction call will be made
                 using the dedicated endpoint dns.
+            timeout (float): Optional. The timeout for this request in seconds.
 
         Yields:
             predictions (Iterator[requests.models.Response]):
@@ -2513,6 +2520,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             url=url,
             data=body,
             headers=headers,
+            timeout=timeout,
             stream=True,
         ) as resp:
             for line in resp.iter_lines():
