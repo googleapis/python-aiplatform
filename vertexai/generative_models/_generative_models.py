@@ -2631,7 +2631,11 @@ class FunctionCall:
         return response
 
     def to_dict(self) -> Dict[str, Any]:
-        return _proto_to_dict(self._raw_message)
+        function_call_dict = _proto_to_dict(self._raw_message)
+        function_call_dict["args"] = self._convert_number_values(
+            function_call_dict["args"]
+        )
+        return function_call_dict
 
     def __repr__(self) -> str:
         return self._raw_message.__repr__()
@@ -2644,7 +2648,21 @@ class FunctionCall:
     def args(self) -> Dict[str, Any]:
         # We cannot use `type(self.args).to_dict(self.args)`
         # due to: AttributeError: type object 'MapComposite' has no attribute 'to_dict'
-        return self.to_dict().get("args")
+        args_dict = self.to_dict().get("args")
+        return self._convert_number_values(args_dict)
+
+    def _convert_number_values(self, data: Any) -> Any:
+        """Converts float values with no decimal part to integers."""
+        if isinstance(data, float) and data.is_integer():
+            return int(data)
+        elif isinstance(data, dict):
+            return {
+                key: self._convert_number_values(value) for key, value in data.items()
+            }
+        elif isinstance(data, list):
+            return [self._convert_number_values(item) for item in data]
+        else:
+            return data
 
 
 class SafetySetting:
@@ -3134,6 +3152,15 @@ class GenerativeModel(_GenerativeModel):
     def _prediction_client(self) -> prediction_service_v1.PredictionServiceClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_client_value", None):
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise ValueError(
+                    "Api keys are only supported with the preview namespace. "
+                    "Import the preview namespace instead:\n"
+                    "from vertexai.preview import generative_models"
+                )
             self._prediction_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service_v1.PredictionServiceClient,
@@ -3149,6 +3176,15 @@ class GenerativeModel(_GenerativeModel):
     ) -> prediction_service_v1.PredictionServiceAsyncClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_async_client_value", None):
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise ValueError(
+                    "Api keys are only supported with the preview namespace. "
+                    "Import the preview namespace instead:\n"
+                    "from vertexai.preview import generative_models"
+                )
             self._prediction_async_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service_v1.PredictionServiceAsyncClient,

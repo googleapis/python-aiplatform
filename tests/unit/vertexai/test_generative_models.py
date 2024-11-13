@@ -18,7 +18,7 @@
 # pylint: disable=protected-access,bad-continuation
 import io
 import pytest
-from typing import Iterable, MutableSequence, Optional
+from typing import Dict, Iterable, List, MutableSequence, Optional
 from unittest import mock
 
 import vertexai
@@ -300,12 +300,31 @@ def mock_generate_content(
     if has_function_declarations and not had_any_function_calls:
         # response_part_struct = _RESPONSE_FUNCTION_CALL_PART_STRUCT
         # Workaround for the proto library bug
-        response_part_struct = dict(
-            function_call=gapic_tool_types.FunctionCall(
-                name="get_current_weather",
-                args={"location": "Boston"},
-            )
+        first_tool_with_function_declarations = next(
+            tool for tool in request.tools if tool.function_declarations
         )
+        if (
+            first_tool_with_function_declarations.function_declarations[0].name
+            == update_weather_data.__name__
+        ):
+            response_part_struct = dict(
+                function_call=gapic_tool_types.FunctionCall(
+                    name=update_weather_data.__name__,
+                    args={
+                        "location": "Boston",
+                        "temperature": 60,
+                        "forecasts": [61, 62],
+                        "extra_info": {"humidity": 50},
+                    },
+                )
+            )
+        else:
+            response_part_struct = dict(
+                function_call=gapic_tool_types.FunctionCall(
+                    name="get_current_weather",
+                    args={"location": "Boston"},
+                )
+            )
     elif has_function_declarations and latest_user_message_function_responses:
         function_response = latest_user_message_function_responses[0]
         function_response_dict = type(function_response).to_dict(function_response)
@@ -534,6 +553,19 @@ def get_current_weather(location: str, unit: Optional[str] = "centigrade"):
         location=location,
         unit=unit,
         weather="Super nice, but maybe a bit hot.",
+    )
+
+
+def update_weather_data(
+    location: str, temperature: int, forecasts: List[int], extra_info: Dict[str, int]
+):
+    """Updates the weather data in the specified location."""
+    return dict(
+        location=location,
+        temperature=temperature,
+        forecasts=forecasts,
+        extra_info=extra_info,
+        result="Success",
     )
 
 
@@ -844,6 +876,46 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
+    def test_generate_content_with_function_calling_integer_args(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+        weather_tool = generative_models.Tool(
+            function_declarations=[
+                generative_models.FunctionDeclaration.from_func(update_weather_data)
+            ],
+        )
+        response = model.generate_content(
+            "Please update the weather data in Boston, with temperature 60, "
+            "forecasts are 61 and 62, and humidity is 50",
+            tools=[weather_tool],
+        )
+        assert (
+            response.candidates[0].content.parts[0].function_call.name
+            == "update_weather_data"
+        )
+        assert [
+            function_call.name
+            for function_call in response.candidates[0].function_calls
+        ] == ["update_weather_data"]
+        for args in (
+            response.candidates[0].function_calls[0].args,
+            response.candidates[0].function_calls[0].to_dict()["args"],
+        ):
+            assert args["location"] == "Boston"
+            assert args["temperature"] == 60
+            assert isinstance(args["temperature"], int)
+            assert 61 in args["forecasts"] and 62 in args["forecasts"]
+            assert all(isinstance(forecast, int) for forecast in args["forecasts"])
+            assert args["extra_info"]["humidity"] == 50
+            assert isinstance(args["extra_info"]["humidity"], int)
+            assert args["location"] == "Boston"
+
+    @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generate_content_response_accessor_errors(
         self, generative_models: generative_models
     ):
@@ -1051,6 +1123,52 @@ class TestGenerativeModels:
         assert "Boston" in response2.text
         assert "nice" in response2.text
         assert not response2.candidates[0].function_calls
+
+    @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_chat_function_calling_with_integer_args(
+        self, generative_models: generative_models
+    ):
+        get_current_weather_func = generative_models.FunctionDeclaration.from_func(
+            update_weather_data
+        )
+        weather_tool = generative_models.Tool(
+            function_declarations=[get_current_weather_func],
+        )
+        model = generative_models.GenerativeModel(
+            "gemini-pro",
+            # Specifying the tools once to avoid specifying them in every request
+            tools=[weather_tool],
+        )
+        chat = model.start_chat()
+
+        response1 = chat.send_message(
+            "Please update the weather data in Boston, with temperature 60, "
+            "forecasts are 61 and 62, and humidity is 50"
+        )
+        assert (
+            response1.candidates[0].content.parts[0].function_call.name
+            == "update_weather_data"
+        )
+        assert [
+            function_call.name
+            for function_call in response1.candidates[0].function_calls
+        ] == ["update_weather_data"]
+        for args in (
+            response1.candidates[0].function_calls[0].args,
+            response1.candidates[0].function_calls[0].to_dict()["args"],
+        ):
+            assert args["location"] == "Boston"
+            assert args["temperature"] == 60
+            assert isinstance(args["temperature"], int)
+            assert 61 in args["forecasts"] and 62 in args["forecasts"]
+            assert all(isinstance(forecast, int) for forecast in args["forecasts"])
+            assert args["extra_info"]["humidity"] == 50
+            assert isinstance(args["extra_info"]["humidity"], int)
+            assert args["location"] == "Boston"
 
     @patch_genai_services
     @pytest.mark.parametrize(

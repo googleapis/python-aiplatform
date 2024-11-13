@@ -94,6 +94,8 @@ if DEFAULT_VERSION == V1BETA1:
     types.explanation_metadata = types.explanation_metadata_v1beta1
     types.feature = types.feature_v1beta1
     types.feature_group = types.feature_group_v1beta1
+    types.feature_monitor = types.feature_monitor_v1beta1
+    types.feature_monitor_job = types.feature_monitor_job_v1beta1
     types.feature_monitoring_stats = types.feature_monitoring_stats_v1beta1
     types.feature_online_store = types.feature_online_store_v1beta1
     types.feature_online_store_admin_service = (

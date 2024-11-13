@@ -3900,6 +3900,7 @@ class TestModel:
             url=_TEST_RAW_PREDICT_URL,
             data=_TEST_RAW_PREDICT_DATA,
             headers=_TEST_RAW_PREDICT_HEADER,
+            timeout=None,
         )
 
     @pytest.mark.parametrize(
