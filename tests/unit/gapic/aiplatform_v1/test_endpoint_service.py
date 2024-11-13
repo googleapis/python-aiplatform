@@ -6440,6 +6440,7 @@ def test_create_endpoint_rest_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "faster_deployment_config": {"fast_tryout_enabled": True},
                 "system_labels": {},
             }
         ],
@@ -7011,6 +7012,7 @@ def test_update_endpoint_rest_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "faster_deployment_config": {"fast_tryout_enabled": True},
                 "system_labels": {},
             }
         ],
@@ -8613,6 +8615,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "faster_deployment_config": {"fast_tryout_enabled": True},
                 "system_labels": {},
             }
         ],
@@ -9232,6 +9235,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "health_http_uri": "health_http_uri_value",
                     "service_attachment": "service_attachment_value",
                 },
+                "faster_deployment_config": {"fast_tryout_enabled": True},
                 "system_labels": {},
             }
         ],

@@ -1250,9 +1250,6 @@ class GenAiTuningServiceClient(metaclass=GenAiTuningServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         r"""Rebase a TunedModel.
-        Creates a LongRunningOperation that takes a legacy Tuned
-        GenAI model Reference and creates a TuningJob based on
-        newly available model.
 
         .. code-block:: python
 

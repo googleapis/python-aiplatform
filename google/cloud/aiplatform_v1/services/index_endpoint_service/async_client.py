@@ -1251,8 +1251,9 @@ class IndexEndpointServiceAsyncClient:
             deployed_index (:class:`google.cloud.aiplatform_v1.types.DeployedIndex`):
                 Required. The DeployedIndex to be updated within the
                 IndexEndpoint. Currently, the updatable fields are
-                [DeployedIndex][automatic_resources] and
-                [DeployedIndex][dedicated_resources]
+                [DeployedIndex.automatic_resources][google.cloud.aiplatform.v1.DeployedIndex.automatic_resources]
+                and
+                [DeployedIndex.dedicated_resources][google.cloud.aiplatform.v1.DeployedIndex.dedicated_resources]
 
                 This corresponds to the ``deployed_index`` field
                 on the ``request`` instance; if ``request`` is provided, this

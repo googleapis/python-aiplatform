@@ -272,7 +272,7 @@ class ReadFeatureValuesResponse(proto.Message):
 
 class StreamingReadFeatureValuesRequest(proto.Message):
     r"""Request message for
-    [FeaturestoreOnlineServingService.StreamingFeatureValuesRead][].
+    [FeaturestoreOnlineServingService.StreamingReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreOnlineServingService.StreamingReadFeatureValues].
 
     Attributes:
         entity_type (str):

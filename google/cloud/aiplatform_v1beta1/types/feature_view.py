@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -104,6 +105,9 @@ class FeatureView(proto.Message):
             data, so that approximate nearest neighbor
             (a.k.a ANN) algorithms search can be performed
             during online serving.
+        optimized_config (google.cloud.aiplatform_v1beta1.types.FeatureView.OptimizedConfig):
+            Optional. Configuration for FeatureView
+            created under Optimized FeatureOnlineStore.
         service_agent_type (google.cloud.aiplatform_v1beta1.types.FeatureView.ServiceAgentType):
             Optional. Service agent type used during data sync. By
             default, the Vertex AI Service Agent is used. When using an
@@ -555,6 +559,26 @@ class FeatureView(proto.Message):
             number=2,
         )
 
+    class OptimizedConfig(proto.Message):
+        r"""Configuration for FeatureViews created in Optimized
+        FeatureOnlineStore.
+
+        Attributes:
+            automatic_resources (google.cloud.aiplatform_v1beta1.types.AutomaticResources):
+                Optional. A description of resources that the FeatureView
+                uses, which to large degree are decided by Vertex AI, and
+                optionally allows only a modest additional configuration. If
+                min_replica_count is not set, the default value is 2. If
+                max_replica_count is not set, the default value is 6. The
+                max allowed replica count is 1000.
+        """
+
+        automatic_resources: machine_resources.AutomaticResources = proto.Field(
+            proto.MESSAGE,
+            number=7,
+            message=machine_resources.AutomaticResources,
+        )
+
     big_query_source: BigQuerySource = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -610,6 +634,11 @@ class FeatureView(proto.Message):
         proto.MESSAGE,
         number=15,
         message=IndexConfig,
+    )
+    optimized_config: OptimizedConfig = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        message=OptimizedConfig,
     )
     service_agent_type: ServiceAgentType = proto.Field(
         proto.ENUM,

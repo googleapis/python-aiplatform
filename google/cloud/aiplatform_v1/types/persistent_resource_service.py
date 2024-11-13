@@ -160,7 +160,7 @@ class GetPersistentResourceRequest(proto.Message):
 
 class ListPersistentResourcesRequest(proto.Message):
     r"""Request message for
-    [PersistentResourceService.ListPersistentResource][].
+    [PersistentResourceService.ListPersistentResources][google.cloud.aiplatform.v1.PersistentResourceService.ListPersistentResources].
 
     Attributes:
         parent (str):
@@ -171,8 +171,9 @@ class ListPersistentResourcesRequest(proto.Message):
             Optional. The standard list page size.
         page_token (str):
             Optional. The standard list page token. Typically obtained
-            via [ListPersistentResourceResponse.next_page_token][] of
-            the previous
+            via
+            [ListPersistentResourcesResponse.next_page_token][google.cloud.aiplatform.v1.ListPersistentResourcesResponse.next_page_token]
+            of the previous
             [PersistentResourceService.ListPersistentResource][] call.
     """
 

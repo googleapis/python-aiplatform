@@ -754,9 +754,6 @@ class GenAiTuningServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Rebase a TunedModel.
-        Creates a LongRunningOperation that takes a legacy Tuned
-        GenAI model Reference and creates a TuningJob based on
-        newly available model.
 
         .. code-block:: python
 

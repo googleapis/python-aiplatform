@@ -1331,7 +1331,7 @@ class AsyncFeatureOnlineStoreAdminServiceRestTransport(
             Args:
                 request (~.feature_online_store_admin_service.DeleteFeatureViewRequest):
                     The request object. Request message for
-                [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+                [FeatureOnlineStoreAdminService.DeleteFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.DeleteFeatureView].
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.

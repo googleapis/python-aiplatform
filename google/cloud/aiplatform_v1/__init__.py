@@ -181,6 +181,7 @@ from .types.deployment_resource_pool_service import UpdateDeploymentResourcePool
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
@@ -213,6 +214,10 @@ from .types.evaluation_service import CoherenceInput
 from .types.evaluation_service import CoherenceInstance
 from .types.evaluation_service import CoherenceResult
 from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import CometInput
+from .types.evaluation_service import CometInstance
+from .types.evaluation_service import CometResult
+from .types.evaluation_service import CometSpec
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
 from .types.evaluation_service import ExactMatchInput
@@ -232,6 +237,10 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import MetricxInput
+from .types.evaluation_service import MetricxInstance
+from .types.evaluation_service import MetricxResult
+from .types.evaluation_service import MetricxSpec
 from .types.evaluation_service import PairwiseMetricInput
 from .types.evaluation_service import PairwiseMetricInstance
 from .types.evaluation_service import PairwiseMetricResult
@@ -1023,6 +1032,10 @@ __all__ = (
     "CoherenceInstance",
     "CoherenceResult",
     "CoherenceSpec",
+    "CometInput",
+    "CometInstance",
+    "CometResult",
+    "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
@@ -1212,6 +1225,7 @@ __all__ = (
     "ExportModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
+    "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
     "FeatureNoiseSigma",
@@ -1444,6 +1458,10 @@ __all__ = (
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "MetricxInput",
+    "MetricxInstance",
+    "MetricxResult",
+    "MetricxSpec",
     "MigratableResource",
     "MigrateResourceRequest",
     "MigrateResourceResponse",

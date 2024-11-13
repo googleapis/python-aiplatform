@@ -34,6 +34,7 @@ __protobuf__ = proto.module(
         "DeployedModel",
         "PrivateEndpoints",
         "PredictRequestResponseLoggingConfig",
+        "FasterDeploymentConfig",
     },
 )
 
@@ -365,6 +366,8 @@ class DeployedModel(proto.Message):
             This field is populated if
             [network][google.cloud.aiplatform.v1.Endpoint.network] is
             configured.
+        faster_deployment_config (google.cloud.aiplatform_v1.types.FasterDeploymentConfig):
+            Configuration for faster model deployment.
         system_labels (MutableMapping[str, str]):
             System labels to apply to Model Garden
             deployments. System labels are managed by Google
@@ -434,6 +437,11 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=14,
         message="PrivateEndpoints",
+    )
+    faster_deployment_config: "FasterDeploymentConfig" = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        message="FasterDeploymentConfig",
     )
     system_labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
@@ -514,6 +522,21 @@ class PredictRequestResponseLoggingConfig(proto.Message):
         proto.MESSAGE,
         number=3,
         message=io.BigQueryDestination,
+    )
+
+
+class FasterDeploymentConfig(proto.Message):
+    r"""Configuration for faster model deployment.
+
+    Attributes:
+        fast_tryout_enabled (bool):
+            If true, enable fast tryout feature for this
+            deployed model.
+    """
+
+    fast_tryout_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=2,
     )
 
 

@@ -611,7 +611,7 @@ class PersistentResourceServiceAsyncClient:
         Args:
             request (Optional[Union[google.cloud.aiplatform_v1.types.ListPersistentResourcesRequest, dict]]):
                 The request object. Request message for
-                [PersistentResourceService.ListPersistentResource][].
+                [PersistentResourceService.ListPersistentResources][google.cloud.aiplatform.v1.PersistentResourceService.ListPersistentResources].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 PersistentResources from. Format:
