@@ -181,6 +181,7 @@ from .types.deployment_resource_pool_service import UpdateDeploymentResourcePool
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
@@ -1224,6 +1225,7 @@ __all__ = (
     "ExportModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
+    "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
     "FeatureNoiseSigma",

@@ -144,6 +144,7 @@ from .encryption_spec import (
 from .endpoint import (
     DeployedModel,
     Endpoint,
+    FasterDeploymentConfig,
     PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
 )
@@ -1154,6 +1155,7 @@ __all__ = (
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
+    "FasterDeploymentConfig",
     "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "CreateEndpointOperationMetadata",
