@@ -484,6 +484,7 @@ class _GenerativeModel:
         self,
         contents: ContentsType,
         *,
+        model: Optional[str] = None,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
@@ -495,6 +496,7 @@ class _GenerativeModel:
         if not contents:
             raise TypeError("contents must not be empty")
 
+        model = model or self._prediction_resource_name
         generation_config = generation_config or self._generation_config
         safety_settings = safety_settings or self._safety_settings
         tools = tools or self._tools
@@ -563,7 +565,7 @@ class _GenerativeModel:
             # The `model` parameter now needs to be set for the vision models.
             # Always need to pass the resource via the `model` parameter.
             # Even when resource is an endpoint.
-            model=self._prediction_resource_name,
+            model=model,
             contents=contents,
             generation_config=gapic_generation_config,
             safety_settings=gapic_safety_settings,
@@ -2072,10 +2074,25 @@ class ToolConfig:
                 )
             )
 
+        def __repr__(self) -> str:
+            return self._gapic_function_calling_config.__repr__()
+
     def __init__(self, function_calling_config: "ToolConfig.FunctionCallingConfig"):
         self._gapic_tool_config = gapic_tool_types.ToolConfig(
             function_calling_config=function_calling_config._gapic_function_calling_config
         )
+
+    @classmethod
+    def _from_gapic(
+        cls,
+        gapic_tool_config: gapic_tool_types.ToolConfig,
+    ) -> "ToolConfig":
+        response = cls.__new__(cls)
+        response._gapic_tool_config = gapic_tool_config
+        return response
+
+    def __repr__(self) -> str:
+        return self._gapic_tool_config.__repr__()
 
 
 class FunctionDeclaration:
@@ -3249,6 +3266,7 @@ class GenerativeModel(_GenerativeModel):
         self,
         contents: ContentsType,
         *,
+        model: Optional[str] = None,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
@@ -3259,6 +3277,7 @@ class GenerativeModel(_GenerativeModel):
         """Prepares a GAPIC GenerateContentRequest."""
         request_v1beta1 = super()._prepare_request(
             contents=contents,
+            model=model,
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,
