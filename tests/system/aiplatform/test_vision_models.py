@@ -342,6 +342,118 @@ class VisionModelTestSuite(e2e_base.TestEndToEnd):
             assert "base_image_hash" in image.generation_parameters
             assert "mask_hash" in image.generation_parameters
 
+    def test_image_edit_model_capability_mode(self):
+        """Tests the image edit model capability mode."""
+        model = vision_models.ImageGenerationModel.from_pretrained(
+            "imagen-3.0-capability-preview-0930"
+        )
+        gen_model = vision_models.ImageGenerationModel.from_pretrained(
+            "imagen-3.0-generate-001"
+        )
+        imagen_gen_prompt = "A street lit up on a rainy night"
+        number_of_images = 1
+        image_response = gen_model.generate_images(
+            prompt=imagen_gen_prompt,
+            number_of_images=number_of_images,
+        )
+        assert len(image_response.images) == number_of_images
+        for image in enumerate(image_response):
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == imagen_gen_prompt
+        with tempfile.TemporaryDirectory() as temp_dir:
+            image_path = os.path.join(temp_dir, "image.png")
+            image_response[0].save(location=image_path)
+            raw_image1 = vision_models.GeneratedImage.load_from_file(image_path)
+
+        raw_ref_image = vision_models.RawReferenceImage(
+            image=raw_image1, reference_id=0
+        )
+        mask_mode = "MASK_MODE_BACKGROUND"
+        mask_dilation = 0.06
+        mask_config = vision_models.MaskConfig(
+            mask_mode=mask_mode,
+            mask_dilation=mask_dilation,
+        )
+        mask_ref_image = vision_models.MaskReferenceImage(
+            reference_id=1,
+            mask_mode="background",
+            dilation=mask_dilation,
+        )
+        capability_mode = "EDIT_MODE_INPAINT_INSERTION"
+        edit_prompt = "Sunlight and clear weather"
+        edit_response = model.edit_images(
+            prompt=edit_prompt,
+            number_of_images=number_of_images,
+            reference_images=[raw_ref_image, mask_ref_image],
+            edit_mode="inpainting-insert",
+        )
+
+        assert len(edit_response.images) == number_of_images
+        for image in enumerate(edit_response):
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == edit_prompt
+            assert image.generation_parameters["edit_mode"] == capability_mode
+            assert (
+                image.generation_parameters[
+                    f"reference_type_{raw_ref_image.reference_id}"
+                ]
+                == raw_ref_image.reference_type
+            )
+            assert (
+                image.generation_parameters[
+                    f"reference_type_{mask_ref_image.reference_id}"
+                ]
+                == mask_ref_image.reference_type
+            )
+            assert image.generation_parameters[
+                f"reference_image_mask_config_{mask_ref_image.reference_id}"
+            ] == str(mask_config)
+
+        image_gen_prompt2 = "A dog playing with a ball in the San Fransisco Presidio"
+        image_response2 = gen_model.generate_images(
+            prompt=image_gen_prompt2,
+            number_of_images=number_of_images,
+        )
+        assert len(image_response2.images) == number_of_images
+        for image in enumerate(image_response2):
+            assert image.generation_parameters
+            assert image.generation_parameters["prompt"] == image_gen_prompt2
+        with tempfile.TemporaryDirectory() as temp_dir:
+            image_path = os.path.join(temp_dir, "subject_image.png")
+            image_response2[0].save(location=image_path)
+            raw_image2 = vision_models.GeneratedImage.load_from_file(image_path)
+            subject_config = vision_models.SubjectImageConfig(
+                subject_type="SUBJECT_TYPE_ANIMAL", subject_description="dog"
+            )
+            subject_ref_image2 = vision_models.SubjectReferenceImage(
+                image=raw_image2,
+                reference_id=0,
+                subject_type="animal",
+                subject_description="dog",
+            )
+            edit_prompt2 = "Change the dog to a cat"
+            capability_mode2 = "EDIT_MODE_DEFAULT"
+            edit_response2 = model.edit_images(
+                prompt=edit_prompt2,
+                number_of_images=number_of_images,
+                reference_images=[subject_ref_image2],
+                capability_mode=capability_mode2,
+            )
+            assert len(edit_response2.images) == number_of_images
+            for image in enumerate(edit_response2):
+                assert image.generation_parameters
+                assert image.generation_parameters["prompt"] == edit_prompt2
+                assert image.generation_parameters["edit_mode"] == capability_mode
+                assert (
+                    image.generation_parameters[
+                        f"reference_type_{subject_ref_image2.reference_id}"
+                    ]
+                    == "REFERENCE_TYPE_SUBJECT"
+                )
+                assert image.generation_parameters[
+                    f"reference_image_subject_config_{subject_ref_image2.reference_id}"
+                ] == str(subject_config)
+
     def test_image_verification_model_verify_image(self):
         """Tests the image verification model verifying watermark presence in an image."""
         verification_model = vision_models.ImageVerificationModel.from_pretrained(

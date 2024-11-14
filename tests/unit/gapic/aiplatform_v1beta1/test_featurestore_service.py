@@ -79,6 +79,7 @@ from google.cloud.aiplatform_v1beta1.types import entity_type
 from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
+from google.cloud.aiplatform_v1beta1.types import feature_monitor
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import feature_selector
 from google.cloud.aiplatform_v1beta1.types import featurestore
@@ -96,6 +97,7 @@ from google.oauth2 import service_account
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.type import interval_pb2  # type: ignore
 import google.auth
@@ -371,94 +373,6 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         FeaturestoreServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
-
-
-@pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
-    [
-        (
-            FeaturestoreServiceClient,
-            transports.FeaturestoreServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            FeaturestoreServiceClient,
-            transports.FeaturestoreServiceRestTransport,
-            "rest",
-        ),
-    ],
-)
-def test__validate_universe_domain(client_class, transport_class, transport_name):
-    client = client_class(
-        transport=transport_class(credentials=ga_credentials.AnonymousCredentials())
-    )
-    assert client._validate_universe_domain() == True
-
-    # Test the case when universe is already validated.
-    assert client._validate_universe_domain() == True
-
-    if transport_name == "grpc":
-        # Test the case where credentials are provided by the
-        # `local_channel_credentials`. The default universes in both match.
-        channel = grpc.secure_channel(
-            "http://localhost/", grpc.local_channel_credentials()
-        )
-        client = client_class(transport=transport_class(channel=channel))
-        assert client._validate_universe_domain() == True
-
-        # Test the case where credentials do not exist: e.g. a transport is provided
-        # with no credentials. Validation should still succeed because there is no
-        # mismatch with non-existent credentials.
-        channel = grpc.secure_channel(
-            "http://localhost/", grpc.local_channel_credentials()
-        )
-        transport = transport_class(channel=channel)
-        transport._credentials = None
-        client = client_class(transport=transport)
-        assert client._validate_universe_domain() == True
-
-    # TODO: This is needed to cater for older versions of google-auth
-    # Make this test unconditional once the minimum supported version of
-    # google-auth becomes 2.23.0 or higher.
-    google_auth_major, google_auth_minor = [
-        int(part) for part in google.auth.__version__.split(".")[0:2]
-    ]
-    if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
-        credentials = ga_credentials.AnonymousCredentials()
-        credentials._universe_domain = "foo.com"
-        # Test the case when there is a universe mismatch from the credentials.
-        client = client_class(transport=transport_class(credentials=credentials))
-        with pytest.raises(ValueError) as excinfo:
-            client._validate_universe_domain()
-        assert (
-            str(excinfo.value)
-            == "The configured universe domain (googleapis.com) does not match the universe domain found in the credentials (foo.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
-        )
-
-        # Test the case when there is a universe mismatch from the client.
-        #
-        # TODO: Make this test unconditional once the minimum supported version of
-        # google-api-core becomes 2.15.0 or higher.
-        api_core_major, api_core_minor = [
-            int(part) for part in api_core_version.__version__.split(".")[0:2]
-        ]
-        if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
-            client = client_class(
-                client_options={"universe_domain": "bar.com"},
-                transport=transport_class(
-                    credentials=ga_credentials.AnonymousCredentials(),
-                ),
-            )
-            with pytest.raises(ValueError) as excinfo:
-                client._validate_universe_domain()
-            assert (
-                str(excinfo.value)
-                == "The configured universe domain (bar.com) does not match the universe domain found in the credentials (googleapis.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
-            )
-
-    # Test that ValueError is raised if universe_domain is provided via client options and credentials is None
-    with pytest.raises(ValueError):
-        client._compare_universes("foo.bar", None)
 
 
 @pytest.mark.parametrize(
@@ -11886,6 +11800,8 @@ def test_get_feature_rest_required_fields(
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
     ).get_feature._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("feature_stats_and_anomaly_spec",))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -11939,7 +11855,7 @@ def test_get_feature_rest_unset_required_fields():
     )
 
     unset_fields = transport.get_feature._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
+    assert set(unset_fields) == (set(("featureStatsAndAnomalySpec",)) & set(("name",)))
 
 
 def test_get_feature_rest_flattened():
@@ -16496,6 +16412,25 @@ def test_create_feature_rest_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }
@@ -17100,6 +17035,25 @@ def test_update_feature_rest_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }
@@ -20900,6 +20854,25 @@ async def test_create_feature_rest_asyncio_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }
@@ -21568,6 +21541,25 @@ async def test_update_feature_rest_asyncio_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }

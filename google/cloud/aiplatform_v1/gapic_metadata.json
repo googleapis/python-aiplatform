@@ -859,6 +859,11 @@
         "grpc": {
           "libraryClient": "FeatureRegistryServiceClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -914,6 +919,11 @@
         "grpc-async": {
           "libraryClient": "FeatureRegistryServiceAsyncClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -969,6 +979,11 @@
         "rest": {
           "libraryClient": "FeatureRegistryServiceClient",
           "rpcs": {
+            "BatchCreateFeatures": {
+              "methods": [
+                "batch_create_features"
+              ]
+            },
             "CreateFeature": {
               "methods": [
                 "create_feature"
@@ -3361,6 +3376,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
+              ]
+            },
             "UpdateNotebookRuntimeTemplate": {
               "methods": [
                 "update_notebook_runtime_template"
@@ -3441,6 +3461,11 @@
                 "start_notebook_runtime"
               ]
             },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
+              ]
+            },
             "UpdateNotebookRuntimeTemplate": {
               "methods": [
                 "update_notebook_runtime_template"
@@ -3519,6 +3544,11 @@
             "StartNotebookRuntime": {
               "methods": [
                 "start_notebook_runtime"
+              ]
+            },
+            "StopNotebookRuntime": {
+              "methods": [
+                "stop_notebook_runtime"
               ]
             },
             "UpdateNotebookRuntimeTemplate": {

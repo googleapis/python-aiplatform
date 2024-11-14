@@ -559,36 +559,6 @@ class FeatureOnlineStoreAdminServiceClient(
             raise ValueError("Universe Domain cannot be an empty string.")
         return universe_domain
 
-    @staticmethod
-    def _compare_universes(
-        client_universe: str, credentials: ga_credentials.Credentials
-    ) -> bool:
-        """Returns True iff the universe domains used by the client and credentials match.
-
-        Args:
-            client_universe (str): The universe domain configured via the client options.
-            credentials (ga_credentials.Credentials): The credentials being used in the client.
-
-        Returns:
-            bool: True iff client_universe matches the universe in credentials.
-
-        Raises:
-            ValueError: when client_universe does not match the universe in credentials.
-        """
-
-        default_universe = FeatureOnlineStoreAdminServiceClient._DEFAULT_UNIVERSE
-        credentials_universe = getattr(credentials, "universe_domain", default_universe)
-
-        if client_universe != credentials_universe:
-            raise ValueError(
-                "The configured universe domain "
-                f"({client_universe}) does not match the universe domain "
-                f"found in the credentials ({credentials_universe}). "
-                "If you haven't configured the universe domain explicitly, "
-                f"`{default_universe}` is the default."
-            )
-        return True
-
     def _validate_universe_domain(self):
         """Validates client's and credentials' universe domains are consistent.
 
@@ -598,13 +568,9 @@ class FeatureOnlineStoreAdminServiceClient(
         Raises:
             ValueError: If the configured universe domain is not valid.
         """
-        self._is_universe_domain_valid = (
-            self._is_universe_domain_valid
-            or FeatureOnlineStoreAdminServiceClient._compare_universes(
-                self.universe_domain, self.transport._credentials
-            )
-        )
-        return self._is_universe_domain_valid
+
+        # NOTE (b/349488459): universe validation is disabled until further notice.
+        return True
 
     @property
     def api_endpoint(self):
@@ -2012,6 +1978,7 @@ class FeatureOnlineStoreAdminServiceClient(
                 -  ``feature_registry_source.feature_groups``
                 -  ``sync_config``
                 -  ``sync_config.cron``
+                -  ``optimized_config.automatic_resources``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2135,7 +2102,7 @@ class FeatureOnlineStoreAdminServiceClient(
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteFeatureViewRequest, dict]):
                 The request object. Request message for
-                [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+                [FeatureOnlineStoreAdminService.DeleteFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.DeleteFeatureView].
             name (str):
                 Required. The name of the FeatureView to be deleted.
                 Format:

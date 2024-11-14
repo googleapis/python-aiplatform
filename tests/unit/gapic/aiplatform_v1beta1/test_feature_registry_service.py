@@ -78,6 +78,12 @@ from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_group
 from google.cloud.aiplatform_v1beta1.types import feature_group as gca_feature_group
+from google.cloud.aiplatform_v1beta1.types import feature_monitor
+from google.cloud.aiplatform_v1beta1.types import feature_monitor as gca_feature_monitor
+from google.cloud.aiplatform_v1beta1.types import feature_monitor_job
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor_job as gca_feature_monitor_job,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import feature_registry_service
 from google.cloud.aiplatform_v1beta1.types import featurestore_monitoring
@@ -90,10 +96,14 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
+from google.type import interval_pb2  # type: ignore
 import google.auth
 
 
@@ -369,94 +379,6 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         FeatureRegistryServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
-
-
-@pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
-    [
-        (
-            FeatureRegistryServiceClient,
-            transports.FeatureRegistryServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            FeatureRegistryServiceClient,
-            transports.FeatureRegistryServiceRestTransport,
-            "rest",
-        ),
-    ],
-)
-def test__validate_universe_domain(client_class, transport_class, transport_name):
-    client = client_class(
-        transport=transport_class(credentials=ga_credentials.AnonymousCredentials())
-    )
-    assert client._validate_universe_domain() == True
-
-    # Test the case when universe is already validated.
-    assert client._validate_universe_domain() == True
-
-    if transport_name == "grpc":
-        # Test the case where credentials are provided by the
-        # `local_channel_credentials`. The default universes in both match.
-        channel = grpc.secure_channel(
-            "http://localhost/", grpc.local_channel_credentials()
-        )
-        client = client_class(transport=transport_class(channel=channel))
-        assert client._validate_universe_domain() == True
-
-        # Test the case where credentials do not exist: e.g. a transport is provided
-        # with no credentials. Validation should still succeed because there is no
-        # mismatch with non-existent credentials.
-        channel = grpc.secure_channel(
-            "http://localhost/", grpc.local_channel_credentials()
-        )
-        transport = transport_class(channel=channel)
-        transport._credentials = None
-        client = client_class(transport=transport)
-        assert client._validate_universe_domain() == True
-
-    # TODO: This is needed to cater for older versions of google-auth
-    # Make this test unconditional once the minimum supported version of
-    # google-auth becomes 2.23.0 or higher.
-    google_auth_major, google_auth_minor = [
-        int(part) for part in google.auth.__version__.split(".")[0:2]
-    ]
-    if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
-        credentials = ga_credentials.AnonymousCredentials()
-        credentials._universe_domain = "foo.com"
-        # Test the case when there is a universe mismatch from the credentials.
-        client = client_class(transport=transport_class(credentials=credentials))
-        with pytest.raises(ValueError) as excinfo:
-            client._validate_universe_domain()
-        assert (
-            str(excinfo.value)
-            == "The configured universe domain (googleapis.com) does not match the universe domain found in the credentials (foo.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
-        )
-
-        # Test the case when there is a universe mismatch from the client.
-        #
-        # TODO: Make this test unconditional once the minimum supported version of
-        # google-api-core becomes 2.15.0 or higher.
-        api_core_major, api_core_minor = [
-            int(part) for part in api_core_version.__version__.split(".")[0:2]
-        ]
-        if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
-            client = client_class(
-                client_options={"universe_domain": "bar.com"},
-                transport=transport_class(
-                    credentials=ga_credentials.AnonymousCredentials(),
-                ),
-            )
-            with pytest.raises(ValueError) as excinfo:
-                client._validate_universe_domain()
-            assert (
-                str(excinfo.value)
-                == "The configured universe domain (bar.com) does not match the universe domain found in the credentials (googleapis.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
-            )
-
-    # Test that ValueError is raised if universe_domain is provided via client options and credentials is None
-    with pytest.raises(ValueError):
-        client._compare_universes("foo.bar", None)
 
 
 @pytest.mark.parametrize(
@@ -3623,6 +3545,363 @@ async def test_create_feature_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        featurestore_service.BatchCreateFeaturesRequest,
+        dict,
+    ],
+)
+def test_batch_create_features(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.batch_create_features(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = featurestore_service.BatchCreateFeaturesRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_batch_create_features_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = featurestore_service.BatchCreateFeaturesRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.batch_create_features(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == featurestore_service.BatchCreateFeaturesRequest(
+            parent="parent_value",
+        )
+
+
+def test_batch_create_features_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_create_features
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_create_features
+        ] = mock_rpc
+        request = {}
+        client.batch_create_features(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.batch_create_features(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_batch_create_features_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.batch_create_features
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.batch_create_features
+        ] = mock_rpc
+
+        request = {}
+        await client.batch_create_features(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.batch_create_features(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_batch_create_features_async(
+    transport: str = "grpc_asyncio",
+    request_type=featurestore_service.BatchCreateFeaturesRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.batch_create_features(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = featurestore_service.BatchCreateFeaturesRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_batch_create_features_async_from_dict():
+    await test_batch_create_features_async(request_type=dict)
+
+
+def test_batch_create_features_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = featurestore_service.BatchCreateFeaturesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.batch_create_features(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_batch_create_features_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = featurestore_service.BatchCreateFeaturesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.batch_create_features(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_batch_create_features_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.batch_create_features(
+            parent="parent_value",
+            requests=[featurestore_service.CreateFeatureRequest(parent="parent_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [featurestore_service.CreateFeatureRequest(parent="parent_value")]
+        assert arg == mock_val
+
+
+def test_batch_create_features_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.batch_create_features(
+            featurestore_service.BatchCreateFeaturesRequest(),
+            parent="parent_value",
+            requests=[featurestore_service.CreateFeatureRequest(parent="parent_value")],
+        )
+
+
+@pytest.mark.asyncio
+async def test_batch_create_features_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.batch_create_features(
+            parent="parent_value",
+            requests=[featurestore_service.CreateFeatureRequest(parent="parent_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].requests
+        mock_val = [featurestore_service.CreateFeatureRequest(parent="parent_value")]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_batch_create_features_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.batch_create_features(
+            featurestore_service.BatchCreateFeaturesRequest(),
+            parent="parent_value",
+            requests=[featurestore_service.CreateFeatureRequest(parent="parent_value")],
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         featurestore_service.GetFeatureRequest,
         dict,
     ],
@@ -5149,6 +5428,2930 @@ async def test_delete_feature_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.CreateFeatureMonitorRequest,
+        dict,
+    ],
+)
+def test_create_feature_monitor(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.create_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.CreateFeatureMonitorRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_create_feature_monitor_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_registry_service.CreateFeatureMonitorRequest(
+        parent="parent_value",
+        feature_monitor_id="feature_monitor_id_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.create_feature_monitor(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_registry_service.CreateFeatureMonitorRequest(
+            parent="parent_value",
+            feature_monitor_id="feature_monitor_id_value",
+        )
+
+
+def test_create_feature_monitor_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_feature_monitor
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_feature_monitor
+        ] = mock_rpc
+        request = {}
+        client.create_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.create_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_feature_monitor
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_feature_monitor
+        ] = mock_rpc
+
+        request = {}
+        await client.create_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.create_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_registry_service.CreateFeatureMonitorRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.create_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.CreateFeatureMonitorRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_async_from_dict():
+    await test_create_feature_monitor_async(request_type=dict)
+
+
+def test_create_feature_monitor_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.CreateFeatureMonitorRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.CreateFeatureMonitorRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.create_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_create_feature_monitor_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.create_feature_monitor(
+            parent="parent_value",
+            feature_monitor=gca_feature_monitor.FeatureMonitor(name="name_value"),
+            feature_monitor_id="feature_monitor_id_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature_monitor
+        mock_val = gca_feature_monitor.FeatureMonitor(name="name_value")
+        assert arg == mock_val
+        arg = args[0].feature_monitor_id
+        mock_val = "feature_monitor_id_value"
+        assert arg == mock_val
+
+
+def test_create_feature_monitor_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_feature_monitor(
+            feature_registry_service.CreateFeatureMonitorRequest(),
+            parent="parent_value",
+            feature_monitor=gca_feature_monitor.FeatureMonitor(name="name_value"),
+            feature_monitor_id="feature_monitor_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.create_feature_monitor(
+            parent="parent_value",
+            feature_monitor=gca_feature_monitor.FeatureMonitor(name="name_value"),
+            feature_monitor_id="feature_monitor_id_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature_monitor
+        mock_val = gca_feature_monitor.FeatureMonitor(name="name_value")
+        assert arg == mock_val
+        arg = args[0].feature_monitor_id
+        mock_val = "feature_monitor_id_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.create_feature_monitor(
+            feature_registry_service.CreateFeatureMonitorRequest(),
+            parent="parent_value",
+            feature_monitor=gca_feature_monitor.FeatureMonitor(name="name_value"),
+            feature_monitor_id="feature_monitor_id_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.GetFeatureMonitorRequest,
+        dict,
+    ],
+)
+def test_get_feature_monitor(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_monitor.FeatureMonitor(
+            name="name_value",
+            etag="etag_value",
+            description="description_value",
+        )
+        response = client.get_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.GetFeatureMonitorRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor.FeatureMonitor)
+    assert response.name == "name_value"
+    assert response.etag == "etag_value"
+    assert response.description == "description_value"
+
+
+def test_get_feature_monitor_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_registry_service.GetFeatureMonitorRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.get_feature_monitor(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_registry_service.GetFeatureMonitorRequest(
+            name="name_value",
+        )
+
+
+def test_get_feature_monitor_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_feature_monitor in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_feature_monitor
+        ] = mock_rpc
+        request = {}
+        client.get_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_feature_monitor
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_feature_monitor
+        ] = mock_rpc
+
+        request = {}
+        await client.get_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.get_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_registry_service.GetFeatureMonitorRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor.FeatureMonitor(
+                name="name_value",
+                etag="etag_value",
+                description="description_value",
+            )
+        )
+        response = await client.get_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.GetFeatureMonitorRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor.FeatureMonitor)
+    assert response.name == "name_value"
+    assert response.etag == "etag_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_async_from_dict():
+    await test_get_feature_monitor_async(request_type=dict)
+
+
+def test_get_feature_monitor_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.GetFeatureMonitorRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = feature_monitor.FeatureMonitor()
+        client.get_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.GetFeatureMonitorRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor.FeatureMonitor()
+        )
+        await client.get_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_get_feature_monitor_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_monitor.FeatureMonitor()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.get_feature_monitor(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_get_feature_monitor_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_feature_monitor(
+            feature_registry_service.GetFeatureMonitorRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_monitor.FeatureMonitor()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor.FeatureMonitor()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.get_feature_monitor(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.get_feature_monitor(
+            feature_registry_service.GetFeatureMonitorRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.ListFeatureMonitorsRequest,
+        dict,
+    ],
+)
+def test_list_feature_monitors(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_registry_service.ListFeatureMonitorsResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_feature_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.ListFeatureMonitorsRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_feature_monitors_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_registry_service.ListFeatureMonitorsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.list_feature_monitors(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_registry_service.ListFeatureMonitorsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+def test_list_feature_monitors_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_feature_monitors
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_feature_monitors
+        ] = mock_rpc
+        request = {}
+        client.list_feature_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_feature_monitors(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_feature_monitors
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_feature_monitors
+        ] = mock_rpc
+
+        request = {}
+        await client.list_feature_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.list_feature_monitors(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_registry_service.ListFeatureMonitorsRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_feature_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.ListFeatureMonitorsRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_async_from_dict():
+    await test_list_feature_monitors_async(request_type=dict)
+
+
+def test_list_feature_monitors_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.ListFeatureMonitorsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        call.return_value = feature_registry_service.ListFeatureMonitorsResponse()
+        client.list_feature_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.ListFeatureMonitorsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorsResponse()
+        )
+        await client.list_feature_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_feature_monitors_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_registry_service.ListFeatureMonitorsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_feature_monitors(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_feature_monitors_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_feature_monitors(
+            feature_registry_service.ListFeatureMonitorsRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_registry_service.ListFeatureMonitorsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_feature_monitors(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_feature_monitors(
+            feature_registry_service.ListFeatureMonitorsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_feature_monitors_pager(transport_name: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
+        expected_metadata = tuple(expected_metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_feature_monitors(request={}, retry=retry, timeout=timeout)
+
+        assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, feature_monitor.FeatureMonitor) for i in results)
+
+
+def test_list_feature_monitors_pages(transport_name: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_feature_monitors(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_async_pager():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_feature_monitors(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, feature_monitor.FeatureMonitor) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_async_pages():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
+            await client.list_feature_monitors(request={})
+        ).pages:
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.DeleteFeatureMonitorRequest,
+        dict,
+    ],
+)
+def test_delete_feature_monitor(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.delete_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.DeleteFeatureMonitorRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_delete_feature_monitor_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_registry_service.DeleteFeatureMonitorRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.delete_feature_monitor(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_registry_service.DeleteFeatureMonitorRequest(
+            name="name_value",
+        )
+
+
+def test_delete_feature_monitor_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_feature_monitor
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_feature_monitor
+        ] = mock_rpc
+        request = {}
+        client.delete_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.delete_feature_monitor
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.delete_feature_monitor
+        ] = mock_rpc
+
+        request = {}
+        await client.delete_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods call wrapper_fn to build a cached
+        # client._transport.operations_client instance on first rpc call.
+        # Subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        await client.delete_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_registry_service.DeleteFeatureMonitorRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.DeleteFeatureMonitorRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_async_from_dict():
+    await test_delete_feature_monitor_async(request_type=dict)
+
+
+def test_delete_feature_monitor_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.DeleteFeatureMonitorRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.DeleteFeatureMonitorRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.delete_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_delete_feature_monitor_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.delete_feature_monitor(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_delete_feature_monitor_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_feature_monitor(
+            feature_registry_service.DeleteFeatureMonitorRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.delete_feature_monitor(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.delete_feature_monitor(
+            feature_registry_service.DeleteFeatureMonitorRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.CreateFeatureMonitorJobRequest,
+        dict,
+    ],
+)
+def test_create_feature_monitor_job(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_feature_monitor_job.FeatureMonitorJob(
+            name="name_value",
+            description="description_value",
+            drift_base_feature_monitor_job_id=3467,
+            trigger_type=gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+        )
+        response = client.create_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.CreateFeatureMonitorJobRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+def test_create_feature_monitor_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_registry_service.CreateFeatureMonitorJobRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.create_feature_monitor_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_registry_service.CreateFeatureMonitorJobRequest(
+            parent="parent_value",
+        )
+
+
+def test_create_feature_monitor_job_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_feature_monitor_job
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_feature_monitor_job
+        ] = mock_rpc
+        request = {}
+        client.create_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_feature_monitor_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.create_feature_monitor_job
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.create_feature_monitor_job
+        ] = mock_rpc
+
+        request = {}
+        await client.create_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.create_feature_monitor_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_registry_service.CreateFeatureMonitorJobRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value",
+                description="description_value",
+                drift_base_feature_monitor_job_id=3467,
+                trigger_type=gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+            )
+        )
+        response = await client.create_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.CreateFeatureMonitorJobRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_async_from_dict():
+    await test_create_feature_monitor_job_async(request_type=dict)
+
+
+def test_create_feature_monitor_job_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.CreateFeatureMonitorJobRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value = gca_feature_monitor_job.FeatureMonitorJob()
+        client.create_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.CreateFeatureMonitorJobRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_feature_monitor_job.FeatureMonitorJob()
+        )
+        await client.create_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_create_feature_monitor_job_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_feature_monitor_job.FeatureMonitorJob()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.create_feature_monitor_job(
+            parent="parent_value",
+            feature_monitor_job=gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value"
+            ),
+            feature_monitor_job_id=2329,
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature_monitor_job
+        mock_val = gca_feature_monitor_job.FeatureMonitorJob(name="name_value")
+        assert arg == mock_val
+        arg = args[0].feature_monitor_job_id
+        mock_val = 2329
+        assert arg == mock_val
+
+
+def test_create_feature_monitor_job_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_feature_monitor_job(
+            feature_registry_service.CreateFeatureMonitorJobRequest(),
+            parent="parent_value",
+            feature_monitor_job=gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value"
+            ),
+            feature_monitor_job_id=2329,
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_feature_monitor_job.FeatureMonitorJob()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_feature_monitor_job.FeatureMonitorJob()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.create_feature_monitor_job(
+            parent="parent_value",
+            feature_monitor_job=gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value"
+            ),
+            feature_monitor_job_id=2329,
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].feature_monitor_job
+        mock_val = gca_feature_monitor_job.FeatureMonitorJob(name="name_value")
+        assert arg == mock_val
+        arg = args[0].feature_monitor_job_id
+        mock_val = 2329
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.create_feature_monitor_job(
+            feature_registry_service.CreateFeatureMonitorJobRequest(),
+            parent="parent_value",
+            feature_monitor_job=gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value"
+            ),
+            feature_monitor_job_id=2329,
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.GetFeatureMonitorJobRequest,
+        dict,
+    ],
+)
+def test_get_feature_monitor_job(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_monitor_job.FeatureMonitorJob(
+            name="name_value",
+            description="description_value",
+            drift_base_feature_monitor_job_id=3467,
+            trigger_type=feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+        )
+        response = client.get_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.GetFeatureMonitorJobRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+def test_get_feature_monitor_job_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_registry_service.GetFeatureMonitorJobRequest(
+        name="name_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.get_feature_monitor_job(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_registry_service.GetFeatureMonitorJobRequest(
+            name="name_value",
+        )
+
+
+def test_get_feature_monitor_job_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_feature_monitor_job
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_feature_monitor_job
+        ] = mock_rpc
+        request = {}
+        client.get_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_feature_monitor_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.get_feature_monitor_job
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.get_feature_monitor_job
+        ] = mock_rpc
+
+        request = {}
+        await client.get_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.get_feature_monitor_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_registry_service.GetFeatureMonitorJobRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor_job.FeatureMonitorJob(
+                name="name_value",
+                description="description_value",
+                drift_base_feature_monitor_job_id=3467,
+                trigger_type=feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+            )
+        )
+        response = await client.get_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.GetFeatureMonitorJobRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_async_from_dict():
+    await test_get_feature_monitor_job_async(request_type=dict)
+
+
+def test_get_feature_monitor_job_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.GetFeatureMonitorJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value = feature_monitor_job.FeatureMonitorJob()
+        client.get_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.GetFeatureMonitorJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor_job.FeatureMonitorJob()
+        )
+        await client.get_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_get_feature_monitor_job_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_monitor_job.FeatureMonitorJob()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.get_feature_monitor_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_get_feature_monitor_job_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_feature_monitor_job(
+            feature_registry_service.GetFeatureMonitorJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_monitor_job.FeatureMonitorJob()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor_job.FeatureMonitorJob()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.get_feature_monitor_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.get_feature_monitor_job(
+            feature_registry_service.GetFeatureMonitorJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.ListFeatureMonitorJobsRequest,
+        dict,
+    ],
+)
+def test_list_feature_monitor_jobs(request_type, transport: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_registry_service.ListFeatureMonitorJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_feature_monitor_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.ListFeatureMonitorJobsRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_feature_monitor_jobs_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = feature_registry_service.ListFeatureMonitorJobsRequest(
+        parent="parent_value",
+        filter="filter_value",
+        page_token="page_token_value",
+        order_by="order_by_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.list_feature_monitor_jobs(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == feature_registry_service.ListFeatureMonitorJobsRequest(
+            parent="parent_value",
+            filter="filter_value",
+            page_token="page_token_value",
+            order_by="order_by_value",
+        )
+
+
+def test_list_feature_monitor_jobs_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_feature_monitor_jobs
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_feature_monitor_jobs
+        ] = mock_rpc
+        request = {}
+        client.list_feature_monitor_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_feature_monitor_jobs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.list_feature_monitor_jobs
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.list_feature_monitor_jobs
+        ] = mock_rpc
+
+        request = {}
+        await client.list_feature_monitor_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.list_feature_monitor_jobs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_async(
+    transport: str = "grpc_asyncio",
+    request_type=feature_registry_service.ListFeatureMonitorJobsRequest,
+):
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_feature_monitor_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = feature_registry_service.ListFeatureMonitorJobsRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorJobsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_async_from_dict():
+    await test_list_feature_monitor_jobs_async(request_type=dict)
+
+
+def test_list_feature_monitor_jobs_field_headers():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.ListFeatureMonitorJobsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        call.return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+        client.list_feature_monitor_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_field_headers_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = feature_registry_service.ListFeatureMonitorJobsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorJobsResponse()
+        )
+        await client.list_feature_monitor_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_feature_monitor_jobs_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_feature_monitor_jobs(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_feature_monitor_jobs_flattened_error():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_feature_monitor_jobs(
+            feature_registry_service.ListFeatureMonitorJobsRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_flattened_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorJobsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_feature_monitor_jobs(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_flattened_error_async():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_feature_monitor_jobs(
+            feature_registry_service.ListFeatureMonitorJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_feature_monitor_jobs_pager(transport_name: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        expected_metadata = ()
+        retry = retries.Retry()
+        timeout = 5
+        expected_metadata = tuple(expected_metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_feature_monitor_jobs(
+            request={}, retry=retry, timeout=timeout
+        )
+
+        assert pager._metadata == expected_metadata
+        assert pager._retry == retry
+        assert pager._timeout == timeout
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, feature_monitor_job.FeatureMonitorJob) for i in results
+        )
+
+
+def test_list_feature_monitor_jobs_pages(transport_name: str = "grpc"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_feature_monitor_jobs(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_async_pager():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_feature_monitor_jobs(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(
+            isinstance(i, feature_monitor_job.FeatureMonitorJob) for i in responses
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_async_pages():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
+        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
+        async for page_ in (  # pragma: no branch
+            await client.list_feature_monitor_jobs(request={})
+        ).pages:
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
 def test_create_feature_group_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -6394,6 +9597,199 @@ def test_create_feature_rest_flattened_error(transport: str = "rest"):
         )
 
 
+def test_batch_create_features_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.batch_create_features
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.batch_create_features
+        ] = mock_rpc
+
+        request = {}
+        client.batch_create_features(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.batch_create_features(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_batch_create_features_rest_required_fields(
+    request_type=featurestore_service.BatchCreateFeaturesRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).batch_create_features._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).batch_create_features._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.batch_create_features(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_batch_create_features_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.batch_create_features._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(())
+        & set(
+            (
+                "parent",
+                "requests",
+            )
+        )
+    )
+
+
+def test_batch_create_features_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            requests=[featurestore_service.CreateFeatureRequest(parent="parent_value")],
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.batch_create_features(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/featureGroups/*}/features:batchCreate"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_batch_create_features_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.batch_create_features(
+            featurestore_service.BatchCreateFeaturesRequest(),
+            parent="parent_value",
+            requests=[featurestore_service.CreateFeatureRequest(parent="parent_value")],
+        )
+
+
 def test_get_feature_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -6457,6 +9853,8 @@ def test_get_feature_rest_required_fields(
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
     ).get_feature._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("feature_stats_and_anomaly_spec",))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -6510,7 +9908,7 @@ def test_get_feature_rest_unset_required_fields():
     )
 
     unset_fields = transport.get_feature._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
+    assert set(unset_fields) == (set(("featureStatsAndAnomalySpec",)) & set(("name",)))
 
 
 def test_get_feature_rest_flattened():
@@ -7194,6 +10592,1512 @@ def test_delete_feature_rest_flattened_error(transport: str = "rest"):
         )
 
 
+def test_create_feature_monitor_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_feature_monitor
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_feature_monitor
+        ] = mock_rpc
+
+        request = {}
+        client.create_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.create_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_create_feature_monitor_rest_required_fields(
+    request_type=feature_registry_service.CreateFeatureMonitorRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request_init["feature_monitor_id"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+    assert "featureMonitorId" not in jsonified_request
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_feature_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+    assert "featureMonitorId" in jsonified_request
+    assert jsonified_request["featureMonitorId"] == request_init["feature_monitor_id"]
+
+    jsonified_request["parent"] = "parent_value"
+    jsonified_request["featureMonitorId"] = "feature_monitor_id_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_feature_monitor._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("feature_monitor_id",))
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+    assert "featureMonitorId" in jsonified_request
+    assert jsonified_request["featureMonitorId"] == "feature_monitor_id_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_feature_monitor(request)
+
+            expected_params = [
+                (
+                    "featureMonitorId",
+                    "",
+                ),
+                ("$alt", "json;enum-encoding=int"),
+            ]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_feature_monitor_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_feature_monitor._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(("featureMonitorId",))
+        & set(
+            (
+                "parent",
+                "featureMonitor",
+                "featureMonitorId",
+            )
+        )
+    )
+
+
+def test_create_feature_monitor_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            feature_monitor=gca_feature_monitor.FeatureMonitor(name="name_value"),
+            feature_monitor_id="feature_monitor_id_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_feature_monitor(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/featureGroups/*}/featureMonitors"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_feature_monitor_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_feature_monitor(
+            feature_registry_service.CreateFeatureMonitorRequest(),
+            parent="parent_value",
+            feature_monitor=gca_feature_monitor.FeatureMonitor(name="name_value"),
+            feature_monitor_id="feature_monitor_id_value",
+        )
+
+
+def test_get_feature_monitor_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_feature_monitor in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_feature_monitor
+        ] = mock_rpc
+
+        request = {}
+        client.get_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_get_feature_monitor_rest_required_fields(
+    request_type=feature_registry_service.GetFeatureMonitorRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_feature_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_feature_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = feature_monitor.FeatureMonitor()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = feature_monitor.FeatureMonitor.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_feature_monitor(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_feature_monitor_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_feature_monitor._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_get_feature_monitor_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_monitor.FeatureMonitor()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = feature_monitor.FeatureMonitor.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_feature_monitor(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_feature_monitor_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_feature_monitor(
+            feature_registry_service.GetFeatureMonitorRequest(),
+            name="name_value",
+        )
+
+
+def test_list_feature_monitors_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_feature_monitors
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_feature_monitors
+        ] = mock_rpc
+
+        request = {}
+        client.list_feature_monitors(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_feature_monitors(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_feature_monitors_rest_required_fields(
+    request_type=feature_registry_service.ListFeatureMonitorsRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_feature_monitors._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_feature_monitors._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "order_by",
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = feature_registry_service.ListFeatureMonitorsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = feature_registry_service.ListFeatureMonitorsResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_feature_monitors(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_feature_monitors_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_feature_monitors._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "orderBy",
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+def test_list_feature_monitors_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_registry_service.ListFeatureMonitorsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = feature_registry_service.ListFeatureMonitorsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_feature_monitors(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/featureGroups/*}/featureMonitors"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_feature_monitors_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_feature_monitors(
+            feature_registry_service.ListFeatureMonitorsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_feature_monitors_rest_pager(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorsResponse(
+                feature_monitors=[
+                    feature_monitor.FeatureMonitor(),
+                    feature_monitor.FeatureMonitor(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            feature_registry_service.ListFeatureMonitorsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+        }
+
+        pager = client.list_feature_monitors(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, feature_monitor.FeatureMonitor) for i in results)
+
+        pages = list(client.list_feature_monitors(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+def test_delete_feature_monitor_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.delete_feature_monitor
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.delete_feature_monitor
+        ] = mock_rpc
+
+        request = {}
+        client.delete_feature_monitor(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        # Operation methods build a cached wrapper on first rpc call
+        # subsequent calls should use the cached wrapper
+        wrapper_fn.reset_mock()
+
+        client.delete_feature_monitor(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_delete_feature_monitor_rest_required_fields(
+    request_type=feature_registry_service.DeleteFeatureMonitorRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_feature_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).delete_feature_monitor._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = operations_pb2.Operation(name="operations/spam")
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "delete",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.delete_feature_monitor(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_delete_feature_monitor_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.delete_feature_monitor._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_delete_feature_monitor_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.delete_feature_monitor(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_delete_feature_monitor_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_feature_monitor(
+            feature_registry_service.DeleteFeatureMonitorRequest(),
+            name="name_value",
+        )
+
+
+def test_create_feature_monitor_job_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.create_feature_monitor_job
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.create_feature_monitor_job
+        ] = mock_rpc
+
+        request = {}
+        client.create_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.create_feature_monitor_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_create_feature_monitor_job_rest_required_fields(
+    request_type=feature_registry_service.CreateFeatureMonitorJobRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_feature_monitor_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).create_feature_monitor_job._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("feature_monitor_job_id",))
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = gca_feature_monitor_job.FeatureMonitorJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = gca_feature_monitor_job.FeatureMonitorJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.create_feature_monitor_job(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_create_feature_monitor_job_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.create_feature_monitor_job._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(("featureMonitorJobId",))
+        & set(
+            (
+                "parent",
+                "featureMonitorJob",
+            )
+        )
+    )
+
+
+def test_create_feature_monitor_job_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_feature_monitor_job.FeatureMonitorJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            feature_monitor_job=gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value"
+            ),
+            feature_monitor_job_id=2329,
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = gca_feature_monitor_job.FeatureMonitorJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.create_feature_monitor_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/featureGroups/*/featureMonitors/*}/featureMonitorJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_create_feature_monitor_job_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_feature_monitor_job(
+            feature_registry_service.CreateFeatureMonitorJobRequest(),
+            parent="parent_value",
+            feature_monitor_job=gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value"
+            ),
+            feature_monitor_job_id=2329,
+        )
+
+
+def test_get_feature_monitor_job_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.get_feature_monitor_job
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.get_feature_monitor_job
+        ] = mock_rpc
+
+        request = {}
+        client.get_feature_monitor_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.get_feature_monitor_job(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_get_feature_monitor_job_rest_required_fields(
+    request_type=feature_registry_service.GetFeatureMonitorJobRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["name"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_feature_monitor_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["name"] = "name_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).get_feature_monitor_job._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "name" in jsonified_request
+    assert jsonified_request["name"] == "name_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = feature_monitor_job.FeatureMonitorJob()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = feature_monitor_job.FeatureMonitorJob.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.get_feature_monitor_job(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_get_feature_monitor_job_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.get_feature_monitor_job._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("name",)))
+
+
+def test_get_feature_monitor_job_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_monitor_job.FeatureMonitorJob()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4/featureMonitorJobs/sample5"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            name="name_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = feature_monitor_job.FeatureMonitorJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.get_feature_monitor_job(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/featureMonitorJobs/*}"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_get_feature_monitor_job_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_feature_monitor_job(
+            feature_registry_service.GetFeatureMonitorJobRequest(),
+            name="name_value",
+        )
+
+
+def test_list_feature_monitor_jobs_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = FeatureRegistryServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.list_feature_monitor_jobs
+            in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.list_feature_monitor_jobs
+        ] = mock_rpc
+
+        request = {}
+        client.list_feature_monitor_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.list_feature_monitor_jobs(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_list_feature_monitor_jobs_rest_required_fields(
+    request_type=feature_registry_service.ListFeatureMonitorJobsRequest,
+):
+    transport_class = transports.FeatureRegistryServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_feature_monitor_jobs._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).list_feature_monitor_jobs._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(
+        (
+            "filter",
+            "order_by",
+            "page_size",
+            "page_token",
+        )
+    )
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "get",
+                "query_params": pb_request,
+            }
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = feature_registry_service.ListFeatureMonitorJobsResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.list_feature_monitor_jobs(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_list_feature_monitor_jobs_rest_unset_required_fields():
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.list_feature_monitor_jobs._get_unset_required_fields({})
+    assert set(unset_fields) == (
+        set(
+            (
+                "filter",
+                "orderBy",
+                "pageSize",
+                "pageToken",
+            )
+        )
+        & set(("parent",))
+    )
+
+
+def test_list_feature_monitor_jobs_rest_flattened():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+        }
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.list_feature_monitor_jobs(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*/featureGroups/*/featureMonitors/*}/featureMonitorJobs"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_list_feature_monitor_jobs_rest_flattened_error(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_feature_monitor_jobs(
+            feature_registry_service.ListFeatureMonitorJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_feature_monitor_jobs_rest_pager(transport: str = "rest"):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # TODO(kbandes): remove this mock unless there's a good reason for it.
+        # with mock.patch.object(path_template, 'transcode') as transcode:
+        # Set the response as a series of pages
+        response = (
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="abc",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[],
+                next_page_token="def",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                feature_monitor_jobs=[
+                    feature_monitor_job.FeatureMonitorJob(),
+                    feature_monitor_job.FeatureMonitorJob(),
+                ],
+            ),
+        )
+        # Two responses for two calls
+        response = response + response
+
+        # Wrap the values into proper Response objs
+        response = tuple(
+            feature_registry_service.ListFeatureMonitorJobsResponse.to_json(x)
+            for x in response
+        )
+        return_values = tuple(Response() for i in response)
+        for return_val, response_val in zip(return_values, response):
+            return_val._content = response_val.encode("UTF-8")
+            return_val.status_code = 200
+        req.side_effect = return_values
+
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+        }
+
+        pager = client.list_feature_monitor_jobs(request=sample_request)
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(
+            isinstance(i, feature_monitor_job.FeatureMonitorJob) for i in results
+        )
+
+        pages = list(client.list_feature_monitor_jobs(request=sample_request).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.FeatureRegistryServiceGrpcTransport(
@@ -7438,6 +12342,29 @@ def test_create_feature_empty_call_grpc():
 
 # This test is a coverage failsafe to make sure that totally empty calls,
 # i.e. request == None and no flattened fields passed, work.
+def test_batch_create_features_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.batch_create_features(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = featurestore_service.BatchCreateFeaturesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
 def test_get_feature_empty_call_grpc():
     client = FeatureRegistryServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -7516,6 +12443,167 @@ def test_delete_feature_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = featurestore_service.DeleteFeatureRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_feature_monitor_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_feature_monitor_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = feature_monitor.FeatureMonitor()
+        client.get_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_feature_monitors_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        call.return_value = feature_registry_service.ListFeatureMonitorsResponse()
+        client.list_feature_monitors(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_feature_monitor_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.DeleteFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_feature_monitor_job_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value = gca_feature_monitor_job.FeatureMonitorJob()
+        client.create_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_feature_monitor_job_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        call.return_value = feature_monitor_job.FeatureMonitorJob()
+        client.get_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_feature_monitor_jobs_empty_call_grpc():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        call.return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+        client.list_feature_monitor_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorJobsRequest()
 
         assert args[0] == request_msg
 
@@ -7703,6 +12791,33 @@ async def test_create_feature_empty_call_grpc_asyncio():
 # This test is a coverage failsafe to make sure that totally empty calls,
 # i.e. request == None and no flattened fields passed, work.
 @pytest.mark.asyncio
+async def test_batch_create_features_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.batch_create_features(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = featurestore_service.BatchCreateFeaturesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
 async def test_get_feature_empty_call_grpc_asyncio():
     client = FeatureRegistryServiceAsyncClient(
         credentials=async_anonymous_credentials(),
@@ -7806,6 +12921,213 @@ async def test_delete_feature_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = featurestore_service.DeleteFeatureRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_feature_monitor_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.create_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_feature_monitor_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor.FeatureMonitor(
+                name="name_value",
+                etag="etag_value",
+                description="description_value",
+            )
+        )
+        await client.get_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_feature_monitors_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_feature_monitors(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        await client.delete_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.DeleteFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_feature_monitor_job.FeatureMonitorJob(
+                name="name_value",
+                description="description_value",
+                drift_base_feature_monitor_job_id=3467,
+                trigger_type=gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+            )
+        )
+        await client.create_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_monitor_job.FeatureMonitorJob(
+                name="name_value",
+                description="description_value",
+                drift_base_feature_monitor_job_id=3467,
+                trigger_type=feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+            )
+        )
+        await client.get_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_empty_call_grpc_asyncio():
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            feature_registry_service.ListFeatureMonitorJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        await client.list_feature_monitor_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorJobsRequest()
 
         assert args[0] == request_msg
 
@@ -8664,6 +13986,25 @@ def test_create_feature_rest_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }
@@ -8800,6 +14141,125 @@ def test_create_feature_rest_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
 
         client.create_feature(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_batch_create_features_rest_bad_request(
+    request_type=featurestore_service.BatchCreateFeaturesRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.batch_create_features(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        featurestore_service.BatchCreateFeaturesRequest,
+        dict,
+    ],
+)
+def test_batch_create_features_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.batch_create_features(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_batch_create_features_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "post_batch_create_features"
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "pre_batch_create_features"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = featurestore_service.BatchCreateFeaturesRequest.pb(
+            featurestore_service.BatchCreateFeaturesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = featurestore_service.BatchCreateFeaturesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.batch_create_features(
             request,
             metadata=[
                 ("key", "val"),
@@ -9149,6 +14609,25 @@ def test_update_feature_rest_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }
@@ -9404,6 +14883,1097 @@ def test_delete_feature_rest_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
 
         client.delete_feature(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_feature_monitor_rest_bad_request(
+    request_type=feature_registry_service.CreateFeatureMonitorRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_feature_monitor(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.CreateFeatureMonitorRequest,
+        dict,
+    ],
+)
+def test_create_feature_monitor_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request_init["feature_monitor"] = {
+        "name": "name_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "etag": "etag_value",
+        "labels": {},
+        "description": "description_value",
+        "schedule_config": {"cron": "cron_value"},
+        "feature_selection_config": {
+            "feature_configs": [
+                {"feature_id": "feature_id_value", "drift_threshold": 0.1605}
+            ]
+        },
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = feature_registry_service.CreateFeatureMonitorRequest.meta.fields[
+        "feature_monitor"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["feature_monitor"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["feature_monitor"][field])):
+                    del request_init["feature_monitor"][field][i][subfield]
+            else:
+                del request_init["feature_monitor"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_feature_monitor(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_feature_monitor_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "post_create_feature_monitor"
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "pre_create_feature_monitor"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.CreateFeatureMonitorRequest.pb(
+            feature_registry_service.CreateFeatureMonitorRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = feature_registry_service.CreateFeatureMonitorRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.create_feature_monitor(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_feature_monitor_rest_bad_request(
+    request_type=feature_registry_service.GetFeatureMonitorRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_feature_monitor(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.GetFeatureMonitorRequest,
+        dict,
+    ],
+)
+def test_get_feature_monitor_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_monitor.FeatureMonitor(
+            name="name_value",
+            etag="etag_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_monitor.FeatureMonitor.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_feature_monitor(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor.FeatureMonitor)
+    assert response.name == "name_value"
+    assert response.etag == "etag_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_feature_monitor_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "post_get_feature_monitor"
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "pre_get_feature_monitor"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.GetFeatureMonitorRequest.pb(
+            feature_registry_service.GetFeatureMonitorRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_monitor.FeatureMonitor.to_json(
+            feature_monitor.FeatureMonitor()
+        )
+        req.return_value.content = return_value
+
+        request = feature_registry_service.GetFeatureMonitorRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_monitor.FeatureMonitor()
+
+        client.get_feature_monitor(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_feature_monitors_rest_bad_request(
+    request_type=feature_registry_service.ListFeatureMonitorsRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_feature_monitors(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.ListFeatureMonitorsRequest,
+        dict,
+    ],
+)
+def test_list_feature_monitors_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_registry_service.ListFeatureMonitorsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_registry_service.ListFeatureMonitorsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_feature_monitors(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_feature_monitors_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "post_list_feature_monitors"
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "pre_list_feature_monitors"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.ListFeatureMonitorsRequest.pb(
+            feature_registry_service.ListFeatureMonitorsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_registry_service.ListFeatureMonitorsResponse.to_json(
+            feature_registry_service.ListFeatureMonitorsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = feature_registry_service.ListFeatureMonitorsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_registry_service.ListFeatureMonitorsResponse()
+
+        client.list_feature_monitors(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_delete_feature_monitor_rest_bad_request(
+    request_type=feature_registry_service.DeleteFeatureMonitorRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.delete_feature_monitor(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.DeleteFeatureMonitorRequest,
+        dict,
+    ],
+)
+def test_delete_feature_monitor_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.delete_feature_monitor(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_delete_feature_monitor_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "post_delete_feature_monitor"
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "pre_delete_feature_monitor"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.DeleteFeatureMonitorRequest.pb(
+            feature_registry_service.DeleteFeatureMonitorRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.content = return_value
+
+        request = feature_registry_service.DeleteFeatureMonitorRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        client.delete_feature_monitor(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_create_feature_monitor_job_rest_bad_request(
+    request_type=feature_registry_service.CreateFeatureMonitorJobRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.create_feature_monitor_job(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.CreateFeatureMonitorJobRequest,
+        dict,
+    ],
+)
+def test_create_feature_monitor_job_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request_init["feature_monitor_job"] = {
+        "name": "name_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "final_status": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "job_summary": {
+            "total_slot_ms": 1412,
+            "feature_stats_and_anomalies": [
+                {
+                    "feature_id": "feature_id_value",
+                    "feature_stats": {
+                        "null_value": 0,
+                        "number_value": 0.1285,
+                        "string_value": "string_value_value",
+                        "bool_value": True,
+                        "struct_value": {"fields": {}},
+                        "list_value": {"values": {}},
+                    },
+                    "distribution_deviation": 0.23700000000000002,
+                    "drift_detection_threshold": 0.2659,
+                    "drift_detected": True,
+                    "stats_time": {},
+                    "feature_monitor_job_id": 2329,
+                    "feature_monitor_id": "feature_monitor_id_value",
+                }
+            ],
+        },
+        "labels": {},
+        "description": "description_value",
+        "drift_base_feature_monitor_job_id": 3467,
+        "drift_base_snapshot_time": {},
+        "feature_selection_config": {
+            "feature_configs": [
+                {"feature_id": "feature_id_value", "drift_threshold": 0.1605}
+            ]
+        },
+        "trigger_type": 1,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = feature_registry_service.CreateFeatureMonitorJobRequest.meta.fields[
+        "feature_monitor_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["feature_monitor_job"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["feature_monitor_job"][field])):
+                    del request_init["feature_monitor_job"][field][i][subfield]
+            else:
+                del request_init["feature_monitor_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_feature_monitor_job.FeatureMonitorJob(
+            name="name_value",
+            description="description_value",
+            drift_base_feature_monitor_job_id=3467,
+            trigger_type=gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_feature_monitor_job.FeatureMonitorJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.create_feature_monitor_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_create_feature_monitor_job_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor,
+        "post_create_feature_monitor_job",
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor,
+        "pre_create_feature_monitor_job",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.CreateFeatureMonitorJobRequest.pb(
+            feature_registry_service.CreateFeatureMonitorJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_feature_monitor_job.FeatureMonitorJob.to_json(
+            gca_feature_monitor_job.FeatureMonitorJob()
+        )
+        req.return_value.content = return_value
+
+        request = feature_registry_service.CreateFeatureMonitorJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_feature_monitor_job.FeatureMonitorJob()
+
+        client.create_feature_monitor_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_get_feature_monitor_job_rest_bad_request(
+    request_type=feature_registry_service.GetFeatureMonitorJobRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4/featureMonitorJobs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.get_feature_monitor_job(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.GetFeatureMonitorJobRequest,
+        dict,
+    ],
+)
+def test_get_feature_monitor_job_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4/featureMonitorJobs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_monitor_job.FeatureMonitorJob(
+            name="name_value",
+            description="description_value",
+            drift_base_feature_monitor_job_id=3467,
+            trigger_type=feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_monitor_job.FeatureMonitorJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.get_feature_monitor_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_get_feature_monitor_job_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "post_get_feature_monitor_job"
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor, "pre_get_feature_monitor_job"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.GetFeatureMonitorJobRequest.pb(
+            feature_registry_service.GetFeatureMonitorJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_monitor_job.FeatureMonitorJob.to_json(
+            feature_monitor_job.FeatureMonitorJob()
+        )
+        req.return_value.content = return_value
+
+        request = feature_registry_service.GetFeatureMonitorJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_monitor_job.FeatureMonitorJob()
+
+        client.get_feature_monitor_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_list_feature_monitor_jobs_rest_bad_request(
+    request_type=feature_registry_service.ListFeatureMonitorJobsRequest,
+):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.list_feature_monitor_jobs(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.ListFeatureMonitorJobsRequest,
+        dict,
+    ],
+)
+def test_list_feature_monitor_jobs_rest_call_success(request_type):
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.list_feature_monitor_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_list_feature_monitor_jobs_rest_interceptors(null_interceptor):
+    transport = transports.FeatureRegistryServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.FeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor,
+        "post_list_feature_monitor_jobs",
+    ) as post, mock.patch.object(
+        transports.FeatureRegistryServiceRestInterceptor,
+        "pre_list_feature_monitor_jobs",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.ListFeatureMonitorJobsRequest.pb(
+            feature_registry_service.ListFeatureMonitorJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse.to_json(
+            feature_registry_service.ListFeatureMonitorJobsResponse()
+        )
+        req.return_value.content = return_value
+
+        request = feature_registry_service.ListFeatureMonitorJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+
+        client.list_feature_monitor_jobs(
             request,
             metadata=[
                 ("key", "val"),
@@ -10159,6 +16729,28 @@ def test_create_feature_empty_call_rest():
 
 # This test is a coverage failsafe to make sure that totally empty calls,
 # i.e. request == None and no flattened fields passed, work.
+def test_batch_create_features_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        client.batch_create_features(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = featurestore_service.BatchCreateFeaturesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
 def test_get_feature_empty_call_rest():
     client = FeatureRegistryServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -10233,6 +16825,160 @@ def test_delete_feature_empty_call_rest():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = featurestore_service.DeleteFeatureRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_feature_monitor_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        client.create_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_feature_monitor_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        client.get_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_feature_monitors_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        client.list_feature_monitors(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_delete_feature_monitor_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        client.delete_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.DeleteFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_create_feature_monitor_job_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        client.create_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_get_feature_monitor_job_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        client.get_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_list_feature_monitor_jobs_empty_call_rest():
+    client = FeatureRegistryServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        client.list_feature_monitor_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorJobsRequest()
 
         assert args[0] == request_msg
 
@@ -11208,6 +17954,25 @@ async def test_create_feature_rest_asyncio_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }
@@ -11351,6 +18116,143 @@ async def test_create_feature_rest_asyncio_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
 
         await client.create_feature(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_batch_create_features_rest_asyncio_bad_request(
+    request_type=featurestore_service.BatchCreateFeaturesRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.batch_create_features(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        featurestore_service.BatchCreateFeaturesRequest,
+        dict,
+    ],
+)
+async def test_batch_create_features_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.batch_create_features(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_batch_create_features_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_batch_create_features",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "pre_batch_create_features",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = featurestore_service.BatchCreateFeaturesRequest.pb(
+            featurestore_service.BatchCreateFeaturesRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = featurestore_service.BatchCreateFeaturesRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.batch_create_features(
             request,
             metadata=[
                 ("key", "val"),
@@ -11741,6 +18643,25 @@ async def test_update_feature_rest_asyncio_call_success(request_type):
             }
         ],
         "monitoring_stats_anomalies": [{"objective": 1, "feature_stats_anomaly": {}}],
+        "feature_stats_and_anomaly": [
+            {
+                "feature_id": "feature_id_value",
+                "feature_stats": {
+                    "null_value": 0,
+                    "number_value": 0.1285,
+                    "string_value": "string_value_value",
+                    "bool_value": True,
+                    "struct_value": {"fields": {}},
+                    "list_value": {"values": {}},
+                },
+                "distribution_deviation": 0.23700000000000002,
+                "drift_detection_threshold": 0.2659,
+                "drift_detected": True,
+                "stats_time": {},
+                "feature_monitor_job_id": 2329,
+                "feature_monitor_id": "feature_monitor_id_value",
+            }
+        ],
         "version_column_name": "version_column_name_value",
         "point_of_contact": "point_of_contact_value",
     }
@@ -12019,6 +18940,1218 @@ async def test_delete_feature_rest_asyncio_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
 
         await client.delete_feature(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_rest_asyncio_bad_request(
+    request_type=feature_registry_service.CreateFeatureMonitorRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.create_feature_monitor(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.CreateFeatureMonitorRequest,
+        dict,
+    ],
+)
+async def test_create_feature_monitor_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request_init["feature_monitor"] = {
+        "name": "name_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "update_time": {},
+        "etag": "etag_value",
+        "labels": {},
+        "description": "description_value",
+        "schedule_config": {"cron": "cron_value"},
+        "feature_selection_config": {
+            "feature_configs": [
+                {"feature_id": "feature_id_value", "drift_threshold": 0.1605}
+            ]
+        },
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = feature_registry_service.CreateFeatureMonitorRequest.meta.fields[
+        "feature_monitor"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["feature_monitor"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["feature_monitor"][field])):
+                    del request_init["feature_monitor"][field][i][subfield]
+            else:
+                del request_init["feature_monitor"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.create_feature_monitor(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_create_feature_monitor_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_create_feature_monitor",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "pre_create_feature_monitor",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.CreateFeatureMonitorRequest.pb(
+            feature_registry_service.CreateFeatureMonitorRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = feature_registry_service.CreateFeatureMonitorRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.create_feature_monitor(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_rest_asyncio_bad_request(
+    request_type=feature_registry_service.GetFeatureMonitorRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.get_feature_monitor(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.GetFeatureMonitorRequest,
+        dict,
+    ],
+)
+async def test_get_feature_monitor_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_monitor.FeatureMonitor(
+            name="name_value",
+            etag="etag_value",
+            description="description_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_monitor.FeatureMonitor.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.get_feature_monitor(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor.FeatureMonitor)
+    assert response.name == "name_value"
+    assert response.etag == "etag_value"
+    assert response.description == "description_value"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_get_feature_monitor_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_get_feature_monitor",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor, "pre_get_feature_monitor"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.GetFeatureMonitorRequest.pb(
+            feature_registry_service.GetFeatureMonitorRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_monitor.FeatureMonitor.to_json(
+            feature_monitor.FeatureMonitor()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = feature_registry_service.GetFeatureMonitorRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_monitor.FeatureMonitor()
+
+        await client.get_feature_monitor(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitors_rest_asyncio_bad_request(
+    request_type=feature_registry_service.ListFeatureMonitorsRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.list_feature_monitors(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.ListFeatureMonitorsRequest,
+        dict,
+    ],
+)
+async def test_list_feature_monitors_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_registry_service.ListFeatureMonitorsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_registry_service.ListFeatureMonitorsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.list_feature_monitors(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_list_feature_monitors_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_list_feature_monitors",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "pre_list_feature_monitors",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.ListFeatureMonitorsRequest.pb(
+            feature_registry_service.ListFeatureMonitorsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_registry_service.ListFeatureMonitorsResponse.to_json(
+            feature_registry_service.ListFeatureMonitorsResponse()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = feature_registry_service.ListFeatureMonitorsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_registry_service.ListFeatureMonitorsResponse()
+
+        await client.list_feature_monitors(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_rest_asyncio_bad_request(
+    request_type=feature_registry_service.DeleteFeatureMonitorRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.delete_feature_monitor(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.DeleteFeatureMonitorRequest,
+        dict,
+    ],
+)
+async def test_delete_feature_monitor_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = operations_pb2.Operation(name="operations/spam")
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.delete_feature_monitor(request)
+
+    # Establish that the response is the type that we expect.
+    json_return_value = json_format.MessageToJson(return_value)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_delete_feature_monitor_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        operation.Operation, "_set_result_from_operation"
+    ), mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_delete_feature_monitor",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "pre_delete_feature_monitor",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.DeleteFeatureMonitorRequest.pb(
+            feature_registry_service.DeleteFeatureMonitorRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = json_format.MessageToJson(operations_pb2.Operation())
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = feature_registry_service.DeleteFeatureMonitorRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = operations_pb2.Operation()
+
+        await client.delete_feature_monitor(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_rest_asyncio_bad_request(
+    request_type=feature_registry_service.CreateFeatureMonitorJobRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.create_feature_monitor_job(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.CreateFeatureMonitorJobRequest,
+        dict,
+    ],
+)
+async def test_create_feature_monitor_job_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request_init["feature_monitor_job"] = {
+        "name": "name_value",
+        "create_time": {"seconds": 751, "nanos": 543},
+        "final_status": {
+            "code": 411,
+            "message": "message_value",
+            "details": [
+                {
+                    "type_url": "type.googleapis.com/google.protobuf.Duration",
+                    "value": b"\x08\x0c\x10\xdb\x07",
+                }
+            ],
+        },
+        "job_summary": {
+            "total_slot_ms": 1412,
+            "feature_stats_and_anomalies": [
+                {
+                    "feature_id": "feature_id_value",
+                    "feature_stats": {
+                        "null_value": 0,
+                        "number_value": 0.1285,
+                        "string_value": "string_value_value",
+                        "bool_value": True,
+                        "struct_value": {"fields": {}},
+                        "list_value": {"values": {}},
+                    },
+                    "distribution_deviation": 0.23700000000000002,
+                    "drift_detection_threshold": 0.2659,
+                    "drift_detected": True,
+                    "stats_time": {},
+                    "feature_monitor_job_id": 2329,
+                    "feature_monitor_id": "feature_monitor_id_value",
+                }
+            ],
+        },
+        "labels": {},
+        "description": "description_value",
+        "drift_base_feature_monitor_job_id": 3467,
+        "drift_base_snapshot_time": {},
+        "feature_selection_config": {
+            "feature_configs": [
+                {"feature_id": "feature_id_value", "drift_threshold": 0.1605}
+            ]
+        },
+        "trigger_type": 1,
+    }
+    # The version of a generated dependency at test runtime may differ from the version used during generation.
+    # Delete any fields which are not present in the current runtime dependency
+    # See https://github.com/googleapis/gapic-generator-python/issues/1748
+
+    # Determine if the message type is proto-plus or protobuf
+    test_field = feature_registry_service.CreateFeatureMonitorJobRequest.meta.fields[
+        "feature_monitor_job"
+    ]
+
+    def get_message_fields(field):
+        # Given a field which is a message (composite type), return a list with
+        # all the fields of the message.
+        # If the field is not a composite type, return an empty list.
+        message_fields = []
+
+        if hasattr(field, "message") and field.message:
+            is_field_type_proto_plus_type = not hasattr(field.message, "DESCRIPTOR")
+
+            if is_field_type_proto_plus_type:
+                message_fields = field.message.meta.fields.values()
+            # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
+            else:  # pragma: NO COVER
+                message_fields = field.message.DESCRIPTOR.fields
+        return message_fields
+
+    runtime_nested_fields = [
+        (field.name, nested_field.name)
+        for field in get_message_fields(test_field)
+        for nested_field in get_message_fields(field)
+    ]
+
+    subfields_not_in_runtime = []
+
+    # For each item in the sample request, create a list of sub fields which are not present at runtime
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for field, value in request_init["feature_monitor_job"].items():  # pragma: NO COVER
+        result = None
+        is_repeated = False
+        # For repeated fields
+        if isinstance(value, list) and len(value):
+            is_repeated = True
+            result = value[0]
+        # For fields where the type is another message
+        if isinstance(value, dict):
+            result = value
+
+        if result and hasattr(result, "keys"):
+            for subfield in result.keys():
+                if (field, subfield) not in runtime_nested_fields:
+                    subfields_not_in_runtime.append(
+                        {
+                            "field": field,
+                            "subfield": subfield,
+                            "is_repeated": is_repeated,
+                        }
+                    )
+
+    # Remove fields from the sample request which are not present in the runtime version of the dependency
+    # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
+    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+        field = subfield_to_delete.get("field")
+        field_repeated = subfield_to_delete.get("is_repeated")
+        subfield = subfield_to_delete.get("subfield")
+        if subfield:
+            if field_repeated:
+                for i in range(0, len(request_init["feature_monitor_job"][field])):
+                    del request_init["feature_monitor_job"][field][i][subfield]
+            else:
+                del request_init["feature_monitor_job"][field][subfield]
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = gca_feature_monitor_job.FeatureMonitorJob(
+            name="name_value",
+            description="description_value",
+            drift_base_feature_monitor_job_id=3467,
+            trigger_type=gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = gca_feature_monitor_job.FeatureMonitorJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.create_feature_monitor_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == gca_feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_create_feature_monitor_job_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_create_feature_monitor_job",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "pre_create_feature_monitor_job",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.CreateFeatureMonitorJobRequest.pb(
+            feature_registry_service.CreateFeatureMonitorJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = gca_feature_monitor_job.FeatureMonitorJob.to_json(
+            gca_feature_monitor_job.FeatureMonitorJob()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = feature_registry_service.CreateFeatureMonitorJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = gca_feature_monitor_job.FeatureMonitorJob()
+
+        await client.create_feature_monitor_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_rest_asyncio_bad_request(
+    request_type=feature_registry_service.GetFeatureMonitorJobRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4/featureMonitorJobs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.get_feature_monitor_job(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.GetFeatureMonitorJobRequest,
+        dict,
+    ],
+)
+async def test_get_feature_monitor_job_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "name": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4/featureMonitorJobs/sample5"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_monitor_job.FeatureMonitorJob(
+            name="name_value",
+            description="description_value",
+            drift_base_feature_monitor_job_id=3467,
+            trigger_type=feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_monitor_job.FeatureMonitorJob.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.get_feature_monitor_job(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, feature_monitor_job.FeatureMonitorJob)
+    assert response.name == "name_value"
+    assert response.description == "description_value"
+    assert response.drift_base_feature_monitor_job_id == 3467
+    assert (
+        response.trigger_type
+        == feature_monitor_job.FeatureMonitorJob.FeatureMonitorJobTrigger.FEATURE_MONITOR_JOB_TRIGGER_PERIODIC
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_get_feature_monitor_job_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_get_feature_monitor_job",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "pre_get_feature_monitor_job",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.GetFeatureMonitorJobRequest.pb(
+            feature_registry_service.GetFeatureMonitorJobRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_monitor_job.FeatureMonitorJob.to_json(
+            feature_monitor_job.FeatureMonitorJob()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = feature_registry_service.GetFeatureMonitorJobRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_monitor_job.FeatureMonitorJob()
+
+        await client.get_feature_monitor_job(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_rest_asyncio_bad_request(
+    request_type=feature_registry_service.ListFeatureMonitorJobsRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.list_feature_monitor_jobs(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        feature_registry_service.ListFeatureMonitorJobsRequest,
+        dict,
+    ],
+)
+async def test_list_feature_monitor_jobs_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/featureGroups/sample3/featureMonitors/sample4"
+    }
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse.pb(
+            return_value
+        )
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.list_feature_monitor_jobs(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListFeatureMonitorJobsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_list_feature_monitor_jobs_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncFeatureRegistryServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncFeatureRegistryServiceRestInterceptor(),
+    )
+    client = FeatureRegistryServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "post_list_feature_monitor_jobs",
+    ) as post, mock.patch.object(
+        transports.AsyncFeatureRegistryServiceRestInterceptor,
+        "pre_list_feature_monitor_jobs",
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = feature_registry_service.ListFeatureMonitorJobsRequest.pb(
+            feature_registry_service.ListFeatureMonitorJobsRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = feature_registry_service.ListFeatureMonitorJobsResponse.to_json(
+            feature_registry_service.ListFeatureMonitorJobsResponse()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = feature_registry_service.ListFeatureMonitorJobsRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = feature_registry_service.ListFeatureMonitorJobsResponse()
+
+        await client.list_feature_monitor_jobs(
             request,
             metadata=[
                 ("key", "val"),
@@ -12921,6 +21054,33 @@ async def test_create_feature_empty_call_rest_asyncio():
 # This test is a coverage failsafe to make sure that totally empty calls,
 # i.e. request == None and no flattened fields passed, work.
 @pytest.mark.asyncio
+async def test_batch_create_features_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_create_features), "__call__"
+    ) as call:
+        await client.batch_create_features(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = featurestore_service.BatchCreateFeaturesRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
 async def test_get_feature_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -13018,6 +21178,195 @@ async def test_delete_feature_empty_call_rest_asyncio():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_feature_monitor_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor), "__call__"
+    ) as call:
+        await client.create_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_feature_monitor_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor), "__call__"
+    ) as call:
+        await client.get_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_feature_monitors_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitors), "__call__"
+    ) as call:
+        await client.list_feature_monitors(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_delete_feature_monitor_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_feature_monitor), "__call__"
+    ) as call:
+        await client.delete_feature_monitor(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.DeleteFeatureMonitorRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_create_feature_monitor_job_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_feature_monitor_job), "__call__"
+    ) as call:
+        await client.create_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.CreateFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_get_feature_monitor_job_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_feature_monitor_job), "__call__"
+    ) as call:
+        await client.get_feature_monitor_job(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.GetFeatureMonitorJobRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_list_feature_monitor_jobs_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = FeatureRegistryServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_feature_monitor_jobs), "__call__"
+    ) as call:
+        await client.list_feature_monitor_jobs(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = feature_registry_service.ListFeatureMonitorJobsRequest()
+
+        assert args[0] == request_msg
+
+
 def test_feature_registry_service_rest_asyncio_lro_client():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -13092,10 +21441,18 @@ def test_feature_registry_service_base_transport():
         "update_feature_group",
         "delete_feature_group",
         "create_feature",
+        "batch_create_features",
         "get_feature",
         "list_features",
         "update_feature",
         "delete_feature",
+        "create_feature_monitor",
+        "get_feature_monitor",
+        "list_feature_monitors",
+        "delete_feature_monitor",
+        "create_feature_monitor_job",
+        "get_feature_monitor_job",
+        "list_feature_monitor_jobs",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -13391,6 +21748,9 @@ def test_feature_registry_service_client_transport_session_collision(transport_n
     session1 = client1.transport.create_feature._session
     session2 = client2.transport.create_feature._session
     assert session1 != session2
+    session1 = client1.transport.batch_create_features._session
+    session2 = client2.transport.batch_create_features._session
+    assert session1 != session2
     session1 = client1.transport.get_feature._session
     session2 = client2.transport.get_feature._session
     assert session1 != session2
@@ -13402,6 +21762,27 @@ def test_feature_registry_service_client_transport_session_collision(transport_n
     assert session1 != session2
     session1 = client1.transport.delete_feature._session
     session2 = client2.transport.delete_feature._session
+    assert session1 != session2
+    session1 = client1.transport.create_feature_monitor._session
+    session2 = client2.transport.create_feature_monitor._session
+    assert session1 != session2
+    session1 = client1.transport.get_feature_monitor._session
+    session2 = client2.transport.get_feature_monitor._session
+    assert session1 != session2
+    session1 = client1.transport.list_feature_monitors._session
+    session2 = client2.transport.list_feature_monitors._session
+    assert session1 != session2
+    session1 = client1.transport.delete_feature_monitor._session
+    session2 = client2.transport.delete_feature_monitor._session
+    assert session1 != session2
+    session1 = client1.transport.create_feature_monitor_job._session
+    session2 = client2.transport.create_feature_monitor_job._session
+    assert session1 != session2
+    session1 = client1.transport.get_feature_monitor_job._session
+    session2 = client2.transport.get_feature_monitor_job._session
+    assert session1 != session2
+    session1 = client1.transport.list_feature_monitor_jobs._session
+    session2 = client2.transport.list_feature_monitor_jobs._session
     assert session1 != session2
 
 
@@ -13629,8 +22010,73 @@ def test_parse_feature_group_path():
     assert expected == actual
 
 
+def test_feature_monitor_path():
+    project = "oyster"
+    location = "nudibranch"
+    feature_group = "cuttlefish"
+    feature_monitor = "mussel"
+    expected = "projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}".format(
+        project=project,
+        location=location,
+        feature_group=feature_group,
+        feature_monitor=feature_monitor,
+    )
+    actual = FeatureRegistryServiceClient.feature_monitor_path(
+        project, location, feature_group, feature_monitor
+    )
+    assert expected == actual
+
+
+def test_parse_feature_monitor_path():
+    expected = {
+        "project": "winkle",
+        "location": "nautilus",
+        "feature_group": "scallop",
+        "feature_monitor": "abalone",
+    }
+    path = FeatureRegistryServiceClient.feature_monitor_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = FeatureRegistryServiceClient.parse_feature_monitor_path(path)
+    assert expected == actual
+
+
+def test_feature_monitor_job_path():
+    project = "squid"
+    location = "clam"
+    feature_group = "whelk"
+    feature_monitor = "octopus"
+    feature_monitor_job = "oyster"
+    expected = "projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}/featureMonitorJobs/{feature_monitor_job}".format(
+        project=project,
+        location=location,
+        feature_group=feature_group,
+        feature_monitor=feature_monitor,
+        feature_monitor_job=feature_monitor_job,
+    )
+    actual = FeatureRegistryServiceClient.feature_monitor_job_path(
+        project, location, feature_group, feature_monitor, feature_monitor_job
+    )
+    assert expected == actual
+
+
+def test_parse_feature_monitor_job_path():
+    expected = {
+        "project": "nudibranch",
+        "location": "cuttlefish",
+        "feature_group": "mussel",
+        "feature_monitor": "winkle",
+        "feature_monitor_job": "nautilus",
+    }
+    path = FeatureRegistryServiceClient.feature_monitor_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = FeatureRegistryServiceClient.parse_feature_monitor_job_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -13640,7 +22086,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "abalone",
     }
     path = FeatureRegistryServiceClient.common_billing_account_path(**expected)
 
@@ -13650,7 +22096,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "squid"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -13660,7 +22106,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "clam",
     }
     path = FeatureRegistryServiceClient.common_folder_path(**expected)
 
@@ -13670,7 +22116,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "whelk"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -13680,7 +22126,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "octopus",
     }
     path = FeatureRegistryServiceClient.common_organization_path(**expected)
 
@@ -13690,7 +22136,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "oyster"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -13700,7 +22146,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "nudibranch",
     }
     path = FeatureRegistryServiceClient.common_project_path(**expected)
 
@@ -13710,8 +22156,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -13722,8 +22168,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = FeatureRegistryServiceClient.common_location_path(**expected)
 

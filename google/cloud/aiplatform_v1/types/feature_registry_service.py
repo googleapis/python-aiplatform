@@ -57,7 +57,7 @@ class CreateFeatureGroupRequest(proto.Message):
             become the final component of the FeatureGroup's resource
             name.
 
-            This value may be up to 60 characters, and valid characters
+            This value may be up to 128 characters, and valid characters
             are ``[a-z0-9_]``. The first character cannot be a number.
 
             The value must be unique within the project and location.
@@ -129,12 +129,12 @@ class ListFeatureGroupsRequest(proto.Message):
             value greater than 100 will be coerced to 100.
         page_token (str):
             A page token, received from a previous
-            [FeatureGroupAdminService.ListFeatureGroups][] call. Provide
-            this to retrieve the subsequent page.
+            [FeatureRegistryService.ListFeatureGroups][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatureGroups]
+            call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            [FeatureGroupAdminService.ListFeatureGroups][] must match
-            the call that provided the page token.
+            [FeatureRegistryService.ListFeatureGroups][google.cloud.aiplatform.v1.FeatureRegistryService.ListFeatureGroups]
+            must match the call that provided the page token.
         order_by (str):
             A comma-separated list of fields to order by, sorted in
             ascending order. Use "desc" after a field name for

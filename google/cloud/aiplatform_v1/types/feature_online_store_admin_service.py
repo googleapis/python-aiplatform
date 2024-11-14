@@ -480,6 +480,7 @@ class UpdateFeatureViewRequest(proto.Message):
             -  ``feature_registry_source.feature_groups``
             -  ``sync_config``
             -  ``sync_config.cron``
+            -  ``optimized_config.automatic_resources``
     """
 
     feature_view: gca_feature_view.FeatureView = proto.Field(
@@ -496,7 +497,7 @@ class UpdateFeatureViewRequest(proto.Message):
 
 class DeleteFeatureViewRequest(proto.Message):
     r"""Request message for
-    [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+    [FeatureOnlineStoreAdminService.DeleteFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.DeleteFeatureView].
 
     Attributes:
         name (str):

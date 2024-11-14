@@ -1290,6 +1290,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
+        fast_tryout_enabled: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1397,6 +1398,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
+            fast_tryout_enabled (bool):
+              Optional. Defaults to False.
+              If True, model will be deployed using faster deployment path.
+              Useful for quick experiments. Not for production workloads. Only
+              available for most popular models with certain machine types.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -1440,6 +1446,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
     @base.optional_sync()
@@ -1469,6 +1476,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         enable_access_logging=False,
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        fast_tryout_enabled: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1570,6 +1578,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 are deployed to the same DeploymentResourcePool will be hosted in
                 a shared model server. If provided, will override replica count
                 arguments.
+            fast_tryout_enabled (bool):
+              Optional. Defaults to False.
+              If True, model will be deployed using faster deployment path.
+              Useful for quick experiments. Not for production workloads. Only
+              available for most popular models with certain machine types.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1603,6 +1616,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1639,6 +1653,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         enable_access_logging=False,
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        fast_tryout_enabled: bool = False,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1747,6 +1762,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 are deployed to the same DeploymentResourcePool will be hosted in
                 a shared model server. If provided, will override replica count
                 arguments.
+            fast_tryout_enabled (bool):
+                Optional. Defaults to False.
+                If True, model will be deployed using faster deployment path.
+                Useful for quick experiments. Not for production workloads. Only
+                available for most popular models with certain machine types.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1907,6 +1927,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
                 dedicated_resources.machine_spec = machine_spec
                 deployed_model.dedicated_resources = dedicated_resources
+                if fast_tryout_enabled:
+                    deployed_model.faster_deployment_config = (
+                        gca_endpoint_compat.FasterDeploymentConfig(
+                            fast_tryout_enabled=fast_tryout_enabled
+                        )
+                    )
 
             elif supports_automatic_resources:
                 deployed_model.automatic_resources = (
@@ -2229,6 +2255,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 body=json.dumps({"instances": instances, "parameters": parameters}),
                 headers={"Content-Type": "application/json"},
                 use_dedicated_endpoint=use_dedicated_endpoint,
+                timeout=timeout,
             )
             json_response = raw_predict_response.json()
             return Prediction(
@@ -2277,6 +2304,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     }
                 ),
                 headers=headers,
+                timeout=timeout,
             )
 
             prediction_response = json.loads(response.text)
@@ -2382,6 +2410,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         headers: Dict[str, str],
         *,
         use_dedicated_endpoint: Optional[bool] = False,
+        timeout: Optional[float] = None,
     ) -> requests.models.Response:
         """Makes a prediction request using arbitrary headers.
 
@@ -2408,6 +2437,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             use_dedicated_endpoint (bool):
                 Optional. Default value is False. If set to True, the underlying prediction call will be made
                 using the dedicated endpoint dns.
+            timeout (float): Optional. The timeout for this request in seconds.
 
         Returns:
             A requests.models.Response object containing the status code and prediction results.
@@ -2435,8 +2465,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "and model are ready before making a prediction."
                 )
             url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
-
-        return self.authorized_session.post(url=url, data=body, headers=headers)
+        return self.authorized_session.post(
+            url=url, data=body, headers=headers, timeout=timeout
+        )
 
     def stream_raw_predict(
         self,
@@ -2444,6 +2475,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         headers: Dict[str, str],
         *,
         use_dedicated_endpoint: Optional[bool] = False,
+        timeout: Optional[float] = None,
     ) -> Iterator[requests.models.Response]:
         """Makes a streaming prediction request using arbitrary headers.
 
@@ -2480,6 +2512,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             use_dedicated_endpoint (bool):
                 Optional. Default value is False. If set to True, the underlying prediction call will be made
                 using the dedicated endpoint dns.
+            timeout (float): Optional. The timeout for this request in seconds.
 
         Yields:
             predictions (Iterator[requests.models.Response]):
@@ -2513,6 +2546,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             url=url,
             data=body,
             headers=headers,
+            timeout=timeout,
             stream=True,
         ) as resp:
             for line in resp.iter_lines():
@@ -5082,6 +5116,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
+        fast_tryout_enabled: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5211,6 +5246,11 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
+            fast_tryout_enabled (bool):
+              Optional. Defaults to False.
+              If True, model will be deployed using faster deployment path.
+              Useful for quick experiments. Not for production workloads. Only
+              available for most popular models with certain machine types.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5279,6 +5319,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging=disable_container_logging,
             private_service_connect_config=private_service_connect_config,
             deployment_resource_pool=deployment_resource_pool,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -5313,6 +5354,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             PrivateEndpoint.PrivateServiceConnectConfig
         ] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
+        fast_tryout_enabled: bool = False,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5435,6 +5477,11 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 are deployed to the same DeploymentResourcePool will be hosted in
                 a shared model server. If provided, will override replica count
                 arguments.
+            fast_tryout_enabled (bool):
+                Optional. Defaults to False.
+                If True, model will be deployed using faster deployment path.
+                Useful for quick experiments. Not for production workloads. Only
+                available for most popular models with certain machine types.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5493,6 +5540,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             enable_access_logging=enable_access_logging,
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

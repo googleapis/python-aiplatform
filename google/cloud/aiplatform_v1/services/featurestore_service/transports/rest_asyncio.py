@@ -1265,6 +1265,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 request (~.featurestore_service.BatchCreateFeaturesRequest):
                     The request object. Request message for
                 [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
+                Request message for
+                [FeatureRegistryService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.BatchCreateFeatures].
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -1805,7 +1807,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             Args:
                 request (~.featurestore_service.DeleteEntityTypeRequest):
                     The request object. Request message for
-                [FeaturestoreService.DeleteEntityTypes][].
+                [FeaturestoreService.DeleteEntityType][google.cloud.aiplatform.v1.FeaturestoreService.DeleteEntityType].
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.

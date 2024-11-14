@@ -856,15 +856,28 @@ def evaluate(
     """
     _validate_metrics(metrics)
     metrics = _convert_metric_prompt_template_example(metrics)
-
+    copied_metrics = []
+    for metric in metrics:
+        if isinstance(metric, pairwise_metric.PairwiseMetric):
+            copied_metrics.append(
+                pairwise_metric.PairwiseMetric(
+                    metric=metric.metric_name,
+                    metric_prompt_template=metric.metric_prompt_template,
+                    baseline_model=metric.baseline_model,
+                )
+            )
+        else:
+            copied_metrics.append(copy.deepcopy(metric))
     evaluation_run_config = evaluation_base.EvaluationRunConfig(
         dataset=dataset.copy(deep=True),
-        metrics=copy.deepcopy(metrics),
+        metrics=copied_metrics,
         metric_column_mapping=copy.deepcopy(metric_column_mapping),
         client=utils.create_evaluation_service_client(),
-        evaluation_service_qps=evaluation_service_qps
-        if evaluation_service_qps
-        else constants.QuotaLimit.EVAL_SERVICE_QPS,
+        evaluation_service_qps=(
+            evaluation_service_qps
+            if evaluation_service_qps
+            else constants.QuotaLimit.EVAL_SERVICE_QPS
+        ),
         retry_timeout=retry_timeout,
     )
 

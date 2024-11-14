@@ -1049,7 +1049,7 @@ class AsyncPersistentResourceServiceRestTransport(
             Args:
                 request (~.persistent_resource_service.ListPersistentResourcesRequest):
                     The request object. Request message for
-                [PersistentResourceService.ListPersistentResource][].
+                [PersistentResourceService.ListPersistentResources][google.cloud.aiplatform.v1.PersistentResourceService.ListPersistentResources].
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.

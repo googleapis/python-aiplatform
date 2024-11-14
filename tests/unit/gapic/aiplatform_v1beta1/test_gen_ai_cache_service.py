@@ -356,86 +356,6 @@ def test__get_universe_domain():
 
 
 @pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
-    [
-        (GenAiCacheServiceClient, transports.GenAiCacheServiceGrpcTransport, "grpc"),
-        (GenAiCacheServiceClient, transports.GenAiCacheServiceRestTransport, "rest"),
-    ],
-)
-def test__validate_universe_domain(client_class, transport_class, transport_name):
-    client = client_class(
-        transport=transport_class(credentials=ga_credentials.AnonymousCredentials())
-    )
-    assert client._validate_universe_domain() == True
-
-    # Test the case when universe is already validated.
-    assert client._validate_universe_domain() == True
-
-    if transport_name == "grpc":
-        # Test the case where credentials are provided by the
-        # `local_channel_credentials`. The default universes in both match.
-        channel = grpc.secure_channel(
-            "http://localhost/", grpc.local_channel_credentials()
-        )
-        client = client_class(transport=transport_class(channel=channel))
-        assert client._validate_universe_domain() == True
-
-        # Test the case where credentials do not exist: e.g. a transport is provided
-        # with no credentials. Validation should still succeed because there is no
-        # mismatch with non-existent credentials.
-        channel = grpc.secure_channel(
-            "http://localhost/", grpc.local_channel_credentials()
-        )
-        transport = transport_class(channel=channel)
-        transport._credentials = None
-        client = client_class(transport=transport)
-        assert client._validate_universe_domain() == True
-
-    # TODO: This is needed to cater for older versions of google-auth
-    # Make this test unconditional once the minimum supported version of
-    # google-auth becomes 2.23.0 or higher.
-    google_auth_major, google_auth_minor = [
-        int(part) for part in google.auth.__version__.split(".")[0:2]
-    ]
-    if google_auth_major > 2 or (google_auth_major == 2 and google_auth_minor >= 23):
-        credentials = ga_credentials.AnonymousCredentials()
-        credentials._universe_domain = "foo.com"
-        # Test the case when there is a universe mismatch from the credentials.
-        client = client_class(transport=transport_class(credentials=credentials))
-        with pytest.raises(ValueError) as excinfo:
-            client._validate_universe_domain()
-        assert (
-            str(excinfo.value)
-            == "The configured universe domain (googleapis.com) does not match the universe domain found in the credentials (foo.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
-        )
-
-        # Test the case when there is a universe mismatch from the client.
-        #
-        # TODO: Make this test unconditional once the minimum supported version of
-        # google-api-core becomes 2.15.0 or higher.
-        api_core_major, api_core_minor = [
-            int(part) for part in api_core_version.__version__.split(".")[0:2]
-        ]
-        if api_core_major > 2 or (api_core_major == 2 and api_core_minor >= 15):
-            client = client_class(
-                client_options={"universe_domain": "bar.com"},
-                transport=transport_class(
-                    credentials=ga_credentials.AnonymousCredentials(),
-                ),
-            )
-            with pytest.raises(ValueError) as excinfo:
-                client._validate_universe_domain()
-            assert (
-                str(excinfo.value)
-                == "The configured universe domain (bar.com) does not match the universe domain found in the credentials (googleapis.com). If you haven't configured the universe domain explicitly, `googleapis.com` is the default."
-            )
-
-    # Test that ValueError is raised if universe_domain is provided via client options and credentials is None
-    with pytest.raises(ValueError):
-        client._compare_universes("foo.bar", None)
-
-
-@pytest.mark.parametrize(
     "client_class,transport_name",
     [
         (GenAiCacheServiceClient, "grpc"),
@@ -4636,6 +4556,8 @@ def test_create_cached_content_rest_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -4705,6 +4627,7 @@ def test_create_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -5074,6 +4997,8 @@ def test_update_cached_content_rest_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -5143,6 +5068,7 @@ def test_update_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -6348,6 +6274,8 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -6417,6 +6345,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -6818,6 +6747,8 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -6887,6 +6818,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {

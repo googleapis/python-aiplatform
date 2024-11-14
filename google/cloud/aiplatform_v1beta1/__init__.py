@@ -200,8 +200,10 @@ from .types.deployment_resource_pool_service import (
 )
 from .types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
 from .types.encryption_spec import EncryptionSpec
+from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
@@ -219,6 +221,8 @@ from .types.endpoint_service import MutateDeployedModelResponse
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
+from .types.endpoint_service import UpdateEndpointLongRunningRequest
+from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
@@ -369,6 +373,12 @@ from .types.extension_registry_service import ListExtensionsResponse
 from .types.extension_registry_service import UpdateExtensionRequest
 from .types.feature import Feature
 from .types.feature_group import FeatureGroup
+from .types.feature_monitor import FeatureMonitor
+from .types.feature_monitor import FeatureSelectionConfig
+from .types.feature_monitor import FeatureStatsAndAnomaly
+from .types.feature_monitor import FeatureStatsAndAnomalySpec
+from .types.feature_monitor import ScheduleConfig
+from .types.feature_monitor_job import FeatureMonitorJob
 from .types.feature_monitoring_stats import FeatureStatsAnomaly
 from .types.feature_online_store import FeatureOnlineStore
 from .types.feature_online_store_admin_service import (
@@ -408,11 +418,21 @@ from .types.feature_online_store_service import StreamingFetchFeatureValuesRespo
 from .types.feature_online_store_service import FeatureViewDataFormat
 from .types.feature_registry_service import CreateFeatureGroupOperationMetadata
 from .types.feature_registry_service import CreateFeatureGroupRequest
+from .types.feature_registry_service import CreateFeatureMonitorJobRequest
+from .types.feature_registry_service import CreateFeatureMonitorOperationMetadata
+from .types.feature_registry_service import CreateFeatureMonitorRequest
 from .types.feature_registry_service import CreateRegistryFeatureOperationMetadata
 from .types.feature_registry_service import DeleteFeatureGroupRequest
+from .types.feature_registry_service import DeleteFeatureMonitorRequest
 from .types.feature_registry_service import GetFeatureGroupRequest
+from .types.feature_registry_service import GetFeatureMonitorJobRequest
+from .types.feature_registry_service import GetFeatureMonitorRequest
 from .types.feature_registry_service import ListFeatureGroupsRequest
 from .types.feature_registry_service import ListFeatureGroupsResponse
+from .types.feature_registry_service import ListFeatureMonitorJobsRequest
+from .types.feature_registry_service import ListFeatureMonitorJobsResponse
+from .types.feature_registry_service import ListFeatureMonitorsRequest
+from .types.feature_registry_service import ListFeatureMonitorsResponse
 from .types.feature_registry_service import UpdateFeatureGroupOperationMetadata
 from .types.feature_registry_service import UpdateFeatureGroupRequest
 from .types.feature_registry_service import UpdateFeatureOperationMetadata
@@ -794,6 +814,9 @@ from .types.notebook_service import ListNotebookRuntimeTemplatesResponse
 from .types.notebook_service import StartNotebookRuntimeOperationMetadata
 from .types.notebook_service import StartNotebookRuntimeRequest
 from .types.notebook_service import StartNotebookRuntimeResponse
+from .types.notebook_service import StopNotebookRuntimeOperationMetadata
+from .types.notebook_service import StopNotebookRuntimeRequest
+from .types.notebook_service import StopNotebookRuntimeResponse
 from .types.notebook_service import UpdateNotebookRuntimeTemplateRequest
 from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
@@ -971,7 +994,9 @@ from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
 from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
+from .types.tool import CodeExecutionResult
 from .types.tool import DynamicRetrievalConfig
+from .types.tool import ExecutableCode
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
@@ -1178,6 +1203,8 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "ClientConnectionConfig",
+    "CodeExecutionResult",
     "CoherenceInput",
     "CoherenceInstance",
     "CoherenceResult",
@@ -1215,6 +1242,9 @@ __all__ = (
     "CreateExecutionRequest",
     "CreateFeatureGroupOperationMetadata",
     "CreateFeatureGroupRequest",
+    "CreateFeatureMonitorJobRequest",
+    "CreateFeatureMonitorOperationMetadata",
+    "CreateFeatureMonitorRequest",
     "CreateFeatureOnlineStoreOperationMetadata",
     "CreateFeatureOnlineStoreRequest",
     "CreateFeatureOperationMetadata",
@@ -1287,6 +1317,7 @@ __all__ = (
     "DeleteExecutionRequest",
     "DeleteExtensionRequest",
     "DeleteFeatureGroupRequest",
+    "DeleteFeatureMonitorRequest",
     "DeleteFeatureOnlineStoreRequest",
     "DeleteFeatureRequest",
     "DeleteFeatureValuesOperationMetadata",
@@ -1370,6 +1401,7 @@ __all__ = (
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
+    "ExecutableCode",
     "ExecuteExtensionRequest",
     "ExecuteExtensionResponse",
     "Execution",
@@ -1400,14 +1432,20 @@ __all__ = (
     "ExtensionOperation",
     "ExtensionPrivateServiceConnectConfig",
     "ExtensionRegistryServiceClient",
+    "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
+    "FeatureMonitor",
+    "FeatureMonitorJob",
     "FeatureNoiseSigma",
     "FeatureOnlineStore",
     "FeatureOnlineStoreAdminServiceClient",
     "FeatureOnlineStoreServiceClient",
     "FeatureRegistryServiceClient",
+    "FeatureSelectionConfig",
     "FeatureSelector",
+    "FeatureStatsAndAnomaly",
+    "FeatureStatsAndAnomalySpec",
     "FeatureStatsAnomaly",
     "FeatureValue",
     "FeatureValueDestination",
@@ -1465,6 +1503,8 @@ __all__ = (
     "GetExecutionRequest",
     "GetExtensionRequest",
     "GetFeatureGroupRequest",
+    "GetFeatureMonitorJobRequest",
+    "GetFeatureMonitorRequest",
     "GetFeatureOnlineStoreRequest",
     "GetFeatureRequest",
     "GetFeatureViewRequest",
@@ -1576,6 +1616,10 @@ __all__ = (
     "ListExtensionsResponse",
     "ListFeatureGroupsRequest",
     "ListFeatureGroupsResponse",
+    "ListFeatureMonitorJobsRequest",
+    "ListFeatureMonitorJobsResponse",
+    "ListFeatureMonitorsRequest",
+    "ListFeatureMonitorsResponse",
     "ListFeatureOnlineStoresRequest",
     "ListFeatureOnlineStoresResponse",
     "ListFeatureViewSyncsRequest",
@@ -1885,6 +1929,7 @@ __all__ = (
     "SavedQuery",
     "Scalar",
     "Schedule",
+    "ScheduleConfig",
     "ScheduleServiceClient",
     "Scheduling",
     "Schema",
@@ -1915,6 +1960,9 @@ __all__ = (
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
     "StartNotebookRuntimeResponse",
+    "StopNotebookRuntimeOperationMetadata",
+    "StopNotebookRuntimeRequest",
+    "StopNotebookRuntimeResponse",
     "StopTrialRequest",
     "StratifiedSplit",
     "StreamDirectPredictRequest",
@@ -2017,6 +2065,8 @@ __all__ = (
     "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "UpdateEndpointLongRunningRequest",
+    "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",

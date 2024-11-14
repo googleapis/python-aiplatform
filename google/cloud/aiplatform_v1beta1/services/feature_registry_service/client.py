@@ -55,6 +55,12 @@ from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_group
 from google.cloud.aiplatform_v1beta1.types import feature_group as gca_feature_group
+from google.cloud.aiplatform_v1beta1.types import feature_monitor
+from google.cloud.aiplatform_v1beta1.types import feature_monitor as gca_feature_monitor
+from google.cloud.aiplatform_v1beta1.types import feature_monitor_job
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor_job as gca_feature_monitor_job,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import feature_registry_service
 from google.cloud.aiplatform_v1beta1.types import featurestore_monitoring
@@ -67,6 +73,7 @@ from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 from .transports.base import FeatureRegistryServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import FeatureRegistryServiceGrpcTransport
 from .transports.grpc_asyncio import FeatureRegistryServiceGrpcAsyncIOTransport
@@ -259,6 +266,56 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
         """Parses a feature_group path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featureGroups/(?P<feature_group>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def feature_monitor_path(
+        project: str,
+        location: str,
+        feature_group: str,
+        feature_monitor: str,
+    ) -> str:
+        """Returns a fully-qualified feature_monitor string."""
+        return "projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}".format(
+            project=project,
+            location=location,
+            feature_group=feature_group,
+            feature_monitor=feature_monitor,
+        )
+
+    @staticmethod
+    def parse_feature_monitor_path(path: str) -> Dict[str, str]:
+        """Parses a feature_monitor path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featureGroups/(?P<feature_group>.+?)/featureMonitors/(?P<feature_monitor>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def feature_monitor_job_path(
+        project: str,
+        location: str,
+        feature_group: str,
+        feature_monitor: str,
+        feature_monitor_job: str,
+    ) -> str:
+        """Returns a fully-qualified feature_monitor_job string."""
+        return "projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}/featureMonitorJobs/{feature_monitor_job}".format(
+            project=project,
+            location=location,
+            feature_group=feature_group,
+            feature_monitor=feature_monitor,
+            feature_monitor_job=feature_monitor_job,
+        )
+
+    @staticmethod
+    def parse_feature_monitor_job_path(path: str) -> Dict[str, str]:
+        """Parses a feature_monitor_job path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featureGroups/(?P<feature_group>.+?)/featureMonitors/(?P<feature_monitor>.+?)/featureMonitorJobs/(?P<feature_monitor_job>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -521,36 +578,6 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
             raise ValueError("Universe Domain cannot be an empty string.")
         return universe_domain
 
-    @staticmethod
-    def _compare_universes(
-        client_universe: str, credentials: ga_credentials.Credentials
-    ) -> bool:
-        """Returns True iff the universe domains used by the client and credentials match.
-
-        Args:
-            client_universe (str): The universe domain configured via the client options.
-            credentials (ga_credentials.Credentials): The credentials being used in the client.
-
-        Returns:
-            bool: True iff client_universe matches the universe in credentials.
-
-        Raises:
-            ValueError: when client_universe does not match the universe in credentials.
-        """
-
-        default_universe = FeatureRegistryServiceClient._DEFAULT_UNIVERSE
-        credentials_universe = getattr(credentials, "universe_domain", default_universe)
-
-        if client_universe != credentials_universe:
-            raise ValueError(
-                "The configured universe domain "
-                f"({client_universe}) does not match the universe domain "
-                f"found in the credentials ({credentials_universe}). "
-                "If you haven't configured the universe domain explicitly, "
-                f"`{default_universe}` is the default."
-            )
-        return True
-
     def _validate_universe_domain(self):
         """Validates client's and credentials' universe domains are consistent.
 
@@ -560,13 +587,9 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
         Raises:
             ValueError: If the configured universe domain is not valid.
         """
-        self._is_universe_domain_valid = (
-            self._is_universe_domain_valid
-            or FeatureRegistryServiceClient._compare_universes(
-                self.universe_domain, self.transport._credentials
-            )
-        )
-        return self._is_universe_domain_valid
+
+        # NOTE (b/349488459): universe validation is disabled until further notice.
+        return True
 
     @property
     def api_endpoint(self):
@@ -840,7 +863,7 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
                 will become the final component of the FeatureGroup's
                 resource name.
 
-                This value may be up to 60 characters, and valid
+                This value may be up to 128 characters, and valid
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 
@@ -1586,6 +1609,151 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
         # Done; return the response.
         return response
 
+    def batch_create_features(
+        self,
+        request: Optional[
+            Union[featurestore_service.BatchCreateFeaturesRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[featurestore_service.CreateFeatureRequest]
+        ] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Creates a batch of Features in a given FeatureGroup.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_features():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateFeatureRequest()
+                requests.parent = "parent_value"
+                requests.feature_id = "feature_id_value"
+
+                request = aiplatform_v1beta1.BatchCreateFeaturesRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                operation = client.batch_create_features(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesRequest, dict]):
+                The request object. Request message for
+                [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
+                Request message for
+                [FeatureRegistryService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.BatchCreateFeatures].
+            parent (str):
+                Required. The resource name of the
+                EntityType/FeatureGroup to create the batch of Features
+                under. Format:
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest]):
+                Required. The request message specifying the Features to
+                create. All Features must be created under the same
+                parent EntityType / FeatureGroup. The ``parent`` field
+                in each child request message can be omitted. If
+                ``parent`` is set in a child request, then the value
+                must match the ``parent`` value in this request message.
+
+                This corresponds to the ``requests`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesResponse` Response message for
+                   [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, requests])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, featurestore_service.BatchCreateFeaturesRequest):
+            request = featurestore_service.BatchCreateFeaturesRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if requests is not None:
+                request.requests = requests
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.batch_create_features]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            featurestore_service.BatchCreateFeaturesResponse,
+            metadata_type=featurestore_service.BatchCreateFeaturesOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
     def get_feature(
         self,
         request: Optional[Union[featurestore_service.GetFeatureRequest, dict]] = None,
@@ -2096,6 +2264,870 @@ class FeatureRegistryServiceClient(metaclass=FeatureRegistryServiceClientMeta):
             self._transport.operations_client,
             empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def create_feature_monitor(
+        self,
+        request: Optional[
+            Union[feature_registry_service.CreateFeatureMonitorRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        feature_monitor: Optional[gca_feature_monitor.FeatureMonitor] = None,
+        feature_monitor_id: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Creates a new FeatureMonitor in a given project,
+        location and FeatureGroup.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_feature_monitor():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateFeatureMonitorRequest(
+                    parent="parent_value",
+                    feature_monitor_id="feature_monitor_id_value",
+                )
+
+                # Make the request
+                operation = client.create_feature_monitor(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateFeatureMonitorRequest, dict]):
+                The request object. Request message for
+                [FeatureRegistryService.CreateFeatureMonitorRequest][].
+            parent (str):
+                Required. The resource name of FeatureGroup to create
+                FeatureMonitor. Format:
+                ``projects/{project}/locations/{location}/featureGroups/{featuregroup}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            feature_monitor (google.cloud.aiplatform_v1beta1.types.FeatureMonitor):
+                Required. The Monitor to create.
+                This corresponds to the ``feature_monitor`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            feature_monitor_id (str):
+                Required. The ID to use for this FeatureMonitor, which
+                will become the final component of the FeatureGroup's
+                resource name.
+
+                This value may be up to 60 characters, and valid
+                characters are ``[a-z0-9_]``. The first character cannot
+                be a number.
+
+                The value must be unique within the FeatureGroup.
+
+                This corresponds to the ``feature_monitor_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.FeatureMonitor`
+                Vertex AI Feature Monitor.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, feature_monitor, feature_monitor_id])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, feature_registry_service.CreateFeatureMonitorRequest
+        ):
+            request = feature_registry_service.CreateFeatureMonitorRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if feature_monitor is not None:
+                request.feature_monitor = feature_monitor
+            if feature_monitor_id is not None:
+                request.feature_monitor_id = feature_monitor_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.create_feature_monitor]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            gca_feature_monitor.FeatureMonitor,
+            metadata_type=feature_registry_service.CreateFeatureMonitorOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_feature_monitor(
+        self,
+        request: Optional[
+            Union[feature_registry_service.GetFeatureMonitorRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> feature_monitor.FeatureMonitor:
+        r"""Gets details of a single FeatureMonitor.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_feature_monitor():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetFeatureMonitorRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_feature_monitor(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetFeatureMonitorRequest, dict]):
+                The request object. Request message for
+                [FeatureRegistryService.GetFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureMonitor].
+            name (str):
+                Required. The name of the
+                FeatureMonitor resource.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.FeatureMonitor:
+                Vertex AI Feature Monitor.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, feature_registry_service.GetFeatureMonitorRequest):
+            request = feature_registry_service.GetFeatureMonitorRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_feature_monitor]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_feature_monitors(
+        self,
+        request: Optional[
+            Union[feature_registry_service.ListFeatureMonitorsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListFeatureMonitorsPager:
+        r"""Lists FeatureGroups in a given project and location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_feature_monitors():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListFeatureMonitorsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_feature_monitors(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListFeatureMonitorsRequest, dict]):
+                The request object. Request message for
+                [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors].
+            parent (str):
+                Required. The resource name of the FeatureGroup to list
+                FeatureMonitors. Format:
+                ``projects/{project}/locations/{location}/featureGroups/{featureGroup}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.feature_registry_service.pagers.ListFeatureMonitorsPager:
+                Response message for
+                   [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, feature_registry_service.ListFeatureMonitorsRequest):
+            request = feature_registry_service.ListFeatureMonitorsRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_feature_monitors]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListFeatureMonitorsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_feature_monitor(
+        self,
+        request: Optional[
+            Union[feature_registry_service.DeleteFeatureMonitorRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Deletes a single FeatureMonitor.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_feature_monitor():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteFeatureMonitorRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_feature_monitor(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteFeatureMonitorRequest, dict]):
+                The request object. Request message for
+                [FeatureRegistryService.DeleteFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeatureMonitor].
+            name (str):
+                Required. The name of the FeatureMonitor to be deleted.
+                Format:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, feature_registry_service.DeleteFeatureMonitorRequest
+        ):
+            request = feature_registry_service.DeleteFeatureMonitorRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_feature_monitor]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def create_feature_monitor_job(
+        self,
+        request: Optional[
+            Union[feature_registry_service.CreateFeatureMonitorJobRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        feature_monitor_job: Optional[gca_feature_monitor_job.FeatureMonitorJob] = None,
+        feature_monitor_job_id: Optional[int] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_feature_monitor_job.FeatureMonitorJob:
+        r"""Creates a new feature monitor job.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_feature_monitor_job():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateFeatureMonitorJobRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_feature_monitor_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateFeatureMonitorJobRequest, dict]):
+                The request object. Request message for
+                [FeatureRegistryService.CreateFeatureMonitorJobRequest][].
+            parent (str):
+                Required. The resource name of FeatureMonitor to create
+                FeatureMonitorJob. Format:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            feature_monitor_job (google.cloud.aiplatform_v1beta1.types.FeatureMonitorJob):
+                Required. The Monitor to create.
+                This corresponds to the ``feature_monitor_job`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            feature_monitor_job_id (int):
+                Optional. Output only.
+                System-generated ID for feature monitor
+                job.
+
+                This corresponds to the ``feature_monitor_job_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.FeatureMonitorJob:
+                Vertex AI Feature Monitor Job.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any(
+            [parent, feature_monitor_job, feature_monitor_job_id]
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, feature_registry_service.CreateFeatureMonitorJobRequest
+        ):
+            request = feature_registry_service.CreateFeatureMonitorJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if feature_monitor_job is not None:
+                request.feature_monitor_job = feature_monitor_job
+            if feature_monitor_job_id is not None:
+                request.feature_monitor_job_id = feature_monitor_job_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.create_feature_monitor_job
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_feature_monitor_job(
+        self,
+        request: Optional[
+            Union[feature_registry_service.GetFeatureMonitorJobRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> feature_monitor_job.FeatureMonitorJob:
+        r"""Get a feature monitor job.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_feature_monitor_job():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetFeatureMonitorJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_feature_monitor_job(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetFeatureMonitorJobRequest, dict]):
+                The request object. Request message for
+                [FeatureRegistryService.GetFeatureMonitorJob][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureMonitorJob].
+            name (str):
+                Required. The name of the FeatureMonitorJob resource.
+                Format:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}/featureMonitorJobs/{feature_monitor_job}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.FeatureMonitorJob:
+                Vertex AI Feature Monitor Job.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, feature_registry_service.GetFeatureMonitorJobRequest
+        ):
+            request = feature_registry_service.GetFeatureMonitorJobRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_feature_monitor_job]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_feature_monitor_jobs(
+        self,
+        request: Optional[
+            Union[feature_registry_service.ListFeatureMonitorJobsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListFeatureMonitorJobsPager:
+        r"""List feature monitor jobs.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_feature_monitor_jobs():
+                # Create a client
+                client = aiplatform_v1beta1.FeatureRegistryServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListFeatureMonitorJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_feature_monitor_jobs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListFeatureMonitorJobsRequest, dict]):
+                The request object. Request message for
+                [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs].
+            parent (str):
+                Required. The resource name of the FeatureMonitor to
+                list FeatureMonitorJobs. Format:
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}/featureMonitors/{feature_monitor}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.feature_registry_service.pagers.ListFeatureMonitorJobsPager:
+                Response message for
+                   [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, feature_registry_service.ListFeatureMonitorJobsRequest
+        ):
+            request = feature_registry_service.ListFeatureMonitorJobsRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.list_feature_monitor_jobs
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListFeatureMonitorJobsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.

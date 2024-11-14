@@ -518,13 +518,14 @@ class Endpoint(aiplatform.Endpoint):
                     "Minimum and maximum replica counts must not be "
                     "if not using a shared resource pool."
                 )
-            return super()._validate_deploy_args(
+            return aiplatform.Endpoint._validate_deploy_args(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
                 accelerator_type=accelerator_type,
                 deployed_model_display_name=deployed_model_display_name,
                 traffic_split=traffic_split,
                 traffic_percentage=traffic_percentage,
+                deployment_resource_pool=deployment_resource_pool,
             )
 
         if (
@@ -580,6 +581,7 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
+        fast_tryout_enabled: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -661,6 +663,10 @@ class Endpoint(aiplatform.Endpoint):
             disable_container_logging (bool):
               If True, container logs from the deployed model will not be
               written to Cloud Logging. Defaults to False.
+            fast_tryout_enabled (bool): Optional.
+              If True, model will be deployed using faster deployment path.
+              Useful for quick experiments. Not for production workloads. Only
+              available for most popular models and machine types. Defaults to False.
 
         """
         self._sync_gca_resource_if_skipped()
@@ -699,6 +705,7 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
     @base.optional_sync()
@@ -722,6 +729,7 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
+        fast_tryout_enabled: bool = False,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -797,6 +805,10 @@ class Endpoint(aiplatform.Endpoint):
             disable_container_logging (bool):
               If True, container logs from the deployed model will not be
               written to Cloud Logging. Defaults to False.
+            fast_tryout_enabled (bool): Optional.
+              If True, model will be deployed using faster deployment path.
+              Useful for quick experiments. Not for production workloads. Only
+              available for most popular models and machine types. Defaults to False.
 
         """
         _LOGGER.log_action_start_against_resource(
@@ -825,6 +837,7 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -855,6 +868,7 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
+        fast_tryout_enabled: bool = False,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -937,6 +951,10 @@ class Endpoint(aiplatform.Endpoint):
             disable_container_logging (bool):
               If True, container logs from the deployed model will not be
               written to Cloud Logging. Defaults to False.
+            fast_tryout_enabled (bool): Optional.
+              If True, model will be deployed using faster deployment path.
+              Useful for quick experiments. Not for production workloads. Only
+              available for most popular models and machine types. Defaults to False.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -950,71 +968,147 @@ class Endpoint(aiplatform.Endpoint):
                 are present.
         """
         if not deployment_resource_pool:
-            return super()._deploy_call(
-                api_client=api_client,
-                endpoint_resource_name=endpoint_resource_name,
-                model=model,
-                endpoint_resource_traffic_split=endpoint_resource_traffic_split,
-                network=network,
-                deployed_model_display_name=deployed_model_display_name,
-                traffic_percentage=traffic_percentage,
-                traffic_split=traffic_split,
-                machine_type=machine_type,
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
-                accelerator_type=accelerator_type,
-                accelerator_count=accelerator_count,
+            max_replica_count = max(min_replica_count, max_replica_count)
+
+            if bool(accelerator_type) != bool(accelerator_count):
+                raise ValueError(
+                    "Both `accelerator_type` and `accelerator_count` should be specified or None."
+                )
+
+            if autoscaling_target_accelerator_duty_cycle is not None and (
+                not accelerator_type or not accelerator_count
+            ):
+                raise ValueError(
+                    "Both `accelerator_type` and `accelerator_count` should be set "
+                    "when specifying autoscaling_target_accelerator_duty_cycle`"
+                )
+
+            deployed_model = gca_endpoint_compat.DeployedModel(
+                model=model.versioned_resource_name,
+                display_name=deployed_model_display_name,
                 service_account=service_account,
-                explanation_spec=explanation_spec,
-                metadata=metadata,
-                deploy_request_timeout=deploy_request_timeout,
-                autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
-                autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
-                disable_container_logging=disable_container_logging,
+                enable_container_logging=not disable_container_logging,
             )
 
-        deployed_model = gca_endpoint_compat.DeployedModel(
-            model=model.versioned_resource_name,
-            display_name=deployed_model_display_name,
-            service_account=service_account,
-            enable_container_logging=not disable_container_logging,
-        )
-
-        supports_shared_resources = (
-            gca_model_compat.Model.DeploymentResourcesType.SHARED_RESOURCES
-            in model.supported_deployment_resources_types
-        )
-
-        if not supports_shared_resources:
-            raise ValueError(
-                "`deployment_resource_pool` may only be specified for models "
-                " which support shared resources."
+            supports_automatic_resources = (
+                gca_model_compat.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+                in model.supported_deployment_resources_types
+            )
+            supports_dedicated_resources = (
+                gca_model_compat.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+                in model.supported_deployment_resources_types
+            )
+            provided_custom_machine_spec = (
+                machine_type
+                or accelerator_type
+                or accelerator_count
+                or autoscaling_target_accelerator_duty_cycle
+                or autoscaling_target_cpu_utilization
             )
 
-        provided_custom_machine_spec = (
-            machine_type
-            or accelerator_type
-            or accelerator_count
-            or autoscaling_target_accelerator_duty_cycle
-            or autoscaling_target_cpu_utilization
-        )
-
-        if provided_custom_machine_spec:
-            raise ValueError(
-                "Conflicting parameters in deployment request. "
-                "The machine_type, accelerator_type and accelerator_count,"
-                "autoscaling_target_accelerator_duty_cycle,"
-                "autoscaling_target_cpu_utilization parameters may not be set "
-                "when `deployment_resource_pool` is specified."
+            # If the model supports both automatic and dedicated deployment resources,
+            # decide based on the presence of machine spec customizations
+            use_dedicated_resources = supports_dedicated_resources and (
+                not supports_automatic_resources or provided_custom_machine_spec
             )
 
-        deployed_model.shared_resources = deployment_resource_pool.resource_name
+            if provided_custom_machine_spec and not use_dedicated_resources:
+                _LOGGER.info(
+                    "Model does not support dedicated deployment resources. "
+                    "The machine_type, accelerator_type and accelerator_count,"
+                    "autoscaling_target_accelerator_duty_cycle,"
+                    "autoscaling_target_cpu_utilization parameters are ignored."
+                )
 
-        if explanation_spec:
-            raise ValueError(
-                "Model explanation is not supported for deployments using "
-                "shared resources."
+            if use_dedicated_resources and not machine_type:
+                machine_type = _DEFAULT_MACHINE_TYPE
+                _LOGGER.info(f"Using default machine_type: {machine_type}")
+
+            if use_dedicated_resources:
+                dedicated_resources = gca_machine_resources_compat.DedicatedResources(
+                    min_replica_count=min_replica_count,
+                    max_replica_count=max_replica_count,
+                )
+
+                machine_spec = gca_machine_resources_compat.MachineSpec(
+                    machine_type=machine_type
+                )
+
+                if autoscaling_target_cpu_utilization:
+                    autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                        metric_name="aiplatform.googleapis.com/prediction/online/cpu/utilization",
+                        target=autoscaling_target_cpu_utilization,
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+                if accelerator_type and accelerator_count:
+                    utils.validate_accelerator_type(accelerator_type)
+                    machine_spec.accelerator_type = accelerator_type
+                    machine_spec.accelerator_count = accelerator_count
+
+                    if autoscaling_target_accelerator_duty_cycle:
+                        autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
+                            target=autoscaling_target_accelerator_duty_cycle,
+                        )
+                        dedicated_resources.autoscaling_metric_specs.extend(
+                            [autoscaling_metric_spec]
+                        )
+
+                dedicated_resources.machine_spec = machine_spec
+
+                # Checking if flag fast_tryout_enabled is set, only in v1beta1
+                deployed_model.faster_deployment_config = (
+                    gca_endpoint_compat.FasterDeploymentConfig(
+                        fast_tryout_enabled=fast_tryout_enabled
+                    )
+                )
+                deployed_model.dedicated_resources = dedicated_resources
+        else:
+            deployed_model = gca_endpoint_compat.DeployedModel(
+                model=model.versioned_resource_name,
+                display_name=deployed_model_display_name,
+                service_account=service_account,
+                enable_container_logging=not disable_container_logging,
             )
+
+            supports_shared_resources = (
+                gca_model_compat.Model.DeploymentResourcesType.SHARED_RESOURCES
+                in model.supported_deployment_resources_types
+            )
+
+            if not supports_shared_resources:
+                raise ValueError(
+                    "`deployment_resource_pool` may only be specified for models "
+                    " which support shared resources."
+                )
+
+            provided_custom_machine_spec = (
+                machine_type
+                or accelerator_type
+                or accelerator_count
+                or autoscaling_target_accelerator_duty_cycle
+                or autoscaling_target_cpu_utilization
+            )
+
+            if provided_custom_machine_spec:
+                raise ValueError(
+                    "Conflicting parameters in deployment request. "
+                    "The machine_type, accelerator_type and accelerator_count,"
+                    "autoscaling_target_accelerator_duty_cycle,"
+                    "autoscaling_target_cpu_utilization parameters may not be set "
+                    "when `deployment_resource_pool` is specified."
+                )
+
+            deployed_model.shared_resources = deployment_resource_pool.resource_name
+
+            if explanation_spec:
+                raise ValueError(
+                    "Model explanation is not supported for deployments using "
+                    "shared resources."
+                )
 
         # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
@@ -1264,6 +1358,7 @@ class Model(aiplatform.Model):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
+        fast_tryout_enabled: bool = False,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1366,6 +1461,10 @@ class Model(aiplatform.Model):
             disable_container_logging (bool):
               If True, container logs from the deployed model will not be
               written to Cloud Logging. Defaults to False.
+            fast_tryout_enabled (bool): Optional.
+              If True, model will be deployed using faster deployment path.
+              Useful for quick experiments. Not for production workloads. Only
+              available for most popular models and machine types. Defaults to False.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1421,6 +1520,7 @@ class Model(aiplatform.Model):
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -1446,6 +1546,7 @@ class Model(aiplatform.Model):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
+        fast_tryout_enabled: bool = False,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1540,6 +1641,9 @@ class Model(aiplatform.Model):
             disable_container_logging (bool):
               If True, container logs from the deployed model will not be
               written to Cloud Logging. Defaults to False.
+            fast_tryout_enabled (bool):
+              Optional. Whether to enable fast deployment. Defaults to False.
+              Useful for quick experiments. Not for production workloads.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1591,6 +1695,7 @@ class Model(aiplatform.Model):
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
+            fast_tryout_enabled=fast_tryout_enabled,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

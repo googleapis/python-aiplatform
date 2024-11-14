@@ -308,8 +308,9 @@ class ExportDataConfig(proto.Message):
             [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
         saved_query_id (str):
             The ID of a SavedQuery (annotation set) under the Dataset
-            specified by [dataset_id][] used for filtering Annotations
-            for training.
+            specified by
+            [ExportDataRequest.name][google.cloud.aiplatform.v1.ExportDataRequest.name]
+            used for filtering Annotations for training.
 
             Only used for custom training data export use cases. Only
             applicable to Datasets that have SavedQueries.
@@ -338,7 +339,8 @@ class ExportDataConfig(proto.Message):
             gs://google-cloud-aiplatform/schema/dataset/annotation/,
             note that the chosen schema must be consistent with
             [metadata][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
-            of the Dataset specified by [dataset_id][].
+            of the Dataset specified by
+            [ExportDataRequest.name][google.cloud.aiplatform.v1.ExportDataRequest.name].
 
             Only used for custom training data export use cases. Only
             applicable to Datasets that have DataItems and Annotations.

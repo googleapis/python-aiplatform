@@ -15,7 +15,6 @@
 """Classes for working with generative models."""
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
-from collections.abc import Mapping
 import copy
 import io
 import json
@@ -30,6 +29,7 @@ from typing import (
     Iterable,
     List,
     Literal,
+    Mapping,
     Optional,
     Sequence,
     Type,
@@ -2631,7 +2631,11 @@ class FunctionCall:
         return response
 
     def to_dict(self) -> Dict[str, Any]:
-        return _proto_to_dict(self._raw_message)
+        function_call_dict = _proto_to_dict(self._raw_message)
+        function_call_dict["args"] = self._convert_number_values(
+            function_call_dict["args"]
+        )
+        return function_call_dict
 
     def __repr__(self) -> str:
         return self._raw_message.__repr__()
@@ -2644,7 +2648,21 @@ class FunctionCall:
     def args(self) -> Dict[str, Any]:
         # We cannot use `type(self.args).to_dict(self.args)`
         # due to: AttributeError: type object 'MapComposite' has no attribute 'to_dict'
-        return self.to_dict().get("args")
+        args_dict = self.to_dict().get("args")
+        return self._convert_number_values(args_dict)
+
+    def _convert_number_values(self, data: Any) -> Any:
+        """Converts float values with no decimal part to integers."""
+        if isinstance(data, float) and data.is_integer():
+            return int(data)
+        elif isinstance(data, dict):
+            return {
+                key: self._convert_number_values(value) for key, value in data.items()
+            }
+        elif isinstance(data, list):
+            return [self._convert_number_values(item) for item in data]
+        else:
+            return data
 
 
 class SafetySetting:
@@ -2935,11 +2953,19 @@ def _append_gapic_part(
 
 def _proto_to_dict(message) -> Dict[str, Any]:
     """Converts a proto-plus protobuf message to a dictionary."""
-    return type(message).to_dict(
+    # The best way to convert proto to dict is not trivial.
+    # Ideally, we want original keys in snake_case.
+    # The preserving_proto_field_name flag controls key names, but states have issues:
+    # `False` leads to keys using camelCase instead of snake_case.
+    # `True` leads to keys using snake_case, but has renamed names like `type_`.
+    # We needs to fix this issue using _fix_renamed_proto_dict_keys_in_place.
+    result = type(message).to_dict(
         message,
         including_default_value_fields=False,
         use_integers_for_enums=False,
     )
+    _fix_renamed_proto_dict_keys_in_place(result)
+    return result
 
 
 def _dict_to_proto(message_type: Type[T], message_dict: Dict[str, Any]) -> T:
@@ -2954,6 +2980,21 @@ def _dict_to_proto(message_type: Type[T], message_dict: Dict[str, Any]) -> T:
 def _dict_to_pretty_string(d: dict) -> str:
     """Format dict as a pretty-printed JSON string."""
     return json.dumps(d, indent=2)
+
+
+def _fix_renamed_proto_dict_keys_in_place(d: Mapping[str, Any]):
+    """Fixes proto dict keys in place."""
+    for key, value in list(d.items()):
+        if key.endswith("_"):
+            new_key = key.rstrip("_")
+            del d[key]
+            d[new_key] = value
+        if isinstance(value, Mapping):
+            _fix_renamed_proto_dict_keys_in_place(value)
+        if isinstance(value, Sequence) and not isinstance(value, str):
+            for item in value:
+                if isinstance(item, Mapping):
+                    _fix_renamed_proto_dict_keys_in_place(item)
 
 
 _FORMAT_TO_MIME_TYPE = {
@@ -3134,6 +3175,15 @@ class GenerativeModel(_GenerativeModel):
     def _prediction_client(self) -> prediction_service_v1.PredictionServiceClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_client_value", None):
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise ValueError(
+                    "Api keys are only supported with the preview namespace. "
+                    "Import the preview namespace instead:\n"
+                    "from vertexai.preview import generative_models"
+                )
             self._prediction_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service_v1.PredictionServiceClient,
@@ -3149,6 +3199,15 @@ class GenerativeModel(_GenerativeModel):
     ) -> prediction_service_v1.PredictionServiceAsyncClient:
         # Switch to @functools.cached_property once its available.
         if not getattr(self, "_prediction_async_client_value", None):
+            if (
+                aiplatform_initializer.global_config.api_key
+                and not aiplatform_initializer.global_config.project
+            ):
+                raise ValueError(
+                    "Api keys are only supported with the preview namespace. "
+                    "Import the preview namespace instead:\n"
+                    "from vertexai.preview import generative_models"
+                )
             self._prediction_async_client_value = (
                 aiplatform_initializer.global_config.create_client(
                     client_class=prediction_service_v1.PredictionServiceAsyncClient,

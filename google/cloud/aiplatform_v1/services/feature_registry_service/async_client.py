@@ -354,7 +354,7 @@ class FeatureRegistryServiceAsyncClient:
                 will become the final component of the FeatureGroup's
                 resource name.
 
-                This value may be up to 60 characters, and valid
+                This value may be up to 128 characters, and valid
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 
@@ -1113,6 +1113,154 @@ class FeatureRegistryServiceAsyncClient:
             self._client._transport.operations_client,
             gca_feature.Feature,
             metadata_type=featurestore_service.CreateFeatureOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def batch_create_features(
+        self,
+        request: Optional[
+            Union[featurestore_service.BatchCreateFeaturesRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[featurestore_service.CreateFeatureRequest]
+        ] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Creates a batch of Features in a given FeatureGroup.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_batch_create_features():
+                # Create a client
+                client = aiplatform_v1.FeatureRegistryServiceAsyncClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1.CreateFeatureRequest()
+                requests.parent = "parent_value"
+                requests.feature_id = "feature_id_value"
+
+                request = aiplatform_v1.BatchCreateFeaturesRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                operation = client.batch_create_features(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.BatchCreateFeaturesRequest, dict]]):
+                The request object. Request message for
+                [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
+                Request message for
+                [FeatureRegistryService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.BatchCreateFeatures].
+            parent (:class:`str`):
+                Required. The resource name of the
+                EntityType/FeatureGroup to create the batch of Features
+                under. Format:
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+                ``projects/{project}/locations/{location}/featureGroups/{feature_group}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            requests (:class:`MutableSequence[google.cloud.aiplatform_v1.types.CreateFeatureRequest]`):
+                Required. The request message specifying the Features to
+                create. All Features must be created under the same
+                parent EntityType / FeatureGroup. The ``parent`` field
+                in each child request message can be omitted. If
+                ``parent`` is set in a child request, then the value
+                must match the ``parent`` value in this request message.
+
+                This corresponds to the ``requests`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchCreateFeaturesResponse` Response message for
+                   [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, requests])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, featurestore_service.BatchCreateFeaturesRequest):
+            request = featurestore_service.BatchCreateFeaturesRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if requests:
+            request.requests.extend(requests)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.batch_create_features
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            featurestore_service.BatchCreateFeaturesResponse,
+            metadata_type=featurestore_service.BatchCreateFeaturesOperationMetadata,
         )
 
         # Done; return the response.

@@ -3156,6 +3156,8 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                 request (~.featurestore_service.BatchCreateFeaturesRequest):
                     The request object. Request message for
                 [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
+                Request message for
+                [FeatureRegistryService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.BatchCreateFeatures].
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
