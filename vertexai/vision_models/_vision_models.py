@@ -45,6 +45,90 @@ except ImportError:
 _SUPPORTED_UPSCALING_SIZES = [2048, 4096]
 
 
+@dataclasses.dataclass
+class MaskImageConfig:
+    """Mask image config.
+
+    Attributes:
+        mask_mode: Mask mode for the image. Can take the following values:
+            * MASK_MODE_DEFAULT: Default mask mode
+            * MASK_MODE_USER_PROVIDED: User provided mask
+            * MASK_MODE_BACKGROUND: Background mask
+            * MASK_MODE_FOREGROUND: Foreground mask
+            * MASK_MODE_SEMANTIC: Semantic mask
+        dilation: Dilation percentage of the mask provided. Float between 0 and 1.
+            Defaults to 1.0
+        segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
+    """
+
+    mask_mode: Literal[
+        "MASK_MODE_DEFAULT",
+        "MASK_MODE_USER_PROVIDED",
+        "MASK_MODE_BACKGROUND",
+        "MASK_MODE_FOREGROUND",
+        "MASK_MODE_SEMANTIC",
+    ]
+    segmentation_classes: Optional[List[int]] = None
+    dilation: Optional[float] = None
+
+
+@dataclasses.dataclass
+class ControlImageConfig:
+    """Control image config.
+
+    Attributes:
+        control_type: Control type for the image. Can take the following values:
+            * CONTROL_TYPE_DEFAULT: Default control type
+            * CONTROL_TYPE_SCRIBBLE: Scribble control type
+            * CONTROL_TYPE_FACE_MESH: Face mesh control type
+            * CONTROL_TYPE_CANNY: Canny control type
+        enable_control_image_computation: When set to True, the control image
+            will be computed by the model based on the control type. When set to
+            False, the control image will be provided by the user.
+    """
+
+    control_type: Literal[
+        "CONTROL_TYPE_DEFAULT",
+        "CONTROL_TYPE_SCRIBBLE",
+        "CONTROL_TYPE_FACE_MESH",
+        "CONTROL_TYPE_CANNY",
+    ]
+    enable_control_image_computation: Optional[bool] = False
+
+
+@dataclasses.dataclass
+class StyleImageConfig:
+    """Style image config.
+
+    Attributes:
+        style_description: Style description for the image.
+    """
+
+    style_description: str
+
+
+@dataclasses.dataclass
+class SubjectImageConfig:
+    """Subject image config.
+
+    Attributes:
+        subject_description: Subject description for the image.
+        subject_type: Subject type for the image. Can take the following values:
+            * SUBJECT_TYPE_DEFAULT: Default subject type
+            * SUBJECT_TYPE_PERSON: Person subject type
+            * SUBJECT_TYPE_ANIMAL: Animal subject type
+            * SUBJECT_TYPE_PRODUCT: Product subject type
+    """
+
+    subject_description: str
+    subject_type: Literal[
+        "SUBJECT_TYPE_DEFAULT",
+        "SUBJECT_TYPE_PERSON",
+        "SUBJECT_TYPE_ANIMAL",
+        "SUBJECT_TYPE_PRODUCT",
+    ]
+
+
 class Image:
     """Image."""
 
@@ -172,6 +256,215 @@ class Image:
         # We need to convert `bytes` to `str`, otherwise we get service error:
         # "received initial metadata size exceeds limit"
         return base64.b64encode(self._image_bytes).decode("ascii")
+
+
+class ReferenceImage:
+    """Reference image.
+
+    This is a new base API object for Imagen 3.0 Capabilities.
+    """
+
+    __module__ = "vertexai.vision_models"
+    reference_image: Optional[Image] = None
+    reference_id: int
+    config: Optional[
+        Union[MaskImageConfig, ControlImageConfig, StyleImageConfig, SubjectImageConfig]
+    ] = None
+    reference_type: Optional[str] = None
+
+    def __init__(
+        self,
+        reference_id,
+        image: Optional[Union[bytes, Image, str]] = None,
+    ):
+        """Creates a `ReferenceImage` object.
+
+        Args:
+            reference_id: Reference ID for the image.
+            image: Either Image object or Image file bytes. Image can be in PNG or
+              JPEG format.
+        """
+        if image is not None:
+            if isinstance(image, Image):
+                self.reference_image = image
+            elif isinstance(image, bytes):
+                self.reference_image = Image(image_bytes=image)
+            elif isinstance(image, str):
+                self.reference_image = Image(gcs_uri=image)
+            else:
+                raise ValueError("Image must be either Image object, bytes or gcs_uri.")
+        self.reference_id = reference_id
+
+
+class RawReferenceImage(ReferenceImage):
+    """Raw reference image.
+
+    This encapsulates the raw reference image type.
+    """
+
+    reference_type = "REFERENCE_TYPE_RAW"
+
+
+class MaskReferenceImage(ReferenceImage):
+    """Mask reference image. This encapsulates the mask reference image type."""
+
+    mask_mode_enum_map = {
+        "default": "MASK_MODE_DEFAULT",
+        "user_provided": "MASK_MODE_USER_PROVIDED",
+        "background": "MASK_MODE_BACKGROUND",
+        "foreground": "MASK_MODE_FOREGROUND",
+        "semantic": "MASK_MODE_SEMANTIC",
+    }
+    reference_type = "REFERENCE_TYPE_MASK"
+
+    def __init__(
+        self,
+        reference_id,
+        image: Optional[Union[bytes, Image, str]] = None,
+        mask_mode: Optional[
+            Literal["default", "user_provided", "background", "foreground", "semantic"]
+        ] = None,
+        dilation: Optional[float] = None,
+        segmentation_classes: Optional[List[int]] = None,
+    ):
+        """Creates a `MaskReferenceImage` object.
+
+        Args:
+            reference_id: Reference ID for the image. Required.
+            image: Either Image object or Image file bytes. Image can be in PNG or
+              JPEG format.
+            mask_mode: Mask mode for the image. Can take the following values:
+                * default: Default mask mode
+                * user_provided: User provided mask
+                * background: Background mask
+                * foreground: Foreground mask
+                * semantic: Semantic mask
+            dilation: Dilation percentage of the mask
+            segmentation_classes: List of class IDs for segmentation. Max of 5 IDs
+        """
+        self.config = MaskImageConfig(
+            mask_mode=self.mask_mode_enum_map[mask_mode]
+            if mask_mode in self.mask_mode_enum_map
+            else "MASK_MODE_DEFAULT",
+            dilation=dilation,
+            segmentation_classes=segmentation_classes,
+        )
+        super().__init__(reference_id, image)
+
+
+class ControlReferenceImage(ReferenceImage):
+    """Control reference image.
+
+    This encapsulates the control reference image type.
+    """
+
+    control_type_enum_map = {
+        "default": "CONTROL_TYPE_DEFAULT",
+        "scribble": "CONTROL_TYPE_SCRIBBLE",
+        "face_mesh": "CONTROL_TYPE_FACE_MESH",
+        "canny": "CONTROL_TYPE_CANNY",
+    }
+    reference_type = "REFERENCE_TYPE_CONTROL"
+
+    def __init__(
+        self,
+        reference_id,
+        image: Optional[Union[bytes, Image, str]] = None,
+        control_type: Optional[
+            Literal["default", "scribble", "face_mesh", "canny"]
+        ] = None,
+        enable_control_image_computation: Optional[bool] = False,
+    ):
+        """Creates a `ControlReferenceImage` object.
+
+        Args:
+            reference_id: Reference ID for the image. Required.
+            image: Either Image object or Image file bytes. Image can be in PNG or
+              JPEG format.
+            control_type: Control type for the image. Can take the following values:
+                * default: Default control type
+                * scribble: Scribble control type
+                * face_mesh: Face mesh control type
+                * canny: Canny control type
+            enable_control_image_computation: When set to True, the control image
+              will be computed by the model based on the control type. When set to
+              False, the control image will be provided by the user.
+        """
+        super().__init__(reference_id, image)
+        self.config = ControlImageConfig(
+            control_type=self.control_type_enum_map[control_type]
+            if control_type in self.control_type_enum_map
+            else "CONTROL_TYPE_DEFAULT",
+            enable_control_image_computation=enable_control_image_computation,
+        )
+
+
+class StyleReferenceImage(ReferenceImage):
+    """Style reference image. This encapsulates the style reference image type."""
+
+    reference_type = "REFERENCE_TYPE_STYLE"
+
+    def __init__(
+        self,
+        reference_id,
+        image: Optional[Union[bytes, Image, str]] = None,
+        style_description: Optional[str] = None,
+    ):
+        """Creates a `StyleReferenceImage` object.
+
+        Args:
+            reference_id: Reference ID for the image. Required.
+            image: Either Image object or Image file bytes. Image can be in PNG or
+              JPEG format.
+            style_description: Style description for the image.
+        """
+        super().__init__(reference_id, image)
+        self.config = StyleImageConfig(style_description=style_description)
+
+
+class SubjectReferenceImage(ReferenceImage):
+    """Subject reference image.
+
+    This encapsulates the subject reference image type.
+    """
+
+    subject_type_enum_map = {
+        "default": "SUBJECT_TYPE_DEFAULT",
+        "person": "SUBJECT_TYPE_PERSON",
+        "animal": "SUBJECT_TYPE_ANIMAL",
+        "product": "SUBJECT_TYPE_PRODUCT",
+    }
+    reference_type = "REFERENCE_TYPE_SUBJECT"
+
+    def __init__(
+        self,
+        reference_id,
+        image: Optional[Union[bytes, Image, str]] = None,
+        subject_description: Optional[str] = None,
+        subject_type: Optional[
+            Literal["default", "person", "animal", "product"]
+        ] = None,
+    ):
+        """Creates a `SubjectReferenceImage` object.
+
+        Args:
+            reference_id: Reference ID for the image. Required.
+            image: Either Image object or Image file bytes. Image can be in PNG or
+              JPEG format.
+            subject_description: Subject description for the image.
+            subject_type: Subject type for the image. Can take the following values:
+                * default: Default subject type
+                * person: Person subject type
+                * animal: Animal subject type
+                * product: Product subject type
+        """
+        super().__init__(reference_id, image)
+        self.config = SubjectImageConfig(
+            subject_description=subject_description,
+            subject_type=self.subject_type_enum_map[subject_type]
+            if subject_type in self.subject_type_enum_map
+            else "SUBJECT_TYPE_DEFAULT",
+        )
 
 
 class Video:
@@ -365,12 +658,14 @@ class ImageGenerationModel(
         seed: Optional[int] = None,
         base_image: Optional["Image"] = None,
         mask: Optional["Image"] = None,
+        reference_images: Optional[List["ReferenceImage"]] = None,
         edit_mode: Optional[
             Literal[
                 "inpainting-insert",
                 "inpainting-remove",
                 "outpainting",
                 "product-image",
+                "default",
             ]
         ] = None,
         mask_mode: Optional[Literal["background", "foreground", "semantic"]] = None,
@@ -419,6 +714,7 @@ class ImageGenerationModel(
             seed: Image generation random seed.
             base_image: Base image to use for the image generation.
             mask: Mask for the base image.
+            reference_images: Reference images for Imagen 3 Capabilities calls.
             edit_mode: Describes the editing mode for the request. Supported values
               are -
                 * inpainting-insert: fills the mask area based on the text
@@ -428,6 +724,7 @@ class ImageGenerationModel(
                   mask)
                 * product-image: Changes the background for the predominant
                   product or subject in the image
+                * default: Default editing mode
             mask_mode: Solicits generation of the mask (v/s providing mask as an
               input). Supported values are:
                 * background: Automatically generates a mask for all regions except
@@ -526,6 +823,97 @@ class ImageGenerationModel(
                     mask._image_bytes  # pylint: disable=protected-access
                 ).hexdigest()
 
+        if reference_images:
+            instance["referenceImages"] = []
+            for reference_image in reference_images:
+                reference_image_instance = {}
+                if not reference_image.reference_image:
+                    if reference_image.reference_type != "REFERENCE_TYPE_MASK":
+                        raise ValueError(
+                            "Reference image must have an image or a gcs uri."
+                        )
+                else:
+                    reference_image_instance["referenceImage"] = {}
+                    if (
+                        reference_image.reference_image._gcs_uri
+                    ):  # pylint: disable=protected-access
+                        reference_image_instance["referenceImage"] = {
+                            "gcsUri": reference_image.reference_image._gcs_uri  # pylint: disable=protected-access
+                        }
+                        shared_generation_parameters[
+                            f"reference_image_uri_{reference_image.reference_id}"
+                        ] = (
+                            reference_image.reference_image._gcs_uri
+                        )  # pylint: disable=protected-access
+                    elif reference_image.reference_image._image_bytes:
+                        reference_image_instance["referenceImage"] = {
+                            "bytesBase64Encoded": reference_image.reference_image._as_base64_string()  # pylint: disable=protected-access
+                        }
+                        shared_generation_parameters[
+                            f"reference_image_hash_{reference_image.reference_id}"
+                        ] = hashlib.sha1(
+                            reference_image.reference_image._image_bytes  # pylint: disable=protected-access
+                        ).hexdigest()
+
+                reference_image_instance[
+                    "referenceId"
+                ] = reference_image.reference_id  # pylint: disable=protected-access
+                reference_image_instance[
+                    "referenceType"
+                ] = reference_image.reference_type  # pylint: disable=protected-access
+                shared_generation_parameters[
+                    f"reference_type_{reference_image.reference_id}"
+                ] = reference_image.reference_type  # pylint: disable=protected-access
+                if isinstance(reference_image.config, MaskImageConfig):
+                    reference_image_instance["maskImageConfig"] = {
+                        "maskMode": reference_image.config.mask_mode,
+                    }
+                    if reference_image.config.dilation:
+                        reference_image_instance["maskImageConfig"][
+                            "dilation"
+                        ] = reference_image.config.dilation
+                    if reference_image.config.segmentation_classes:
+                        reference_image_instance["maskImageConfig"][
+                            "maskClasses"
+                        ] = reference_image.config.segmentation_classes
+                    shared_generation_parameters[
+                        f"reference_image_mask_config_{reference_image.reference_id}"
+                    ] = str(
+                        reference_image.config
+                    )  # pylint: disable=protected-access
+                if isinstance(reference_image.config, ControlImageConfig):
+                    reference_image_instance["controlImageConfig"] = {
+                        "controlType": reference_image.config.control_type,
+                        "enableControlImageComputation": reference_image.config.enable_control_image_computation,
+                    }
+                    shared_generation_parameters[
+                        f"reference_image_control_config_{reference_image.reference_id}"
+                    ] = str(
+                        reference_image.config
+                    )  # pylint: disable=protected-access
+                if isinstance(reference_image.config, SubjectImageConfig):
+                    reference_image_instance["subjectImageConfig"] = {
+                        "subjectType": reference_image.config.subject_type,
+                        "subjectDescription": reference_image.config.subject_description,
+                    }
+                    shared_generation_parameters[
+                        f"reference_image_subject_config_{reference_image.reference_id}"
+                    ] = str(
+                        reference_image.config
+                    )  # pylint: disable=protected-access
+                if isinstance(reference_image.config, StyleImageConfig):
+                    reference_image_instance["styleImageConfig"] = {
+                        "styleDescription": reference_image.config.style_description,
+                    }
+                    shared_generation_parameters[
+                        f"reference_image_style_config_{reference_image.reference_id}"
+                    ] = str(
+                        reference_image.config
+                    )  # pylint: disable=protected-access
+                instance["referenceImages"].append(reference_image_instance)
+
+        edit_config = {}
+        output_options = {}
         parameters = {}
         max_size = max(width or 0, height or 0) or None
         if aspect_ratio is not None:
@@ -558,36 +946,51 @@ class ImageGenerationModel(
             parameters["storageUri"] = output_gcs_uri
             shared_generation_parameters["storage_uri"] = output_gcs_uri
 
-        parameters["editConfig"] = {}
         if edit_mode is not None:
-            parameters["editConfig"]["editMode"] = edit_mode
-            shared_generation_parameters["edit_mode"] = edit_mode
+            if reference_images is not None:
+                edit_mode_to_enum_map = {
+                    "inpainting-insert": "EDIT_MODE_INPAINT_INSERTION",
+                    "inpainting-remove": "EDIT_MODE_INPAINT_REMOVAL",
+                    "outpainting": "EDIT_MODE_OUTPAINT",
+                }
+                capability_mode = (
+                    edit_mode_to_enum_map[edit_mode]
+                    if edit_mode in edit_mode_to_enum_map
+                    else "EDIT_MODE_DEFAULT"
+                )
+                parameters["editMode"] = capability_mode
+                shared_generation_parameters["edit_mode"] = capability_mode
+            else:
+                edit_config["editMode"] = edit_mode
+                shared_generation_parameters["edit_mode"] = edit_mode
 
-        if mask is None and edit_mode != "product-image":
-            parameters["editConfig"]["maskMode"] = {}
+        if mask is None and edit_mode is not None and edit_mode != "product-image":
             if mask_mode is not None:
-                parameters["editConfig"]["maskMode"]["maskType"] = mask_mode
+                if "maskMode" not in edit_config:
+                    edit_config["maskMode"] = {}
+                edit_config["maskMode"]["maskType"] = mask_mode
                 shared_generation_parameters["mask_mode"] = mask_mode
 
             if segmentation_classes is not None:
-                parameters["editConfig"]["maskMode"]["classes"] = segmentation_classes
+                if "maskMode" not in edit_config:
+                    edit_config["maskMode"] = {}
+                edit_config["maskMode"]["classes"] = segmentation_classes
                 shared_generation_parameters["classes"] = segmentation_classes
 
         if mask_dilation is not None:
-            parameters["editConfig"]["maskDilation"] = mask_dilation
+            edit_config["maskDilation"] = mask_dilation
             shared_generation_parameters["mask_dilation"] = mask_dilation
 
         if product_position is not None:
-            parameters["editConfig"]["productPosition"] = product_position
+            edit_config["productPosition"] = product_position
             shared_generation_parameters["product_position"] = product_position
 
-        parameters["outputOptions"] = {}
         if output_mime_type is not None:
-            parameters["outputOptions"]["mimeType"] = output_mime_type
+            output_options["mimeType"] = output_mime_type
             shared_generation_parameters["mime_type"] = output_mime_type
 
         if compression_quality is not None:
-            parameters["outputOptions"]["compressionQuality"] = compression_quality
+            output_options["compressionQuality"] = compression_quality
             shared_generation_parameters["compression_quality"] = compression_quality
 
         if add_watermark is not None:
@@ -601,6 +1004,12 @@ class ImageGenerationModel(
         if person_generation is not None:
             parameters["personGeneration"] = person_generation
             shared_generation_parameters["person_generation"] = person_generation
+
+        if edit_config:
+            parameters["editConfig"] = edit_config
+
+        if output_options:
+            parameters["outputOptions"] = output_options
 
         response = self._endpoint.predict(
             instances=[instance],
@@ -698,14 +1107,18 @@ class ImageGenerationModel(
         self,
         *,
         prompt: str,
-        base_image: "Image",
+        base_image: Optional["Image"] = None,
         mask: Optional["Image"] = None,
+        reference_images: Optional[List["ReferenceImage"]] = None,
         negative_prompt: Optional[str] = None,
         number_of_images: int = 1,
         guidance_scale: Optional[float] = None,
         edit_mode: Optional[
             Literal[
-                "inpainting-insert", "inpainting-remove", "outpainting", "product-image"
+                "inpainting-insert",
+                "inpainting-remove",
+                "outpainting",
+                "product-image",
             ]
         ] = None,
         mask_mode: Optional[Literal["background", "foreground", "semantic"]] = None,
@@ -730,8 +1143,11 @@ class ImageGenerationModel(
             prompt: Text prompt for the image.
             base_image: Base image from which to generate the new image.
             mask: Mask for the base image.
-            negative_prompt: A description of what you want to omit in
-                the generated images.
+            reference_images: List of reference images to use for Imagen 3
+              Capabilities. Please refer to the documentation for the ReferenceImage
+              class for how to create a ReferenceImage object.
+            negative_prompt: A description of what you want to omit in the generated
+              images.
             number_of_images: Number of images to generate. Range: 1..8.
             guidance_scale: Controls the strength of the prompt.
                 Suggested values are:
@@ -798,6 +1214,7 @@ class ImageGenerationModel(
             seed=seed,
             base_image=base_image,
             mask=mask,
+            reference_images=reference_images,
             edit_mode=edit_mode,
             mask_mode=mask_mode,
             segmentation_classes=segmentation_classes,

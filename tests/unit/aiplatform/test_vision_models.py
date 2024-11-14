@@ -581,6 +581,198 @@ class TestImageGenerationModels:
                 == compression_quality
             )
 
+    def test_edit_image_with_capability_mode(self):
+        """Tests the edit image model with capability mode."""
+        model = self._get_image_generation_model()
+        number_of_images = 2
+
+        reference_type_raw = "REFERENCE_TYPE_RAW"
+        reference_type_mask = "REFERENCE_TYPE_MASK"
+        reference_type_style = "REFERENCE_TYPE_STYLE"
+        reference_type_subject = "REFERENCE_TYPE_SUBJECT"
+        reference_type_control = "REFERENCE_TYPE_CONTROL"
+
+        mask_mode = "background"
+        mask_mode_enum = "MASK_MODE_BACKGROUND"
+        mask_dilation = 0.03
+        style_description = "style_description"
+        subject_type = "person"
+        subject_type_enum = "SUBJECT_TYPE_PERSON"
+        subject_description = "subject_description"
+        control_type = "scribble"
+        control_type_enum = "CONTROL_TYPE_SCRIBBLE"
+        enable_control_image_computation = True
+
+        mask_config = preview_vision_models.MaskImageConfig(
+            mask_mode=mask_mode_enum, dilation=mask_dilation
+        )
+        style_config = preview_vision_models.StyleImageConfig(
+            style_description=style_description
+        )
+        subject_config = preview_vision_models.SubjectImageConfig(
+            subject_type=subject_type_enum, subject_description=subject_description
+        )
+        control_config = preview_vision_models.ControlImageConfig(
+            control_type=control_type_enum,
+            enable_control_image_computation=enable_control_image_computation,
+        )
+
+        raw_ref_image = preview_vision_models.RawReferenceImage(
+            reference_id=0,
+            image=generate_image_from_file(height=1024, width=1024),
+        )
+        mask_ref_image = preview_vision_models.MaskReferenceImage(
+            reference_id=1,
+            mask_mode=mask_mode,
+            dilation=mask_dilation,
+        )
+        style_ref_image = preview_vision_models.StyleReferenceImage(
+            reference_id=2,
+            image=generate_image_from_file(height=1024, width=1024),
+            style_description=style_description,
+        )
+        subject_ref_image = preview_vision_models.SubjectReferenceImage(
+            reference_id=3,
+            image=generate_image_from_file(height=1024, width=1024),
+            subject_type=subject_type,
+            subject_description=subject_description,
+        )
+        control_ref_image = preview_vision_models.ControlReferenceImage(
+            reference_id=4,
+            image=generate_image_from_file(height=1024, width=1024),
+            control_type=control_type,
+            enable_control_image_computation=enable_control_image_computation,
+        )
+
+        image_generation_response = make_image_generation_response_gcs(
+            count=number_of_images
+        )
+        gca_predict_response = gca_prediction_service.PredictResponse()
+        gca_predict_response.predictions.extend(
+            image_generation_response["predictions"]
+        )
+
+        with mock.patch.object(
+            target=prediction_service_client.PredictionServiceClient,
+            attribute="predict",
+            return_value=gca_predict_response,
+        ) as mock_predict:
+            prompt1 = "replace background with new background"
+            prompt2 = "change style of image to new style"
+            prompt3 = "change background of subject to grand canyon"
+            prompt4 = "fill in with seven colors"
+
+            response1 = model.edit_image(
+                prompt=prompt1,
+                reference_images=[raw_ref_image, mask_ref_image],
+                number_of_images=number_of_images,
+                edit_mode="inpainting-insert",
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            actual_instance = predict_kwargs["instances"][0]
+
+            assert actual_instance["prompt"] == prompt1
+            assert len(actual_instance["referenceImages"]) == 2
+            assert actual_parameters["editMode"] == "EDIT_MODE_INPAINT_INSERTION"
+
+            for image in response1:
+                assert image.generation_parameters
+                assert image.generation_parameters["prompt"] == prompt1
+                assert (
+                    image.generation_parameters["edit_mode"]
+                    == "EDIT_MODE_INPAINT_INSERTION"
+                )
+                assert (
+                    image.generation_parameters["reference_type_0"]
+                    == reference_type_raw
+                )
+                assert (
+                    image.generation_parameters["reference_type_1"]
+                    == reference_type_mask
+                )
+                assert image.generation_parameters[
+                    "reference_image_mask_config_1"
+                ] == str(mask_config)
+
+            response2 = model.edit_image(
+                prompt=prompt2,
+                reference_images=[style_ref_image],
+                number_of_images=number_of_images,
+                edit_mode="default",
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            actual_instance = predict_kwargs["instances"][0]
+
+            assert actual_instance["prompt"] == prompt2
+            assert len(actual_instance["referenceImages"]) == 1
+            assert actual_parameters["editMode"] == "EDIT_MODE_DEFAULT"
+
+            for image in response2:
+                assert image.generation_parameters
+                assert image.generation_parameters["prompt"] == prompt2
+                assert image.generation_parameters["edit_mode"] == "EDIT_MODE_DEFAULT"
+                assert (
+                    image.generation_parameters["reference_type_2"]
+                    == reference_type_style
+                )
+                assert image.generation_parameters[
+                    "reference_image_style_config_2"
+                ] == str(style_config)
+
+            response3 = model.edit_image(
+                prompt=prompt3,
+                reference_images=[subject_ref_image],
+                number_of_images=number_of_images,
+                edit_mode="default",
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            actual_instance = predict_kwargs["instances"][0]
+
+            assert actual_instance["prompt"] == prompt3
+            assert len(actual_instance["referenceImages"]) == 1
+            assert actual_parameters["editMode"] == "EDIT_MODE_DEFAULT"
+
+            for image in response3:
+                assert image.generation_parameters
+                assert image.generation_parameters["prompt"] == prompt3
+                assert image.generation_parameters["edit_mode"] == "EDIT_MODE_DEFAULT"
+                assert (
+                    image.generation_parameters["reference_type_3"]
+                    == reference_type_subject
+                )
+                assert image.generation_parameters[
+                    "reference_image_subject_config_3"
+                ] == str(subject_config)
+
+            response4 = model.edit_image(
+                prompt=prompt4,
+                reference_images=[control_ref_image],
+                number_of_images=number_of_images,
+                edit_mode="default",
+            )
+            predict_kwargs = mock_predict.call_args[1]
+            actual_parameters = predict_kwargs["parameters"]
+            actual_instance = predict_kwargs["instances"][0]
+
+            assert actual_instance["prompt"] == prompt4
+            assert len(actual_instance["referenceImages"]) == 1
+            assert actual_parameters["editMode"] == "EDIT_MODE_DEFAULT"
+
+            for image in response4:
+                assert image.generation_parameters
+                assert image.generation_parameters["prompt"] == prompt4
+                assert image.generation_parameters["edit_mode"] == "EDIT_MODE_DEFAULT"
+                assert (
+                    image.generation_parameters["reference_type_4"]
+                    == reference_type_control
+                )
+                assert image.generation_parameters[
+                    "reference_image_control_config_4"
+                ] == str(control_config)
+
     @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
     def test_generate_images_requests_square_images_by_default(self):
         """Tests that the model class generates square image by default."""
