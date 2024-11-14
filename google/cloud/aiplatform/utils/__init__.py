@@ -763,6 +763,12 @@ class FeatureRegistryClientWithOverride(ClientWithOverride):
     )
 
 
+class FeatureRegistryClientV1Beta1WithOverride(FeatureRegistryClientWithOverride):
+    """Adds function override for v1beta1 client classes to support new Feature Store."""
+
+    _default_version = compat.V1BETA1
+
+
 class FeaturestoreClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION

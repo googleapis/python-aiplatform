@@ -352,3 +352,15 @@ _TEST_FG1_F2 = types.feature.Feature(
 )
 
 _TEST_FG1_FEATURE_LIST = [_TEST_FG1_F1, _TEST_FG1_F2]
+
+_TEST_FG1_FM1_ID = "my_fg1_fm1"
+_TEST_FG1_FM1_PATH = (
+    f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/featureMonitors/{_TEST_FG1_FM1_ID}"
+)
+_TEST_FG1_FM1_DESCRIPTION = "My feature monitor 1 in feature group 1"
+_TEST_FG1_FM1_LABELS = {"my_fg1_feature_monitor": "fm1"}
+_TEST_FG1_FM1 = types.feature_monitor.FeatureMonitor(
+    name=_TEST_FG1_FM1_PATH,
+    description=_TEST_FG1_FM1_DESCRIPTION,
+    labels=_TEST_FG1_FM1_LABELS,
+)

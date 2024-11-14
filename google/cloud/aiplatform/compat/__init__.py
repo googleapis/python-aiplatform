@@ -226,6 +226,9 @@ if DEFAULT_VERSION == V1:
     types.explanation_metadata = types.explanation_metadata_v1
     types.feature = types.feature_v1
     types.feature_group = types.feature_group_v1
+    # TODO(b/293184410): Temporary code. Switch to v1 once v1 is available.
+    types.feature_monitor = types.feature_monitor_v1beta1
+    types.feature_monitor_job = types.feature_monitor_job_v1beta1
     types.feature_monitoring_stats = types.feature_monitoring_stats_v1
     types.feature_online_store = types.feature_online_store_v1
     types.feature_online_store_admin_service = (

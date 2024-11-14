@@ -24,6 +24,10 @@ from vertexai.resources.preview.feature_store.feature_group import (
     FeatureGroup,
 )
 
+from vertexai.resources.preview.feature_store.feature_monitor import (
+    FeatureMonitor,
+)
+
 from vertexai.resources.preview.feature_store.feature_online_store import (
     FeatureOnlineStore,
     FeatureOnlineStoreType,
@@ -48,6 +52,7 @@ __all__ = (
     Feature,
     FeatureGroup,
     FeatureGroupBigQuerySource,
+    FeatureMonitor,
     FeatureOnlineStoreType,
     FeatureOnlineStore,
     FeatureView,
