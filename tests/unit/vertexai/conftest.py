@@ -34,6 +34,9 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.services import (
     feature_registry_service_client,
 )
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
+    FeatureRegistryServiceClient,
+)
 from google.cloud.aiplatform.compat.services import job_service_client
 from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job_compat,
@@ -59,6 +62,7 @@ from feature_store_constants import (
     _TEST_FG1,
     _TEST_FG1_F1,
     _TEST_FG1_F2,
+    _TEST_FG1_FM1,
     _TEST_FV1,
     _TEST_OPTIMIZED_EMBEDDING_FV,
     _TEST_OPTIMIZED_FV1,
@@ -66,6 +70,7 @@ from feature_store_constants import (
     _TEST_PSC_OPTIMIZED_FOS,
 )
 import pytest
+
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_NUMBER = "12345678"
@@ -518,4 +523,14 @@ def get_feature_with_version_column_mock():
         "get_feature",
     ) as get_fg_mock:
         get_fg_mock.return_value = _TEST_FG1_F2
+        yield get_fg_mock
+
+
+@pytest.fixture
+def get_feature_monitor_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "get_feature_monitor",
+    ) as get_fg_mock:
+        get_fg_mock.return_value = _TEST_FG1_FM1
         yield get_fg_mock

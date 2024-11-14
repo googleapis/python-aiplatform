@@ -36,6 +36,9 @@ from vertexai.resources.preview.feature_store.utils import (
 from vertexai.resources.preview.feature_store import (
     Feature,
 )
+from vertexai.resources.preview.feature_store.feature_monitor import (
+    FeatureMonitor,
+)
 
 
 _LOGGER = base.Logger(__name__)
@@ -395,6 +398,33 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
             parent=self.resource_name,
             project=project,
             location=location,
+            credentials=credentials,
+        )
+
+    def get_feature_monitor(
+        self,
+        feature_monitor_id: str,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> FeatureMonitor:
+        """Retrieves an existing feature monitor.
+
+        Args:
+            feature_monitor_id: The ID of the feature monitor.
+            credentials:
+                Custom credentials to use to retrieve the feature monitor under this
+                feature group. The order of which credentials are used is as
+                follows: (1) this parameter (2) credentials passed to FeatureGroup
+                constructor (3) credentials set in aiplatform.init.
+
+        Returns:
+            FeatureMonitor - the Feature Monitor resource object under this
+            feature group.
+        """
+        credentials = (
+            credentials or self.credentials or initializer.global_config.credentials
+        )
+        return FeatureMonitor(
+            f"{self.resource_name}/featureMonitors/{feature_monitor_id}",
             credentials=credentials,
         )
 
