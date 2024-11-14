@@ -15,7 +15,6 @@
 """Classes for working with generative models."""
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
-from collections.abc import Mapping
 import copy
 import io
 import json
@@ -30,6 +29,7 @@ from typing import (
     Iterable,
     List,
     Literal,
+    Mapping,
     Optional,
     Sequence,
     Type,
@@ -2953,11 +2953,19 @@ def _append_gapic_part(
 
 def _proto_to_dict(message) -> Dict[str, Any]:
     """Converts a proto-plus protobuf message to a dictionary."""
-    return type(message).to_dict(
+    # The best way to convert proto to dict is not trivial.
+    # Ideally, we want original keys in snake_case.
+    # The preserving_proto_field_name flag controls key names, but states have issues:
+    # `False` leads to keys using camelCase instead of snake_case.
+    # `True` leads to keys using snake_case, but has renamed names like `type_`.
+    # We needs to fix this issue using _fix_renamed_proto_dict_keys_in_place.
+    result = type(message).to_dict(
         message,
         including_default_value_fields=False,
         use_integers_for_enums=False,
     )
+    _fix_renamed_proto_dict_keys_in_place(result)
+    return result
 
 
 def _dict_to_proto(message_type: Type[T], message_dict: Dict[str, Any]) -> T:
@@ -2972,6 +2980,21 @@ def _dict_to_proto(message_type: Type[T], message_dict: Dict[str, Any]) -> T:
 def _dict_to_pretty_string(d: dict) -> str:
     """Format dict as a pretty-printed JSON string."""
     return json.dumps(d, indent=2)
+
+
+def _fix_renamed_proto_dict_keys_in_place(d: Mapping[str, Any]):
+    """Fixes proto dict keys in place."""
+    for key, value in list(d.items()):
+        if key.endswith("_"):
+            new_key = key.rstrip("_")
+            del d[key]
+            d[new_key] = value
+        if isinstance(value, Mapping):
+            _fix_renamed_proto_dict_keys_in_place(value)
+        if isinstance(value, Sequence) and not isinstance(value, str):
+            for item in value:
+                if isinstance(item, Mapping):
+                    _fix_renamed_proto_dict_keys_in_place(item)
 
 
 _FORMAT_TO_MIME_TYPE = {

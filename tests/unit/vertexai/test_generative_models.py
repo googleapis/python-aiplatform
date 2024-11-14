@@ -178,16 +178,16 @@ _RENAMING_INPUT_SCHEMA = {
     },
 }
 _RENAMING_EXPECTED_SCHEMA = {
-    "type_": "OBJECT",
+    "type": "OBJECT",
     "min_properties": "1",  # NB: int64 is converted to string
     "max_properties": "3",
     "properties": {
         "names": {
-            "type_": "ARRAY",
+            "type": "ARRAY",
             "min_items": "2",
             "max_items": "4",
             "items": {
-                "type_": "STRING",
+                "type": "STRING",
                 "min_length": "3",
                 "max_length": "5",
             },
@@ -195,13 +195,13 @@ _RENAMING_EXPECTED_SCHEMA = {
         "date": {
             "any_of": [
                 {
-                    "type_": "STRING",
-                    "format_": "date",
+                    "type": "STRING",
+                    "format": "date",
                 },
                 {
                     "any_of": [
                         {
-                            "type_": "INTEGER",
+                            "type": "INTEGER",
                             "minimum": 20241001,
                         },
                     ],
@@ -209,16 +209,16 @@ _RENAMING_EXPECTED_SCHEMA = {
             ],
         },
         "ordered": {
-            "type_": "OBJECT",
+            "type": "OBJECT",
             "properties": {
-                "a": {"type_": "STRING"},
-                "b": {"type_": "INTEGER"},
+                "a": {"type": "STRING"},
+                "b": {"type": "INTEGER"},
                 "c": {
-                    "type_": "OBJECT",
+                    "type": "OBJECT",
                     "properties": {
-                        "x": {"type_": "STRING"},
-                        "y": {"type_": "NUMBER"},
-                        "z": {"type_": "INTEGER"},
+                        "x": {"type": "STRING"},
+                        "y": {"type": "NUMBER"},
+                        "z": {"type": "INTEGER"},
                     },
                     "property_ordering": ["z", "y", "x"],  # explicit order kept
                 },
