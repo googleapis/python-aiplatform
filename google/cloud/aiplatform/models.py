@@ -5020,7 +5020,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             if not model_dir.exists():
                 raise ValueError(f"artifact_uri path does not exist: '{artifact_uri}'")
             PREBUILT_IMAGE_RE = "(us|europe|asia)-docker.pkg.dev/vertex-ai/prediction/"
-            if serving_container_image_uri and re.match(PREBUILT_IMAGE_RE, serving_container_image_uri):
+            if serving_container_image_uri and re.match(
+                PREBUILT_IMAGE_RE, serving_container_image_uri
+            ):
                 if not model_dir.is_dir():
                     raise ValueError(
                         f"artifact_uri path must be a directory: '{artifact_uri}' when using prebuilt image '{serving_container_image_uri}'"
