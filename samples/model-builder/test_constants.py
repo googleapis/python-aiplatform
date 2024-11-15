@@ -264,6 +264,11 @@ FEATURE_VIEW_BQ_SOURCE = (
         entity_id_columns=FEATURE_VIEW_BQ_ENTITY_ID_COLUMNS,
     )
 )
+FEATURE_VIEW_RAG_SOURCE = (
+    vertexai.resources.preview.feature_store.utils.FeatureViewVertexRagSource(
+        uri=FEATURE_VIEW_BQ_URI,
+    )
+)
 FEATURE_VIEW_BQ_EMBEDDING_COLUMN = "embedding"
 FEATURE_VIEW_BQ_EMBEDDING_DIMENSIONS = 10
 FEATURE_VIEW_BQ_INDEX_CONFIG = (

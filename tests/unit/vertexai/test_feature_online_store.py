@@ -47,6 +47,10 @@ from feature_store_constants import (
     _TEST_FV1_ID,
     _TEST_FV1_LABELS,
     _TEST_FV1_PATH,
+    _TEST_FV3_BQ_URI,
+    _TEST_FV3_ID,
+    _TEST_FV3_LABELS,
+    _TEST_FV3_PATH,
     _TEST_LOCATION,
     _TEST_OPTIMIZED_EMBEDDING_FV_ID,
     _TEST_OPTIMIZED_EMBEDDING_FV_PATH,
@@ -63,6 +67,7 @@ from vertexai.resources.preview import (
     FeatureOnlineStore,
     FeatureOnlineStoreType,
     FeatureViewBigQuerySource,
+    FeatureViewVertexRagSource,
     IndexConfig,
     TreeAhConfig,
 )
@@ -463,7 +468,9 @@ def test_create_fv_wrong_object_type_raises_error(get_fos_mock):
 
     with pytest.raises(
         ValueError,
-        match=re.escape("Only FeatureViewBigQuerySource is a supported source."),
+        match=re.escape(
+            "Only FeatureViewBigQuerySource and FeatureViewVertexRagSource are supported sources."
+        ),
     ):
         fos.create_feature_view("bq_fv", fos)
 
@@ -593,4 +600,82 @@ def test_create_embedding_fv(
         project=_TEST_PROJECT,
         location=_TEST_LOCATION,
         labels=_TEST_FV1_LABELS,
+    )
+
+
+def test_create_rag_fv_bad_uri_raises_error(get_fos_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    fos = FeatureOnlineStore(_TEST_BIGTABLE_FOS1_ID)
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Please specify URI in Vertex RAG source."),
+    ):
+        fos.create_feature_view(
+            "rag_fv",
+            FeatureViewVertexRagSource(uri=None),
+        )
+
+
+@pytest.mark.parametrize("create_request_timeout", [None, 1.0])
+@pytest.mark.parametrize("sync", [True, False])
+def test_create_rag_fv(
+    create_request_timeout,
+    sync,
+    get_fos_mock,
+    create_rag_fv_mock,
+    get_rag_fv_mock,
+    fos_logger_mock,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    fos = FeatureOnlineStore(_TEST_BIGTABLE_FOS1_ID)
+
+    rag_fv = fos.create_feature_view(
+        _TEST_FV3_ID,
+        FeatureViewVertexRagSource(uri=_TEST_FV3_BQ_URI),
+        labels=_TEST_FV3_LABELS,
+        create_request_timeout=create_request_timeout,
+    )
+
+    if not sync:
+        fos.wait()
+
+    # When creating, the FeatureView object doesn't have the path set.
+    expected_fv = types.feature_view.FeatureView(
+        vertex_rag_source=types.feature_view.FeatureView.VertexRagSource(
+            uri=_TEST_FV3_BQ_URI,
+        ),
+        labels=_TEST_FV3_LABELS,
+    )
+    create_rag_fv_mock.assert_called_with(
+        parent=_TEST_BIGTABLE_FOS1_PATH,
+        feature_view=expected_fv,
+        feature_view_id=_TEST_FV3_ID,
+        metadata=(),
+        timeout=create_request_timeout,
+    )
+
+    fv_eq(
+        fv_to_check=rag_fv,
+        name=_TEST_FV3_ID,
+        resource_name=_TEST_FV3_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FV3_LABELS,
+    )
+
+    fos_logger_mock.assert_has_calls(
+        [
+            call("Creating FeatureView"),
+            call(
+                f"Create FeatureView backing LRO: {create_rag_fv_mock.return_value.operation.name}"
+            ),
+            call(
+                "FeatureView created. Resource name: projects/test-project/locations/us-central1/featureOnlineStores/my_fos1/featureViews/my_fv3"
+            ),
+            call("To use this FeatureView in another session:"),
+            call(
+                "feature_view = aiplatform.FeatureView('projects/test-project/locations/us-central1/featureOnlineStores/my_fos1/featureViews/my_fv3')"
+            ),
+        ]
     )

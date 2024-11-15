@@ -155,7 +155,21 @@ _TEST_FV2 = types.feature_view.FeatureView(
     labels=_TEST_FV2_LABELS,
 )
 
-_TEST_FV_LIST = [_TEST_FV1, _TEST_FV2]
+# Test feature view 3
+_TEST_FV3_ID = "my_fv3"
+_TEST_FV3_PATH = f"{_TEST_BIGTABLE_FOS1_PATH}/featureViews/my_fv3"
+_TEST_FV3_LABELS = {"my_key": "my_fv3"}
+_TEST_FV3_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table"
+_TEST_FV3 = types.feature_view.FeatureView(
+    name=_TEST_FV3_PATH,
+    vertex_rag_source=types.feature_view.FeatureView.VertexRagSource(
+        uri=_TEST_FV3_BQ_URI,
+    ),
+    labels=_TEST_FV3_LABELS,
+)
+
+
+_TEST_FV_LIST = [_TEST_FV1, _TEST_FV2, _TEST_FV3]
 
 # Test feature view sync 1
 _TEST_FV_SYNC1_ID = "my_fv_sync1"

@@ -51,6 +51,12 @@ class FeatureViewBigQuerySource:
     entity_id_columns: List[str]
 
 
+@dataclass
+class FeatureViewVertexRagSource:
+    uri: str
+    rag_corpus_id: Optional[str] = None
+
+
 @dataclass(frozen=True)
 class ConnectionOptions:
     """Represents connection options used for sending RPCs to the online store."""
