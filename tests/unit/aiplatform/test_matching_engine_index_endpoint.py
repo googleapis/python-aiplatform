@@ -24,7 +24,10 @@ from google.api_core import operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
+from google.cloud.aiplatform.matching_engine._protos import (
+    match_service_pb2,
+    match_service_pb2_grpc,
+)
 from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
     Namespace,
     NumericNamespace,
@@ -272,6 +275,9 @@ _TEST_LOW_LEVEL_BATCH_SIZE = 3
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "kms_key_name"
 _TEST_PROJECT_ALLOWLIST = ["project-1", "project-2"]
 _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS = "10.128.0.5"
+_TEST_PRIVATE_SERVICE_CONNECT_URI = "{}:10000".format(
+    _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS
+)
 _TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
     gca_index_v1beta1.IndexDatapoint(
         datapoint_id="1",
@@ -544,12 +550,19 @@ def create_index_endpoint_mock():
 
 
 @pytest.fixture
+def grpc_insecure_channel_mock():
+    with patch.object(grpc, "insecure_channel") as grpc_insecure_channel_mock:
+        grpc_insecure_channel_mock.return_value = mock.Mock()
+        yield grpc_insecure_channel_mock
+
+
+@pytest.fixture
 def index_endpoint_match_queries_mock():
     with patch.object(
-        grpc._channel._UnaryUnaryMultiCallable,
-        "__call__",
-    ) as index_endpoint_match_queries_mock:
-        index_endpoint_match_queries_mock.return_value = (
+        match_service_pb2_grpc, "MatchServiceStub"
+    ) as match_service_stub_mock:
+        match_service_stub_mock = match_service_stub_mock.return_value
+        match_service_stub_mock.BatchMatch.return_value = (
             match_service_pb2.BatchMatchResponse(
                 responses=[
                     match_service_pb2.BatchMatchResponse.BatchMatchResponsePerIndex(
@@ -595,16 +608,16 @@ def index_endpoint_match_queries_mock():
                 ]
             )
         )
-        yield index_endpoint_match_queries_mock
+        yield match_service_stub_mock
 
 
 @pytest.fixture
 def index_endpoint_batch_get_embeddings_mock():
     with patch.object(
-        grpc._channel._UnaryUnaryMultiCallable,
-        "__call__",
-    ) as index_endpoint_batch_get_embeddings_mock:
-        index_endpoint_batch_get_embeddings_mock.return_value = (
+        match_service_pb2_grpc, "MatchServiceStub"
+    ) as match_service_stub_mock:
+        match_service_stub_mock = match_service_stub_mock.return_value
+        match_service_stub_mock.BatchGetEmbeddings.return_value = (
             match_service_pb2.BatchGetEmbeddingsResponse(
                 embeddings=[
                     match_service_pb2.Embedding(
@@ -626,7 +639,7 @@ def index_endpoint_batch_get_embeddings_mock():
                 ]
             )
         )
-        yield index_endpoint_batch_get_embeddings_mock
+        yield match_service_stub_mock
 
 
 @pytest.fixture
@@ -1136,7 +1149,7 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
             batch_request, metadata=mock.ANY
         )
 
@@ -1203,7 +1216,7 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
             batch_request, metadata=mock.ANY
         )
 
@@ -1257,7 +1270,7 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
             batch_request, metadata=mock.ANY
         )
 
@@ -1312,7 +1325,7 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
             batch_request, metadata=_TEST_AUTHORIZATION_METADATA
         )
 
@@ -1364,7 +1377,7 @@ class TestMatchingEngineIndexEndpoint:
                 )
             ]
         )
-        index_endpoint_match_queries_mock.assert_called_with(
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
             batch_match_request, metadata=mock.ANY
         )
 
@@ -1417,13 +1430,13 @@ class TestMatchingEngineIndexEndpoint:
                 )
             ]
         )
-        index_endpoint_match_queries_mock.assert_called_with(
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
             batch_match_request, metadata=_TEST_AUTHORIZATION_METADATA
         )
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_connect_endpoint_match_queries(
-        self, index_endpoint_match_queries_mock
+        self, grpc_insecure_channel_mock, index_endpoint_match_queries_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -1467,9 +1480,11 @@ class TestMatchingEngineIndexEndpoint:
             ]
         )
 
-        index_endpoint_match_queries_mock.assert_called_with(
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
             batch_request, metadata=mock.ANY
         )
+
+        grpc_insecure_channel_mock.assert_called_with(_TEST_PRIVATE_SERVICE_CONNECT_URI)
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_find_neighbors_queries_backward_compatibility(
@@ -1787,7 +1802,7 @@ class TestMatchingEngineIndexEndpoint:
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
         )
 
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+        index_endpoint_batch_get_embeddings_mock.BatchGetEmbeddings.assert_called_with(
             batch_request, metadata=mock.ANY
         )
 
@@ -1809,7 +1824,7 @@ class TestMatchingEngineIndexEndpoint:
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
         )
 
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+        index_endpoint_batch_get_embeddings_mock.BatchGetEmbeddings.assert_called_with(
             batch_request, metadata=mock.ANY
         )
 
@@ -1835,7 +1850,7 @@ class TestMatchingEngineIndexEndpoint:
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
         )
 
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+        index_endpoint_batch_get_embeddings_mock.BatchGetEmbeddings.assert_called_with(
             batch_request, metadata=_TEST_AUTHORIZATION_METADATA
         )
 
@@ -1843,7 +1858,7 @@ class TestMatchingEngineIndexEndpoint:
 
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_endpoint_read_index_datapoints_for_private_service_connect(
-        self, index_endpoint_batch_get_embeddings_mock
+        self, grpc_insecure_channel_mock, index_endpoint_batch_get_embeddings_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -1851,7 +1866,7 @@ class TestMatchingEngineIndexEndpoint:
             index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
         )
 
-        my_index_endpoint.private_service_connect_ip = (
+        my_index_endpoint.private_service_connect_ip_address = (
             _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS
         )
         response = my_index_endpoint.read_index_datapoints(
@@ -1863,9 +1878,11 @@ class TestMatchingEngineIndexEndpoint:
             deployed_index_id=_TEST_DEPLOYED_INDEX_ID, id=["1", "2"]
         )
 
-        index_endpoint_batch_get_embeddings_mock.assert_called_with(
+        index_endpoint_batch_get_embeddings_mock.BatchGetEmbeddings.assert_called_with(
             batch_request, metadata=mock.ANY
         )
+
+        grpc_insecure_channel_mock.assert_called_with(_TEST_PRIVATE_SERVICE_CONNECT_URI)
 
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
 
