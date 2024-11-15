@@ -2336,6 +2336,46 @@ class TestPipelineJob:
 
     @pytest.mark.usefixtures(
         "mock_pipeline_v1beta1_service_create",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON],
+    )
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
+    def test_run_call_pipeline_service_create_with_default_runtime(
+        self,
+        mock_load_yaml_and_json,
+        job_spec,
+        mock_pipeline_v1beta1_service_create,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = preview_pipeline_jobs._PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            default_runtime={
+                "persistentResourceRuntimeDetail": {
+                    "persistentResourceName": "testRrName",
+                    "taskResourceUnavailableWaitTimeMs": 1244,
+                    "taskResourceUnavailableTimeoutBehavior": "FAIL",
+                }
+            },
+        )
+
+        job.submit()
+
+        assert mock_pipeline_v1beta1_service_create.call_count == 1
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_v1beta1_service_create",
         "mock_pipeline_v1beta1_service_get",
     )
     @pytest.mark.parametrize(

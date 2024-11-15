@@ -101,6 +101,7 @@ class _PipelineJob(
         location: Optional[str] = None,
         failure_policy: Optional[str] = None,
         enable_preflight_validations: Optional[bool] = False,
+        default_runtime: Optional[Dict[str, Any]] = None,
     ):
         """Retrieves a PipelineJob resource and instantiates its
         representation.
@@ -171,11 +172,25 @@ class _PipelineJob(
                 scheduled tasks will continue to completion.
             enable_preflight_validations (bool):
                 Optional. Whether to enable preflight validations or not.
+            default_runtime (Dict[str, Any]):
+                Optional. Specifies the runtime for the entire pipeline.
+                All tasks will use the configured runtime unless overridden at the task level.
+                If not provided, Vertex Training Custom Job (on-demand) will be used as the default runtime.
 
+                Supported Runtimes:
+                - Custom Job(On-Demand) Runtime: Default if default_runtime is not provided or None.
+                - Persistent Resource Runtime: To use a persistent resource as the runtime, see reference configuration below:
+                    default_runtime = {
+                        "persistentResourceRuntimeDetail": {
+                            "persistentResourceName": "projects/my-project/locations/my-location/persistentResources/my-persistent",
+                            "taskResourceUnavailableWaitTimeMs": 1000,  # Time (ms) to wait if resource is unavailable
+                            "taskResourceUnavailableTimeoutBehavior": "FAIL",  # Behavior if resource is unavailable after wait
+                        }
+                    }
+                For more information, please see https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.pipelineJobs#PipelineJob.DefaultRuntime.
         Raises:
             ValueError: If job_id or labels have incorrect format.
         """
-
         super().__init__(
             display_name=display_name,
             template_path=template_path,
@@ -231,8 +246,8 @@ class _PipelineJob(
         builder.update_input_artifacts(input_artifacts)
 
         builder.update_failure_policy(failure_policy)
+        builder.update_default_runtime(default_runtime)
         runtime_config_dict = builder.build()
-
         runtime_config = aiplatform_v1beta1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
 
