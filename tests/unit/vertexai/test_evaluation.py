@@ -99,6 +99,16 @@ _TEST_PAIRWISE_METRIC = pairwise_metric.PairwiseMetric(
         evaluation_steps=_EVALUATION_STEPS,
     ),
 )
+_TEST_COMET = pointwise_metric.Comet(
+    version="COMET_22_SRC_REF",
+    source_language="en",
+    target_language="zh",
+)
+_TEST_METRICX = pointwise_metric.MetricX(
+    version="METRICX_24_SRC",
+    source_language="en",
+    target_language="zh",
+)
 _TEST_METRICS = (
     "exact_match",
     "bleu",
@@ -139,6 +149,7 @@ _TEST_EVAL_DATASET_ALL_INCLUDED = pd.DataFrame(
         "reference": ["test", "ref"],
         "context": ["test", "context"],
         "instruction": ["test", "instruction"],
+        "source": ["test", "source"],
     }
 )
 _TEST_EVAL_DATASET_SINGLE = pd.DataFrame({"prompt": ["test_prompt", "text_prompt"]})
@@ -305,7 +316,7 @@ _MOCK_EXACT_MATCH_RESULT = (
         )
     ),
 )
-_MOCK_POINTEWISE_RESULT = (
+_MOCK_POINTWISE_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         pointwise_metric_result=gapic_evaluation_service_types.PointwiseMetricResult(
             score=5, explanation="explanation"
@@ -423,6 +434,29 @@ _MOCK_ROUGE_RESULT = (
         )
     ),
 )
+_EXPECTED_COLUMN_MAPPING = {
+    "context": "context",
+    "reference": "reference",
+    "response": "response",
+    "instruction": "instruction",
+    "prompt": "prompt",
+    "source": "source",
+}
+_MOCK_MODEL_BASED_TRANSLATION_RESULT = (
+    # The order of the responses is important.
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        comet_result=gapic_evaluation_service_types.CometResult(score=0.1)
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        metricx_result=gapic_evaluation_service_types.MetricxResult(score=5)
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        comet_result=gapic_evaluation_service_types.CometResult(score=0.9)
+    ),
+    gapic_evaluation_service_types.EvaluateInstancesResponse(
+        metricx_result=gapic_evaluation_service_types.MetricxResult(score=20)
+    ),
+)
 
 
 @pytest.fixture(scope="module")
@@ -465,16 +499,10 @@ class TestEvaluation:
         assert test_eval_task.dataset.equals(_TEST_EVAL_DATASET_ALL_INCLUDED)
         assert test_eval_task.metrics == _TEST_METRICS
         assert test_eval_task.experiment == _TEST_EXPERIMENT
-        assert test_eval_task._metric_column_mapping == {
-            "context": "context",
-            "reference": "reference",
-            "response": "response",
-            "instruction": "instruction",
-            "prompt": "prompt",
-        }
+        assert test_eval_task._metric_column_mapping == _EXPECTED_COLUMN_MAPPING
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
-    def test_compute_automatic_metrics(self, api_transport):
+    def test_compute_exact_match_metric(self, api_transport):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -521,7 +549,7 @@ class TestEvaluation:
         test_eval_task = EvalTask(
             dataset=_TEST_EVAL_DATASET_ALL_INCLUDED, metrics=test_metrics
         )
-        mock_metric_results = _MOCK_POINTEWISE_RESULT
+        mock_metric_results = _MOCK_POINTWISE_RESULT
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
@@ -543,6 +571,7 @@ class TestEvaluation:
                 "reference",
                 "test_pointwise_metric/score",
                 "test_pointwise_metric/explanation",
+                "source",
             ]
         )
         assert test_result.metrics_table["response"].equals(
@@ -567,7 +596,7 @@ class TestEvaluation:
             metrics=[_TEST_POINTWISE_METRIC_FREE_STRING],
             metric_column_mapping={"abc": "prompt"},
         )
-        mock_metric_results = _MOCK_POINTEWISE_RESULT
+        mock_metric_results = _MOCK_POINTWISE_RESULT
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
@@ -589,6 +618,7 @@ class TestEvaluation:
                 "reference",
                 "test_pointwise_metric_str/score",
                 "test_pointwise_metric_str/explanation",
+                "source",
             ]
         )
         assert test_result.metrics_table["response"].equals(
@@ -695,6 +725,7 @@ class TestEvaluation:
                 "response",
                 "summarization_quality/score",
                 "summarization_quality/explanation",
+                "source",
             ]
         )
         assert list(
@@ -706,6 +737,48 @@ class TestEvaluation:
             "explanation",
             "explanation",
         ]
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_model_based_translation_metrics_without_model_inference(
+        self, api_transport
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [_TEST_COMET, _TEST_METRICX]
+        test_eval_task = EvalTask(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED, metrics=test_metrics
+        )
+
+        mock_metric_results = _MOCK_MODEL_BASED_TRANSLATION_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate()
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert test_result.summary_metrics["comet/mean"] == 0.5
+        assert test_result.summary_metrics["metricx/mean"] == 12.5
+        assert test_result.summary_metrics["comet/std"] == pytest.approx(0.5, 0.6)
+        assert test_result.summary_metrics["metricx/std"] == pytest.approx(10, 11)
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "context",
+                "instruction",
+                "reference",
+                "prompt",
+                "response",
+                "source",
+                "comet/score",
+                "metricx/score",
+            ]
+        )
+        assert list(test_result.metrics_table["comet/score"].values) == [0.1, 0.9]
+        assert list(test_result.metrics_table["metricx/score"].values) == [5, 20]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_automatic_metrics_with_custom_metric_spec(self, api_transport):
@@ -940,6 +1013,7 @@ class TestEvaluation:
                 "instruction",
                 "pairwise_summarization_quality/pairwise_choice",
                 "pairwise_summarization_quality/explanation",
+                "source",
             ]
         )
         assert list(
@@ -1281,7 +1355,7 @@ class TestEvaluationErrors:
         ):
             test_eval_task.evaluate()
 
-    def test_evaluate_baseline_response_column_and_baseline_model_not_provided(
+    def test_evaluate_baseline_model_response_column_not_provided(
         self,
     ):
         test_eval_dataset = _TEST_EVAL_DATASET_SINGLE.copy(deep=True)
@@ -1297,6 +1371,63 @@ class TestEvaluationErrors:
                     "Cannot find the `baseline_model_response` column in the"
                     " evaluation dataset to fill the metric prompt template for"
                     " `test_pairwise_metric` metric."
+                )
+            ),
+        ):
+            test_eval_task.evaluate()
+
+    def test_evaluate_response_column_not_provided(
+        self,
+    ):
+        test_eval_dataset = _TEST_EVAL_DATASET_SINGLE
+        test_eval_task = EvalTask(
+            dataset=test_eval_dataset,
+            metrics=["exact_match"],
+        )
+        with pytest.raises(
+            KeyError,
+            match=re.escape(
+                (
+                    "Required column `response` not found in the evaluation "
+                    "dataset. The columns in the evaluation dataset are ['prompt']"
+                )
+            ),
+        ):
+            test_eval_task.evaluate()
+
+    def test_evaluate_reference_column_not_provided(
+        self,
+    ):
+        test_eval_dataset = pd.DataFrame({"response": ["test", "text"]})
+        test_eval_task = EvalTask(
+            dataset=test_eval_dataset,
+            metrics=["exact_match"],
+        )
+        with pytest.raises(
+            KeyError,
+            match=re.escape(
+                (
+                    "Required column `reference` not found in the evaluation "
+                    "dataset. The columns in the evaluation dataset are ['response']"
+                )
+            ),
+        ):
+            test_eval_task.evaluate()
+
+    def test_evaluate_reference_or_source_column_not_provided(
+        self,
+    ):
+        test_eval_dataset = pd.DataFrame({"response": ["test", "text"]})
+        test_eval_task = EvalTask(
+            dataset=test_eval_dataset,
+            metrics=[_TEST_COMET, _TEST_METRICX],
+        )
+        with pytest.raises(
+            KeyError,
+            match=re.escape(
+                (
+                    "Required column `source` not found in the evaluation "
+                    "dataset. The columns in the evaluation dataset are ['response']"
                 )
             ),
         ):
@@ -1530,13 +1661,7 @@ class TestEvaluationUtils:
             metric_column_mapping=metric_column_mapping,
             dataset=_TEST_EVAL_DATASET_ALL_INCLUDED,
         )
-        assert converted_metric_column_mapping == {
-            "prompt": "prompt",
-            "response": "response",
-            "reference": "reference",
-            "context": "context",
-            "instruction": "instruction",
-        }
+        assert converted_metric_column_mapping == _EXPECTED_COLUMN_MAPPING
 
 
 class TestPromptTemplate:

@@ -30,10 +30,10 @@ from google.cloud.aiplatform_v1.types import (
 )
 from vertexai.evaluation import _base as eval_base
 from vertexai.evaluation import constants
-from vertexai.evaluation import utils
 from vertexai.evaluation import (
     prompt_template as prompt_template_base,
 )
+from vertexai.evaluation import utils
 from vertexai.evaluation.metrics import (
     _base as metrics_base,
 )
@@ -67,6 +67,9 @@ _METRIC_NAME_TO_METRIC_SPEC = {
     constants.Metric.POINTWISE_METRIC: (gapic_eval_service_types.PointwiseMetricSpec()),
     # Pairwise Metrics.
     constants.Metric.PAIRWISE_METRIC: (gapic_eval_service_types.PairwiseMetricSpec()),
+    # Model-based Translation Metrics.
+    constants.Metric.COMET: gapic_eval_service_types.CometSpec(),
+    constants.Metric.METRICX: gapic_eval_service_types.MetricxSpec(),
 }
 
 
@@ -126,12 +129,21 @@ def build_request(
         metric_spec.rouge_type = metric.rouge_type
         metric_spec.use_stemmer = metric.use_stemmer
         metric_spec.split_summaries = metric.split_summaries
+    elif isinstance(
+        metric, metrics_base._TranslationMetric  # pylint: disable=protected-access
+    ):
+        metric_spec.version = metric.version
+        metric_spec.source_language = metric.source_language
+        metric_spec.target_language = metric.target_language
 
     response = row_dict.get(
         metric_column_mapping.get(constants.Dataset.MODEL_RESPONSE_COLUMN), ""
     )
     reference = row_dict.get(
         metric_column_mapping.get(constants.Dataset.REFERENCE_COLUMN), ""
+    )
+    source = row_dict.get(
+        metric_column_mapping.get(constants.Dataset.SOURCE_COLUMN), ""
     )
 
     if metric_name == constants.Metric.EXACT_MATCH:
@@ -259,6 +271,32 @@ def build_request(
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path, pairwise_metric_input=instance
         )
+    elif metric_name == constants.Metric.COMET:
+        instance = gapic_eval_service_types.CometInput(
+            metric_spec=metric_spec,
+            instance=gapic_eval_service_types.CometInstance(
+                prediction=response,
+                reference=reference,
+                source=source,
+            ),
+        )
+        return gapic_eval_service_types.EvaluateInstancesRequest(
+            location=location_path,
+            comet_input=instance,
+        )
+    elif metric_name == constants.Metric.METRICX:
+        instance = gapic_eval_service_types.MetricxInput(
+            metric_spec=metric_spec,
+            instance=gapic_eval_service_types.MetricxInstance(
+                prediction=response,
+                reference=reference,
+                source=source,
+            ),
+        )
+        return gapic_eval_service_types.EvaluateInstancesRequest(
+            location=location_path,
+            metricx_input=instance,
+        )
     else:
         raise ValueError(f"Unknown metric type: {metric_name}")
 
@@ -300,6 +338,24 @@ def _parse_pointwise_results(
         ),
         constants.MetricResult.EXPLANATION_KEY: metric_result_dict.get(
             constants.MetricResult.EXPLANATION_KEY
+        ),
+    }
+
+
+def _parse_model_based_translation_results(
+    metric_result_dict: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Parses the model-based pointwise translation metric result.
+
+    Args:
+        metric_result_dict: The metric result dictionary.
+
+    Returns:
+        A dictionary containing metric score.
+    """
+    return {
+        constants.MetricResult.SCORE_KEY: metric_result_dict.get(
+            constants.MetricResult.SCORE_KEY
         ),
     }
 
@@ -360,6 +416,10 @@ def handle_response(
         metric_result = response.pointwise_metric_result
     elif metric_type == constants.MetricResult.PAIRWISE_METRIC_RESULT:
         metric_result = response.pairwise_metric_result
+    elif metric_type == constants.MetricResult.COMET_RESULT:
+        metric_result = response.comet_result
+    elif metric_type == constants.MetricResult.METRICX_RESULT:
+        metric_result = response.metricx_result
     else:
         raise ValueError(f"Unknown metric type: {metric_type}")
 
@@ -372,6 +432,11 @@ def handle_response(
         result = _parse_pointwise_results(metric_result_dict)
     elif metric_type == constants.MetricResult.PAIRWISE_METRIC_RESULT:
         result = _parse_pairwise_results(metric_result_dict)
+    elif metric_type in (
+        constants.MetricResult.COMET_RESULT,
+        constants.MetricResult.METRICX_RESULT,
+    ):
+        result = _parse_model_based_translation_results(metric_result_dict)
     else:
         raise ValueError(f"Unknown metric type: {metric_type}")
     return result
