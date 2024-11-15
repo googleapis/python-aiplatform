@@ -427,10 +427,33 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         assert api_transport in get_client_api_transport(pro_model._prediction_client)
 
     def test_grounding_google_search_retriever(self, api_endpoint_env_name):
-        model = preview_generative_models.GenerativeModel(GEMINI_MODEL_NAME)
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
         google_search_retriever_tool = (
-            preview_generative_models.Tool.from_google_search_retrieval(
-                preview_generative_models.grounding.GoogleSearchRetrieval()
+            generative_models.Tool.from_google_search_retrieval(
+                generative_models.grounding.GoogleSearchRetrieval()
+            )
+        )
+        response = model.generate_content(
+            "Why is sky blue?",
+            tools=[google_search_retriever_tool],
+            generation_config=generative_models.GenerationConfig(temperature=0),
+        )
+        assert (
+            response.candidates[0].finish_reason
+            is generative_models.FinishReason.RECITATION
+            or response.text
+        )
+
+    def test_grounding_google_search_retriever_with_dynamic_retrieval(
+        self, api_endpoint_env_name
+    ):
+        model = generative_models.GenerativeModel(GEMINI_MODEL_NAME)
+        google_search_retriever_tool = generative_models.Tool.from_google_search_retrieval(
+            generative_models.grounding.GoogleSearchRetrieval(
+                generative_models.grounding.DynamicRetrievalConfig(
+                    mode=generative_models.grounding.DynamicRetrievalConfig.Mode.MODE_DYNAMIC,
+                    dynamic_threshold=0.05,
+                )
             )
         )
         response = model.generate_content(

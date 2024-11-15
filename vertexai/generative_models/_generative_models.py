@@ -2745,14 +2745,41 @@ class grounding:  # pylint: disable=invalid-name
     def __init__(self):
         raise RuntimeError("This class must not be instantiated.")
 
+    class DynamicRetrievalConfig:
+        """Config for dynamic retrieval."""
+
+        Mode = gapic_tool_types.DynamicRetrievalConfig.Mode
+
+        def __init__(
+            self,
+            mode: Mode = Mode.MODE_UNSPECIFIED,
+            dynamic_threshold: Optional[float] = None,
+        ):
+            """Initializes a DynamicRetrievalConfig."""
+            self._raw_dynamic_retrieval_config = (
+                gapic_tool_types.DynamicRetrievalConfig(
+                    mode=mode,
+                    dynamic_threshold=dynamic_threshold,
+                )
+            )
+
     class GoogleSearchRetrieval:
         r"""Tool to retrieve public web data for grounding, powered by
         Google Search.
         """
 
-        def __init__(self):
+        def __init__(
+            self,
+            dynamic_retrieval_config: Optional[
+                "grounding.DynamicRetrievalConfig"
+            ] = None,
+        ):
             """Initializes a Google Search Retrieval tool."""
-            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
+            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval(
+                dynamic_retrieval_config=dynamic_retrieval_config._raw_dynamic_retrieval_config
+                if dynamic_retrieval_config
+                else None
+            )
 
 
 class preview_grounding:  # pylint: disable=invalid-name
