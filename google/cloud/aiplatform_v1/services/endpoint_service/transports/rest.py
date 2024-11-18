@@ -136,6 +136,14 @@ class EndpointServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_update_endpoint_long_running(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_update_endpoint_long_running(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
         transport = EndpointServiceRestTransport(interceptor=MyCustomEndpointServiceInterceptor())
         client = EndpointServiceClient(transport=transport)
 
@@ -317,6 +325,31 @@ class EndpointServiceRestInterceptor:
         self, response: gca_endpoint.Endpoint
     ) -> gca_endpoint.Endpoint:
         """Post-rpc interceptor for update_endpoint
+
+        Override in a subclass to manipulate the response
+        after it is returned by the EndpointService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_update_endpoint_long_running(
+        self,
+        request: endpoint_service.UpdateEndpointLongRunningRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        endpoint_service.UpdateEndpointLongRunningRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for update_endpoint_long_running
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the EndpointService server.
+        """
+        return request, metadata
+
+    def post_update_endpoint_long_running(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for update_endpoint_long_running
 
         Override in a subclass to manipulate the response
         after it is returned by the EndpointService server but before
@@ -3238,6 +3271,109 @@ class EndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             resp = self._interceptor.post_update_endpoint(resp)
             return resp
 
+    class _UpdateEndpointLongRunning(
+        _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning,
+        EndpointServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("EndpointServiceRestTransport.UpdateEndpointLongRunning")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: endpoint_service.UpdateEndpointLongRunningRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the update endpoint long
+            running method over HTTP.
+
+                Args:
+                    request (~.endpoint_service.UpdateEndpointLongRunningRequest):
+                        The request object. Request message for
+                    [EndpointService.UpdateEndpointLongRunning][google.cloud.aiplatform.v1.EndpointService.UpdateEndpointLongRunning].
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.operations_pb2.Operation:
+                        This resource represents a
+                    long-running operation that is the
+                    result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_update_endpoint_long_running(
+                request, metadata
+            )
+            transcoded_request = _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                EndpointServiceRestTransport._UpdateEndpointLongRunning._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_update_endpoint_long_running(resp)
+            return resp
+
     @property
     def create_endpoint(
         self,
@@ -3305,6 +3441,16 @@ class EndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._UpdateEndpoint(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def update_endpoint_long_running(
+        self,
+    ) -> Callable[
+        [endpoint_service.UpdateEndpointLongRunningRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._UpdateEndpointLongRunning(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def get_location(self):

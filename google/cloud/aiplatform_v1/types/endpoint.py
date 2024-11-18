@@ -24,6 +24,7 @@ from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
+from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -35,6 +36,7 @@ __protobuf__ = proto.module(
         "PrivateEndpoints",
         "PredictRequestResponseLoggingConfig",
         "FasterDeploymentConfig",
+        "ClientConnectionConfig",
     },
 )
 
@@ -151,6 +153,9 @@ class Endpoint(proto.Message):
             Output only. DNS of the dedicated endpoint. Will only be
             populated if dedicated_endpoint_enabled is true. Format:
             ``https://{endpoint_id}.{region}-{project_number}.prediction.vertexai.goog``.
+        client_connection_config (google.cloud.aiplatform_v1.types.ClientConnectionConfig):
+            Configurations that are applied to the
+            endpoint for online prediction.
         satisfies_pzs (bool):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
@@ -236,6 +241,11 @@ class Endpoint(proto.Message):
     dedicated_endpoint_dns: str = proto.Field(
         proto.STRING,
         number=25,
+    )
+    client_connection_config: "ClientConnectionConfig" = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        message="ClientConnectionConfig",
     )
     satisfies_pzs: bool = proto.Field(
         proto.BOOL,
@@ -537,6 +547,23 @@ class FasterDeploymentConfig(proto.Message):
     fast_tryout_enabled: bool = proto.Field(
         proto.BOOL,
         number=2,
+    )
+
+
+class ClientConnectionConfig(proto.Message):
+    r"""Configurations (e.g. inference timeout) that are applied on
+    your endpoints.
+
+    Attributes:
+        inference_timeout (google.protobuf.duration_pb2.Duration):
+            Customizable online prediction request
+            timeout.
+    """
+
+    inference_timeout: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=duration_pb2.Duration,
     )
 
 

@@ -142,6 +142,7 @@ from .encryption_spec import (
     EncryptionSpec,
 )
 from .endpoint import (
+    ClientConnectionConfig,
     DeployedModel,
     Endpoint,
     FasterDeploymentConfig,
@@ -164,6 +165,8 @@ from .endpoint_service import (
     UndeployModelOperationMetadata,
     UndeployModelRequest,
     UndeployModelResponse,
+    UpdateEndpointLongRunningRequest,
+    UpdateEndpointOperationMetadata,
     UpdateEndpointRequest,
 )
 from .entity_type import (
@@ -1153,6 +1156,7 @@ __all__ = (
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
     "EncryptionSpec",
+    "ClientConnectionConfig",
     "DeployedModel",
     "Endpoint",
     "FasterDeploymentConfig",
@@ -1173,6 +1177,8 @@ __all__ = (
     "UndeployModelOperationMetadata",
     "UndeployModelRequest",
     "UndeployModelResponse",
+    "UpdateEndpointLongRunningRequest",
+    "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "EntityType",
     "EnvVar",

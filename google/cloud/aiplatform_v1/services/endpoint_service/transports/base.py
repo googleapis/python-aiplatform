@@ -156,6 +156,11 @@ class EndpointServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_endpoint_long_running: gapic_v1.method.wrap_method(
+                self.update_endpoint_long_running,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.delete_endpoint: gapic_v1.method.wrap_method(
                 self.delete_endpoint,
                 default_timeout=None,
@@ -278,6 +283,15 @@ class EndpointServiceTransport(abc.ABC):
     ) -> Callable[
         [endpoint_service.UpdateEndpointRequest],
         Union[gca_endpoint.Endpoint, Awaitable[gca_endpoint.Endpoint]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_endpoint_long_running(
+        self,
+    ) -> Callable[
+        [endpoint_service.UpdateEndpointLongRunningRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

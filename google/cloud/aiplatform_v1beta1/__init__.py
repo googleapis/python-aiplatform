@@ -310,6 +310,7 @@ from .types.evaluation_service import SummarizationVerbosityInput
 from .types.evaluation_service import SummarizationVerbosityInstance
 from .types.evaluation_service import SummarizationVerbosityResult
 from .types.evaluation_service import SummarizationVerbositySpec
+from .types.evaluation_service import ToolCall
 from .types.evaluation_service import ToolCallValidInput
 from .types.evaluation_service import ToolCallValidInstance
 from .types.evaluation_service import ToolCallValidMetricValue
@@ -330,6 +331,37 @@ from .types.evaluation_service import ToolParameterKVMatchInstance
 from .types.evaluation_service import ToolParameterKVMatchMetricValue
 from .types.evaluation_service import ToolParameterKVMatchResults
 from .types.evaluation_service import ToolParameterKVMatchSpec
+from .types.evaluation_service import Trajectory
+from .types.evaluation_service import TrajectoryAnyOrderMatchInput
+from .types.evaluation_service import TrajectoryAnyOrderMatchInstance
+from .types.evaluation_service import TrajectoryAnyOrderMatchMetricValue
+from .types.evaluation_service import TrajectoryAnyOrderMatchResults
+from .types.evaluation_service import TrajectoryAnyOrderMatchSpec
+from .types.evaluation_service import TrajectoryExactMatchInput
+from .types.evaluation_service import TrajectoryExactMatchInstance
+from .types.evaluation_service import TrajectoryExactMatchMetricValue
+from .types.evaluation_service import TrajectoryExactMatchResults
+from .types.evaluation_service import TrajectoryExactMatchSpec
+from .types.evaluation_service import TrajectoryInOrderMatchInput
+from .types.evaluation_service import TrajectoryInOrderMatchInstance
+from .types.evaluation_service import TrajectoryInOrderMatchMetricValue
+from .types.evaluation_service import TrajectoryInOrderMatchResults
+from .types.evaluation_service import TrajectoryInOrderMatchSpec
+from .types.evaluation_service import TrajectoryPrecisionInput
+from .types.evaluation_service import TrajectoryPrecisionInstance
+from .types.evaluation_service import TrajectoryPrecisionMetricValue
+from .types.evaluation_service import TrajectoryPrecisionResults
+from .types.evaluation_service import TrajectoryPrecisionSpec
+from .types.evaluation_service import TrajectoryRecallInput
+from .types.evaluation_service import TrajectoryRecallInstance
+from .types.evaluation_service import TrajectoryRecallMetricValue
+from .types.evaluation_service import TrajectoryRecallResults
+from .types.evaluation_service import TrajectoryRecallSpec
+from .types.evaluation_service import TrajectorySingleToolUseInput
+from .types.evaluation_service import TrajectorySingleToolUseInstance
+from .types.evaluation_service import TrajectorySingleToolUseMetricValue
+from .types.evaluation_service import TrajectorySingleToolUseResults
+from .types.evaluation_service import TrajectorySingleToolUseSpec
 from .types.evaluation_service import PairwiseChoice
 from .types.event import Event
 from .types.execution import Execution
@@ -2020,6 +2052,7 @@ __all__ = (
     "TimestampSplit",
     "TokensInfo",
     "Tool",
+    "ToolCall",
     "ToolCallValidInput",
     "ToolCallValidInstance",
     "ToolCallValidMetricValue",
@@ -2044,6 +2077,37 @@ __all__ = (
     "ToolUseExample",
     "TrainingConfig",
     "TrainingPipeline",
+    "Trajectory",
+    "TrajectoryAnyOrderMatchInput",
+    "TrajectoryAnyOrderMatchInstance",
+    "TrajectoryAnyOrderMatchMetricValue",
+    "TrajectoryAnyOrderMatchResults",
+    "TrajectoryAnyOrderMatchSpec",
+    "TrajectoryExactMatchInput",
+    "TrajectoryExactMatchInstance",
+    "TrajectoryExactMatchMetricValue",
+    "TrajectoryExactMatchResults",
+    "TrajectoryExactMatchSpec",
+    "TrajectoryInOrderMatchInput",
+    "TrajectoryInOrderMatchInstance",
+    "TrajectoryInOrderMatchMetricValue",
+    "TrajectoryInOrderMatchResults",
+    "TrajectoryInOrderMatchSpec",
+    "TrajectoryPrecisionInput",
+    "TrajectoryPrecisionInstance",
+    "TrajectoryPrecisionMetricValue",
+    "TrajectoryPrecisionResults",
+    "TrajectoryPrecisionSpec",
+    "TrajectoryRecallInput",
+    "TrajectoryRecallInstance",
+    "TrajectoryRecallMetricValue",
+    "TrajectoryRecallResults",
+    "TrajectoryRecallSpec",
+    "TrajectorySingleToolUseInput",
+    "TrajectorySingleToolUseInstance",
+    "TrajectorySingleToolUseMetricValue",
+    "TrajectorySingleToolUseResults",
+    "TrajectorySingleToolUseSpec",
     "Trial",
     "TrialContext",
     "TunedModel",
