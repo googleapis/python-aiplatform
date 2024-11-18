@@ -174,6 +174,7 @@ _TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_MODEL_GARDEN_SOURCE_MODEL_NAME = "publishers/meta/models/llama3_1"
 
 
 _TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
@@ -1898,6 +1899,53 @@ class TestModel:
 
         get_model_with_custom_location_mock.assert_called_once_with(
             name=test_model_resource_name, retry=base._DEFAULT_RETRY
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_model_garden_source(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            sync=sync,
+            upload_request_timeout=None,
+            model_garden_source_model_name=_TEST_MODEL_GARDEN_SOURCE_MODEL_NAME,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            version_aliases=["default"],
+            base_model_source=gca_model.Model.BaseModelSource(
+                model_garden_source=gca_model.ModelGardenSource(
+                    public_model_name=_TEST_MODEL_GARDEN_SOURCE_MODEL_NAME
+                )
+            ),
+        )
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
+
+        get_model_mock.assert_called_once_with(
+            name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")

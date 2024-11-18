@@ -4663,6 +4663,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         serving_container_health_probe_exec: Optional[Sequence[str]] = None,
         serving_container_health_probe_period_seconds: Optional[int] = None,
         serving_container_health_probe_timeout_seconds: Optional[int] = None,
+        model_garden_source_model_name: Optional[str] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -4875,6 +4876,10 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             serving_container_health_probe_timeout_seconds (int):
                 Optional. Number of seconds after which the health probe times
                 out. Defaults to 1 second. Minimum value is 1.
+            model_garden_source_model_name:
+                Optional. The model garden source model resource name if the
+                model is from Vertex Model Garden.
+
 
         Returns:
             model (aiplatform.Model):
@@ -5003,6 +5008,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             version_aliases=version_aliases, is_default_version=is_default_version
         )
 
+        base_model_source = None
+        if model_garden_source_model_name:
+            base_model_source = gca_model_compat.Model.BaseModelSource(
+                model_garden_source=gca_model_compat.ModelGardenSource(
+                    public_model_name=model_garden_source_model_name
+                )
+            )
+
         managed_model = gca_model_compat.Model(
             display_name=display_name,
             description=description,
@@ -5012,6 +5025,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             predict_schemata=model_predict_schemata,
             labels=labels,
             encryption_spec=encryption_spec,
+            base_model_source=base_model_source,
         )
 
         if artifact_uri and not artifact_uri.startswith("gs://"):
