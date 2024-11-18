@@ -1581,6 +1581,8 @@ def test_get_persistent_resource(request_type, transport: str = "grpc"):
             state=persistent_resource.PersistentResource.State.PROVISIONING,
             network="network_value",
             reserved_ip_ranges=["reserved_ip_ranges_value"],
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_persistent_resource(request)
 
@@ -1597,6 +1599,8 @@ def test_get_persistent_resource(request_type, transport: str = "grpc"):
     assert response.state == persistent_resource.PersistentResource.State.PROVISIONING
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_persistent_resource_non_empty_request_with_auto_populated_field():
@@ -1737,6 +1741,8 @@ async def test_get_persistent_resource_async(
                 state=persistent_resource.PersistentResource.State.PROVISIONING,
                 network="network_value",
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_persistent_resource(request)
@@ -1754,6 +1760,8 @@ async def test_get_persistent_resource_async(
     assert response.state == persistent_resource.PersistentResource.State.PROVISIONING
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -5062,6 +5070,8 @@ async def test_get_persistent_resource_empty_call_grpc_asyncio():
                 state=persistent_resource.PersistentResource.State.PROVISIONING,
                 network="network_value",
                 reserved_ip_ranges=["reserved_ip_ranges_value"],
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         await client.get_persistent_resource(request=None)
@@ -5283,6 +5293,13 @@ def test_create_persistent_resource_rest_call_success(request_type):
             },
             "ray_spec": {
                 "image_uri": "image_uri_value",
+                "nfs_mounts": [
+                    {
+                        "server": "server_value",
+                        "path": "path_value",
+                        "mount_point": "mount_point_value",
+                    }
+                ],
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
@@ -5297,6 +5314,8 @@ def test_create_persistent_resource_rest_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5501,6 +5520,8 @@ def test_get_persistent_resource_rest_call_success(request_type):
             state=persistent_resource.PersistentResource.State.PROVISIONING,
             network="network_value",
             reserved_ip_ranges=["reserved_ip_ranges_value"],
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -5521,6 +5542,8 @@ def test_get_persistent_resource_rest_call_success(request_type):
     assert response.state == persistent_resource.PersistentResource.State.PROVISIONING
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -5933,6 +5956,13 @@ def test_update_persistent_resource_rest_call_success(request_type):
             },
             "ray_spec": {
                 "image_uri": "image_uri_value",
+                "nfs_mounts": [
+                    {
+                        "server": "server_value",
+                        "path": "path_value",
+                        "mount_point": "mount_point_value",
+                    }
+                ],
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
@@ -5947,6 +5977,8 @@ def test_update_persistent_resource_rest_call_success(request_type):
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7092,6 +7124,13 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
             },
             "ray_spec": {
                 "image_uri": "image_uri_value",
+                "nfs_mounts": [
+                    {
+                        "server": "server_value",
+                        "path": "path_value",
+                        "mount_point": "mount_point_value",
+                    }
+                ],
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
@@ -7106,6 +7145,8 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7326,6 +7367,8 @@ async def test_get_persistent_resource_rest_asyncio_call_success(request_type):
             state=persistent_resource.PersistentResource.State.PROVISIONING,
             network="network_value",
             reserved_ip_ranges=["reserved_ip_ranges_value"],
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -7348,6 +7391,8 @@ async def test_get_persistent_resource_rest_asyncio_call_success(request_type):
     assert response.state == persistent_resource.PersistentResource.State.PROVISIONING
     assert response.network == "network_value"
     assert response.reserved_ip_ranges == ["reserved_ip_ranges_value"]
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -7806,6 +7851,13 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
             },
             "ray_spec": {
                 "image_uri": "image_uri_value",
+                "nfs_mounts": [
+                    {
+                        "server": "server_value",
+                        "path": "path_value",
+                        "mount_point": "mount_point_value",
+                    }
+                ],
                 "resource_pool_images": {},
                 "head_node_resource_pool_id": "head_node_resource_pool_id_value",
                 "ray_metric_spec": {"disabled": True},
@@ -7820,6 +7872,8 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
             "reserved_ip_ranges_value1",
             "reserved_ip_ranges_value2",
         ],
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
