@@ -307,6 +307,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'update_dataset_version': ('dataset_version', 'update_mask', ),
         'update_deployment_resource_pool': ('deployment_resource_pool', 'update_mask', ),
         'update_endpoint': ('endpoint', 'update_mask', ),
+        'update_endpoint_long_running': ('endpoint', ),
         'update_entity_type': ('entity_type', 'update_mask', ),
         'update_execution': ('execution', 'update_mask', 'allow_missing', ),
         'update_explanation_dataset': ('model', 'examples', ),

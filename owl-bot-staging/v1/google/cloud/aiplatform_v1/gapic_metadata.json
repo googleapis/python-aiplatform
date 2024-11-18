@@ -462,6 +462,11 @@
               "methods": [
                 "update_endpoint"
               ]
+            },
+            "UpdateEndpointLongRunning": {
+              "methods": [
+                "update_endpoint_long_running"
+              ]
             }
           }
         },
@@ -507,6 +512,11 @@
               "methods": [
                 "update_endpoint"
               ]
+            },
+            "UpdateEndpointLongRunning": {
+              "methods": [
+                "update_endpoint_long_running"
+              ]
             }
           }
         },
@@ -551,6 +561,11 @@
             "UpdateEndpoint": {
               "methods": [
                 "update_endpoint"
+              ]
+            },
+            "UpdateEndpointLongRunning": {
+              "methods": [
+                "update_endpoint_long_running"
               ]
             }
           }

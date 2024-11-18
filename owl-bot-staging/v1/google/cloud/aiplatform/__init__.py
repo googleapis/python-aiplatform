@@ -163,6 +163,7 @@ from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import Qu
 from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import UpdateDeploymentResourcePoolOperationMetadata
 from google.cloud.aiplatform_v1.types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
 from google.cloud.aiplatform_v1.types.encryption_spec import EncryptionSpec
+from google.cloud.aiplatform_v1.types.endpoint import ClientConnectionConfig
 from google.cloud.aiplatform_v1.types.endpoint import DeployedModel
 from google.cloud.aiplatform_v1.types.endpoint import Endpoint
 from google.cloud.aiplatform_v1.types.endpoint import FasterDeploymentConfig
@@ -183,6 +184,8 @@ from google.cloud.aiplatform_v1.types.endpoint_service import MutateDeployedMode
 from google.cloud.aiplatform_v1.types.endpoint_service import UndeployModelOperationMetadata
 from google.cloud.aiplatform_v1.types.endpoint_service import UndeployModelRequest
 from google.cloud.aiplatform_v1.types.endpoint_service import UndeployModelResponse
+from google.cloud.aiplatform_v1.types.endpoint_service import UpdateEndpointLongRunningRequest
+from google.cloud.aiplatform_v1.types.endpoint_service import UpdateEndpointOperationMetadata
 from google.cloud.aiplatform_v1.types.endpoint_service import UpdateEndpointRequest
 from google.cloud.aiplatform_v1.types.entity_type import EntityType
 from google.cloud.aiplatform_v1.types.env_var import EnvVar
@@ -1048,6 +1051,7 @@ __all__ = ('DatasetServiceClient',
     'UpdateDeploymentResourcePoolOperationMetadata',
     'UpdateDeploymentResourcePoolRequest',
     'EncryptionSpec',
+    'ClientConnectionConfig',
     'DeployedModel',
     'Endpoint',
     'FasterDeploymentConfig',
@@ -1068,6 +1072,8 @@ __all__ = ('DatasetServiceClient',
     'UndeployModelOperationMetadata',
     'UndeployModelRequest',
     'UndeployModelResponse',
+    'UpdateEndpointLongRunningRequest',
+    'UpdateEndpointOperationMetadata',
     'UpdateEndpointRequest',
     'EntityType',
     'EnvVar',
