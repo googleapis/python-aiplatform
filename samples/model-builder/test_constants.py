@@ -380,8 +380,9 @@ TENSORBOARD_PLUGIN_PROFILE_NAME = "profile"
 
 # Vector Search
 VECTOR_SEARCH_INDEX = "123"
-VECTOR_SERACH_INDEX_DATAPOINTS = [
-    {"datapoint_id": "datapoint_id_1", "feature_vector": [0.1]}
+VECTOR_SEARCH_INDEX_DATAPOINTS = [
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_1", feature_vector=[0.1, 0.2]),
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_2", feature_vector=[0.3, 0.4]),
 ]
 VECTOR_SEARCH_INDEX_DATAPOINT_IDS = ["datapoint_id_1", "datapoint_id_2"]
 VECTOR_SEARCH_INDEX_ENDPOINT = "456"
