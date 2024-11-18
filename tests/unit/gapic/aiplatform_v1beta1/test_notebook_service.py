@@ -13597,6 +13597,28 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
         "gcs_notebook_source": {"uri": "uri_value", "generation": "generation_value"},
         "direct_notebook_source": {"content": b"content_blob"},
         "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+        "custom_environment_spec": {
+            "machine_spec": {
+                "machine_type": "machine_type_value",
+                "accelerator_type": 1,
+                "accelerator_count": 1805,
+                "tpu_topology": "tpu_topology_value",
+                "reservation_affinity": {
+                    "reservation_affinity_type": 1,
+                    "key": "key_value",
+                    "values": ["values_value1", "values_value2"],
+                },
+            },
+            "persistent_disk_spec": {
+                "disk_type": "disk_type_value",
+                "disk_size_gb": 1261,
+            },
+            "network_spec": {
+                "enable_internet_access": True,
+                "network": "network_value",
+                "subnetwork": "subnetwork_value",
+            },
+        },
         "gcs_output_uri": "gcs_output_uri_value",
         "execution_user": "execution_user_value",
         "service_account": "service_account_value",
@@ -17142,6 +17164,28 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
         "gcs_notebook_source": {"uri": "uri_value", "generation": "generation_value"},
         "direct_notebook_source": {"content": b"content_blob"},
         "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+        "custom_environment_spec": {
+            "machine_spec": {
+                "machine_type": "machine_type_value",
+                "accelerator_type": 1,
+                "accelerator_count": 1805,
+                "tpu_topology": "tpu_topology_value",
+                "reservation_affinity": {
+                    "reservation_affinity_type": 1,
+                    "key": "key_value",
+                    "values": ["values_value1", "values_value2"],
+                },
+            },
+            "persistent_disk_spec": {
+                "disk_type": "disk_type_value",
+                "disk_size_gb": 1261,
+            },
+            "network_spec": {
+                "enable_internet_access": True,
+                "network": "network_value",
+                "subnetwork": "subnetwork_value",
+            },
+        },
         "gcs_output_uri": "gcs_output_uri_value",
         "execution_user": "execution_user_value",
         "service_account": "service_account_value",
