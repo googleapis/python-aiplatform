@@ -290,6 +290,7 @@ from google.cloud.aiplatform_v1beta1.types.evaluation_service import Summarizati
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import SummarizationVerbosityInstance
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import SummarizationVerbosityResult
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import SummarizationVerbositySpec
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolCall
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolCallValidInput
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolCallValidInstance
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolCallValidMetricValue
@@ -310,6 +311,37 @@ from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolParamet
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolParameterKVMatchMetricValue
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolParameterKVMatchResults
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import ToolParameterKVMatchSpec
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import Trajectory
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryAnyOrderMatchInput
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryAnyOrderMatchInstance
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryAnyOrderMatchMetricValue
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryAnyOrderMatchResults
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryAnyOrderMatchSpec
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryExactMatchInput
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryExactMatchInstance
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryExactMatchMetricValue
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryExactMatchResults
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryExactMatchSpec
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryInOrderMatchInput
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryInOrderMatchInstance
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryInOrderMatchMetricValue
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryInOrderMatchResults
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryInOrderMatchSpec
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryPrecisionInput
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryPrecisionInstance
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryPrecisionMetricValue
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryPrecisionResults
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryPrecisionSpec
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryRecallInput
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryRecallInstance
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryRecallMetricValue
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryRecallResults
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectoryRecallSpec
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectorySingleToolUseInput
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectorySingleToolUseInstance
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectorySingleToolUseMetricValue
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectorySingleToolUseResults
+from google.cloud.aiplatform_v1beta1.types.evaluation_service import TrajectorySingleToolUseSpec
 from google.cloud.aiplatform_v1beta1.types.evaluation_service import PairwiseChoice
 from google.cloud.aiplatform_v1beta1.types.event import Event
 from google.cloud.aiplatform_v1beta1.types.execution import Execution
@@ -1332,6 +1364,7 @@ __all__ = ('DatasetServiceClient',
     'SummarizationVerbosityInstance',
     'SummarizationVerbosityResult',
     'SummarizationVerbositySpec',
+    'ToolCall',
     'ToolCallValidInput',
     'ToolCallValidInstance',
     'ToolCallValidMetricValue',
@@ -1352,6 +1385,37 @@ __all__ = ('DatasetServiceClient',
     'ToolParameterKVMatchMetricValue',
     'ToolParameterKVMatchResults',
     'ToolParameterKVMatchSpec',
+    'Trajectory',
+    'TrajectoryAnyOrderMatchInput',
+    'TrajectoryAnyOrderMatchInstance',
+    'TrajectoryAnyOrderMatchMetricValue',
+    'TrajectoryAnyOrderMatchResults',
+    'TrajectoryAnyOrderMatchSpec',
+    'TrajectoryExactMatchInput',
+    'TrajectoryExactMatchInstance',
+    'TrajectoryExactMatchMetricValue',
+    'TrajectoryExactMatchResults',
+    'TrajectoryExactMatchSpec',
+    'TrajectoryInOrderMatchInput',
+    'TrajectoryInOrderMatchInstance',
+    'TrajectoryInOrderMatchMetricValue',
+    'TrajectoryInOrderMatchResults',
+    'TrajectoryInOrderMatchSpec',
+    'TrajectoryPrecisionInput',
+    'TrajectoryPrecisionInstance',
+    'TrajectoryPrecisionMetricValue',
+    'TrajectoryPrecisionResults',
+    'TrajectoryPrecisionSpec',
+    'TrajectoryRecallInput',
+    'TrajectoryRecallInstance',
+    'TrajectoryRecallMetricValue',
+    'TrajectoryRecallResults',
+    'TrajectoryRecallSpec',
+    'TrajectorySingleToolUseInput',
+    'TrajectorySingleToolUseInstance',
+    'TrajectorySingleToolUseMetricValue',
+    'TrajectorySingleToolUseResults',
+    'TrajectorySingleToolUseSpec',
     'PairwiseChoice',
     'Event',
     'Execution',
