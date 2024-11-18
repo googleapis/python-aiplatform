@@ -33,12 +33,12 @@ def test_vector_search_create_index_sample(
     mock_sdk_init.assert_called_with(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        staging_bucket=constants.VECTOR_SEARCH_GCS_URI,
     )
 
     # Check index creation
     mock_index_create_tree_ah_index.assert_called_with(
         display_name=constants.VECTOR_SEARCH_INDEX_DISPLAY_NAME,
+        contents_delta_uri=constants.VECTOR_SEARCH_GCS_URI,
         description=ANY,
         dimensions=ANY,
         approximate_neighbors_count=ANY,
@@ -64,12 +64,12 @@ def test_vector_search_create_streaming_index_sample(
     mock_sdk_init.assert_called_with(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        staging_bucket=constants.VECTOR_SEARCH_GCS_URI,
     )
 
     # Check index creation
     mock_index_create_tree_ah_index.assert_called_with(
         display_name=constants.VECTOR_SEARCH_INDEX_DISPLAY_NAME,
+        contents_delta_uri=constants.VECTOR_SEARCH_GCS_URI,
         description=ANY,
         dimensions=ANY,
         approximate_neighbors_count=ANY,
