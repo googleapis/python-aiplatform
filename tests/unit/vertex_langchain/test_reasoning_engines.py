@@ -38,6 +38,7 @@ from vertexai.preview import reasoning_engines
 from vertexai.reasoning_engines import _reasoning_engines
 from vertexai.reasoning_engines import _utils
 from google.protobuf import field_mask_pb2
+from google.protobuf import struct_pb2
 
 
 class CapitalizeEngine:
@@ -1081,3 +1082,50 @@ class TestGenerateSchema(parameterized.TestCase):
     def test_generate_schemas(self, func, required, expected_operation):
         result = _utils.generate_schema(func, required=required)
         self.assertDictEqual(result, expected_operation)
+
+
+class TestToProto(parameterized.TestCase):
+    @parameterized.named_parameters(
+        dict(
+            testcase_name="empty_dict",
+            obj={},
+            expected_proto=struct_pb2.Struct(fields={}),
+        ),
+        dict(
+            testcase_name="nonempty_dict",
+            obj={"a": 1, "b": 2},
+            expected_proto=struct_pb2.Struct(
+                fields={
+                    "a": struct_pb2.Value(number_value=1),
+                    "b": struct_pb2.Value(number_value=2),
+                },
+            ),
+        ),
+        dict(
+            testcase_name="empty_proto_message",
+            obj=struct_pb2.Struct(fields={}),
+            expected_proto=struct_pb2.Struct(fields={}),
+        ),
+        dict(
+            testcase_name="nonempty_proto_message",
+            obj=struct_pb2.Struct(
+                fields={
+                    "a": struct_pb2.Value(number_value=1),
+                    "b": struct_pb2.Value(number_value=2),
+                },
+            ),
+            expected_proto=struct_pb2.Struct(
+                fields={
+                    "a": struct_pb2.Value(number_value=1),
+                    "b": struct_pb2.Value(number_value=2),
+                },
+            ),
+        ),
+    )
+    def test_to_proto(self, obj, expected_proto):
+        result = _utils.to_proto(obj)
+        self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
+        # converting a new object to proto should not modify earlier objects.
+        new_result = _utils.to_proto({})
+        self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
+        self.assertEmpty(new_result)

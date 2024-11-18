@@ -42,7 +42,7 @@ _LOGGER = base.Logger(__name__)
 
 def to_proto(
     obj: Union[JsonDict, proto.Message],
-    message: proto.Message = struct_pb2.Struct(),
+    message: Optional[proto.Message] = None,
 ) -> proto.Message:
     """Parses a JSON-like object into a message.
 
@@ -60,7 +60,9 @@ def to_proto(
     Returns:
         proto.Message: The same message passed as argument.
     """
-    if isinstance(obj, proto.Message):
+    if message is None:
+        message = struct_pb2.Struct()
+    if isinstance(obj, (proto.Message, struct_pb2.Struct)):
         return obj
     try:
         json_format.ParseDict(obj, message._pb)
