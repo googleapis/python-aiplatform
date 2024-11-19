@@ -582,6 +582,7 @@ class Endpoint(aiplatform.Endpoint):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -667,6 +668,9 @@ class Endpoint(aiplatform.Endpoint):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models and machine types. Defaults to False.
+            system_labels (Dict[str, str]):
+              Optional. System labels to apply to Model Garden deployments.
+              System labels are managed by Google for internal use only.
 
         """
         self._sync_gca_resource_if_skipped()
@@ -706,6 +710,7 @@ class Endpoint(aiplatform.Endpoint):
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
     @base.optional_sync()
@@ -730,6 +735,7 @@ class Endpoint(aiplatform.Endpoint):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -809,6 +815,9 @@ class Endpoint(aiplatform.Endpoint):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models and machine types. Defaults to False.
+            system_labels (Dict[str, str]):
+              Optional. System labels to apply to Model Garden deployments.
+              System labels are managed by Google for internal use only.
 
         """
         _LOGGER.log_action_start_against_resource(
@@ -838,6 +847,7 @@ class Endpoint(aiplatform.Endpoint):
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -869,6 +879,7 @@ class Endpoint(aiplatform.Endpoint):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -955,6 +966,9 @@ class Endpoint(aiplatform.Endpoint):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models and machine types. Defaults to False.
+            system_labels (Dict[str, str]):
+              Optional. System labels to apply to Model Garden deployments.
+              System labels are managed by Google for internal use only.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -989,6 +1003,9 @@ class Endpoint(aiplatform.Endpoint):
                 service_account=service_account,
                 enable_container_logging=not disable_container_logging,
             )
+
+            if system_labels:
+                deployed_model.system_labels = system_labels
 
             supports_automatic_resources = (
                 gca_model_compat.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -1073,6 +1090,9 @@ class Endpoint(aiplatform.Endpoint):
                 service_account=service_account,
                 enable_container_logging=not disable_container_logging,
             )
+
+            if system_labels:
+                deployed_model.system_labels = system_labels
 
             supports_shared_resources = (
                 gca_model_compat.Model.DeploymentResourcesType.SHARED_RESOURCES
@@ -1359,6 +1379,7 @@ class Model(aiplatform.Model):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1465,6 +1486,9 @@ class Model(aiplatform.Model):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models and machine types. Defaults to False.
+            system_labels (Dict[str, str]):
+              Optional. System labels to apply to Model Garden deployments.
+              System labels are managed by Google for internal use only.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1521,6 +1545,7 @@ class Model(aiplatform.Model):
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -1547,6 +1572,7 @@ class Model(aiplatform.Model):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1644,6 +1670,9 @@ class Model(aiplatform.Model):
             fast_tryout_enabled (bool):
               Optional. Whether to enable fast deployment. Defaults to False.
               Useful for quick experiments. Not for production workloads.
+            system_labels (Dict[str, str]):
+              Optional. System labels to apply to Model Garden deployments.
+              System labels are managed by Google for internal use only.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1696,6 +1725,7 @@ class Model(aiplatform.Model):
             deployment_resource_pool=deployment_resource_pool,
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

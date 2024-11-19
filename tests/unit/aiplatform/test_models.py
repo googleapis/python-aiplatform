@@ -501,6 +501,8 @@ _TEST_METRIC_NAME_GPU_UTILIZATION = (
     "aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle"
 )
 
+_TEST_LABELS = {"label1": "value1", "label2": "value2"}
+
 
 @pytest.fixture
 def mock_model():
@@ -2620,6 +2622,56 @@ class TestModel:
             ),
         )
         deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_model_mock",
+        "create_endpoint_mock",
+        "get_endpoint_mock",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_with_system_labels(self, preview_deploy_model_mock, sync):
+        test_model = models.Model(_TEST_ID).preview
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            system_labels=_TEST_LABELS,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            enable_container_logging=True,
+            faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
+            system_labels=_TEST_LABELS,
+        )
+        preview_deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
             deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
