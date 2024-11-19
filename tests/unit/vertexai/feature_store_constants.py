@@ -377,4 +377,19 @@ _TEST_FG1_FM1 = types.feature_monitor.FeatureMonitor(
     name=_TEST_FG1_FM1_PATH,
     description=_TEST_FG1_FM1_DESCRIPTION,
     labels=_TEST_FG1_FM1_LABELS,
+    schedule_config=types.feature_monitor.ScheduleConfig(cron="0 0 * * *"),
+    feature_selection_config=types.feature_monitor.FeatureSelectionConfig(
+        feature_configs=[
+            types.feature_monitor.FeatureSelectionConfig.FeatureConfig(
+                feature_id="my_fg1_f1",
+                drift_threshold=0.3,
+            ),
+            types.feature_monitor.FeatureSelectionConfig.FeatureConfig(
+                feature_id="my_fg1_f2",
+                drift_threshold=0.4,
+            ),
+        ]
+    ),
 )
+_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS = [("my_fg1_f1", 0.3), ("my_fg1_f2", 0.4)]
+_TEST_FG1_FM1_SCHEDULE_CONFIG = "0 0 * * *"

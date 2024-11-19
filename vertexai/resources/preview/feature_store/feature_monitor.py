@@ -16,7 +16,7 @@
 #
 
 import re
-from typing import Optional
+from typing import List, Optional, Tuple
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
@@ -108,3 +108,23 @@ class FeatureMonitor(base.VertexAiResourceNounWithFutureManager):
     def description(self) -> str:
         """The description of the feature monitor."""
         return self._gca_resource.description
+
+    @property
+    def schedule_config(self) -> str:
+        """The schedule config of the feature monitor."""
+        return self._gca_resource.schedule_config.cron
+
+    @property
+    def feature_selection_configs(self) -> List[Tuple[str, float]]:
+        """The feature and it's drift threshold configs of the feature monitor."""
+        configs: List[Tuple[str, float]] = []
+        for (
+            feature_config
+        ) in self._gca_resource.feature_selection_config.feature_configs:
+            configs.append(
+                (
+                    feature_config.feature_id,
+                    feature_config.threshold if feature_config.threshold else 0.3,
+                )
+            )
+        return configs

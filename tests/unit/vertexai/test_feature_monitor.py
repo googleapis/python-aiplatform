@@ -16,7 +16,7 @@
 #
 
 import re
-from typing import Dict
+from typing import Dict, List, Tuple
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -27,6 +27,8 @@ from feature_store_constants import _TEST_FG1_FM1_PATH
 from feature_store_constants import _TEST_FG1_ID
 from feature_store_constants import _TEST_LOCATION
 from feature_store_constants import _TEST_PROJECT
+from feature_store_constants import _TEST_FG1_FM1_SCHEDULE_CONFIG
+from feature_store_constants import _TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS
 from vertexai.resources.preview import FeatureMonitor
 import pytest
 
@@ -42,6 +44,8 @@ def feature_monitor_eq(
     location: str,
     description: str,
     labels: Dict[str, str],
+    schedule_config: str,
+    feature_selection_configs: List[Tuple[str, float]],
 ):
     """Check if a Feature Monitor has the appropriate values set."""
     assert feature_monitor_to_check.name == name
@@ -97,6 +101,8 @@ def test_init_with_feature_monitor_id(get_feature_monitor_mock):
         location=_TEST_LOCATION,
         description=_TEST_FG1_FM1_DESCRIPTION,
         labels=_TEST_FG1_FM1_LABELS,
+        schedule_config=_TEST_FG1_FM1_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
     )
 
 
@@ -118,4 +124,6 @@ def test_init_with_feature_path(get_feature_monitor_mock):
         location=_TEST_LOCATION,
         description=_TEST_FG1_FM1_DESCRIPTION,
         labels=_TEST_FG1_FM1_LABELS,
+        schedule_config=_TEST_FG1_FM1_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
     )
