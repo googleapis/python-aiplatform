@@ -23,6 +23,23 @@ import sys
 def test_vertexai_import():
     """Tests the effects of importing the vertexai module."""
 
+    # Importing some required modules to reduce noise
+    import grpc as _  # noqa: F811
+    import google.api_core.iam as _  # noqa: F811
+    import google.api_core.future as _  # noqa: F811
+    import google.api_core.gapic_v1 as _  # noqa: F811
+    import google.api_core.operation as _  # noqa: F811
+    import google.api_core.operation_async as _  # noqa: F811
+    import google.api_core.operations_v1 as _  # noqa: F811
+    import google.api_core.rest_streaming as _  # noqa: F811
+    import google.cloud.storage as _  # noqa: F811
+
+    try:
+        # Needed for Python 3.8
+        import aiohttp as _  # noqa: F811
+    except Exception:  # pylint: disable=broad-exception-caught
+        pass
+
     # We only have one chance to test the imports since cleaning up loaded modules
     # is not fully possible.
     # This is especially made hard by protobuf C code and its global proto registry.
@@ -40,7 +57,7 @@ def test_vertexai_import():
     # Test aiplatform import
     start_time = datetime.datetime.now(datetime.timezone.utc)
 
-    from google.cloud.aiplatform import initializer as _  # noqa: F401
+    from google.cloud.aiplatform import initializer as _  # noqa: F401,F811
 
     end_time = datetime.datetime.now(datetime.timezone.utc)
     aip_import_timedelta = end_time - start_time
@@ -68,3 +85,61 @@ def test_vertexai_import():
 
     assert vertexai_import_timedelta.total_seconds() < 0.005
     assert aip_import_timedelta.total_seconds() < 20
+
+    # Testing that external modules are not loaded.
+    new_modules = modules_after_vertexai - modules_before_aip
+    _test_external_imports(new_modules)
+
+
+def _test_external_imports(new_modules: list):
+    builtin_modules = {
+        "concurrent",
+        # "email",  # Imported by google.cloud.storage
+        "pickle",
+        # Needed for external tests
+        "packaging",
+    }
+    allowed_external_modules = {
+        "google.cloud.resourcemanager_v3",
+        "google3",
+        # Needed for external tests
+        "google.api",
+        "google.api_core",
+        "google.cloud.location",
+        "google.cloud.resourcemanager",
+        "google.iam",
+        "google.type",
+    }
+    allowed_modules = allowed_external_modules | builtin_modules
+    # a.b.c -> a.b._*
+    allowed_private_prefixes = {
+        (("." + module_name).rpartition(".")[0] + "._").lstrip(".")
+        for module_name in allowed_modules
+    }
+
+    import re
+
+    allowed_module_name_pattern = re.compile(
+        rf"""^({"|".join(map(re.escape, allowed_modules))})(\..*)?$"""
+        "|"
+        rf"""^({"|".join(map(re.escape, allowed_private_prefixes))}).*$""",
+        re.DOTALL,
+    )
+
+    new_external_modules = {
+        module_name
+        for module_name in new_modules
+        if not (
+            module_name.startswith("google.cloud.aiplatform")
+            or module_name.startswith("vertexai")
+        )
+    }
+    new_unexpected_modules = {
+        module_name
+        for module_name in new_external_modules
+        if not allowed_module_name_pattern.match(module_name)
+    }
+    if new_unexpected_modules:
+        raise AssertionError(
+            f"Unexpected modules were loaded: {sorted(new_unexpected_modules)}"
+        )
