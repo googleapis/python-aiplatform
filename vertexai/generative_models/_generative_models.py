@@ -444,7 +444,6 @@ class _GenerativeModel:
                     aiplatform_initializer.global_config.create_client(
                         client_class=llm_utility_service.LlmUtilityServiceClient,
                         api_key=aiplatform_initializer.global_config.api_key,
-                        prediction_client=True,
                     )
                 )
             else:
@@ -452,7 +451,6 @@ class _GenerativeModel:
                     aiplatform_initializer.global_config.create_client(
                         client_class=llm_utility_service.LlmUtilityServiceClient,
                         location_override=self._location,
-                        prediction_client=True,
                     )
                 )
         return self._llm_utility_client_value
@@ -475,7 +473,6 @@ class _GenerativeModel:
                     aiplatform_initializer.global_config.create_client(
                         client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
                         location_override=self._location,
-                        prediction_client=True,
                     )
                 )
         return self._llm_utility_async_client_value
@@ -3269,7 +3266,6 @@ class GenerativeModel(_GenerativeModel):
                 aiplatform_initializer.global_config.create_client(
                     client_class=llm_utility_service_v1.LlmUtilityServiceClient,
                     location_override=self._location,
-                    prediction_client=True,
                 )
             )
         return self._llm_utility_client_value
@@ -3284,7 +3280,6 @@ class GenerativeModel(_GenerativeModel):
                 aiplatform_initializer.global_config.create_client(
                     client_class=llm_utility_service_v1.LlmUtilityServiceAsyncClient,
                     location_override=self._location,
-                    prediction_client=True,
                 )
             )
         return self._llm_utility_async_client_value
