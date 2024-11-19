@@ -426,7 +426,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Private services access must already be configured for the network.
                 If left unspecified, the network set with aiplatform.init will be used.
 
-                Format: projects/{project}/global/networks/{network}, where
+                Format: 'projects/{project}/global/networks/{network}', where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
             public_endpoint_enabled (bool):
@@ -564,8 +564,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 to which the IndexEndpoint should be peered.
                 Private services access must already be configured for the network.
 
-                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-                projects/{project}/global/networks/{network}. Where
+                Format:
+                {projects/{project}/global/networks/{network}. Where
                 {project} is a project number, as in '12345', and {network}
                 is network name.
             public_endpoint_enabled (bool):
@@ -693,10 +693,76 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             api_path_override=self.public_endpoint_domain_name,
         )
 
+    def _get_psc_automated_deployed_index_ip_address(
+        self,
+        deployed_index_id: Optional[str] = None,
+        deployed_index: Optional[
+            gca_matching_engine_index_endpoint.DeployedIndex
+        ] = None,
+        psc_network: Optional[str] = None,
+    ) -> str:
+        """Helper method to get the ip address for a psc automated endpoint.
+        Returns:
+            deployed_index_id (str):
+                    Optional. Required for private service access endpoint.
+                    The user specified ID of the DeployedIndex.
+            deployed_index (gca_matching_engine_index_endpoint.DeployedIndex):
+                Optional. Required for private service access endpoint.
+                The DeployedIndex resource.
+            psc_network (str):
+                Optional. Required for private service automation enabled
+                deployed index. This network is the PSC network the match
+                query is executed in. This (project, network)
+                pair must already be specified for psc automation when the index
+                is deployed. The format is
+                `projects/{project_id}/global/networks/{network_name}`.
+
+                An alternative is to set the
+                `private_service_connect_ip_address` field for this
+                MatchingEngineIndexEndpoint instance, if the ip address is
+                already known.
+
+        Raises:
+            RuntimeError: No valid ip found for deployed index with id
+                deployed_index_id within network psc_network, invalid PSC
+                network provided. A list of valid PSC networks are:
+                psc_network_list.
+        """
+        if deployed_index_id:
+            deployed_indexes = [
+                deployed_index
+                for deployed_index in self.deployed_indexes
+                if deployed_index.id == deployed_index_id
+            ]
+            deployed_index = deployed_indexes[0]
+        else:
+            deployed_index_id = deployed_index.id
+
+        ip_address = None
+        # PSC Automation, iterate through psc automation configs to find
+        # the ip address for the given network
+        psc_network_list = [
+            endpoint.network
+            for endpoint in deployed_index.private_endpoints.psc_automated_endpoints
+        ]
+        for endpoint in deployed_index.private_endpoints.psc_automated_endpoints:
+            if psc_network == endpoint.network:
+                ip_address = endpoint.match_address
+                break
+        if not ip_address:
+            raise RuntimeError(
+                f"No valid ip found for deployed index with id "
+                f"'{deployed_index_id}' within network '{psc_network}', "
+                "invalid PSC network provided. A list of valid PSC networks"
+                f"are: '{psc_network_list}'."
+            )
+        return ip_address
+
     def _instantiate_private_match_service_stub(
         self,
         deployed_index_id: Optional[str] = None,
         ip_address: Optional[str] = None,
+        psc_network: Optional[str] = None,
     ) -> match_service_pb2_grpc.MatchServiceStub:
         """Helper method to instantiate private match service stub.
         Args:
@@ -706,6 +772,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             ip_address (str):
                 Optional. Required for private service connect. The ip address
                 the forwarding rule makes use of.
+            psc_network (str):
+                Optional. Required for private service automation enabled deployed
+                index. This network is the PSC
+                network the match query is executed in. This (project, network)
+                pair must already be specified for psc automation when the index
+                is deployed. The format is
+                `projects/{project_id}/global/networks/{network_name}`.
+
+                An alternative is to set the
+                `private_service_connect_ip_address` field for this
+                MatchingEngineIndexEndpoint instance, if the ip address is
+                already known.
         Returns:
             stub (match_service_pb2_grpc.MatchServiceStub):
                 Initialized match service stub.
@@ -714,6 +792,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             ValueError: Should not set ip address for networks other than
                         private service connect.
         """
+
         if ip_address:
             # Should only set for Private Service Connect
             if self.public_endpoint_domain_name:
@@ -729,7 +808,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     "connection using provided ip address",
                 )
         else:
-            # Private Service Access, find server ip for deployed index
             deployed_indexes = [
                 deployed_index
                 for deployed_index in self.deployed_indexes
@@ -741,8 +819,14 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     f"No deployed index with id '{deployed_index_id}' found"
                 )
 
-            # Retrieve server ip from deployed index
-            ip_address = deployed_indexes[0].private_endpoints.match_grpc_address
+            if deployed_indexes[0].private_endpoints.psc_automated_endpoints:
+                ip_address = self._get_psc_automated_deployed_index_ip_address(
+                    deployed_index_id=deployed_index_id,
+                    psc_network=psc_network,
+                )
+            else:
+                # Private Service Access, find server ip for deployed index
+                ip_address = deployed_indexes[0].private_endpoints.match_grpc_address
 
         if ip_address not in self._match_grpc_stub_cache:
             # Set up channel and stub
@@ -859,6 +943,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployment_group: Optional[str] = None,
         auth_config_audiences: Optional[Sequence[str]] = None,
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
+        psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> gca_matching_engine_index_endpoint.DeployedIndex:
         """Builds a DeployedIndex.
 
@@ -950,6 +1035,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 ``service-account-name@project-id.iam.gserviceaccount.com``
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+
+            psc_automation_configs (Sequence[Tuple[str, str]]):
+                Optional. A list of (project_id, network) pairs for Private
+                Service Connection endpoints to be setup for the deployed index.
+                The project_id is the project number of the project that the
+                network is in, and network is the name of the network.
+                Network is the full name of the Google Compute Engine
+                to which the index should be deployed to:
+                projects/{project}/global/networks/{network}, where
+                {project} is a project number, as in '12345', and {network}
+                is network name.
+
         """
 
         deployed_index = gca_matching_engine_index_endpoint.DeployedIndex(
@@ -989,6 +1086,16 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     max_replica_count=max_replica_count,
                 )
             )
+
+        if psc_automation_configs:
+            deployed_index.psc_automation_configs = [
+                gca_service_networking.PSCAutomationConfig(
+                    project_id=psc_automation_config[0],
+                    network=psc_automation_config[1],
+                )
+                for psc_automation_config in psc_automation_configs
+            ]
+
         return deployed_index
 
     def deploy_index(
@@ -1006,6 +1113,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         deploy_request_timeout: Optional[float] = None,
+        psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "MatchingEngineIndexEndpoint":
         """Deploys an existing index resource to this endpoint resource.
 
@@ -1102,6 +1210,24 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
             deploy_request_timeout (float):
                 Optional. The timeout for the request in seconds.
+
+            psc_automation_configs (Sequence[Tuple[str, str]]):
+                Optional. A list of (project_id, network) pairs for Private
+                Service Connection endpoints to be setup for the deployed index.
+                The project_id is the project number of the project that the
+                network is in, and network is the name of the network.
+                Network is the full name of the Google Compute Engine
+                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
+                to which the index should be deployed to.
+
+                Format:{projects/{project}/global/networks/{network}. Where
+                {project} is a project number, as in '12345', and {network}
+                is network name.
+
+                For example:
+                [(project_id_1, network_1), (project_id_1, network_2))] will enable
+                PSC automation for the index to be deployed to project_id_1's network_1
+                and network_2 and can be queried within these networks.
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
         """
@@ -1126,6 +1252,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             deployment_group=deployment_group,
             auth_config_audiences=auth_config_audiences,
             auth_config_allowed_issuers=auth_config_allowed_issuers,
+            psc_automation_configs=psc_automation_configs,
         )
 
         deploy_lro = self.api_client.deploy_index(
@@ -1387,6 +1514,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         numeric_filter: Optional[List[NumericNamespace]] = None,
         embedding_ids: Optional[List[str]] = None,
         signed_jwt: Optional[str] = None,
+        psc_network: Optional[str] = None,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index which is deployed to either public or private
@@ -1412,13 +1540,17 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery.
 
             num_neighbors (int):
-                Required. The number of nearest neighbors to be retrieved from database for
-                each query.
+                Required. The number of nearest neighbors to be retrieved from
+                database for each query.
             filter (List[Namespace]):
                 Optional. A list of Namespaces for filtering the matching results.
-                For example, [Namespace("color", ["red"], []), Namespace("shape", [], ["squared"])] will match datapoints
-                that satisfy "red color" but not include datapoints with "squared shape".
-                Please refer to https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json for more detail.
+                For example, [Namespace("color", ["red"], []),
+                Namespace("shape", [], ["squared"])] will match datapoints that
+                satisfy "red color" but not include datapoints with "squared
+                shape".
+                Please refer to
+                https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json
+                for more detail.
 
             per_crowding_attribute_neighbor_count (int):
                 Optional. Crowding is a constraint on a neighbor list produced
@@ -1459,6 +1591,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             signed_jwt (str):
                Optional. A signed JWT for accessing the private endpoint.
 
+            psc_network (Optional[str]):
+                Optional. Required for private service automation enabled
+                deployed index. This network is the PSC network the match query
+                 is executed in. This (project, network) pair must already be
+                specified for psc automation when the index is deployed. The
+                format is `projects/{project_id}/global/networks/{network_name}`.
+
+                An alternative is to set the
+                `private_service_connect_ip_address` field for this
+                MatchingEngineIndexEndpoint instance, if the ip address is
+                already known.
+
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
@@ -1475,6 +1619,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 fraction_leaf_nodes_to_search_override=fraction_leaf_nodes_to_search_override,
                 numeric_filter=numeric_filter,
                 signed_jwt=signed_jwt,
+                psc_network=psc_network,
             )
 
         # Create the FindNeighbors request
@@ -1575,6 +1720,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index_id: str,
         ids: List[str] = [],
         signed_jwt: Optional[str] = None,
+        psc_network: Optional[str] = None,
     ) -> List[gca_index_v1beta1.IndexDatapoint]:
         """Reads the datapoints/vectors of the given IDs on the specified
         deployed index which is deployed to public or private endpoint.
@@ -1594,6 +1740,19 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. IDs of the datapoints to be searched for.
             signed_jwt (str):
                Optional. A signed JWT for accessing the private endpoint.
+            psc_network (Optional[str]):
+                Optional. Required for private service automation enabled deployed
+                index. This network is the PSC
+                network the match query is executed in. This (project, network)
+                pair must already be specified for psc automation when the index
+                is deployed. The format is
+                `projects/{project_id}/global/networks/{network_name}`.
+
+                An alternative is to set the
+                `private_service_connect_ip_address` field for this
+                MatchingEngineIndexEndpoint instance, if the ip address is
+                already known.
+
         Returns:
             List[gca_index_v1beta1.IndexDatapoint] - A list of datapoints/vectors of the given IDs.
         """
@@ -1603,6 +1762,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 deployed_index_id=deployed_index_id,
                 ids=ids,
                 signed_jwt=signed_jwt,
+                psc_network=psc_network,
             )
 
             response = []
@@ -1650,6 +1810,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_index_id: str,
         ids: List[str] = [],
         signed_jwt: Optional[str] = None,
+        psc_network: Optional[str] = None,
     ) -> List[match_service_pb2.Embedding]:
         """
         Reads the datapoints/vectors of the given IDs on the specified index
@@ -1662,13 +1823,30 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. IDs of the datapoints to be searched for.
             signed_jwt:
                Optional. A signed JWT for accessing the private endpoint.
+            psc_network (Optional[str]):
+                Optional. Required for private service automation enabled deployed
+                index. This network is the PSC
+                network the match query is executed in. This (project, network)
+                pair must already be specified for psc automation when the index
+                is deployed. The format is
+                `projects/{project_id}/global/networks/{network_name}`.
+
+                An alternative is to set the
+                `private_service_connect_ip_address` field for this
+                MatchingEngineIndexEndpoint instance, if the ip address is
+                already known.
         Returns:
             List[match_service_pb2.Embedding] - A list of datapoints/vectors of the given IDs.
         """
-        stub = self._instantiate_private_match_service_stub(
-            deployed_index_id=deployed_index_id,
-            ip_address=self._private_service_connect_ip_address,
-        )
+        if psc_network:
+            stub = self._instantiate_private_match_service_stub(
+                deployed_index_id=deployed_index_id, psc_network=psc_network
+            )
+        else:
+            stub = self._instantiate_private_match_service_stub(
+                deployed_index_id=deployed_index_id,
+                ip_address=self._private_service_connect_ip_address,
+            )
 
         # Create the batch get embeddings request
         batch_request = match_service_pb2.BatchGetEmbeddingsRequest()
@@ -1695,6 +1873,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         low_level_batch_size: int = 0,
         numeric_filter: Optional[List[NumericNamespace]] = None,
         signed_jwt: Optional[str] = None,
+        psc_network: Optional[str] = None,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index for private endpoint only.
@@ -1711,22 +1890,27 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 For hybrid queries, each query is a hybrid query of type
                 aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery.
             num_neighbors (int):
-                Required. The number of nearest neighbors to be retrieved from database for
-                each query.
+                Required. The number of nearest neighbors to be retrieved from
+                database for each query.
             filter (List[Namespace]):
                 Optional. A list of Namespaces for filtering the matching results.
-                For example, [Namespace("color", ["red"], []), Namespace("shape", [], ["squared"])] will match datapoints
-                that satisfy "red color" but not include datapoints with "squared shape".
-                Please refer to https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json for more detail.
+                For example, [Namespace("color", ["red"], []),
+                Namespace("shape", [], ["squared"])] will match datapoints that
+                satisfy "red color" but not include datapoints with "squared
+                shape". Please refer to
+                https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json
+                for more detail.
             per_crowding_attribute_num_neighbors (int):
-                Optional. Crowding is a constraint on a neighbor list produced by nearest neighbor
-                search requiring that no more than some value k' of the k neighbors
-                returned have the same value of crowding_attribute.
+                Optional. Crowding is a constraint on a neighbor list produced
+                by nearest neighbor search requiring that no more than some
+                value k' of the k neighbors returned have the same value of
+                crowding_attribute.
                 It's used for improving result diversity.
                 This field is the maximum number of matches with the same crowding tag.
             approx_num_neighbors (int):
-                The number of neighbors to find via approximate search before exact reordering is performed.
-                If not set, the default value from scam config is used; if set, this value must be > 0.
+                The number of neighbors to find via approximate search before
+                exact reordering is performed. If not set, the default value
+                from scam config is used; if set, this value must be > 0.
             fraction_leaf_nodes_to_search_override (float):
                 Optional. The fraction of the number of leaves to search, set at
                 query time allows user to tune search performance. This value
@@ -1746,14 +1930,32 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 will match datapoints that its cost is greater than 5.
             signed_jwt (str):
                Optional. A signed JWT for accessing the private endpoint.
+            psc_network (Optional[str]):
+                Optional. Required for private service automation enabled
+                deployed index. This network is the PSC
+                network the match query is executed in. This (project, network)
+                pair must already be specified for psc automation when the index
+                is deployed. The format is
+                `projects/{project_id}/global/networks/{network_name}`.
+
+                An alternative is to set the
+                `private_service_connect_ip_address` field for this
+                MatchingEngineIndexEndpoint instance, if the ip address is
+                already known.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
         """
-        stub = self._instantiate_private_match_service_stub(
-            deployed_index_id=deployed_index_id,
-            ip_address=self._private_service_connect_ip_address,
-        )
+        if psc_network:
+            stub = self._instantiate_private_match_service_stub(
+                deployed_index_id=deployed_index_id,
+                psc_network=psc_network,
+            )
+        else:
+            stub = self._instantiate_private_match_service_stub(
+                deployed_index_id=deployed_index_id,
+                ip_address=self._private_service_connect_ip_address,
+            )
 
         # Create the batch match request
         batch_request = match_service_pb2.BatchMatchRequest()

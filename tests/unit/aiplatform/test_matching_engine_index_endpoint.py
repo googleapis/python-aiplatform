@@ -106,6 +106,15 @@ _TEST_AUTH_CONFIG_ALLOWED_ISSUERS = [
 _TEST_SIGNED_JWT = "signed_jwt"
 _TEST_AUTHORIZATION_METADATA = (("authorization", f"Bearer: {_TEST_SIGNED_JWT}"),)
 
+_TEST_PSC_NETWORK1 = "projects/project1/global/networks/network1"
+_TEST_PSC_NETWORK2 = "projects/project2/global/networks/network2"
+_TEST_PSC_NETWORK3 = "projects/project3/global/networks/network3"
+_TEST_PSC_AUTOMATION_CONFIGS = [
+    ("project1", _TEST_PSC_NETWORK1),
+    ("project2", _TEST_PSC_NETWORK2),
+    ("project3", _TEST_PSC_NETWORK3),
+]
+
 # deployment_updated
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
@@ -275,8 +284,18 @@ _TEST_LOW_LEVEL_BATCH_SIZE = 3
 _TEST_ENCRYPTION_SPEC_KEY_NAME = "kms_key_name"
 _TEST_PROJECT_ALLOWLIST = ["project-1", "project-2"]
 _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS = "10.128.0.5"
+_TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_1 = "10.128.0.6"
+_TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_2 = "10.128.0.7"
+_TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_3 = "10.128.0.8"
+_TEST_SERVICE_ATTACHMENT_URI = "projects/test-project/regions/test-region/serviceAttachments/test-service-attachment"
 _TEST_PRIVATE_SERVICE_CONNECT_URI = "{}:10000".format(
     _TEST_PRIVATE_SERVICE_CONNECT_IP_ADDRESS
+)
+_TEST_PRIVATE_SERVICE_CONNECT_AUTOMATION_URI_1 = "{}:10000".format(
+    _TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_1
+)
+_TEST_PRIVATE_SERVICE_CONNECT_AUTOMATION_URI_3 = "{}:10000".format(
+    _TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_3
 )
 _TEST_READ_INDEX_DATAPOINTS_RESPONSE = [
     gca_index_v1beta1.IndexDatapoint(
@@ -409,6 +428,205 @@ def get_index_endpoint_mock():
         ]
         get_index_endpoint_mock.return_value = index_endpoint
         yield get_index_endpoint_mock
+
+
+@pytest.fixture
+def get_psa_index_endpoint_mock():
+    with patch.object(
+        index_endpoint_service_client.IndexEndpointServiceClient, "get_index_endpoint"
+    ) as get_psa_index_endpoint_mock:
+        index_endpoint = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_NAME,
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+        )
+        index_endpoint.deployed_indexes = [
+            gca_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=_TEST_INDEX_NAME,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+                private_endpoints=gca_index_endpoint.IndexPrivateEndpoints(
+                    match_grpc_address="10.128.0.0",
+                    service_attachment=_TEST_SERVICE_ATTACHMENT_URI,
+                ),
+            ),
+            gca_index_endpoint.DeployedIndex(
+                id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
+                index=f"{_TEST_INDEX_NAME}_2",
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+                private_endpoints=gca_index_endpoint.IndexPrivateEndpoints(
+                    match_grpc_address="10.128.0.1",
+                    service_attachment=_TEST_SERVICE_ATTACHMENT_URI,
+                ),
+            ),
+        ]
+        get_psa_index_endpoint_mock.return_value = index_endpoint
+        yield get_psa_index_endpoint_mock
+
+
+@pytest.fixture
+def get_manual_psc_index_endpoint_mock():
+    with patch.object(
+        index_endpoint_service_client.IndexEndpointServiceClient, "get_index_endpoint"
+    ) as get_manual_psc_index_endpoint_mock:
+        index_endpoint = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_NAME,
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+        )
+        index_endpoint.deployed_indexes = [
+            gca_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=_TEST_INDEX_NAME,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+                private_endpoints=gca_index_endpoint.IndexPrivateEndpoints(
+                    service_attachment=_TEST_SERVICE_ATTACHMENT_URI,
+                ),
+            ),
+            gca_index_endpoint.DeployedIndex(
+                id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
+                index=f"{_TEST_INDEX_NAME}_2",
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+                private_endpoints=gca_index_endpoint.IndexPrivateEndpoints(
+                    service_attachment=_TEST_SERVICE_ATTACHMENT_URI,
+                ),
+            ),
+        ]
+        get_manual_psc_index_endpoint_mock.return_value = index_endpoint
+        yield get_manual_psc_index_endpoint_mock
+
+
+@pytest.fixture
+def get_psc_automated_index_endpoint_mock():
+    with patch.object(
+        index_endpoint_service_client.IndexEndpointServiceClient,
+        "get_index_endpoint",
+    ) as get_psc_automated_index_endpoint_mock:
+        index_endpoint = gca_index_endpoint.IndexEndpoint(
+            name=_TEST_INDEX_ENDPOINT_NAME,
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+        )
+        index_endpoint.deployed_indexes = [
+            gca_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=_TEST_INDEX_NAME,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+                private_endpoints=gca_index_endpoint.IndexPrivateEndpoints(
+                    service_attachment=_TEST_SERVICE_ATTACHMENT_URI,
+                    psc_automated_endpoints=[
+                        gca_service_networking.PscAutomatedEndpoints(
+                            network=_TEST_PSC_NETWORK1,
+                            project_id="test-project1",
+                            match_address=_TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_1,
+                        ),
+                        gca_service_networking.PscAutomatedEndpoints(
+                            network=_TEST_PSC_NETWORK2,
+                            project_id="test-project2",
+                            match_address=_TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_2,
+                        ),
+                        gca_service_networking.PscAutomatedEndpoints(
+                            network=_TEST_PSC_NETWORK3,
+                            project_id="test-project3",
+                            match_address=_TEST_PRIVATE_SERVICE_CONNECT_IP_AUTOMATION_ADDRESS_3,
+                        ),
+                    ],
+                ),
+            ),
+            gca_index_endpoint.DeployedIndex(
+                id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
+                index=f"{_TEST_INDEX_NAME}_2",
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+                private_endpoints=gca_index_endpoint.IndexPrivateEndpoints(
+                    service_attachment=_TEST_SERVICE_ATTACHMENT_URI,
+                    psc_automated_endpoints=[
+                        gca_service_networking.PscAutomatedEndpoints(
+                            network="test-network2",
+                            project_id="test-project2",
+                            match_address="10.128.0.8",
+                        )
+                    ],
+                ),
+            ),
+        ]
+        get_psc_automated_index_endpoint_mock.return_value = index_endpoint
+        yield get_psc_automated_index_endpoint_mock
 
 
 @pytest.fixture
@@ -1038,6 +1256,64 @@ class TestMatchingEngineIndexEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_psc_automated_index_endpoint_mock", "get_index_mock")
+    def test_deploy_index_psc_automation_configs(self, deploy_index_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        # Get index
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_NAME)
+
+        my_index_endpoint = my_index_endpoint.deploy_index(
+            index=my_index,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+            min_replica_count=_TEST_MIN_REPLICA_COUNT,
+            max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+            reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+            deployment_group=_TEST_DEPLOYMENT_GROUP,
+            auth_config_audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+            auth_config_allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+            psc_automation_configs=_TEST_PSC_AUTOMATION_CONFIGS,
+            request_metadata=_TEST_REQUEST_METADATA,
+            deploy_request_timeout=_TEST_TIMEOUT,
+        )
+
+        deploy_index_mock.assert_called_once_with(
+            index_endpoint=my_index_endpoint.resource_name,
+            deployed_index=gca_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=my_index.resource_name,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                enable_access_logging=_TEST_ENABLE_ACCESS_LOGGING,
+                reserved_ip_ranges=_TEST_RESERVED_IP_RANGES,
+                deployment_group=_TEST_DEPLOYMENT_GROUP,
+                automatic_resources={
+                    "min_replica_count": _TEST_MIN_REPLICA_COUNT,
+                    "max_replica_count": _TEST_MAX_REPLICA_COUNT,
+                },
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                        audiences=_TEST_AUTH_CONFIG_AUDIENCES,
+                        allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
+                    )
+                ),
+                psc_automation_configs=[
+                    gca_service_networking.PSCAutomationConfig(
+                        project_id=test_psc_automation_config[0],
+                        network=test_psc_automation_config[1],
+                    )
+                    for test_psc_automation_config in _TEST_PSC_AUTOMATION_CONFIGS
+                ],
+            ),
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
+        )
+
     @pytest.mark.usefixtures("get_index_endpoint_mock", "get_index_mock")
     def test_mutate_deployed_index(self, mutate_deployed_index_mock):
         aiplatform.init(project=_TEST_PROJECT)
@@ -1381,6 +1657,62 @@ class TestMatchingEngineIndexEndpoint:
             batch_match_request, metadata=mock.ANY
         )
 
+    @pytest.mark.usefixtures("get_psc_automated_index_endpoint_mock")
+    def test_index_private_service_connect_automation_endpoint_find_neighbor_queries(
+        self, index_endpoint_match_queries_mock, grpc_insecure_channel_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_private_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_private_index_endpoint.find_neighbors(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_neighbor_count=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+            return_full_datapoint=_TEST_RETURN_FULL_DATAPOINT,
+            numeric_filter=_TEST_NUMERIC_FILTER,
+            psc_network=_TEST_PSC_NETWORK1,
+        )
+
+        batch_match_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            float_val=test_query,
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                            fraction_leaf_nodes_to_search_override=_TEST_FRACTION_LEAF_NODES_TO_SEARCH_OVERRIDE,
+                            numeric_restricts=_TEST_NUMERIC_NAMESPACE,
+                        )
+                        for test_query in _TEST_QUERIES
+                    ],
+                )
+            ]
+        )
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
+            batch_match_request, metadata=mock.ANY
+        )
+        grpc_insecure_channel_mock.assert_called_with(
+            _TEST_PRIVATE_SERVICE_CONNECT_AUTOMATION_URI_1
+        )
+
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_index_private_service_access_endpoint_find_neighbor_queries_with_jwt(
         self, index_endpoint_match_queries_mock
@@ -1485,6 +1817,110 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         grpc_insecure_channel_mock.assert_called_with(_TEST_PRIVATE_SERVICE_CONNECT_URI)
+
+    @pytest.mark.usefixtures("get_psc_automated_index_endpoint_mock")
+    def test_index_private_service_connect_automation_match_queries(
+        self, index_endpoint_match_queries_mock, grpc_insecure_channel_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            psc_network=_TEST_PSC_NETWORK1,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_QUERIES[0],
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                        )
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
+
+        grpc_insecure_channel_mock.assert_called_with(
+            _TEST_PRIVATE_SERVICE_CONNECT_AUTOMATION_URI_1
+        )
+
+    @pytest.mark.usefixtures("get_psc_automated_index_endpoint_mock")
+    def test_index_private_service_connect_automation_match_queries_find_ip_address(
+        self, index_endpoint_match_queries_mock, grpc_insecure_channel_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+            psc_network=_TEST_PSC_NETWORK3,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_QUERIES[0],
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                            per_crowding_attribute_num_neighbors=_TEST_PER_CROWDING_ATTRIBUTE_NUM_NEIGHBOURS,
+                            approx_num_neighbors=_TEST_APPROX_NUM_NEIGHBORS,
+                        )
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.BatchMatch.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
+
+        grpc_insecure_channel_mock.assert_called_with(
+            _TEST_PRIVATE_SERVICE_CONNECT_AUTOMATION_URI_3
+        )
 
     @pytest.mark.usefixtures("get_index_public_endpoint_mock")
     def test_index_public_endpoint_find_neighbors_queries_backward_compatibility(
@@ -1784,7 +2220,7 @@ class TestMatchingEngineIndexEndpoint:
             read_index_datapoints_request
         )
 
-    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.usefixtures("get_psa_index_endpoint_mock")
     def test_index_endpoint_batch_get_embeddings(
         self, index_endpoint_batch_get_embeddings_mock
     ):
@@ -1806,7 +2242,7 @@ class TestMatchingEngineIndexEndpoint:
             batch_request, metadata=mock.ANY
         )
 
-    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.usefixtures("get_psa_index_endpoint_mock")
     def test_index_endpoint_read_index_datapoints_for_private_service_access(
         self, index_endpoint_batch_get_embeddings_mock
     ):
@@ -1856,7 +2292,7 @@ class TestMatchingEngineIndexEndpoint:
 
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
 
-    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    @pytest.mark.usefixtures("get_manual_psc_index_endpoint_mock")
     def test_index_endpoint_read_index_datapoints_for_private_service_connect(
         self, grpc_insecure_channel_mock, index_endpoint_batch_get_embeddings_mock
     ):
@@ -1883,6 +2319,37 @@ class TestMatchingEngineIndexEndpoint:
         )
 
         grpc_insecure_channel_mock.assert_called_with(_TEST_PRIVATE_SERVICE_CONNECT_URI)
+
+        assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
+
+    @pytest.mark.usefixtures("get_psc_automated_index_endpoint_mock")
+    def test_index_endpoint_read_index_datapoints_for_private_service_connect_automation(
+        self, index_endpoint_batch_get_embeddings_mock, grpc_insecure_channel_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        response = my_index_endpoint.read_index_datapoints(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            ids=["1", "2"],
+            psc_network=_TEST_PSC_NETWORK1,
+        )
+
+        batch_request = match_service_pb2.BatchGetEmbeddingsRequest(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            id=["1", "2"],
+        )
+
+        index_endpoint_batch_get_embeddings_mock.BatchGetEmbeddings.assert_called_with(
+            batch_request, metadata=mock.ANY
+        )
+
+        grpc_insecure_channel_mock.assert_called_with(
+            _TEST_PRIVATE_SERVICE_CONNECT_AUTOMATION_URI_1
+        )
 
         assert response == _TEST_READ_INDEX_DATAPOINTS_RESPONSE
 
