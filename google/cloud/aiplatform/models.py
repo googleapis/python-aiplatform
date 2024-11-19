@@ -1291,6 +1291,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1403,6 +1404,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -1447,6 +1451,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
     @base.optional_sync()
@@ -1477,6 +1482,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1583,6 +1589,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1617,6 +1626,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1654,6 +1664,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1767,6 +1778,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 If True, model will be deployed using faster deployment path.
                 Useful for quick experiments. Not for production workloads. Only
                 available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1787,6 +1801,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 service_account=service_account,
                 disable_container_logging=disable_container_logging,
             )
+
+            if system_labels:
+                deployed_model.system_labels = system_labels
 
             supports_shared_resources = (
                 gca_model_compat.Model.DeploymentResourcesType.SHARED_RESOURCES
@@ -1846,6 +1863,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 enable_access_logging=enable_access_logging,
                 disable_container_logging=disable_container_logging,
             )
+
+            if system_labels:
+                deployed_model.system_labels = system_labels
 
             supports_automatic_resources = (
                 gca_model_compat.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -3911,6 +3931,7 @@ class PrivateEndpoint(Endpoint):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -4026,6 +4047,9 @@ class PrivateEndpoint(Endpoint):
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
         """
 
         if self.network:
@@ -4070,6 +4094,7 @@ class PrivateEndpoint(Endpoint):
             sync=sync,
             spot=spot,
             disable_container_logging=disable_container_logging,
+            system_labels=system_labels,
         )
 
     def update(
@@ -5133,6 +5158,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5267,6 +5293,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5336,6 +5365,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             private_service_connect_config=private_service_connect_config,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -5371,6 +5401,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         ] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5498,6 +5529,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 If True, model will be deployed using faster deployment path.
                 Useful for quick experiments. Not for production workloads. Only
                 available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5557,6 +5591,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
