@@ -1,5 +1,51 @@
 # Changelog
 
+## [1.73.0](https://github.com/googleapis/python-aiplatform/compare/v1.72.0...v1.73.0) (2024-11-19)
+
+
+### Features
+
+* Add a `nfs_mounts` to RaySpec in PersistentResource API ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add a v1 UpdateEndpointLongRunning API ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add BatchCreateFeatures rpc to feature_registry_service.proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add BYOSA field to tuning_job ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add BYOSA field to tuning_job ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add COMET and MetricX to the evaluation SDK ([4135810](https://github.com/googleapis/python-aiplatform/commit/4135810abbd3d134a6f0818e65581c74df0241ee))
+* Add Create FeatureMonitor function to FeatureGroup in Vertex AI SDK ([285ec2c](https://github.com/googleapis/python-aiplatform/commit/285ec2cee01a7b135b82e160a1b27ebb9c60d7a9))
+* Add CustomEnvironmentSpec to NotebookExecutionJob ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add CustomEnvironmentSpec to NotebookExecutionJob ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add default_runtime in Vertex Pipeline SDK preview. ([44587ec](https://github.com/googleapis/python-aiplatform/commit/44587ecc6377cc23adc5fb5a792944a2e15276ed))
+* Add fast_tryout_enabled to FasterDeploymentConfig v1 proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add FeatureMonitor to FeatureGroup in Vertex AI SDK ([f2233ce](https://github.com/googleapis/python-aiplatform/commit/f2233ceebef523fe7ed9e3a93a3c94a109e8e448))
+* Add PSC automation support to matching engine index endpoint `deploy_index()`, `find_neighbors()`, `match()`, and `read_index_datapoints()`. ([3ab39a4](https://github.com/googleapis/python-aiplatform/commit/3ab39a4536dc72b8a93d30c89bff04f25c724ef5))
+* Add vertex_rag_source to create_feature_view method ([ca61c5a](https://github.com/googleapis/python-aiplatform/commit/ca61c5a4ed5138f01496ee1a80c4f7a221f671d3))
+* Adding fast_tryout_enabled option to Vertex SDK ([fde1b96](https://github.com/googleapis/python-aiplatform/commit/fde1b96db0060cc73dc3174636b16cf30368d61e))
+* Allow setting Vertex Model Garden source model name during model upload ([3af9cc8](https://github.com/googleapis/python-aiplatform/commit/3af9cc8756491dc90fd5b6f4fb960f006d68ca09))
+* Allow user control which class methods to export via `register_operations`. The `class methods` spec will be changed according to user's `register_operations`. ([74077b5](https://github.com/googleapis/python-aiplatform/commit/74077b597527ab220431ebac7ff21f6ab2f7ae85))
+* COMET added to evaluation service proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Expose system_labels field to model deployment APIs in Vertex public preview SDK ([13cede4](https://github.com/googleapis/python-aiplatform/commit/13cede4cff4073225cc374122f80c6f2e85e8f89))
+* Expose system_labels field to model deployment APIs in Vertex Python SDK ([75655af](https://github.com/googleapis/python-aiplatform/commit/75655afd0e3b1affa6558aac97941cdf8642d6f1))
+* GenAI - Grounding - Added grounding dynamic_retrieval config to Vertex SDK ([c39334a](https://github.com/googleapis/python-aiplatform/commit/c39334a63e83d4ab8e4d5cc82b22b9096940fe50))
+* GenAI Evaluation: Release GenAI Evaluation SDK Agent Evaluation features to vertexai.preview module. ([41cd5a8](https://github.com/googleapis/python-aiplatform/commit/41cd5a8a502d7c28a1e68500931fcbc21bbbd243))
+* MetricX added to evaluation service proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Trajectory eval metrics added to evaluation service proto ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Vision Models - Add support for Imagen 3 Capabilities to Vertex SDK ([9a30c31](https://github.com/googleapis/python-aiplatform/commit/9a30c3170a7294077681dfd6a16fc46cf7e71cc6))
+
+
+### Bug Fixes
+
+* GenAI - Fixed GAPIC-renamed keys (keys with trailing underscore) in structures returned by the `to_dict` methods. ([9d00424](https://github.com/googleapis/python-aiplatform/commit/9d004246aaa94d6b61881f4fa1cc25ed1cb97db5))
+* Implementation of proto conversion in reasoning engine utils when message is not specified ([99fafe9](https://github.com/googleapis/python-aiplatform/commit/99fafe9044258895a2ff5d04867516a682a08528))
+* Remove check on serving_container_image_uri when artifact_uri and local_model is given ([ccd89b4](https://github.com/googleapis/python-aiplatform/commit/ccd89b41229516c561aee686497ad5af95c844ed))
+
+
+### Documentation
+
+* Automatic Function calling comment update ([91f85ac](https://github.com/googleapis/python-aiplatform/commit/91f85ac2ff91a95eae4ced37a17ec5fc15cd1d28))
+* Clarity and typo fixes for documentation ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Fix example rpc naming ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* GenAI - Grounding - Added sample for grounding with Google Search to the Vertex GenAI SDK README. ([4bf9816](https://github.com/googleapis/python-aiplatform/commit/4bf9816f49c02bcdbf83173b531e3a0b4f9ee04d))
+
 ## [1.72.0](https://github.com/googleapis/python-aiplatform/compare/v1.71.1...v1.72.0) (2024-11-12)
 
 
