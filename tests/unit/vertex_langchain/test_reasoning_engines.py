@@ -431,6 +431,16 @@ def types_reasoning_engine_mock():
         yield types_reasoning_engine_mock
 
 
+@pytest.fixture(scope="function")
+def get_gca_resource_mock():
+    with mock.patch.object(
+        base.VertexAiResourceNoun,
+        "_get_gca_resource",
+    ) as get_gca_resource_mock:
+        get_gca_resource_mock.return_value = _TEST_REASONING_ENGINE_OBJ
+        yield get_gca_resource_mock
+
+
 class InvalidCapitalizeEngineWithoutQuerySelf:
     """A sample Reasoning Engine with an invalid query method."""
 
@@ -533,15 +543,14 @@ class TestReasoningEngine:
         tarfile_open_mock,
         cloudpickle_dump_mock,
         get_reasoning_engine_mock,
+        get_gca_resource_mock,
     ):
-        test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
+        reasoning_engines.ReasoningEngine.create(
             self.test_app,
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
         )
-        # Manually set _gca_resource here to prevent the mocks from propagating.
-        test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         create_reasoning_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
             reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ,
@@ -595,20 +604,19 @@ class TestReasoningEngine:
         tarfile_open_mock,
         cloudpickle_dump_mock,
         get_reasoning_engine_mock,
+        get_gca_resource_mock,
     ):
         with mock.patch(
             "builtins.open",
             mock.mock_open(read_data="google-cloud-aiplatform==1.29.0"),
         ) as mock_file:
-            test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
+            reasoning_engines.ReasoningEngine.create(
                 self.test_app,
                 display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
                 requirements="requirements.txt",
                 extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
             )
         mock_file.assert_called_with("requirements.txt")
-        # Manually set _gca_resource here to prevent the mocks from propagating.
-        test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         create_reasoning_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
             reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ,
@@ -808,6 +816,7 @@ class TestReasoningEngine:
         cloudpickle_dump_mock,
         get_reasoning_engine_mock,
         delete_reasoning_engine_mock,
+        get_gca_resource_mock,
     ):
         test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
             self.test_app,
@@ -815,8 +824,6 @@ class TestReasoningEngine:
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
         )
-        # Manually set _gca_resource here to prevent the mocks from propagating.
-        test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         create_reasoning_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
             reasoning_engine=_TEST_INPUT_REASONING_ENGINE_OBJ,
@@ -834,10 +841,9 @@ class TestReasoningEngine:
         self,
         get_reasoning_engine_mock,
         delete_reasoning_engine_mock,
+        get_gca_resource_mock,
     ):
         test_reasoning_engine = reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
-        # Manually set _gca_resource here to prevent the mocks from propagating.
-        test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
@@ -852,10 +858,9 @@ class TestReasoningEngine:
         get_reasoning_engine_mock,
         query_reasoning_engine_mock,
         to_dict_mock,
+        get_gca_resource_mock,
     ):
         test_reasoning_engine = reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
-        # Manually set _gca_resource here to prevent the mocks from propagating.
-        test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
@@ -866,10 +871,12 @@ class TestReasoningEngine:
         )
         to_dict_mock.assert_called_once()
 
-    def test_operation_schemas(self, get_reasoning_engine_mock):
+    def test_operation_schemas(
+        self,
+        get_reasoning_engine_mock,
+        get_gca_resource_mock,
+    ):
         test_reasoning_engine = reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
-        # Manually set _gca_resource here to prevent the mocks from propagating.
-        test_reasoning_engine._gca_resource = _TEST_REASONING_ENGINE_OBJ
         test_reasoning_engine._operation_schemas = (
             _TEST_REASONING_ENGINE_OPERATION_SCHEMAS
         )
