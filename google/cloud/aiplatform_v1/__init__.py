@@ -179,6 +179,7 @@ from .types.deployment_resource_pool_service import (
 )
 from .types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
 from .types.encryption_spec import EncryptionSpec
+from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
@@ -199,6 +200,8 @@ from .types.endpoint_service import MutateDeployedModelResponse
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
+from .types.endpoint_service import UpdateEndpointLongRunningRequest
+from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
@@ -1028,6 +1031,7 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "ClientConnectionConfig",
     "CoherenceInput",
     "CoherenceInstance",
     "CoherenceResult",
@@ -1762,6 +1766,8 @@ __all__ = (
     "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "UpdateEndpointLongRunningRequest",
+    "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",

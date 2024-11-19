@@ -125,6 +125,38 @@ __protobuf__ = proto.module(
         "ToolParameterKVMatchInstance",
         "ToolParameterKVMatchResults",
         "ToolParameterKVMatchMetricValue",
+        "TrajectoryExactMatchInput",
+        "TrajectoryExactMatchSpec",
+        "TrajectoryExactMatchInstance",
+        "TrajectoryExactMatchResults",
+        "TrajectoryExactMatchMetricValue",
+        "TrajectoryInOrderMatchInput",
+        "TrajectoryInOrderMatchSpec",
+        "TrajectoryInOrderMatchInstance",
+        "TrajectoryInOrderMatchResults",
+        "TrajectoryInOrderMatchMetricValue",
+        "TrajectoryAnyOrderMatchInput",
+        "TrajectoryAnyOrderMatchSpec",
+        "TrajectoryAnyOrderMatchInstance",
+        "TrajectoryAnyOrderMatchResults",
+        "TrajectoryAnyOrderMatchMetricValue",
+        "TrajectoryPrecisionInput",
+        "TrajectoryPrecisionSpec",
+        "TrajectoryPrecisionInstance",
+        "TrajectoryPrecisionResults",
+        "TrajectoryPrecisionMetricValue",
+        "TrajectoryRecallInput",
+        "TrajectoryRecallSpec",
+        "TrajectoryRecallInstance",
+        "TrajectoryRecallResults",
+        "TrajectoryRecallMetricValue",
+        "TrajectorySingleToolUseInput",
+        "TrajectorySingleToolUseSpec",
+        "TrajectorySingleToolUseInstance",
+        "TrajectorySingleToolUseResults",
+        "TrajectorySingleToolUseMetricValue",
+        "Trajectory",
+        "ToolCall",
     },
 )
 
@@ -260,6 +292,30 @@ class EvaluateInstancesRequest(proto.Message):
         tool_parameter_kv_match_input (google.cloud.aiplatform_v1beta1.types.ToolParameterKVMatchInput):
             Input for tool parameter key value match
             metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        trajectory_exact_match_input (google.cloud.aiplatform_v1beta1.types.TrajectoryExactMatchInput):
+            Input for trajectory exact match metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        trajectory_in_order_match_input (google.cloud.aiplatform_v1beta1.types.TrajectoryInOrderMatchInput):
+            Input for trajectory in order match metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        trajectory_any_order_match_input (google.cloud.aiplatform_v1beta1.types.TrajectoryAnyOrderMatchInput):
+            Input for trajectory match any order metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        trajectory_precision_input (google.cloud.aiplatform_v1beta1.types.TrajectoryPrecisionInput):
+            Input for trajectory precision metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        trajectory_recall_input (google.cloud.aiplatform_v1beta1.types.TrajectoryRecallInput):
+            Input for trajectory recall metric.
+
+            This field is a member of `oneof`_ ``metric_inputs``.
+        trajectory_single_tool_use_input (google.cloud.aiplatform_v1beta1.types.TrajectorySingleToolUseInput):
+            Input for trajectory single tool use metric.
 
             This field is a member of `oneof`_ ``metric_inputs``.
         location (str):
@@ -412,6 +468,42 @@ class EvaluateInstancesRequest(proto.Message):
         oneof="metric_inputs",
         message="ToolParameterKVMatchInput",
     )
+    trajectory_exact_match_input: "TrajectoryExactMatchInput" = proto.Field(
+        proto.MESSAGE,
+        number=33,
+        oneof="metric_inputs",
+        message="TrajectoryExactMatchInput",
+    )
+    trajectory_in_order_match_input: "TrajectoryInOrderMatchInput" = proto.Field(
+        proto.MESSAGE,
+        number=34,
+        oneof="metric_inputs",
+        message="TrajectoryInOrderMatchInput",
+    )
+    trajectory_any_order_match_input: "TrajectoryAnyOrderMatchInput" = proto.Field(
+        proto.MESSAGE,
+        number=35,
+        oneof="metric_inputs",
+        message="TrajectoryAnyOrderMatchInput",
+    )
+    trajectory_precision_input: "TrajectoryPrecisionInput" = proto.Field(
+        proto.MESSAGE,
+        number=37,
+        oneof="metric_inputs",
+        message="TrajectoryPrecisionInput",
+    )
+    trajectory_recall_input: "TrajectoryRecallInput" = proto.Field(
+        proto.MESSAGE,
+        number=38,
+        oneof="metric_inputs",
+        message="TrajectoryRecallInput",
+    )
+    trajectory_single_tool_use_input: "TrajectorySingleToolUseInput" = proto.Field(
+        proto.MESSAGE,
+        number=39,
+        oneof="metric_inputs",
+        message="TrajectorySingleToolUseInput",
+    )
     location: str = proto.Field(
         proto.STRING,
         number=1,
@@ -531,6 +623,31 @@ class EvaluateInstancesResponse(proto.Message):
             This field is a member of `oneof`_ ``evaluation_results``.
         tool_parameter_kv_match_results (google.cloud.aiplatform_v1beta1.types.ToolParameterKVMatchResults):
             Results for tool parameter key value match
+            metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        trajectory_exact_match_results (google.cloud.aiplatform_v1beta1.types.TrajectoryExactMatchResults):
+            Result for trajectory exact match metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        trajectory_in_order_match_results (google.cloud.aiplatform_v1beta1.types.TrajectoryInOrderMatchResults):
+            Result for trajectory in order match metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        trajectory_any_order_match_results (google.cloud.aiplatform_v1beta1.types.TrajectoryAnyOrderMatchResults):
+            Result for trajectory any order match metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        trajectory_precision_results (google.cloud.aiplatform_v1beta1.types.TrajectoryPrecisionResults):
+            Result for trajectory precision metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        trajectory_recall_results (google.cloud.aiplatform_v1beta1.types.TrajectoryRecallResults):
+            Results for trajectory recall metric.
+
+            This field is a member of `oneof`_ ``evaluation_results``.
+        trajectory_single_tool_use_results (google.cloud.aiplatform_v1beta1.types.TrajectorySingleToolUseResults):
+            Results for trajectory single tool use
             metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
@@ -681,6 +798,42 @@ class EvaluateInstancesResponse(proto.Message):
         number=21,
         oneof="evaluation_results",
         message="ToolParameterKVMatchResults",
+    )
+    trajectory_exact_match_results: "TrajectoryExactMatchResults" = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        oneof="evaluation_results",
+        message="TrajectoryExactMatchResults",
+    )
+    trajectory_in_order_match_results: "TrajectoryInOrderMatchResults" = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        oneof="evaluation_results",
+        message="TrajectoryInOrderMatchResults",
+    )
+    trajectory_any_order_match_results: "TrajectoryAnyOrderMatchResults" = proto.Field(
+        proto.MESSAGE,
+        number=33,
+        oneof="evaluation_results",
+        message="TrajectoryAnyOrderMatchResults",
+    )
+    trajectory_precision_results: "TrajectoryPrecisionResults" = proto.Field(
+        proto.MESSAGE,
+        number=35,
+        oneof="evaluation_results",
+        message="TrajectoryPrecisionResults",
+    )
+    trajectory_recall_results: "TrajectoryRecallResults" = proto.Field(
+        proto.MESSAGE,
+        number=36,
+        oneof="evaluation_results",
+        message="TrajectoryRecallResults",
+    )
+    trajectory_single_tool_use_results: "TrajectorySingleToolUseResults" = proto.Field(
+        proto.MESSAGE,
+        number=37,
+        oneof="evaluation_results",
+        message="TrajectorySingleToolUseResults",
     )
 
 
@@ -3137,7 +3290,7 @@ class ToolParameterKVMatchSpec(proto.Message):
 
     Attributes:
         use_strict_string_match (bool):
-            Optional. Whether to use STRCIT string match
+            Optional. Whether to use STRICT string match
             on parameter values.
     """
 
@@ -3210,6 +3363,653 @@ class ToolParameterKVMatchMetricValue(proto.Message):
     score: float = proto.Field(
         proto.FLOAT,
         number=1,
+        optional=True,
+    )
+
+
+class TrajectoryExactMatchInput(proto.Message):
+    r"""Instances and metric spec for TrajectoryExactMatch metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.TrajectoryExactMatchSpec):
+            Required. Spec for TrajectoryExactMatch
+            metric.
+        instances (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryExactMatchInstance]):
+            Required. Repeated TrajectoryExactMatch
+            instance.
+    """
+
+    metric_spec: "TrajectoryExactMatchSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryExactMatchSpec",
+    )
+    instances: MutableSequence["TrajectoryExactMatchInstance"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="TrajectoryExactMatchInstance",
+    )
+
+
+class TrajectoryExactMatchSpec(proto.Message):
+    r"""Spec for TrajectoryExactMatch metric - returns 1 if tool
+    calls in the reference trajectory exactly match the predicted
+    trajectory, else 0.
+
+    """
+
+
+class TrajectoryExactMatchInstance(proto.Message):
+    r"""Spec for TrajectoryExactMatch instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        predicted_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for predicted tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_predicted_trajectory``.
+        reference_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for reference tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_reference_trajectory``.
+    """
+
+    predicted_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message="Trajectory",
+    )
+    reference_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message="Trajectory",
+    )
+
+
+class TrajectoryExactMatchResults(proto.Message):
+    r"""Results for TrajectoryExactMatch metric.
+
+    Attributes:
+        trajectory_exact_match_metric_values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryExactMatchMetricValue]):
+            Output only. TrajectoryExactMatch metric
+            values.
+    """
+
+    trajectory_exact_match_metric_values: MutableSequence[
+        "TrajectoryExactMatchMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryExactMatchMetricValue",
+    )
+
+
+class TrajectoryExactMatchMetricValue(proto.Message):
+    r"""TrajectoryExactMatch metric value for an instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. TrajectoryExactMatch score.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class TrajectoryInOrderMatchInput(proto.Message):
+    r"""Instances and metric spec for TrajectoryInOrderMatch metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.TrajectoryInOrderMatchSpec):
+            Required. Spec for TrajectoryInOrderMatch
+            metric.
+        instances (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryInOrderMatchInstance]):
+            Required. Repeated TrajectoryInOrderMatch
+            instance.
+    """
+
+    metric_spec: "TrajectoryInOrderMatchSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryInOrderMatchSpec",
+    )
+    instances: MutableSequence["TrajectoryInOrderMatchInstance"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="TrajectoryInOrderMatchInstance",
+    )
+
+
+class TrajectoryInOrderMatchSpec(proto.Message):
+    r"""Spec for TrajectoryInOrderMatch metric - returns 1 if tool
+    calls in the reference trajectory appear in the predicted
+    trajectory in the same order, else 0.
+
+    """
+
+
+class TrajectoryInOrderMatchInstance(proto.Message):
+    r"""Spec for TrajectoryInOrderMatch instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        predicted_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for predicted tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_predicted_trajectory``.
+        reference_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for reference tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_reference_trajectory``.
+    """
+
+    predicted_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message="Trajectory",
+    )
+    reference_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message="Trajectory",
+    )
+
+
+class TrajectoryInOrderMatchResults(proto.Message):
+    r"""Results for TrajectoryInOrderMatch metric.
+
+    Attributes:
+        trajectory_in_order_match_metric_values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryInOrderMatchMetricValue]):
+            Output only. TrajectoryInOrderMatch metric
+            values.
+    """
+
+    trajectory_in_order_match_metric_values: MutableSequence[
+        "TrajectoryInOrderMatchMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryInOrderMatchMetricValue",
+    )
+
+
+class TrajectoryInOrderMatchMetricValue(proto.Message):
+    r"""TrajectoryInOrderMatch metric value for an instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. TrajectoryInOrderMatch score.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class TrajectoryAnyOrderMatchInput(proto.Message):
+    r"""Instances and metric spec for TrajectoryAnyOrderMatch metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.TrajectoryAnyOrderMatchSpec):
+            Required. Spec for TrajectoryAnyOrderMatch
+            metric.
+        instances (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryAnyOrderMatchInstance]):
+            Required. Repeated TrajectoryAnyOrderMatch
+            instance.
+    """
+
+    metric_spec: "TrajectoryAnyOrderMatchSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryAnyOrderMatchSpec",
+    )
+    instances: MutableSequence["TrajectoryAnyOrderMatchInstance"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="TrajectoryAnyOrderMatchInstance",
+    )
+
+
+class TrajectoryAnyOrderMatchSpec(proto.Message):
+    r"""Spec for TrajectoryAnyOrderMatch metric - returns 1 if all
+    tool calls in the reference trajectory appear in the predicted
+    trajectory in any order, else 0.
+
+    """
+
+
+class TrajectoryAnyOrderMatchInstance(proto.Message):
+    r"""Spec for TrajectoryAnyOrderMatch instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        predicted_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for predicted tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_predicted_trajectory``.
+        reference_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for reference tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_reference_trajectory``.
+    """
+
+    predicted_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message="Trajectory",
+    )
+    reference_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message="Trajectory",
+    )
+
+
+class TrajectoryAnyOrderMatchResults(proto.Message):
+    r"""Results for TrajectoryAnyOrderMatch metric.
+
+    Attributes:
+        trajectory_any_order_match_metric_values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryAnyOrderMatchMetricValue]):
+            Output only. TrajectoryAnyOrderMatch metric
+            values.
+    """
+
+    trajectory_any_order_match_metric_values: MutableSequence[
+        "TrajectoryAnyOrderMatchMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryAnyOrderMatchMetricValue",
+    )
+
+
+class TrajectoryAnyOrderMatchMetricValue(proto.Message):
+    r"""TrajectoryAnyOrderMatch metric value for an instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. TrajectoryAnyOrderMatch score.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class TrajectoryPrecisionInput(proto.Message):
+    r"""Instances and metric spec for TrajectoryPrecision metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.TrajectoryPrecisionSpec):
+            Required. Spec for TrajectoryPrecision
+            metric.
+        instances (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryPrecisionInstance]):
+            Required. Repeated TrajectoryPrecision
+            instance.
+    """
+
+    metric_spec: "TrajectoryPrecisionSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryPrecisionSpec",
+    )
+    instances: MutableSequence["TrajectoryPrecisionInstance"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="TrajectoryPrecisionInstance",
+    )
+
+
+class TrajectoryPrecisionSpec(proto.Message):
+    r"""Spec for TrajectoryPrecision metric - returns a float score
+    based on average precision of individual tool calls.
+
+    """
+
+
+class TrajectoryPrecisionInstance(proto.Message):
+    r"""Spec for TrajectoryPrecision instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        predicted_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for predicted tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_predicted_trajectory``.
+        reference_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for reference tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_reference_trajectory``.
+    """
+
+    predicted_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message="Trajectory",
+    )
+    reference_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message="Trajectory",
+    )
+
+
+class TrajectoryPrecisionResults(proto.Message):
+    r"""Results for TrajectoryPrecision metric.
+
+    Attributes:
+        trajectory_precision_metric_values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryPrecisionMetricValue]):
+            Output only. TrajectoryPrecision metric
+            values.
+    """
+
+    trajectory_precision_metric_values: MutableSequence[
+        "TrajectoryPrecisionMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryPrecisionMetricValue",
+    )
+
+
+class TrajectoryPrecisionMetricValue(proto.Message):
+    r"""TrajectoryPrecision metric value for an instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. TrajectoryPrecision score.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class TrajectoryRecallInput(proto.Message):
+    r"""Instances and metric spec for TrajectoryRecall metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.TrajectoryRecallSpec):
+            Required. Spec for TrajectoryRecall metric.
+        instances (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryRecallInstance]):
+            Required. Repeated TrajectoryRecall instance.
+    """
+
+    metric_spec: "TrajectoryRecallSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryRecallSpec",
+    )
+    instances: MutableSequence["TrajectoryRecallInstance"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="TrajectoryRecallInstance",
+    )
+
+
+class TrajectoryRecallSpec(proto.Message):
+    r"""Spec for TrajectoryRecall metric - returns a float score
+    based on average recall of individual tool calls.
+
+    """
+
+
+class TrajectoryRecallInstance(proto.Message):
+    r"""Spec for TrajectoryRecall instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        predicted_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for predicted tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_predicted_trajectory``.
+        reference_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for reference tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_reference_trajectory``.
+    """
+
+    predicted_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message="Trajectory",
+    )
+    reference_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message="Trajectory",
+    )
+
+
+class TrajectoryRecallResults(proto.Message):
+    r"""Results for TrajectoryRecall metric.
+
+    Attributes:
+        trajectory_recall_metric_values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectoryRecallMetricValue]):
+            Output only. TrajectoryRecall metric values.
+    """
+
+    trajectory_recall_metric_values: MutableSequence[
+        "TrajectoryRecallMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectoryRecallMetricValue",
+    )
+
+
+class TrajectoryRecallMetricValue(proto.Message):
+    r"""TrajectoryRecall metric value for an instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. TrajectoryRecall score.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class TrajectorySingleToolUseInput(proto.Message):
+    r"""Instances and metric spec for TrajectorySingleToolUse metric.
+
+    Attributes:
+        metric_spec (google.cloud.aiplatform_v1beta1.types.TrajectorySingleToolUseSpec):
+            Required. Spec for TrajectorySingleToolUse
+            metric.
+        instances (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectorySingleToolUseInstance]):
+            Required. Repeated TrajectorySingleToolUse
+            instance.
+    """
+
+    metric_spec: "TrajectorySingleToolUseSpec" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectorySingleToolUseSpec",
+    )
+    instances: MutableSequence["TrajectorySingleToolUseInstance"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="TrajectorySingleToolUseInstance",
+    )
+
+
+class TrajectorySingleToolUseSpec(proto.Message):
+    r"""Spec for TrajectorySingleToolUse metric - returns 1 if tool
+    is present in the predicted trajectory, else 0.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        tool_name (str):
+            Required. Spec for tool name to be checked
+            for in the predicted trajectory.
+
+            This field is a member of `oneof`_ ``_tool_name``.
+    """
+
+    tool_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+
+
+class TrajectorySingleToolUseInstance(proto.Message):
+    r"""Spec for TrajectorySingleToolUse instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        predicted_trajectory (google.cloud.aiplatform_v1beta1.types.Trajectory):
+            Required. Spec for predicted tool call
+            trajectory.
+
+            This field is a member of `oneof`_ ``_predicted_trajectory``.
+    """
+
+    predicted_trajectory: "Trajectory" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message="Trajectory",
+    )
+
+
+class TrajectorySingleToolUseResults(proto.Message):
+    r"""Results for TrajectorySingleToolUse metric.
+
+    Attributes:
+        trajectory_single_tool_use_metric_values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TrajectorySingleToolUseMetricValue]):
+            Output only. TrajectorySingleToolUse metric
+            values.
+    """
+
+    trajectory_single_tool_use_metric_values: MutableSequence[
+        "TrajectorySingleToolUseMetricValue"
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="TrajectorySingleToolUseMetricValue",
+    )
+
+
+class TrajectorySingleToolUseMetricValue(proto.Message):
+    r"""TrajectorySingleToolUse metric value for an instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. TrajectorySingleToolUse score.
+
+            This field is a member of `oneof`_ ``_score``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+
+
+class Trajectory(proto.Message):
+    r"""Spec for trajectory.
+
+    Attributes:
+        tool_calls (MutableSequence[google.cloud.aiplatform_v1beta1.types.ToolCall]):
+            Required. Tool calls in the trajectory.
+    """
+
+    tool_calls: MutableSequence["ToolCall"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="ToolCall",
+    )
+
+
+class ToolCall(proto.Message):
+    r"""Spec for tool call.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        tool_name (str):
+            Required. Spec for tool name
+
+            This field is a member of `oneof`_ ``_tool_name``.
+        tool_input (str):
+            Optional. Spec for tool input
+
+            This field is a member of `oneof`_ ``_tool_input``.
+    """
+
+    tool_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+    tool_input: str = proto.Field(
+        proto.STRING,
+        number=2,
         optional=True,
     )
 

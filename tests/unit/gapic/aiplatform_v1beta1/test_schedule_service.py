@@ -88,6 +88,7 @@ from google.cloud.aiplatform_v1beta1.types import model_monitoring_alert
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_service
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
+from google.cloud.aiplatform_v1beta1.types import network_spec
 from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
 from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -5841,6 +5842,18 @@ def test_create_schedule_rest_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {},
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -6965,6 +6978,18 @@ def test_update_schedule_rest_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {},
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -8292,6 +8317,18 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {},
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -9512,6 +9549,18 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {},
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -11599,8 +11648,34 @@ def test_parse_schedule_path():
     assert expected == actual
 
 
+def test_subnetwork_path():
+    project = "cuttlefish"
+    region = "mussel"
+    subnetwork = "winkle"
+    expected = "projects/{project}/regions/{region}/subnetworks/{subnetwork}".format(
+        project=project,
+        region=region,
+        subnetwork=subnetwork,
+    )
+    actual = ScheduleServiceClient.subnetwork_path(project, region, subnetwork)
+    assert expected == actual
+
+
+def test_parse_subnetwork_path():
+    expected = {
+        "project": "nautilus",
+        "region": "scallop",
+        "subnetwork": "abalone",
+    }
+    path = ScheduleServiceClient.subnetwork_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_subnetwork_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -11610,7 +11685,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = ScheduleServiceClient.common_billing_account_path(**expected)
 
@@ -11620,7 +11695,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -11630,7 +11705,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = ScheduleServiceClient.common_folder_path(**expected)
 
@@ -11640,7 +11715,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -11650,7 +11725,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = ScheduleServiceClient.common_organization_path(**expected)
 
@@ -11660,7 +11735,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -11670,7 +11745,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = ScheduleServiceClient.common_project_path(**expected)
 
@@ -11680,8 +11755,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -11692,8 +11767,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = ScheduleServiceClient.common_location_path(**expected)
 

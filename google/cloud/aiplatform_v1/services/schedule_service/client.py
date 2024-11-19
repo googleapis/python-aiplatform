@@ -393,6 +393,28 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def reservation_path(
+        project_id_or_number: str,
+        zone: str,
+        reservation_name: str,
+    ) -> str:
+        """Returns a fully-qualified reservation string."""
+        return "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+            project_id_or_number=project_id_or_number,
+            zone=zone,
+            reservation_name=reservation_name,
+        )
+
+    @staticmethod
+    def parse_reservation_path(path: str) -> Dict[str, str]:
+        """Parses a reservation path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project_id_or_number>.+?)/zones/(?P<zone>.+?)/reservations/(?P<reservation_name>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def schedule_path(
         project: str,
         location: str,
@@ -410,6 +432,28 @@ class ScheduleServiceClient(metaclass=ScheduleServiceClientMeta):
         """Parses a schedule path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/schedules/(?P<schedule>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def subnetwork_path(
+        project: str,
+        region: str,
+        subnetwork: str,
+    ) -> str:
+        """Returns a fully-qualified subnetwork string."""
+        return "projects/{project}/regions/{region}/subnetworks/{subnetwork}".format(
+            project=project,
+            region=region,
+            subnetwork=subnetwork,
+        )
+
+    @staticmethod
+    def parse_subnetwork_path(path: str) -> Dict[str, str]:
+        """Parses a subnetwork path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/regions/(?P<region>.+?)/subnetworks/(?P<subnetwork>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
