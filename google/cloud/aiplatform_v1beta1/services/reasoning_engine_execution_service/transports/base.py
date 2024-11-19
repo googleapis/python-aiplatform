@@ -27,6 +27,7 @@ from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_execution_service
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -138,6 +139,11 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.stream_query_reasoning_engine: gapic_v1.method.wrap_method(
+                self.stream_query_reasoning_engine,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -209,6 +215,15 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
             Awaitable[reasoning_engine_execution_service.QueryReasoningEngineResponse],
         ],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def stream_query_reasoning_engine(self) -> Callable[
+            [reasoning_engine_execution_service.StreamQueryReasoningEngineRequest],
+            Union[
+                httpbody_pb2.HttpBody,
+                Awaitable[httpbody_pb2.HttpBody]
+            ]]:
         raise NotImplementedError()
 
     @property

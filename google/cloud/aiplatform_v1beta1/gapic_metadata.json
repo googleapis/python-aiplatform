@@ -4682,6 +4682,11 @@
               "methods": [
                 "query_reasoning_engine"
               ]
+            },
+            "StreamQueryReasoningEngine": {
+              "methods": [
+                "stream_query_reasoning_engine"
+              ]
             }
           }
         },
@@ -4692,6 +4697,11 @@
               "methods": [
                 "query_reasoning_engine"
               ]
+            },
+            "StreamQueryReasoningEngine": {
+              "methods": [
+                "stream_query_reasoning_engine"
+              ]
             }
           }
         },
@@ -4701,6 +4711,11 @@
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"
+              ]
+            },
+            "StreamQueryReasoningEngine": {
+              "methods": [
+                "stream_query_reasoning_engine"
               ]
             }
           }

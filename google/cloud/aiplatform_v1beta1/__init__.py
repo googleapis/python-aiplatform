@@ -900,6 +900,7 @@ from .types.reasoning_engine import ReasoningEngine
 from .types.reasoning_engine import ReasoningEngineSpec
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
+from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
 from .types.reasoning_engine_service import CreateReasoningEngineOperationMetadata
 from .types.reasoning_engine_service import CreateReasoningEngineRequest
 from .types.reasoning_engine_service import DeleteReasoningEngineRequest
@@ -1845,6 +1846,7 @@ __all__ = (
     "QueryExtensionResponse",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
+    "StreamQueryReasoningEngineRequest",
     "QuestionAnsweringCorrectnessInput",
     "QuestionAnsweringCorrectnessInstance",
     "QuestionAnsweringCorrectnessResult",
