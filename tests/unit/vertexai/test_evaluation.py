@@ -32,6 +32,12 @@ from google.cloud.aiplatform_v1.services import (
 from google.cloud.aiplatform_v1.types import (
     evaluation_service as gapic_evaluation_service_types,
 )
+from google.cloud.aiplatform_v1beta1.services import (
+    evaluation_service as gapic_evaluation_services_preview,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    evaluation_service as gapic_evaluation_service_types_preview,
+)
 from vertexai import evaluation
 from vertexai import generative_models
 from vertexai.evaluation import _base as eval_base
@@ -45,13 +51,19 @@ from vertexai.evaluation.metrics import (
 )
 from vertexai.evaluation.metrics import pairwise_metric
 from vertexai.evaluation.metrics import pointwise_metric
+from vertexai.preview import evaluation as evaluation_preview
+from vertexai.preview import reasoning_engines
 import numpy as np
 import pandas as pd
 import pytest
 
 
 EvalTask = eval_task.EvalTask
+EvalTaskPreview = evaluation_preview.eval_task.EvalTask
 Pointwise = metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise
+PointwisePreview = (
+    evaluation_preview.metrics.metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise
+)
 Pairwise = metric_prompt_template_examples.MetricPromptTemplateExamples.Pairwise
 
 _TEST_PROJECT = "test-project"
@@ -141,6 +153,15 @@ _TEST_EVAL_DATASET_WITHOUT_RESPONSE = pd.DataFrame(
         "context": ["test", "context"],
         "instruction": ["test", "instruction"],
     }
+)
+_TEST_AGENT_EVAL_DATASET_WITHOUT_RESPONSE = pd.DataFrame(
+    {
+        "prompt": ["test_input1", "test_input2"],
+        "reference_trajectory": [
+            [{"tool_name": "test_tool1"}, {"tool_name": "test_tool2"}],
+            [{"tool_name": "test_tool3"}, {"tool_name": "test_tool4"}],
+        ],
+    },
 )
 _TEST_EVAL_DATASET_ALL_INCLUDED = pd.DataFrame(
     {
@@ -300,6 +321,25 @@ Step 5: Output your assessment reasoning in the explanation field
 {response}
 """
 
+_MOCK_RUNNABLE_INFERENCE_RESPONSE = [
+    {
+        "input": "test_input",
+        "output": "test_output",
+        "intermediate_steps": [
+            [{"kwargs": {"tool": "test_tool1"}, "tool_output": "test_tool_output"}],
+            [{"kwargs": {"tool": "test_tool2"}, "tool_output": "test_tool_output"}],
+        ],
+    },
+    {
+        "input": "test_input",
+        "output": "test_output",
+        "intermediate_steps": [
+            [{"kwargs": {"tool": "test_tool2"}, "tool_output": "test_tool_output"}],
+            [{"kwargs": {"tool": "test_tool3"}, "tool_output": "test_tool_output"}],
+        ],
+    },
+]
+
 _MOCK_EXACT_MATCH_RESULT = (
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         exact_match_results=gapic_evaluation_service_types.ExactMatchResults(
@@ -312,6 +352,26 @@ _MOCK_EXACT_MATCH_RESULT = (
         exact_match_results=gapic_evaluation_service_types.ExactMatchResults(
             exact_match_metric_values=[
                 gapic_evaluation_service_types.ExactMatchMetricValue(score=0.0),
+            ]
+        )
+    ),
+)
+_MOCK_TRAJECTORY_EXACT_MATCH_RESULT = (
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        trajectory_exact_match_results=gapic_evaluation_service_types_preview.TrajectoryExactMatchResults(
+            trajectory_exact_match_metric_values=[
+                gapic_evaluation_service_types_preview.TrajectoryExactMatchMetricValue(
+                    score=1.0
+                ),
+            ]
+        )
+    ),
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        trajectory_exact_match_results=gapic_evaluation_service_types_preview.TrajectoryExactMatchResults(
+            trajectory_exact_match_metric_values=[
+                gapic_evaluation_service_types_preview.TrajectoryExactMatchMetricValue(
+                    score=0.0
+                ),
             ]
         )
     ),
@@ -350,6 +410,18 @@ _MOCK_SUMMARIZATION_QUALITY_RESULT = (
     ),
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         pointwise_metric_result=gapic_evaluation_service_types.PointwiseMetricResult(
+            score=4, explanation="explanation"
+        )
+    ),
+)
+_MOCK_COHERENCE_RESULT = (
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pointwise_metric_result=gapic_evaluation_service_types_preview.PointwiseMetricResult(
+            score=5, explanation="explanation"
+        )
+    ),
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pointwise_metric_result=gapic_evaluation_service_types_preview.PointwiseMetricResult(
             score=4, explanation="explanation"
         )
     ),
@@ -1178,6 +1250,106 @@ class TestEvaluation:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestAgentEvaluation:
+    def setup_method(self):
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_runnable_response_eval_with_runnable_inference(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        mock_runnable = mock.create_autospec(reasoning_engines.Queryable, instance=True)
+        mock_runnable.query.return_value = _MOCK_RUNNABLE_INFERENCE_RESPONSE
+
+        test_metrics = [PointwisePreview.COHERENCE]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_AGENT_EVAL_DATASET_WITHOUT_RESPONSE, metrics=test_metrics
+        )
+        mock_metric_results = _MOCK_COHERENCE_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate(
+                runnable=mock_runnable,
+                prompt_template="test prompt template",
+            )
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert test_result.summary_metrics["coherence/mean"] == 4.5
+        assert test_result.summary_metrics["coherence/std"] == pytest.approx(0.7, 0.1)
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "prompt",
+                "reference_trajectory",
+                "response",
+                "latency_in_seconds",
+                "failure",
+                "predicted_trajectory",
+                "coherence/score",
+                "coherence/explanation",
+            ]
+        )
+        assert list(test_result.metrics_table["coherence/score"].values) == [5, 4]
+        assert list(test_result.metrics_table["coherence/explanation"].values) == [
+            "explanation",
+            "explanation",
+        ]
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_runnable_trajectory_eval_with_runnable_inference(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        mock_runnable = mock.create_autospec(reasoning_engines.Queryable, instance=True)
+        mock_runnable.query.return_value = _MOCK_RUNNABLE_INFERENCE_RESPONSE
+
+        test_metrics = ["trajectory_exact_match"]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_AGENT_EVAL_DATASET_WITHOUT_RESPONSE, metrics=test_metrics
+        )
+        mock_metric_results = _MOCK_TRAJECTORY_EXACT_MATCH_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ):
+            test_result = test_eval_task.evaluate(runnable=mock_runnable)
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert test_result.summary_metrics["trajectory_exact_match/mean"] == 0.5
+        assert test_result.summary_metrics[
+            "trajectory_exact_match/std"
+        ] == pytest.approx(0.7, 0.1)
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "prompt",
+                "response",
+                "latency_in_seconds",
+                "failure",
+                "predicted_trajectory",
+                "reference_trajectory",
+                "trajectory_exact_match/score",
+            ]
+        )
+        assert list(
+            test_result.metrics_table["trajectory_exact_match/score"].values
+        ) == [1.0, 0.0]
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEvaluationErrors:
     def setup_method(self):
         vertexai.init(
@@ -1376,11 +1548,10 @@ class TestEvaluationErrors:
         ):
             test_eval_task.evaluate()
 
-    def test_evaluate_response_column_not_provided(
-        self,
-    ):
+    @pytest.mark.parametrize("eval_task_version", [EvalTask, EvalTaskPreview])
+    def test_evaluate_response_column_not_provided(self, eval_task_version):
         test_eval_dataset = _TEST_EVAL_DATASET_SINGLE
-        test_eval_task = EvalTask(
+        test_eval_task = eval_task_version(
             dataset=test_eval_dataset,
             metrics=["exact_match"],
         )
@@ -1395,11 +1566,10 @@ class TestEvaluationErrors:
         ):
             test_eval_task.evaluate()
 
-    def test_evaluate_reference_column_not_provided(
-        self,
-    ):
+    @pytest.mark.parametrize("eval_task_version", [EvalTask, EvalTaskPreview])
+    def test_evaluate_reference_column_not_provided(self, eval_task_version):
         test_eval_dataset = pd.DataFrame({"response": ["test", "text"]})
-        test_eval_task = EvalTask(
+        test_eval_task = eval_task_version(
             dataset=test_eval_dataset,
             metrics=["exact_match"],
         )
