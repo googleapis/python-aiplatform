@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from vertexai.generative_models._prompts import (
+from vertexai.prompts._prompts import (
     Prompt,
 )
 
