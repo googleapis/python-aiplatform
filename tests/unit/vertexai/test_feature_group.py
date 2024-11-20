@@ -85,6 +85,13 @@ from feature_store_constants import (
     _TEST_FG1_FM1_LABELS,
     _TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
     _TEST_FG1_FM1_SCHEDULE_CONFIG,
+    _TEST_FG1_FM2_ID,
+    _TEST_FG1_FM2_PATH,
+    _TEST_FG1_FM2_DESCRIPTION,
+    _TEST_FG1_FM2_LABELS,
+    _TEST_FG1_FM2_FEATURE_SELECTION_CONFIGS,
+    _TEST_FG1_FM2_SCHEDULE_CONFIG,
+    _TEST_FG1_FM_LIST,
 )
 from test_feature import feature_eq
 from test_feature_monitor import feature_monitor_eq
@@ -180,6 +187,16 @@ def list_features_mock():
     ) as list_features_mock:
         list_features_mock.return_value = _TEST_FG1_FEATURE_LIST
         yield list_features_mock
+
+
+@pytest.fixture
+def list_feature_monitors_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "list_feature_monitors",
+    ) as list_feature_monitors_mock:
+        list_feature_monitors_mock.return_value = _TEST_FG1_FM_LIST
+        yield list_feature_monitors_mock
 
 
 @pytest.fixture()
@@ -928,4 +945,37 @@ def test_create_feature_monitor(
                 "my_fg1/featureMonitors/my_fg1_fm1')"
             ),
         ]
+    )
+
+
+def test_list_feature_monitors(get_fg_mock, list_feature_monitors_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    feature_monitors = FeatureGroup(_TEST_FG1_ID).list_feature_monitors()
+
+    list_feature_monitors_mock.assert_called_once_with(
+        request={"parent": _TEST_FG1_PATH}
+    )
+    assert len(feature_monitors) == len(_TEST_FG1_FM_LIST)
+    feature_monitor_eq(
+        feature_monitors[0],
+        name=_TEST_FG1_FM1_ID,
+        resource_name=_TEST_FG1_FM1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FM1_DESCRIPTION,
+        labels=_TEST_FG1_FM1_LABELS,
+        schedule_config=_TEST_FG1_FM1_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
+    )
+    feature_monitor_eq(
+        feature_monitors[1],
+        name=_TEST_FG1_FM2_ID,
+        resource_name=_TEST_FG1_FM2_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FM2_DESCRIPTION,
+        labels=_TEST_FG1_FM2_LABELS,
+        schedule_config=_TEST_FG1_FM2_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM2_FEATURE_SELECTION_CONFIGS,
     )

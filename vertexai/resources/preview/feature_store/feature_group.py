@@ -544,6 +544,36 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
 
         return feature_monitor_obj
 
+    def list_feature_monitors(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[FeatureMonitor]:
+        """Lists features monitors under this feature group.
+
+        Args:
+            project:
+                Project to list feature monitors in. If unset, the project set in
+                aiplatform.init will be used.
+            location:
+                Location to list feature monitors in. If not set, location set in
+                aiplatform.init will be used.
+            credentials:
+                Custom credentials to use to list feature monitors. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List of feature monitors under this feature group.
+        """
+
+        return FeatureMonitor.list(
+            parent=self.resource_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     @property
     def source(self) -> FeatureGroupBigQuerySource:
         return FeatureGroupBigQuerySource(
