@@ -416,3 +416,7 @@ VECTOR_SEARCH_INDEX_ENDPOINT_DISPLAY_NAME = "my-vector-search-index-endpoint"
 VECTOR_SEARCH_PRIVATE_ENDPOINT_SIGNED_JWT = "fake-signed-jwt"
 VECTOR_SEARCH_VPC_NETWORK = "vpc-network"
 VECTOR_SEARCH_PSC_PROJECT_ALLOWLIST = ["test-project", "test-project-2"]
+VECTOR_SEARCH_PSC_AUTOMATION_CONFIGS = [
+    ("test-project", "network1"),
+    ("test-project2", "network2"),
+]
