@@ -143,7 +143,7 @@ reasoning_engine_extra_require = [
     "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-trace < 2",
-    "pydantic >= 2.6.3, < 3",
+    "pydantic >= 2.6.3, < 2.10",
 ]
 
 evaluation_extra_require = [
