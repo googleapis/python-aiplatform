@@ -18,6 +18,7 @@
 
 from typing import List
 
+from google.cloud.aiplatform.utils import _ipython_utils
 from vertexai.evaluation import constants
 from vertexai.evaluation.metrics import (
     _default_templates,
@@ -98,6 +99,7 @@ class MetricPromptTemplateExamples:
     @classmethod
     def list_example_metric_names(cls) -> List[str]:
         """Returns a list of all metric prompt templates."""
+        _ipython_utils.display_browse_prebuilt_metrics_button()
         return list(cls._PROMPT_TEMPLATE_MAP.keys())
 
     class Pointwise:
