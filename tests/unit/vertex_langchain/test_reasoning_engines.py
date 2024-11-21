@@ -146,6 +146,7 @@ _TEST_EXTRA_PACKAGES_FILE = _reasoning_engines._EXTRA_PACKAGES_FILE
 _TEST_STANDARD_API_MODE = _reasoning_engines._STANDARD_API_MODE
 _TEST_MODE_KEY_IN_SCHEMA = _reasoning_engines._MODE_KEY_IN_SCHEMA
 _TEST_DEFAULT_METHOD_NAME = _reasoning_engines._DEFAULT_METHOD_NAME
+_TEST_DEFAULT_METHOD_DOCSTRING = _reasoning_engines._DEFAULT_METHOD_DOCSTRING
 _TEST_CUSTOM_METHOD_NAME = "custom_method"
 _TEST_QUERY_PROMPT = "Find the first fibonacci number greater than 999"
 _TEST_REASONING_ENGINE_GCS_URI = "{}/{}/{}".format(
@@ -411,13 +412,6 @@ def query_reasoning_engine_mock():
         )
         query_reasoning_engine_mock.return_value = api_client_mock
         yield query_reasoning_engine_mock
-
-
-@pytest.fixture(scope="module")
-def to_dict_mock():
-    with mock.patch.object(_utils, "to_dict") as to_dict_mock:
-        to_dict_mock.return_value = {}
-        yield to_dict_mock
 
 
 # Function scope is required for the pytest parameterized tests.
@@ -853,11 +847,35 @@ class TestReasoningEngine:
             name=test_reasoning_engine.resource_name,
         )
 
+    def test_query_after_create_reasoning_engine(
+        self,
+        get_reasoning_engine_mock,
+        query_reasoning_engine_mock,
+        get_gca_resource_mock,
+    ):
+        test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
+            self.test_app,
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
+        )
+        get_reasoning_engine_mock.assert_called_with(
+            name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+        with mock.patch.object(_utils, "to_dict") as to_dict_mock:
+            to_dict_mock.return_value = {}
+            test_reasoning_engine.query(query=_TEST_QUERY_PROMPT)
+            assert test_reasoning_engine.query.__doc__ == _TEST_DEFAULT_METHOD_DOCSTRING
+            query_reasoning_engine_mock.assert_called_with(
+                request=_TEST_REASONING_ENGINE_QUERY_REQUEST
+            )
+            to_dict_mock.assert_called_once()
+
     def test_query_reasoning_engine(
         self,
         get_reasoning_engine_mock,
         query_reasoning_engine_mock,
-        to_dict_mock,
         get_gca_resource_mock,
     ):
         test_reasoning_engine = reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
@@ -865,11 +883,13 @@ class TestReasoningEngine:
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
         )
-        test_reasoning_engine.query(query=_TEST_QUERY_PROMPT)
-        query_reasoning_engine_mock.assert_called_with(
-            request=_TEST_REASONING_ENGINE_QUERY_REQUEST
-        )
-        to_dict_mock.assert_called_once()
+        with mock.patch.object(_utils, "to_dict") as to_dict_mock:
+            to_dict_mock.return_value = {}
+            test_reasoning_engine.query(query=_TEST_QUERY_PROMPT)
+            query_reasoning_engine_mock.assert_called_with(
+                request=_TEST_REASONING_ENGINE_QUERY_REQUEST
+            )
+            to_dict_mock.assert_called_once()
 
     def test_operation_schemas(
         self,
