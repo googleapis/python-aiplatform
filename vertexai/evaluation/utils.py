@@ -18,9 +18,10 @@
 import functools
 import io
 import os
+import tempfile
 import threading
 import time
-from typing import Any, Dict, Optional, TYPE_CHECKING, Union, Callable
+from typing import Any, Dict, Optional, TYPE_CHECKING, Union, Callable, Literal
 
 from google.cloud import bigquery
 from google.cloud import storage
@@ -250,25 +251,56 @@ def _read_gcs_file_contents(filepath: str) -> str:
     return blob.download_as_string().decode("utf-8")
 
 
+def _upload_pandas_df_to_gcs(
+    df: "pd.DataFrame", upload_gcs_path: str, file_type: Literal["csv", "jsonl"]
+) -> None:
+    """Uploads the provided Pandas DataFrame to a GCS bucket.
+
+    Args:
+        df: The Pandas DataFrame to upload.
+        upload_gcs_path: The GCS path to upload the data file.
+        file_type: The file type of the data file.
+    """
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        if file_type == "csv":
+            local_dataset_path = os.path.join(temp_dir, "metrics_table.csv")
+            df.to_csv(path_or_buf=local_dataset_path)
+        elif file_type == "jsonl":
+            local_dataset_path = os.path.join(temp_dir, "metrics_table.jsonl")
+            df.to_json(path_or_buf=local_dataset_path, orient="records", lines=True)
+        else:
+            raise ValueError(
+                f"Unsupported file type: {file_type} from {upload_gcs_path}."
+                " Please provide a valid GCS path with `jsonl` or `csv` suffix."
+            )
+
+        storage_client = storage.Client(
+            project=initializer.global_config.project,
+            credentials=initializer.global_config.credentials,
+        )
+        storage.Blob.from_string(
+            uri=upload_gcs_path, client=storage_client
+        ).upload_from_filename(filename=local_dataset_path)
+
+
 def upload_evaluation_results(
     dataset: "pd.DataFrame", destination_uri_prefix: str, file_name: str
-):
-    """Uploads eval results to GCS CSV destination."""
-    supported_file_types = ["csv"]
+) -> None:
+    """Uploads eval results to GCS destination.
+
+    Args:
+        dataset: Pandas dataframe to upload.
+        destination_uri_prefix: GCS folder to store the data.
+        file_name: File name to store the data.
+    """
     if not destination_uri_prefix:
         return
     if destination_uri_prefix.startswith(_GCS_PREFIX):
         _, extension = os.path.splitext(file_name)
         file_type = extension.lower()[1:]
-        if file_type in supported_file_types:
-            output_path = destination_uri_prefix + "/" + file_name
-            utils.gcs_utils._upload_pandas_df_to_gcs(dataset, output_path)
-        else:
-            raise ValueError(
-                "Unsupported file type in the GCS destination URI:"
-                f" {file_name}, please provide a valid GCS"
-                f" file name with a file type in {supported_file_types}."
-            )
+        output_path = destination_uri_prefix + "/" + file_name
+        _upload_pandas_df_to_gcs(dataset, output_path, file_type)
     else:
         raise ValueError(
             f"Unsupported destination URI: {destination_uri_prefix}."
