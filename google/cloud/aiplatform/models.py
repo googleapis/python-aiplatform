@@ -5368,6 +5368,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             system_labels=system_labels,
         )
 
+    def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
+        """Check if dedicated endpoint should be enabled for this endpoint.
+
+        Returns True if endpoint should be a dedicated endpoint.
+        """
+        return fast_tryout_enabled
+
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
     def _deploy(
         self,
@@ -5548,6 +5555,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     location=self.location,
                     credentials=self.credentials,
                     encryption_spec_key_name=encryption_spec_key_name,
+                    dedicated_endpoint_enabled=self._should_enable_dedicated_endpoint(
+                        fast_tryout_enabled
+                    ),
                 )
             else:
                 endpoint = PrivateEndpoint.create(
