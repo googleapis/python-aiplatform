@@ -17,23 +17,89 @@
 
 import re
 from typing import Dict, List, Tuple
+from unittest import mock
+from unittest.mock import call, patch
 
+from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from feature_store_constants import _TEST_FG1_FM1_DESCRIPTION
-from feature_store_constants import _TEST_FG1_FM1_ID
-from feature_store_constants import _TEST_FG1_FM1_LABELS
-from feature_store_constants import _TEST_FG1_FM1_PATH
-from feature_store_constants import _TEST_FG1_ID
-from feature_store_constants import _TEST_LOCATION
-from feature_store_constants import _TEST_PROJECT
-from feature_store_constants import _TEST_FG1_FM1_SCHEDULE_CONFIG
-from feature_store_constants import _TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS
+
+from feature_store_constants import (
+    _TEST_PROJECT,
+    _TEST_LOCATION,
+    _TEST_FG1_ID,
+    _TEST_FG1_FM1_DESCRIPTION,
+    _TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
+    _TEST_FG1_FM1_ID,
+    _TEST_FG1_FM1_LABELS,
+    _TEST_FG1_FM1_PATH,
+    _TEST_FG1_FM1_SCHEDULE_CONFIG,
+    _TEST_FG1_FMJ1,
+    _TEST_FG1_FMJ1_DESCRIPTION,
+    _TEST_FG1_FMJ1_ID,
+    _TEST_FG1_FMJ1_LABELS,
+    _TEST_FG1_FMJ_LIST,
+    _TEST_FG1_FMJ1_PATH,
+    _TEST_FG1_FMJ2_DESCRIPTION,
+    _TEST_FG1_FMJ2_LABELS,
+    _TEST_FG1_FMJ2_PATH,
+)
 from vertexai.resources.preview import FeatureMonitor
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
+    FeatureRegistryServiceClient,
+)
+from google.cloud.aiplatform.compat import types
+from vertexai.resources.preview.feature_store import (
+    feature_monitor,
+)
 import pytest
 
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
+
+
+@pytest.fixture
+def fm_logger_mock():
+    with patch.object(
+        feature_monitor._LOGGER,
+        "info",
+        wraps=feature_monitor._LOGGER.info,
+    ) as logger_mock:
+        yield logger_mock
+
+
+@pytest.fixture
+def get_feature_monitor_job_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "get_feature_monitor_job",
+    ) as get_fmj_mock:
+        get_fmj_mock.return_value = _TEST_FG1_FMJ1
+        yield get_fmj_mock
+
+
+@pytest.fixture
+def create_feature_monitor_job_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "create_feature_monitor_job",
+    ) as create_feature_monitor_job_mock:
+        create_feature_monitor_job_lro_mock = mock.Mock(ga_operation.Operation)
+        create_feature_monitor_job_lro_mock.result.return_value = _TEST_FG1_FMJ1
+        create_feature_monitor_job_mock.return_value = (
+            create_feature_monitor_job_lro_mock
+        )
+        yield create_feature_monitor_job_mock
+
+
+@pytest.fixture
+def list_feature_monitor_jobs_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "list_feature_monitor_jobs",
+    ) as list_feature_monitor_jobs_mock:
+        list_feature_monitor_jobs_mock.return_value = _TEST_FG1_FMJ_LIST
+        yield list_feature_monitor_jobs_mock
 
 
 def feature_monitor_eq(
@@ -56,8 +122,27 @@ def feature_monitor_eq(
     assert feature_monitor_to_check.labels == labels
 
 
+def feature_monitor_job_eq(
+    feature_monitor_job_to_check: FeatureMonitor.FeatureMonitorJob,
+    resource_name: str,
+    project: str,
+    location: str,
+    description: str,
+    labels: Dict[str, str],
+):
+    """Check if a Feature Monitor Job has the appropriate values set."""
+    assert feature_monitor_job_to_check.resource_name == resource_name
+    assert feature_monitor_job_to_check.project == project
+    assert feature_monitor_job_to_check.location == location
+    assert feature_monitor_job_to_check.description == description
+    assert feature_monitor_job_to_check.labels == labels
+
+
 def test_init_with_feature_monitor_id_and_no_fg_id_raises_error():
-    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
 
     with pytest.raises(
         ValueError,
@@ -70,7 +155,10 @@ def test_init_with_feature_monitor_id_and_no_fg_id_raises_error():
 
 
 def test_init_with_feature_monitor_path_and_fg_id_raises_error():
-    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
 
     with pytest.raises(
         ValueError,
@@ -80,13 +168,22 @@ def test_init_with_feature_monitor_path_and_fg_id_raises_error():
             "path, feature_group_id should not be specified."
         ),
     ):
-        FeatureMonitor(_TEST_FG1_FM1_PATH, feature_group_id=_TEST_FG1_ID)
+        FeatureMonitor(
+            _TEST_FG1_FM1_PATH,
+            feature_group_id=_TEST_FG1_ID,
+        )
 
 
 def test_init_with_feature_monitor_id(get_feature_monitor_mock):
-    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
 
-    feature_monitor = FeatureMonitor(_TEST_FG1_FM1_ID, feature_group_id=_TEST_FG1_ID)
+    feature_monitor = FeatureMonitor(
+        _TEST_FG1_FM1_ID,
+        feature_group_id=_TEST_FG1_ID,
+    )
 
     get_feature_monitor_mock.assert_called_once_with(
         name=_TEST_FG1_FM1_PATH,
@@ -106,8 +203,11 @@ def test_init_with_feature_monitor_id(get_feature_monitor_mock):
     )
 
 
-def test_init_with_feature_path(get_feature_monitor_mock):
-    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+def test_init_with_feature_monitor_path(get_feature_monitor_mock):
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
 
     feature_monitor = FeatureMonitor(_TEST_FG1_FM1_PATH)
 
@@ -126,4 +226,156 @@ def test_init_with_feature_path(get_feature_monitor_mock):
         labels=_TEST_FG1_FM1_LABELS,
         schedule_config=_TEST_FG1_FM1_SCHEDULE_CONFIG,
         feature_selection_configs=_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
+    )
+
+
+def test_init_with_feature_monitor_job_path(get_feature_monitor_job_mock):
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
+
+    feature_monitor_job = FeatureMonitor.FeatureMonitorJob(_TEST_FG1_FMJ1_PATH)
+
+    get_feature_monitor_job_mock.assert_called_once_with(
+        name=_TEST_FG1_FMJ1_PATH,
+        retry=base._DEFAULT_RETRY,
+    )
+
+    feature_monitor_job_eq(
+        feature_monitor_job,
+        resource_name=_TEST_FG1_FMJ1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FMJ1_DESCRIPTION,
+        labels=_TEST_FG1_FMJ1_LABELS,
+    )
+
+
+@pytest.mark.parametrize("create_request_timeout", [None, 1.0])
+def test_create_feature_monitor_job(
+    get_feature_monitor_mock,
+    get_feature_monitor_job_mock,
+    create_feature_monitor_job_mock,
+    create_request_timeout,
+    fm_logger_mock,
+):
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
+
+    fm = FeatureMonitor(
+        _TEST_FG1_FM1_ID,
+        feature_group_id=_TEST_FG1_ID,
+    )
+    feature_monitor_job = fm.create_feature_monitor_job(
+        description=_TEST_FG1_FMJ1_DESCRIPTION,
+        labels=_TEST_FG1_FMJ1_LABELS,
+        create_request_timeout=create_request_timeout,
+    )
+
+    expected_feature_monitor_job = types.feature_monitor_job.FeatureMonitorJob(
+        description=_TEST_FG1_FMJ1_DESCRIPTION,
+        labels=_TEST_FG1_FMJ1_LABELS,
+    )
+    create_feature_monitor_job_mock.assert_called_once_with(
+        parent=_TEST_FG1_FM1_PATH,
+        feature_monitor_job=expected_feature_monitor_job,
+        metadata=(),
+        timeout=create_request_timeout,
+    )
+
+    feature_monitor_job_eq(
+        feature_monitor_job,
+        resource_name=_TEST_FG1_FMJ1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FMJ1_DESCRIPTION,
+        labels=_TEST_FG1_FMJ1_LABELS,
+    )
+
+    fm_logger_mock.assert_has_calls(
+        [
+            call("Creating FeatureMonitorJob"),
+            call(
+                f"Create FeatureMonitorJob backing LRO:"
+                f" {create_feature_monitor_job_mock.return_value.operation.name}"
+            ),
+            call(
+                "FeatureMonitorJob created. Resource name:"
+                " projects/test-project/locations/us-central1/featureGroups/"
+                "my_fg1/featureMonitors/my_fg1_fm1/featureMonitorJobs/1234567890"
+            ),
+            call("To use this FeatureMonitorJob in another session:"),
+            call(
+                "feature_monitor_job = aiplatform.FeatureMonitorJob("
+                "'projects/test-project/locations/us-central1/featureGroups/"
+                "my_fg1/featureMonitors/my_fg1_fm1/featureMonitorJobs/1234567890')"
+            ),
+        ]
+    )
+
+
+def test_get_feature_monitor_job(
+    get_feature_monitor_mock, get_feature_monitor_job_mock
+):
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
+
+    fm = FeatureMonitor(
+        _TEST_FG1_FM1_ID,
+        feature_group_id=_TEST_FG1_ID,
+    )
+    feature_monitor_job = fm.get_feature_monitor_job(_TEST_FG1_FMJ1_ID)
+
+    get_feature_monitor_job_mock.assert_called_once_with(
+        name=_TEST_FG1_FMJ1_PATH,
+        retry=base._DEFAULT_RETRY,
+    )
+
+    feature_monitor_job_eq(
+        feature_monitor_job,
+        resource_name=_TEST_FG1_FMJ1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FMJ1_DESCRIPTION,
+        labels=_TEST_FG1_FMJ1_LABELS,
+    )
+
+
+def test_list_feature_monitors_jobs(
+    get_feature_monitor_mock, list_feature_monitor_jobs_mock
+):
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+    )
+
+    feature_monitor_jobs = FeatureMonitor(
+        _TEST_FG1_FM1_ID,
+        feature_group_id=_TEST_FG1_ID,
+    ).list_feature_monitor_jobs()
+
+    list_feature_monitor_jobs_mock.assert_called_once_with(
+        request={"parent": _TEST_FG1_FM1_PATH}
+    )
+    assert len(feature_monitor_jobs) == len(_TEST_FG1_FMJ_LIST)
+    feature_monitor_job_eq(
+        feature_monitor_jobs[0],
+        resource_name=_TEST_FG1_FMJ1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FMJ1_DESCRIPTION,
+        labels=_TEST_FG1_FMJ1_LABELS,
+    )
+    feature_monitor_job_eq(
+        feature_monitor_jobs[1],
+        resource_name=_TEST_FG1_FMJ2_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FMJ2_DESCRIPTION,
+        labels=_TEST_FG1_FMJ2_LABELS,
     )

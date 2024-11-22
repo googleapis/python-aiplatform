@@ -416,3 +416,23 @@ _TEST_FG1_FM2 = types.feature_monitor.FeatureMonitor(
     ),
 )
 _TEST_FG1_FM_LIST = [_TEST_FG1_FM1, _TEST_FG1_FM2]
+
+_TEST_FG1_FMJ1_ID = "1234567890"
+_TEST_FG1_FMJ1_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/featureMonitors/{_TEST_FG1_FM1_ID}/featureMonitorJobs/{_TEST_FG1_FMJ1_ID}"
+_TEST_FG1_FMJ1_DESCRIPTION = "My feature monitor job 1 in feature monitor 1"
+_TEST_FG1_FMJ1_LABELS = {"my_fg1_feature_monitor_job": "fmj1"}
+_TEST_FG1_FMJ1 = types.feature_monitor_job.FeatureMonitorJob(
+    name=_TEST_FG1_FMJ1_PATH,
+    description=_TEST_FG1_FMJ1_DESCRIPTION,
+    labels=_TEST_FG1_FMJ1_LABELS,
+)
+_TEST_FG1_FMJ2_ID = "1234567891"
+_TEST_FG1_FMJ2_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/featureMonitors/{_TEST_FG1_FM1_ID}/featureMonitorJobs/{_TEST_FG1_FMJ2_ID}"
+_TEST_FG1_FMJ2_DESCRIPTION = "My feature monitor job 2 in feature monitor 1"
+_TEST_FG1_FMJ2_LABELS = {"my_fg1_feature_monitor_job": "fmj2"}
+_TEST_FG1_FMJ2 = types.feature_monitor_job.FeatureMonitorJob(
+    name=_TEST_FG1_FMJ2_PATH,
+    description=_TEST_FG1_FMJ2_DESCRIPTION,
+    labels=_TEST_FG1_FMJ2_LABELS,
+)
+_TEST_FG1_FMJ_LIST = [_TEST_FG1_FMJ1, _TEST_FG1_FMJ2]
