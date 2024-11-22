@@ -94,7 +94,9 @@ from feature_store_constants import (
     _TEST_FG1_FM_LIST,
 )
 from test_feature import feature_eq
-from test_feature_monitor import feature_monitor_eq
+from test_feature_monitor import (
+    feature_monitor_eq,
+)
 
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
@@ -948,7 +950,9 @@ def test_create_feature_monitor(
     )
 
 
-def test_list_feature_monitors(get_fg_mock, list_feature_monitors_mock):
+def test_list_feature_monitors(
+    get_fg_mock, get_feature_monitor_mock, list_feature_monitors_mock
+):
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     feature_monitors = FeatureGroup(_TEST_FG1_ID).list_feature_monitors()

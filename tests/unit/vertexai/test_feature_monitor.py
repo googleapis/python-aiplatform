@@ -120,6 +120,10 @@ def feature_monitor_eq(
     assert feature_monitor_to_check.location == location
     assert feature_monitor_to_check.description == description
     assert feature_monitor_to_check.labels == labels
+    assert feature_monitor_to_check.schedule_config == schedule_config
+    assert (
+        feature_monitor_to_check.feature_selection_configs == feature_selection_configs
+    )
 
 
 def feature_monitor_job_eq(
