@@ -123,6 +123,7 @@ ray_extra_require = [
 
 genai_requires = (
     "pydantic < 3",
+    "typing_extensions > 4.6.0",
     "docstring_parser < 1",
 )
 

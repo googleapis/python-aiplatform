@@ -38,6 +38,7 @@ from typing import (
     overload,
     TYPE_CHECKING,
 )
+from typing_extensions import TypeAliasType
 
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform import utils as aiplatform_utils
@@ -85,36 +86,49 @@ SafetyRating = gapic_content_types.SafetyRating
 
 
 # These type defnitions are expanded to help the user see all the types
-PartsType = Union[
-    str,
-    "Image",
-    "Part",
-    List[Union[str, "Image", "Part"]],
-]
+PartsType = TypeAliasType(
+    "PartsType",
+    Union[
+        str,
+        "Image",
+        "Part",
+        List[Union[str, "Image", "Part"]],
+    ],
+)
+
 
 ContentDict = Dict[str, Any]
-ContentsType = Union[
-    List["Content"],
-    List[ContentDict],
-    str,
-    "Image",
-    "Part",
-    List[Union[str, "Image", "Part"]],
-]
+ContentsType = TypeAliasType(
+    "ContentsType",
+    Union[
+        List["Content"],
+        List[ContentDict],
+        str,
+        "Image",
+        "Part",
+        List[Union[str, "Image", "Part"]],
+    ],
+)
 
 GenerationConfigDict = Dict[str, Any]
-GenerationConfigType = Union[
-    "GenerationConfig",
-    GenerationConfigDict,
-]
-
-SafetySettingsType = Union[
-    List["SafetySetting"],
-    Dict[
-        gapic_content_types.HarmCategory,
-        gapic_content_types.SafetySetting.HarmBlockThreshold,
+GenerationConfigType = TypeAliasType(
+    "GenerationConfigType",
+    Union[
+        "GenerationConfig",
+        GenerationConfigDict,
     ],
-]
+)
+
+SafetySettingsType = TypeAliasType(
+    "SafetySettingsType",
+    Union[
+        List["SafetySetting"],
+        Dict[
+            gapic_content_types.HarmCategory,
+            gapic_content_types.SafetySetting.HarmBlockThreshold,
+        ],
+    ],
+)
 
 
 def _reconcile_model_name(model_name: str, project: str, location: str) -> str:
