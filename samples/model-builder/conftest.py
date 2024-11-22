@@ -16,6 +16,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1
 import vertexai
 from vertexai.resources import preview as preview_resources
 import pytest
@@ -365,6 +366,34 @@ def mock_run_custom_container_training_job(mock_custom_container_training_job):
 @pytest.fixture
 def mock_run_custom_package_training_job(mock_custom_package_training_job):
     with patch.object(mock_custom_package_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_job_service_client_v1beta1():
+    mock = MagicMock(aiplatform_v1beta1.JobServiceClient)
+    yield mock
+
+
+@pytest.fixture
+def mock_get_job_service_client_v1beta1(mock_job_service_client_v1beta1):
+    with patch.object(aiplatform_v1beta1, "JobServiceClient") as mock:
+        mock.return_value = mock_job_service_client_v1beta1
+        yield mock
+
+
+@pytest.fixture
+def mock_create_custom_job_v1beta1(mock_job_service_client_v1beta1):
+    with patch.object(
+        mock_job_service_client_v1beta1, "create_custom_job"
+    ) as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_get_create_custom_job_request_v1beta1():
+    with patch.object(aiplatform_v1beta1, "CreateCustomJobRequest") as mock:
+        mock.return_value = mock_custom_job
         yield mock
 
 
