@@ -25,7 +25,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform_v1beta1.types import persistent_resource_service
-
+from google.cloud.aiplatform_v1beta1.types.machine_resources import NfsMount
 from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     PersistentResource,
     RayLogsSpec,
@@ -64,6 +64,7 @@ def create_ray_cluster(
     enable_logging: Optional[bool] = True,
     psc_interface_config: Optional[resources.PscIConfig] = None,
     reserved_ip_ranges: Optional[List[str]] = None,
+    nfs_mounts: Optional[List[resources.NfsMount]] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> str:
     """Create a ray cluster on the Vertex AI.
@@ -312,6 +313,17 @@ def create_ray_cluster(
         ray_metric_spec=ray_metric_spec,
         ray_logs_spec=ray_logs_spec,
     )
+    if nfs_mounts:
+        gapic_nfs_mounts = []
+        for nfs_mount in nfs_mounts:
+            gapic_nfs_mounts.append(
+                NfsMount(
+                    server=nfs_mount.server,
+                    path=nfs_mount.path,
+                    mount_point=nfs_mount.mount_point,
+                )
+            )
+        ray_spec.nfs_mounts = gapic_nfs_mounts
     if service_account:
         service_account_spec = ServiceAccountSpec(
             enable_custom_service_account=True,
@@ -329,6 +341,7 @@ def create_ray_cluster(
         )
     else:
         gapic_psc_interface_config = None
+
     persistent_resource = PersistentResource(
         resource_pools=resource_pools,
         network=network,
