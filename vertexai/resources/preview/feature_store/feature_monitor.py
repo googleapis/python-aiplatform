@@ -127,7 +127,9 @@ class FeatureMonitor(base.VertexAiResourceNounWithFutureManager):
             configs.append(
                 (
                     feature_config.feature_id,
-                    feature_config.threshold if feature_config.threshold else 0.3,
+                    feature_config.drift_threshold
+                    if feature_config.drift_threshold
+                    else 0.3,
                 )
             )
         return configs
