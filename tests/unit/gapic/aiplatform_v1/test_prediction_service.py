@@ -11392,8 +11392,34 @@ def test_parse_model_path():
     assert expected == actual
 
 
+def test_rag_corpus_path():
+    project = "squid"
+    location = "clam"
+    rag_corpus = "whelk"
+    expected = "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
+        project=project,
+        location=location,
+        rag_corpus=rag_corpus,
+    )
+    actual = PredictionServiceClient.rag_corpus_path(project, location, rag_corpus)
+    assert expected == actual
+
+
+def test_parse_rag_corpus_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "rag_corpus": "nudibranch",
+    }
+    path = PredictionServiceClient.rag_corpus_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PredictionServiceClient.parse_rag_corpus_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "squid"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -11403,7 +11429,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+        "billing_account": "mussel",
     }
     path = PredictionServiceClient.common_billing_account_path(**expected)
 
@@ -11413,7 +11439,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "whelk"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -11423,7 +11449,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+        "folder": "nautilus",
     }
     path = PredictionServiceClient.common_folder_path(**expected)
 
@@ -11433,7 +11459,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "oyster"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -11443,7 +11469,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+        "organization": "abalone",
     }
     path = PredictionServiceClient.common_organization_path(**expected)
 
@@ -11453,7 +11479,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "cuttlefish"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -11463,7 +11489,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+        "project": "clam",
     }
     path = PredictionServiceClient.common_project_path(**expected)
 
@@ -11473,8 +11499,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "winkle"
-    location = "nautilus"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -11485,8 +11511,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = PredictionServiceClient.common_location_path(**expected)
 

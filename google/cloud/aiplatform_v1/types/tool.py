@@ -31,11 +31,13 @@ __protobuf__ = proto.module(
         "FunctionCall",
         "FunctionResponse",
         "Retrieval",
+        "VertexRagStore",
         "VertexAISearch",
         "GoogleSearchRetrieval",
         "DynamicRetrievalConfig",
         "ToolConfig",
         "FunctionCallingConfig",
+        "RagRetrievalConfig",
     },
 )
 
@@ -221,6 +223,10 @@ class Retrieval(proto.Message):
     r"""Defines a retrieval tool that model can call to access
     external knowledge.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -228,6 +234,12 @@ class Retrieval(proto.Message):
         vertex_ai_search (google.cloud.aiplatform_v1.types.VertexAISearch):
             Set to use data source powered by Vertex AI
             Search.
+
+            This field is a member of `oneof`_ ``source``.
+        vertex_rag_store (google.cloud.aiplatform_v1.types.VertexRagStore):
+            Set to use data source powered by Vertex RAG
+            store. User data is uploaded via the
+            VertexRagDataService.
 
             This field is a member of `oneof`_ ``source``.
         disable_attribution (bool):
@@ -241,9 +253,85 @@ class Retrieval(proto.Message):
         oneof="source",
         message="VertexAISearch",
     )
+    vertex_rag_store: "VertexRagStore" = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="source",
+        message="VertexRagStore",
+    )
     disable_attribution: bool = proto.Field(
         proto.BOOL,
         number=3,
+    )
+
+
+class VertexRagStore(proto.Message):
+    r"""Retrieve from Vertex RAG Store for grounding.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        rag_resources (MutableSequence[google.cloud.aiplatform_v1.types.VertexRagStore.RagResource]):
+            Optional. The representation of the rag
+            source. It can be used to specify corpus only or
+            ragfiles. Currently only support one corpus or
+            multiple files from one corpus. In the future we
+            may open up multiple corpora support.
+        similarity_top_k (int):
+            Optional. Number of top k results to return
+            from the selected corpora.
+
+            This field is a member of `oneof`_ ``_similarity_top_k``.
+        vector_distance_threshold (float):
+            Optional. Only return results with vector
+            distance smaller than the threshold.
+
+            This field is a member of `oneof`_ ``_vector_distance_threshold``.
+        rag_retrieval_config (google.cloud.aiplatform_v1.types.RagRetrievalConfig):
+            Optional. The retrieval config for the Rag
+            query.
+    """
+
+    class RagResource(proto.Message):
+        r"""The definition of the Rag resource.
+
+        Attributes:
+            rag_corpus (str):
+                Optional. RagCorpora resource name. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            rag_file_ids (MutableSequence[str]):
+                Optional. rag_file_id. The files should be in the same
+                rag_corpus set in rag_corpus field.
+        """
+
+        rag_corpus: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        rag_file_ids: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
+
+    rag_resources: MutableSequence[RagResource] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=RagResource,
+    )
+    similarity_top_k: int = proto.Field(
+        proto.INT32,
+        number=2,
+        optional=True,
+    )
+    vector_distance_threshold: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
+        optional=True,
+    )
+    rag_retrieval_config: "RagRetrievalConfig" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message="RagRetrievalConfig",
     )
 
 
@@ -387,6 +475,67 @@ class FunctionCallingConfig(proto.Message):
     allowed_function_names: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+
+
+class RagRetrievalConfig(proto.Message):
+    r"""Specifies the context retrieval config.
+
+    Attributes:
+        top_k (int):
+            Optional. The number of contexts to retrieve.
+        filter (google.cloud.aiplatform_v1.types.RagRetrievalConfig.Filter):
+            Optional. Config for filters.
+    """
+
+    class Filter(proto.Message):
+        r"""Config for filters.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            vector_distance_threshold (float):
+                Optional. Only returns contexts with vector
+                distance smaller than the threshold.
+
+                This field is a member of `oneof`_ ``vector_db_threshold``.
+            vector_similarity_threshold (float):
+                Optional. Only returns contexts with vector
+                similarity larger than the threshold.
+
+                This field is a member of `oneof`_ ``vector_db_threshold``.
+            metadata_filter (str):
+                Optional. String for metadata filtering.
+        """
+
+        vector_distance_threshold: float = proto.Field(
+            proto.DOUBLE,
+            number=3,
+            oneof="vector_db_threshold",
+        )
+        vector_similarity_threshold: float = proto.Field(
+            proto.DOUBLE,
+            number=4,
+            oneof="vector_db_threshold",
+        )
+        metadata_filter: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    top_k: int = proto.Field(
+        proto.INT32,
+        number=1,
+    )
+    filter: Filter = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=Filter,
     )
 
 
