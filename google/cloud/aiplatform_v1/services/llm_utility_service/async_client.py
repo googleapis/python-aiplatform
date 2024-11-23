@@ -69,6 +69,8 @@ class LlmUtilityServiceAsyncClient:
 
     endpoint_path = staticmethod(LlmUtilityServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(LlmUtilityServiceClient.parse_endpoint_path)
+    rag_corpus_path = staticmethod(LlmUtilityServiceClient.rag_corpus_path)
+    parse_rag_corpus_path = staticmethod(LlmUtilityServiceClient.parse_rag_corpus_path)
     common_billing_account_path = staticmethod(
         LlmUtilityServiceClient.common_billing_account_path
     )

@@ -224,6 +224,28 @@ class LlmUtilityServiceClient(metaclass=LlmUtilityServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def rag_corpus_path(
+        project: str,
+        location: str,
+        rag_corpus: str,
+    ) -> str:
+        """Returns a fully-qualified rag_corpus string."""
+        return "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
+            project=project,
+            location=location,
+            rag_corpus=rag_corpus,
+        )
+
+    @staticmethod
+    def parse_rag_corpus_path(path: str) -> Dict[str, str]:
+        """Parses a rag_corpus path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/ragCorpora/(?P<rag_corpus>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(
         billing_account: str,
     ) -> str:

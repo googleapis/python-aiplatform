@@ -783,6 +783,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         request_response_logging_sampling_rate: Optional[float] = None,
         request_response_logging_bq_destination_table: Optional[str] = None,
         dedicated_endpoint_enabled=False,
+        inference_timeout: Optional[int] = None,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -854,6 +855,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. If enabled, a dedicated dns will be created and your
                 traffic will be fully isolated from other customers' traffic and
                 latency will be reduced.
+            inference_timeout (int):
+                Optional. It defines the prediction timeout, in seconds, for online predictions using cloud-based endpoints. This applies to either PSC endpoints, when private_service_connect_config is set, or dedicated endpoints, when dedicated_endpoint_enabled is true.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -882,6 +885,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     ),
                 )
             )
+
+        client_connection_config = None
+        if (
+            inference_timeout is not None
+            and inference_timeout > 0
+            and dedicated_endpoint_enabled
+        ):
+            client_connection_config = gca_endpoint_compat.ClientConnectionConfig(
+                inference_timeout=duration_pb2.Duration(seconds=inference_timeout)
+            )
+
         return cls._create(
             api_client=api_client,
             display_name=display_name,
@@ -899,6 +913,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             endpoint_id=endpoint_id,
             predict_request_response_logging_config=predict_request_response_logging_config,
             dedicated_endpoint_enabled=dedicated_endpoint_enabled,
+            client_connection_config=client_connection_config,
         )
 
     @classmethod
@@ -925,6 +940,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             gca_service_networking.PrivateServiceConnectConfig
         ] = None,
         dedicated_endpoint_enabled=False,
+        client_connection_config: Optional[
+            gca_endpoint_compat.ClientConnectionConfig
+        ] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -995,6 +1013,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. If enabled, a dedicated dns will be created and your
                 traffic will be fully isolated from other customers' traffic and
                 latency will be reduced.
+            client_connection_config (aiplatform.endpoint.ClientConnectionConfig):
+                Optional. The inference timeout which is applied on cloud-based (PSC, or dedicated) endpoints for online prediction.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -1014,6 +1034,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             predict_request_response_logging_config=predict_request_response_logging_config,
             private_service_connect_config=private_service_connect_config,
             dedicated_endpoint_enabled=dedicated_endpoint_enabled,
+            client_connection_config=client_connection_config,
         )
 
         operation_future = api_client.create_endpoint(
@@ -3253,6 +3274,7 @@ class PrivateEndpoint(Endpoint):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
         private_service_connect_config: Optional[PrivateServiceConnectConfig] = None,
+        inference_timeout: Optional[int] = None,
     ) -> "PrivateEndpoint":
         """Creates a new PrivateEndpoint.
 
@@ -3338,6 +3360,8 @@ class PrivateEndpoint(Endpoint):
             private_service_connect_config (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig):
                 [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect) configuration for the endpoint.
                 Cannot be set when network is specified.
+            inference_timeout (int):
+                Optional. It defines the prediction timeout, in seconds, for online predictions using cloud-based endpoints. This applies to either PSC endpoints, when private_service_connect_config is set, or dedicated endpoints, when dedicated_endpoint_enabled is true.
 
         Returns:
             endpoint (aiplatform.PrivateEndpoint):
@@ -3374,6 +3398,12 @@ class PrivateEndpoint(Endpoint):
                 private_service_connect_config._gapic_private_service_connect_config
             )
 
+        client_connection_config = None
+        if private_service_connect_config and inference_timeout:
+            client_connection_config = gca_endpoint_compat.ClientConnectionConfig(
+                inference_timeout=duration_pb2.Duration(seconds=inference_timeout)
+            )
+
         return cls._create(
             api_client=api_client,
             display_name=display_name,
@@ -3388,6 +3418,7 @@ class PrivateEndpoint(Endpoint):
             network=network,
             sync=sync,
             private_service_connect_config=config,
+            client_connection_config=client_connection_config,
         )
 
     @classmethod
@@ -5368,6 +5399,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             system_labels=system_labels,
         )
 
+    def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
+        """Check if dedicated endpoint should be enabled for this endpoint.
+
+        Returns True if endpoint should be a dedicated endpoint.
+        """
+        return fast_tryout_enabled
+
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
     def _deploy(
         self,
@@ -5548,6 +5586,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     location=self.location,
                     credentials=self.credentials,
                     encryption_spec_key_name=encryption_spec_key_name,
+                    dedicated_endpoint_enabled=self._should_enable_dedicated_endpoint(
+                        fast_tryout_enabled
+                    ),
                 )
             else:
                 endpoint = PrivateEndpoint.create(

@@ -557,6 +557,20 @@ def get_endpoint_mock():
 
 
 @pytest.fixture
+def create_endpoint_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "create_endpoint"
+    ) as create_endpoint_mock:
+        create_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
+        create_endpoint_lro_mock.result.return_value = gca_endpoint.Endpoint(
+            name=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
+            display_name=test_constants.EndpointConstants._TEST_DISPLAY_NAME,
+        )
+        create_endpoint_mock.return_value = create_endpoint_lro_mock
+        yield create_endpoint_mock
+
+
+@pytest.fixture
 def get_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
@@ -2531,7 +2545,7 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_preview_deploy_with_fast_tryout_enabled(
-        self, preview_deploy_model_mock, sync
+        self, preview_deploy_model_mock, create_endpoint_mock, sync
     ):
         test_model = models.Model(_TEST_ID).preview
         test_model._gca_resource.supported_deployment_resources_types.append(
@@ -2550,6 +2564,19 @@ class TestModel:
 
         if not sync:
             test_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_MODEL_NAME + "_endpoint",
+            dedicated_endpoint_enabled=True,
+        )
+
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
 
         expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
             machine_type=_TEST_MACHINE_TYPE,
@@ -2583,7 +2610,9 @@ class TestModel:
         "get_endpoint_mock",
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_with_fast_tryout_enabled(self, deploy_model_mock, sync):
+    def test_deploy_with_fast_tryout_enabled(
+        self, deploy_model_mock, create_endpoint_mock, sync
+    ):
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
@@ -2601,6 +2630,19 @@ class TestModel:
 
         if not sync:
             test_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_MODEL_NAME + "_endpoint",
+            dedicated_endpoint_enabled=True,
+        )
+
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
 
         expected_machine_spec = gca_machine_resources.MachineSpec(
             machine_type=_TEST_MACHINE_TYPE,
