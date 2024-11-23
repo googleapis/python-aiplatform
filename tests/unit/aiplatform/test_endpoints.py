@@ -21,6 +21,7 @@ from importlib import reload
 import json
 import requests
 from unittest import mock
+from google.protobuf import duration_pb2
 
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
@@ -267,6 +268,11 @@ _TEST_REQUEST_RESPONSE_LOGGING_CONFIG = (
             output_uri=_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST
         ),
     )
+)
+
+_TEST_INFERENCE_TIMEOUT = 100
+_TEST_CLIENT_CONNECTION_CONFIG = gca_endpoint.ClientConnectionConfig(
+    inference_timeout=duration_pb2.Duration(seconds=_TEST_INFERENCE_TIMEOUT)
 )
 
 """
@@ -1250,6 +1256,34 @@ class TestEndpoint:
             dedicated_endpoint_enabled=True,
         )
 
+        create_dedicated_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dedicated_endpoint_with_timeout(
+        self, create_dedicated_endpoint_mock, sync
+    ):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            dedicated_endpoint_enabled=True,
+            sync=sync,
+            inference_timeout=_TEST_INFERENCE_TIMEOUT,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            dedicated_endpoint_enabled=True,
+            client_connection_config=_TEST_CLIENT_CONNECTION_CONFIG,
+        )
         create_dedicated_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             endpoint=expected_endpoint,
@@ -3431,6 +3465,39 @@ class TestPrivateEndpoint:
                 enable_private_service_connect=True,
                 project_allowlist=_TEST_PROJECT_ALLOWLIST,
             ),
+        )
+
+        create_psc_private_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_psc_with_timeout(self, create_psc_private_endpoint_mock, sync):
+        test_endpoint = models.PrivateEndpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            private_service_connect_config=models.PrivateEndpoint.PrivateServiceConnectConfig(
+                project_allowlist=_TEST_PROJECT_ALLOWLIST
+            ),
+            sync=sync,
+            inference_timeout=_TEST_INFERENCE_TIMEOUT,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
+            ),
+            client_connection_config=_TEST_CLIENT_CONNECTION_CONFIG,
         )
 
         create_psc_private_endpoint_mock.assert_called_once_with(
