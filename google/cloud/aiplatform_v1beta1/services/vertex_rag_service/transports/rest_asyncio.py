@@ -83,6 +83,22 @@ class AsyncVertexRagServiceRestInterceptor:
 
     .. code-block:: python
         class MyCustomVertexRagServiceInterceptor(VertexRagServiceRestInterceptor):
+            async def pre_augment_prompt(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_augment_prompt(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            async def pre_corroborate_content(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_corroborate_content(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             async def pre_retrieve_contexts(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -96,6 +112,52 @@ class AsyncVertexRagServiceRestInterceptor:
 
 
     """
+
+    async def pre_augment_prompt(
+        self,
+        request: vertex_rag_service.AugmentPromptRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vertex_rag_service.AugmentPromptRequest, Sequence[Tuple[str, str]]]:
+        """Pre-rpc interceptor for augment_prompt
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the VertexRagService server.
+        """
+        return request, metadata
+
+    async def post_augment_prompt(
+        self, response: vertex_rag_service.AugmentPromptResponse
+    ) -> vertex_rag_service.AugmentPromptResponse:
+        """Post-rpc interceptor for augment_prompt
+
+        Override in a subclass to manipulate the response
+        after it is returned by the VertexRagService server but before
+        it is returned to user code.
+        """
+        return response
+
+    async def pre_corroborate_content(
+        self,
+        request: vertex_rag_service.CorroborateContentRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vertex_rag_service.CorroborateContentRequest, Sequence[Tuple[str, str]]]:
+        """Pre-rpc interceptor for corroborate_content
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the VertexRagService server.
+        """
+        return request, metadata
+
+    async def post_corroborate_content(
+        self, response: vertex_rag_service.CorroborateContentResponse
+    ) -> vertex_rag_service.CorroborateContentResponse:
+        """Post-rpc interceptor for corroborate_content
+
+        Override in a subclass to manipulate the response
+        after it is returned by the VertexRagService server but before
+        it is returned to user code.
+        """
+        return response
 
     async def pre_retrieve_contexts(
         self,
@@ -416,6 +478,16 @@ class AsyncVertexRagServiceRestTransport(_BaseVertexRagServiceRestTransport):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.augment_prompt: self._wrap_method(
+                self.augment_prompt,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.corroborate_content: self._wrap_method(
+                self.corroborate_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: self._wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -472,6 +544,219 @@ class AsyncVertexRagServiceRestTransport(_BaseVertexRagServiceRestTransport):
         if self._wrap_with_kind:  # pragma: NO COVER
             kwargs["kind"] = self.kind
         return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
+
+    class _AugmentPrompt(
+        _BaseVertexRagServiceRestTransport._BaseAugmentPrompt,
+        AsyncVertexRagServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncVertexRagServiceRestTransport.AugmentPrompt")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: vertex_rag_service.AugmentPromptRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> vertex_rag_service.AugmentPromptResponse:
+            r"""Call the augment prompt method over HTTP.
+
+            Args:
+                request (~.vertex_rag_service.AugmentPromptRequest):
+                    The request object. Request message for AugmentPrompt.
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.vertex_rag_service.AugmentPromptResponse:
+                    Response message for AugmentPrompt.
+            """
+
+            http_options = (
+                _BaseVertexRagServiceRestTransport._BaseAugmentPrompt._get_http_options()
+            )
+            request, metadata = await self._interceptor.pre_augment_prompt(
+                request, metadata
+            )
+            transcoded_request = _BaseVertexRagServiceRestTransport._BaseAugmentPrompt._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseVertexRagServiceRestTransport._BaseAugmentPrompt._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseVertexRagServiceRestTransport._BaseAugmentPrompt._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                await AsyncVertexRagServiceRestTransport._AugmentPrompt._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = vertex_rag_service.AugmentPromptResponse()
+            pb_resp = vertex_rag_service.AugmentPromptResponse.pb(resp)
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_augment_prompt(resp)
+            return resp
+
+    class _CorroborateContent(
+        _BaseVertexRagServiceRestTransport._BaseCorroborateContent,
+        AsyncVertexRagServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncVertexRagServiceRestTransport.CorroborateContent")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: vertex_rag_service.CorroborateContentRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> vertex_rag_service.CorroborateContentResponse:
+            r"""Call the corroborate content method over HTTP.
+
+            Args:
+                request (~.vertex_rag_service.CorroborateContentRequest):
+                    The request object. Request message for
+                CorroborateContent.
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.vertex_rag_service.CorroborateContentResponse:
+                    Response message for
+                CorroborateContent.
+
+            """
+
+            http_options = (
+                _BaseVertexRagServiceRestTransport._BaseCorroborateContent._get_http_options()
+            )
+            request, metadata = await self._interceptor.pre_corroborate_content(
+                request, metadata
+            )
+            transcoded_request = _BaseVertexRagServiceRestTransport._BaseCorroborateContent._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseVertexRagServiceRestTransport._BaseCorroborateContent._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseVertexRagServiceRestTransport._BaseCorroborateContent._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = await AsyncVertexRagServiceRestTransport._CorroborateContent._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = vertex_rag_service.CorroborateContentResponse()
+            pb_resp = vertex_rag_service.CorroborateContentResponse.pb(resp)
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_corroborate_content(resp)
+            return resp
 
     class _RetrieveContexts(
         _BaseVertexRagServiceRestTransport._BaseRetrieveContexts,
@@ -579,6 +864,24 @@ class AsyncVertexRagServiceRestTransport(_BaseVertexRagServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_retrieve_contexts(resp)
             return resp
+
+    @property
+    def augment_prompt(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AugmentPromptRequest],
+        vertex_rag_service.AugmentPromptResponse,
+    ]:
+        return self._AugmentPrompt(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def corroborate_content(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.CorroborateContentRequest],
+        vertex_rag_service.CorroborateContentResponse,
+    ]:
+        return self._CorroborateContent(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def retrieve_contexts(

@@ -30,10 +30,12 @@ __protobuf__ = proto.module(
         "RagEmbeddingModelConfig",
         "RagVectorDbConfig",
         "FileStatus",
+        "VertexAiSearchConfig",
         "CorpusStatus",
         "RagCorpus",
         "RagFile",
         "RagFileChunkingConfig",
+        "RagFileTransformationConfig",
         "RagFileParsingConfig",
         "UploadRagFileConfig",
         "ImportRagFilesConfig",
@@ -236,6 +238,9 @@ class RagVectorDbConfig(proto.Message):
         api_auth (google.cloud.aiplatform_v1beta1.types.ApiAuth):
             Authentication config for the chosen Vector
             DB.
+        rag_embedding_model_config (google.cloud.aiplatform_v1beta1.types.RagEmbeddingModelConfig):
+            Optional. Immutable. The embedding model
+            config of the Vector DB.
     """
 
     class RagManagedDb(proto.Message):
@@ -348,6 +353,11 @@ class RagVectorDbConfig(proto.Message):
         number=5,
         message=gca_api_auth.ApiAuth,
     )
+    rag_embedding_model_config: "RagEmbeddingModelConfig" = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message="RagEmbeddingModelConfig",
+    )
 
 
 class FileStatus(proto.Message):
@@ -385,6 +395,24 @@ class FileStatus(proto.Message):
     error_status: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class VertexAiSearchConfig(proto.Message):
+    r"""Config for the Vertex AI Search.
+
+    Attributes:
+        serving_config (str):
+            Vertex AI Search Serving Config resource full name. For
+            example,
+            ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
+            or
+            ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}``.
+    """
+
+    serving_config: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 
@@ -434,6 +462,13 @@ class RagCorpus(proto.Message):
     r"""A RagCorpus is a RagFile container and a project can have
     multiple RagCorpora.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -458,6 +493,16 @@ class RagCorpus(proto.Message):
             was last updated.
         corpus_status (google.cloud.aiplatform_v1beta1.types.CorpusStatus):
             Output only. RagCorpus state.
+        vector_db_config (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig):
+            Optional. Immutable. The config for the
+            Vector DBs.
+
+            This field is a member of `oneof`_ ``backend_config``.
+        vertex_ai_search_config (google.cloud.aiplatform_v1beta1.types.VertexAiSearchConfig):
+            Optional. Immutable. The config for the
+            Vertex AI Search.
+
+            This field is a member of `oneof`_ ``backend_config``.
     """
 
     name: str = proto.Field(
@@ -496,6 +541,18 @@ class RagCorpus(proto.Message):
         proto.MESSAGE,
         number=8,
         message="CorpusStatus",
+    )
+    vector_db_config: "RagVectorDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        oneof="backend_config",
+        message="RagVectorDbConfig",
+    )
+    vertex_ai_search_config: "VertexAiSearchConfig" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        oneof="backend_config",
+        message="VertexAiSearchConfig",
     )
 
 
@@ -657,13 +714,44 @@ class RagFile(proto.Message):
 class RagFileChunkingConfig(proto.Message):
     r"""Specifies the size and overlap of chunks for RagFiles.
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
+        fixed_length_chunking (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig.FixedLengthChunking):
+            Specifies the fixed length chunking config.
+
+            This field is a member of `oneof`_ ``chunking_config``.
         chunk_size (int):
             The size of the chunks.
         chunk_overlap (int):
             The overlap between chunks.
     """
 
+    class FixedLengthChunking(proto.Message):
+        r"""Specifies the fixed length chunking config.
+
+        Attributes:
+            chunk_size (int):
+                The size of the chunks.
+            chunk_overlap (int):
+                The overlap between chunks.
+        """
+
+        chunk_size: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        chunk_overlap: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+
+    fixed_length_chunking: FixedLengthChunking = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="chunking_config",
+        message=FixedLengthChunking,
+    )
     chunk_size: int = proto.Field(
         proto.INT32,
         number=1,
@@ -674,14 +762,101 @@ class RagFileChunkingConfig(proto.Message):
     )
 
 
+class RagFileTransformationConfig(proto.Message):
+    r"""Specifies the transformation config for RagFiles.
+
+    Attributes:
+        rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
+            Specifies the chunking config for RagFiles.
+    """
+
+    rag_file_chunking_config: "RagFileChunkingConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="RagFileChunkingConfig",
+    )
+
+
 class RagFileParsingConfig(proto.Message):
     r"""Specifies the parsing config for RagFiles.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
+        advanced_parser (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig.AdvancedParser):
+            The Advanced Parser to use for RagFiles.
+
+            This field is a member of `oneof`_ ``parser``.
+        layout_parser (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig.LayoutParser):
+            The Layout Parser to use for RagFiles.
+
+            This field is a member of `oneof`_ ``parser``.
         use_advanced_pdf_parsing (bool):
             Whether to use advanced PDF parsing.
     """
 
+    class AdvancedParser(proto.Message):
+        r"""Specifies the advanced parsing for RagFiles.
+
+        Attributes:
+            use_advanced_pdf_parsing (bool):
+                Whether to use advanced PDF parsing.
+        """
+
+        use_advanced_pdf_parsing: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
+
+    class LayoutParser(proto.Message):
+        r"""Document AI Layout Parser config.
+
+        Attributes:
+            processor_name (str):
+                The full resource name of a Document AI processor or
+                processor version. The processor must have type
+                ``LAYOUT_PARSER_PROCESSOR``. If specified, the
+                ``additional_config.parse_as_scanned_pdf`` field must be
+                false. Format:
+
+                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}``
+                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}``
+            max_parsing_requests_per_min (int):
+                The maximum number of requests the job is
+                allowed to make to the Document AI processor per
+                minute. Consult
+                https://cloud.google.com/document-ai/quotas and
+                the Quota page for your project to set an
+                appropriate value here. If unspecified, a
+                default value of 120 QPM would be used.
+        """
+
+        processor_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        max_parsing_requests_per_min: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+
+    advanced_parser: AdvancedParser = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="parser",
+        message=AdvancedParser,
+    )
+    layout_parser: LayoutParser = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="parser",
+        message=LayoutParser,
+    )
     use_advanced_pdf_parsing: bool = proto.Field(
         proto.BOOL,
         number=2,
@@ -695,12 +870,20 @@ class UploadRagFileConfig(proto.Message):
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after uploading RagFile.
+        rag_file_transformation_config (google.cloud.aiplatform_v1beta1.types.RagFileTransformationConfig):
+            Specifies the transformation config for
+            RagFiles.
     """
 
     rag_file_chunking_config: "RagFileChunkingConfig" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="RagFileChunkingConfig",
+    )
+    rag_file_transformation_config: "RagFileTransformationConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="RagFileTransformationConfig",
     )
 
 
@@ -745,27 +928,30 @@ class ImportRagFilesConfig(proto.Message):
 
             This field is a member of `oneof`_ ``import_source``.
         partial_failure_gcs_sink (google.cloud.aiplatform_v1beta1.types.GcsDestination):
-            The Cloud Storage path to write partial
-            failures to.
+            The Cloud Storage path to write partial failures to.
+            Deprecated. Prefer to use ``import_result_gcs_sink``.
 
             This field is a member of `oneof`_ ``partial_failure_sink``.
         partial_failure_bigquery_sink (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
-            The BigQuery destination to write partial
-            failures to. It should be a bigquery table
-            resource name (e.g.
-            "bq://projectId.bqDatasetId.bqTableId"). If the
-            dataset id does not exist, it will be created.
-            If the table does not exist, it will be created
-            with the expected schema. If the table exists,
-            the schema will be validated and data will be
-            added to this existing table.
+            The BigQuery destination to write partial failures to. It
+            should be a bigquery table resource name (e.g.
+            "bq://projectId.bqDatasetId.bqTableId"). The dataset must
+            exist. If the table does not exist, it will be created with
+            the expected schema. If the table exists, the schema will be
+            validated and data will be added to this existing table.
+            Deprecated. Prefer to use ``import_result_bq_sink``.
 
             This field is a member of `oneof`_ ``partial_failure_sink``.
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after importing RagFiles.
+        rag_file_transformation_config (google.cloud.aiplatform_v1beta1.types.RagFileTransformationConfig):
+            Specifies the transformation config for
+            RagFiles.
         rag_file_parsing_config (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig):
-            Specifies the parsing config for RagFiles.
+            Optional. Specifies the parsing config for
+            RagFiles. RAG will use the default parser if
+            this field is not set.
         max_embedding_requests_per_min (int):
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -823,6 +1009,11 @@ class ImportRagFilesConfig(proto.Message):
         proto.MESSAGE,
         number=4,
         message="RagFileChunkingConfig",
+    )
+    rag_file_transformation_config: "RagFileTransformationConfig" = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        message="RagFileTransformationConfig",
     )
     rag_file_parsing_config: "RagFileParsingConfig" = proto.Field(
         proto.MESSAGE,

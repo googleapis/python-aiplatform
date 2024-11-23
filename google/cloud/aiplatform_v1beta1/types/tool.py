@@ -40,6 +40,7 @@ __protobuf__ = proto.module(
         "DynamicRetrievalConfig",
         "ToolConfig",
         "FunctionCallingConfig",
+        "RagRetrievalConfig",
     },
 )
 
@@ -483,6 +484,9 @@ class VertexRagStore(proto.Message):
             distance smaller than the threshold.
 
             This field is a member of `oneof`_ ``_vector_distance_threshold``.
+        rag_retrieval_config (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig):
+            Optional. The retrieval config for the Rag
+            query.
     """
 
     class RagResource(proto.Message):
@@ -524,6 +528,11 @@ class VertexRagStore(proto.Message):
         proto.DOUBLE,
         number=3,
         optional=True,
+    )
+    rag_retrieval_config: "RagRetrievalConfig" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message="RagRetrievalConfig",
     )
 
 
@@ -667,6 +676,175 @@ class FunctionCallingConfig(proto.Message):
     allowed_function_names: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+
+
+class RagRetrievalConfig(proto.Message):
+    r"""Specifies the context retrieval config.
+
+    Attributes:
+        top_k (int):
+            Optional. The number of contexts to retrieve.
+        hybrid_search (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.HybridSearch):
+            Optional. Config for Hybrid Search.
+        filter (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Filter):
+            Optional. Config for filters.
+        ranking (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking):
+            Optional. Config for ranking and reranking.
+    """
+
+    class HybridSearch(proto.Message):
+        r"""Config for Hybrid Search.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            alpha (float):
+                Optional. Alpha value controls the weight between dense and
+                sparse vector search results. The range is [0, 1], while 0
+                means sparse vector search only and 1 means dense vector
+                search only. The default value is 0.5 which balances sparse
+                and dense vector search equally.
+
+                This field is a member of `oneof`_ ``_alpha``.
+        """
+
+        alpha: float = proto.Field(
+            proto.FLOAT,
+            number=1,
+            optional=True,
+        )
+
+    class Filter(proto.Message):
+        r"""Config for filters.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            vector_distance_threshold (float):
+                Optional. Only returns contexts with vector
+                distance smaller than the threshold.
+
+                This field is a member of `oneof`_ ``vector_db_threshold``.
+            vector_similarity_threshold (float):
+                Optional. Only returns contexts with vector
+                similarity larger than the threshold.
+
+                This field is a member of `oneof`_ ``vector_db_threshold``.
+            metadata_filter (str):
+                Optional. String for metadata filtering.
+        """
+
+        vector_distance_threshold: float = proto.Field(
+            proto.DOUBLE,
+            number=3,
+            oneof="vector_db_threshold",
+        )
+        vector_similarity_threshold: float = proto.Field(
+            proto.DOUBLE,
+            number=4,
+            oneof="vector_db_threshold",
+        )
+        metadata_filter: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    class Ranking(proto.Message):
+        r"""Config for ranking and reranking.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            rank_service (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking.RankService):
+                Optional. Config for Rank Service.
+
+                This field is a member of `oneof`_ ``ranking_config``.
+            llm_ranker (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking.LlmRanker):
+                Optional. Config for LlmRanker.
+
+                This field is a member of `oneof`_ ``ranking_config``.
+        """
+
+        class RankService(proto.Message):
+            r"""Config for Rank Service.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                model_name (str):
+                    Optional. The model name of the rank service. Format:
+                    ``semantic-ranker-512@latest``
+
+                    This field is a member of `oneof`_ ``_model_name``.
+            """
+
+            model_name: str = proto.Field(
+                proto.STRING,
+                number=1,
+                optional=True,
+            )
+
+        class LlmRanker(proto.Message):
+            r"""Config for LlmRanker.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                model_name (str):
+                    Optional. The model name used for ranking. Format:
+                    ``gemini-1.5-pro``
+
+                    This field is a member of `oneof`_ ``_model_name``.
+            """
+
+            model_name: str = proto.Field(
+                proto.STRING,
+                number=1,
+                optional=True,
+            )
+
+        rank_service: "RagRetrievalConfig.Ranking.RankService" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="ranking_config",
+            message="RagRetrievalConfig.Ranking.RankService",
+        )
+        llm_ranker: "RagRetrievalConfig.Ranking.LlmRanker" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="ranking_config",
+            message="RagRetrievalConfig.Ranking.LlmRanker",
+        )
+
+    top_k: int = proto.Field(
+        proto.INT32,
+        number=1,
+    )
+    hybrid_search: HybridSearch = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=HybridSearch,
+    )
+    filter: Filter = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=Filter,
+    )
+    ranking: Ranking = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=Ranking,
     )
 
 

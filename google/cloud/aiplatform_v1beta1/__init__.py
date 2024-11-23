@@ -1034,6 +1034,7 @@ from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
+from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
 from .types.tool import Tool
 from .types.tool import ToolConfig
@@ -1079,8 +1080,10 @@ from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
 from .types.vertex_rag_data import RagFileParsingConfig
+from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
@@ -1098,6 +1101,12 @@ from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagCorpusRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
+from .types.vertex_rag_service import AugmentPromptRequest
+from .types.vertex_rag_service import AugmentPromptResponse
+from .types.vertex_rag_service import Claim
+from .types.vertex_rag_service import CorroborateContentRequest
+from .types.vertex_rag_service import CorroborateContentResponse
+from .types.vertex_rag_service import Fact
 from .types.vertex_rag_service import RagContexts
 from .types.vertex_rag_service import RagQuery
 from .types.vertex_rag_service import RetrieveContextsRequest
@@ -1178,6 +1187,8 @@ __all__ = (
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
     "Attribution",
+    "AugmentPromptRequest",
+    "AugmentPromptResponse",
     "AuthConfig",
     "AuthType",
     "AutomaticResources",
@@ -1235,6 +1246,7 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "Claim",
     "ClientConnectionConfig",
     "CodeExecutionResult",
     "CoherenceInput",
@@ -1253,6 +1265,8 @@ __all__ = (
     "CopyModelRequest",
     "CopyModelResponse",
     "CorpusStatus",
+    "CorroborateContentRequest",
+    "CorroborateContentResponse",
     "CountTokensRequest",
     "CountTokensResponse",
     "CreateArtifactRequest",
@@ -1464,6 +1478,7 @@ __all__ = (
     "ExtensionOperation",
     "ExtensionPrivateServiceConnectConfig",
     "ExtensionRegistryServiceClient",
+    "Fact",
     "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
@@ -1899,7 +1914,9 @@ __all__ = (
     "RagFile",
     "RagFileChunkingConfig",
     "RagFileParsingConfig",
+    "RagFileTransformationConfig",
     "RagQuery",
+    "RagRetrievalConfig",
     "RagVectorDbConfig",
     "RawPredictRequest",
     "RayLogsSpec",
@@ -2185,6 +2202,7 @@ __all__ = (
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexAiSearchConfig",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",
