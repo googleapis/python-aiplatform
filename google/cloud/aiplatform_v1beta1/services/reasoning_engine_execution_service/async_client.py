@@ -22,6 +22,8 @@ from typing import (
     MutableMapping,
     MutableSequence,
     Optional,
+    AsyncIterable,
+    Awaitable,
     Sequence,
     Tuple,
     Type,
@@ -43,11 +45,13 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_execution_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import (
     ReasoningEngineExecutionServiceTransport,
@@ -358,6 +362,147 @@ class ReasoningEngineExecutionServiceAsyncClient:
 
         # Send the request.
         response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def stream_query_reasoning_engine(
+        self,
+        request: Optional[
+            Union[
+                reasoning_engine_execution_service.StreamQueryReasoningEngineRequest,
+                dict,
+            ]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Awaitable[AsyncIterable[httpbody_pb2.HttpBody]]:
+        r"""Streams queries using a reasoning engine.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_stream_query_reasoning_engine():
+                # Create a client
+                client = aiplatform_v1beta1.ReasoningEngineExecutionServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.StreamQueryReasoningEngineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                stream = await client.stream_query_reasoning_engine(request=request)
+
+                # Handle the response
+                async for response in stream:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.StreamQueryReasoningEngineRequest, dict]]):
+                The request object. Request message for
+                [ReasoningEngineExecutionService.StreamQuery][].
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            AsyncIterable[google.api.httpbody_pb2.HttpBody]:
+                Message that represents an arbitrary HTTP body. It should only be used for
+                   payload formats that can't be represented as JSON,
+                   such as raw binary or an HTML page.
+
+                   This message can be used both in streaming and
+                   non-streaming API methods in the request as well as
+                   the response.
+
+                   It can be used as a top-level request field, which is
+                   convenient if one wants to extract parameters from
+                   either the URL or HTTP template into the request
+                   fields and also want access to the raw HTTP body.
+
+                   Example:
+
+                      message GetResourceRequest {
+                         // A unique request id. string request_id = 1;
+
+                         // The raw HTTP body is bound to this field.
+                         google.api.HttpBody http_body = 2;
+
+                      }
+
+                      service ResourceService {
+                         rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+
+                         rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
+
+                      }
+
+                   Example with streaming methods:
+
+                      service CaldavService {
+                         rpc GetCalendar(stream google.api.HttpBody)
+                            returns (stream google.api.HttpBody);
+
+                         rpc UpdateCalendar(stream google.api.HttpBody)
+                            returns (stream google.api.HttpBody);
+
+                      }
+
+                   Use of this type only changes how the request and
+                   response bodies are handled, all other features will
+                   continue to work unchanged.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request,
+            reasoning_engine_execution_service.StreamQueryReasoningEngineRequest,
+        ):
+            request = (
+                reasoning_engine_execution_service.StreamQueryReasoningEngineRequest(
+                    request
+                )
+            )
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.stream_query_reasoning_engine
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
             request,
             retry=retry,
             timeout=timeout,
