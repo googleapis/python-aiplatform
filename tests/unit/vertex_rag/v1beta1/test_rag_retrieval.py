@@ -81,12 +81,30 @@ class TestRagRetrieval:
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
     @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_resources_config_success(self):
+        response = rag.retrieval_query(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
     def test_retrieval_query_rag_corpora_success(self):
         response = rag.retrieval_query(
             rag_corpora=[tc.TEST_RAG_CORPUS_ID],
             text=tc.TEST_QUERY_TEXT,
             similarity_top_k=2,
             vector_distance_threshold=0.5,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_corpora_config_success(self):
+        response = rag.retrieval_query(
+            rag_corpora=[tc.TEST_RAG_CORPUS_ID],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
         )
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
@@ -128,5 +146,14 @@ class TestRagRetrieval:
                 text=tc.TEST_QUERY_TEXT,
                 similarity_top_k=2,
                 vector_distance_threshold=0.5,
+            )
+            e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_query_multiple_rag_resources_config(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
+                text=tc.TEST_QUERY_TEXT,
+                rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
             )
             e.match("Currently only support 1 RagResource")

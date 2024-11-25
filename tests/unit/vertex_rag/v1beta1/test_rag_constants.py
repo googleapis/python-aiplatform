@@ -49,6 +49,7 @@ from google.cloud.aiplatform_v1beta1 import (
     RagContexts,
     RetrieveContextsResponse,
     RagVectorDbConfig,
+    RagRetrievalConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.protobuf import timestamp_pb2
@@ -528,4 +529,9 @@ TEST_RAG_RESOURCE = RagResource(
 TEST_RAG_RESOURCE_INVALID_NAME = RagResource(
     rag_corpus="213lkj-1/23jkl/",
     rag_file_ids=[TEST_RAG_FILE_ID],
+)
+TEST_RAG_RETRIEVAL_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=RagRetrievalConfig.Filter(vector_distance_threshold=0.5),
+    hybrid_search=RagRetrievalConfig.HybridSearch(alpha=0.5),
 )

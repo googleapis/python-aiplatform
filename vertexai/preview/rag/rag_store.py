@@ -17,7 +17,10 @@
 """RAG retrieval tool for content generation."""
 
 import re
+import warnings
+
 from typing import List, Optional, Union
+from google.cloud.aiplatform_v1beta1 import RagRetrievalConfig
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.cloud.aiplatform import initializer
 from vertexai.preview.rag.utils import _gapic_utils
@@ -89,6 +92,10 @@ class VertexRagStore:
         elif rag_corpora:
             if len(rag_corpora) > 1:
                 raise ValueError("Currently only support 1 RagCorpus.")
+            warnings.warn(
+                "rag_corpora is deprecated. Please use rag_resources instead.",
+                DeprecationWarning,
+            )
             name = rag_corpora[0]
         else:
             raise ValueError("rag_resources or rag_corpora must be specified.")
@@ -104,6 +111,12 @@ class VertexRagStore:
                 "Invalid RagCorpus name: %s. Proper format should be: projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}",
                 rag_corpora,
             )
+        rag_retreival_config = RagRetrievalConfig(
+            top_k=similarity_top_k,
+            filter=RagRetrievalConfig.Filter(
+                vector_distance_threshold=vector_distance_threshold
+            ),
+        )
         if rag_resources:
             gapic_rag_resource = gapic_tool_types.VertexRagStore.RagResource(
                 rag_corpus=rag_corpus_name,
@@ -111,12 +124,10 @@ class VertexRagStore:
             )
             self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
                 rag_resources=[gapic_rag_resource],
-                similarity_top_k=similarity_top_k,
-                vector_distance_threshold=vector_distance_threshold,
+                rag_retreival_config=rag_retreival_config,
             )
         else:
             self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
                 rag_corpora=[rag_corpus_name],
-                similarity_top_k=similarity_top_k,
-                vector_distance_threshold=vector_distance_threshold,
+                rag_retreival_config=rag_retreival_config,
             )

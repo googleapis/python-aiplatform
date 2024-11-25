@@ -18,16 +18,14 @@
 
 import re
 from typing import List, Optional
-from google.cloud.aiplatform import initializer
+import warnings
 
-from google.cloud.aiplatform_v1beta1 import (
-    RagQuery,
-    RetrieveContextsRequest,
-    RetrieveContextsResponse,
-)
-from vertexai.preview.rag.utils import (
-    _gapic_utils,
-)
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform_v1beta1 import RagQuery
+from google.cloud.aiplatform_v1beta1 import RagRetrievalConfig
+from google.cloud.aiplatform_v1beta1 import RetrieveContextsRequest
+from google.cloud.aiplatform_v1beta1 import RetrieveContextsResponse
+from vertexai.preview.rag.utils import _gapic_utils
 from vertexai.preview.rag.utils.resources import RagResource
 
 
@@ -35,9 +33,10 @@ def retrieval_query(
     text: str,
     rag_resources: Optional[List[RagResource]] = None,
     rag_corpora: Optional[List[str]] = None,
-    similarity_top_k: Optional[int] = 10,
-    vector_distance_threshold: Optional[float] = 0.3,
-    vector_search_alpha: Optional[float] = 0.5,
+    similarity_top_k: Optional[int] = None,
+    vector_distance_threshold: Optional[float] = None,
+    vector_search_alpha: Optional[float] = None,
+    rag_retrieval_config: Optional[RagRetrievalConfig] = None,
 ) -> RetrieveContextsResponse:
     """Retrieve top k relevant docs/chunks.
 
@@ -73,6 +72,9 @@ def retrieval_query(
             sparse vector search results. The range is [0, 1], where 0 means
             sparse vector search only and 1 means dense vector search only.
             The default value is 0.5.
+        rag_retrieval_config: Optional. The config containing the retrieval
+            parameters, including similarity_top_k, vector_distance_threshold,
+            vector_search_alpha, and hybrid_search.
 
     Returns:
         RetrieveContextsResonse.
@@ -89,6 +91,10 @@ def retrieval_query(
         if len(rag_corpora) > 1:
             raise ValueError("Currently only support 1 RagCorpus.")
         name = rag_corpora[0]
+        warnings.warn(
+            "rag_corpora is deprecated. Please use rag_resources instead.",
+            DeprecationWarning,
+        )
     else:
         raise ValueError("rag_resources or rag_corpora must be specified.")
 
@@ -99,8 +105,8 @@ def retrieval_query(
         rag_corpus_name = parent + "/ragCorpora/" + name
     else:
         raise ValueError(
-            "Invalid RagCorpus name: %s. Proper format should be: projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}",
-            rag_corpora,
+            f"Invalid RagCorpus name: {rag_corpora}. Proper format should be:"
+            " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
         )
 
     if rag_resources:
@@ -116,13 +122,70 @@ def retrieval_query(
             rag_corpora=[rag_corpus_name],
         )
 
-    vertex_rag_store.vector_distance_threshold = vector_distance_threshold
+    # Check for deprecated parameters and raise warnings.
+    if similarity_top_k:
+        # If similarity_top_k is specified, throw deprecation warning.
+        warnings.warn(
+            "similarity_top_k is deprecated. Please use"
+            " rag_retrieval_config.top_k instead.",
+            DeprecationWarning,
+        )
+    else:
+        # If similarity_top_k is not specified, set it to default 10.
+        similarity_top_k = 10
+    if vector_search_alpha:
+        # If vector_search_alpha is specified, throw deprecation warning.
+        warnings.warn(
+            "vector_search_alpha is deprecated. Please use"
+            " rag_retrieval_config.alpha instead.",
+            DeprecationWarning,
+        )
+    else:
+        # If vector_search_alpha is not specified, set it to default 10.
+        vector_search_alpha = 0.5
+    if vector_distance_threshold:
+        # If vector_distance_threshold is specified, throw deprecation warning.
+        warnings.warn(
+            "vector_distance_threshold is deprecated. Please use"
+            " rag_retrieval_config.filter.vector_distance_threshold instead.",
+            DeprecationWarning,
+        )
+    else:
+        # If vector_distance_threshold is not specified, set it to default 0.3.
+        vector_distance_threshold = 0.3
+
+    # If rag_retrieval_config is not specified, set it to default values.
+    if not rag_retrieval_config:
+        rag_retrieval_config = RagRetrievalConfig(
+            top_k=similarity_top_k,
+            hybrid_search=RagRetrievalConfig.HybridSearch(
+                alpha=vector_search_alpha,
+            ),
+            filter=RagRetrievalConfig.Filter(
+                vector_distance_threshold=vector_distance_threshold
+            ),
+        )
+    else:
+        # If rag_retrieval_config is specified, check for missing parameters.
+        if not rag_retrieval_config.top_k:
+            rag_retrieval_config.top_k = similarity_top_k
+        if (
+            not rag_retrieval_config.hybrid_search
+            or not rag_retrieval_config.hybrid_search.alpha
+        ):
+            rag_retrieval_config.hybrid_search = RagRetrievalConfig.HybridSearch(
+                alpha=vector_search_alpha,
+            ),
+        if (
+            not rag_retrieval_config.filter
+            or not rag_retrieval_config.filter.vector_distance_threshold
+        ):
+            rag_retrieval_config.filter = RagRetrievalConfig.Filter(
+                vector_distance_threshold=vector_distance_threshold
+            ),
     query = RagQuery(
         text=text,
-        similarity_top_k=similarity_top_k,
-        ranking=RagQuery.Ranking(
-            alpha=vector_search_alpha,
-        ),
+        rag_retrieval_config=rag_retrieval_config,
     )
     request = RetrieveContextsRequest(
         vertex_rag_store=vertex_rag_store,
