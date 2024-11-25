@@ -3296,7 +3296,9 @@ def test_upload_rag_file_flattened():
             ),
             upload_rag_file_config=vertex_rag_data.UploadRagFileConfig(
                 rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                    chunk_size=1075
+                    fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                        chunk_size=1075
+                    )
                 )
             ),
         )
@@ -3314,7 +3316,9 @@ def test_upload_rag_file_flattened():
         arg = args[0].upload_rag_file_config
         mock_val = vertex_rag_data.UploadRagFileConfig(
             rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                chunk_size=1075
+                fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                    chunk_size=1075
+                )
             )
         )
         assert arg == mock_val
@@ -3336,7 +3340,9 @@ def test_upload_rag_file_flattened_error():
             ),
             upload_rag_file_config=vertex_rag_data.UploadRagFileConfig(
                 rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                    chunk_size=1075
+                    fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                        chunk_size=1075
+                    )
                 )
             ),
         )
@@ -3365,7 +3371,9 @@ async def test_upload_rag_file_flattened_async():
             ),
             upload_rag_file_config=vertex_rag_data.UploadRagFileConfig(
                 rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                    chunk_size=1075
+                    fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                        chunk_size=1075
+                    )
                 )
             ),
         )
@@ -3383,7 +3391,9 @@ async def test_upload_rag_file_flattened_async():
         arg = args[0].upload_rag_file_config
         mock_val = vertex_rag_data.UploadRagFileConfig(
             rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                chunk_size=1075
+                fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                    chunk_size=1075
+                )
             )
         )
         assert arg == mock_val
@@ -3406,7 +3416,9 @@ async def test_upload_rag_file_flattened_error_async():
             ),
             upload_rag_file_config=vertex_rag_data.UploadRagFileConfig(
                 rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                    chunk_size=1075
+                    fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                        chunk_size=1075
+                    )
                 )
             ),
         )
@@ -6093,7 +6105,9 @@ def test_upload_rag_file_rest_flattened():
             ),
             upload_rag_file_config=vertex_rag_data.UploadRagFileConfig(
                 rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                    chunk_size=1075
+                    fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                        chunk_size=1075
+                    )
                 )
             ),
         )
@@ -6138,7 +6152,9 @@ def test_upload_rag_file_rest_flattened_error(transport: str = "rest"):
             ),
             upload_rag_file_config=vertex_rag_data.UploadRagFileConfig(
                 rag_file_chunking_config=vertex_rag_data.RagFileChunkingConfig(
-                    chunk_size=1075
+                    fixed_length_chunking=vertex_rag_data.RagFileChunkingConfig.FixedLengthChunking(
+                        chunk_size=1075
+                    )
                 )
             ),
         )
@@ -7638,10 +7654,13 @@ def test_create_rag_corpus_rest_call_success(request_type):
                     "api_key_secret_version": "api_key_secret_version_value"
                 }
             },
+            "rag_embedding_model_config": {},
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "vector_db_config": {},
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7867,10 +7886,13 @@ def test_update_rag_corpus_rest_call_success(request_type):
                     "api_key_secret_version": "api_key_secret_version_value"
                 }
             },
+            "rag_embedding_model_config": {},
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "vector_db_config": {},
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9912,10 +9934,13 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
                     "api_key_secret_version": "api_key_secret_version_value"
                 }
             },
+            "rag_embedding_model_config": {},
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "vector_db_config": {},
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10157,10 +10182,13 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
                     "api_key_secret_version": "api_key_secret_version_value"
                 }
             },
+            "rag_embedding_model_config": {},
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
+        "vector_db_config": {},
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

@@ -69,6 +69,9 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_service import (
     VertexRagServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_service import transports
+from google.cloud.aiplatform_v1beta1.types import content
+from google.cloud.aiplatform_v1beta1.types import content as gca_content
+from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -76,6 +79,8 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 import google.auth
 
 
@@ -1452,6 +1457,706 @@ async def test_retrieve_contexts_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vertex_rag_service.AugmentPromptRequest,
+        dict,
+    ],
+)
+def test_augment_prompt(request_type, transport: str = "grpc"):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = vertex_rag_service.AugmentPromptResponse()
+        response = client.augment_prompt(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = vertex_rag_service.AugmentPromptRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.AugmentPromptResponse)
+
+
+def test_augment_prompt_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vertex_rag_service.AugmentPromptRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.augment_prompt(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vertex_rag_service.AugmentPromptRequest(
+            parent="parent_value",
+        )
+
+
+def test_augment_prompt_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.augment_prompt in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.augment_prompt] = mock_rpc
+        request = {}
+        client.augment_prompt(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.augment_prompt(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_augment_prompt_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = VertexRagServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.augment_prompt
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.augment_prompt
+        ] = mock_rpc
+
+        request = {}
+        await client.augment_prompt(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.augment_prompt(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_augment_prompt_async(
+    transport: str = "grpc_asyncio",
+    request_type=vertex_rag_service.AugmentPromptRequest,
+):
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.AugmentPromptResponse()
+        )
+        response = await client.augment_prompt(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = vertex_rag_service.AugmentPromptRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.AugmentPromptResponse)
+
+
+@pytest.mark.asyncio
+async def test_augment_prompt_async_from_dict():
+    await test_augment_prompt_async(request_type=dict)
+
+
+def test_augment_prompt_field_headers():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = vertex_rag_service.AugmentPromptRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        call.return_value = vertex_rag_service.AugmentPromptResponse()
+        client.augment_prompt(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_augment_prompt_field_headers_async():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = vertex_rag_service.AugmentPromptRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.AugmentPromptResponse()
+        )
+        await client.augment_prompt(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_augment_prompt_flattened():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = vertex_rag_service.AugmentPromptResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.augment_prompt(
+            parent="parent_value",
+            model=vertex_rag_service.AugmentPromptRequest.Model(model="model_value"),
+            vertex_rag_store=tool.VertexRagStore(rag_corpora=["rag_corpora_value"]),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model
+        mock_val = vertex_rag_service.AugmentPromptRequest.Model(model="model_value")
+        assert arg == mock_val
+        assert args[0].vertex_rag_store == tool.VertexRagStore(
+            rag_corpora=["rag_corpora_value"]
+        )
+
+
+def test_augment_prompt_flattened_error():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.augment_prompt(
+            vertex_rag_service.AugmentPromptRequest(),
+            parent="parent_value",
+            model=vertex_rag_service.AugmentPromptRequest.Model(model="model_value"),
+            vertex_rag_store=tool.VertexRagStore(rag_corpora=["rag_corpora_value"]),
+        )
+
+
+@pytest.mark.asyncio
+async def test_augment_prompt_flattened_async():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = vertex_rag_service.AugmentPromptResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.AugmentPromptResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.augment_prompt(
+            parent="parent_value",
+            model=vertex_rag_service.AugmentPromptRequest.Model(model="model_value"),
+            vertex_rag_store=tool.VertexRagStore(rag_corpora=["rag_corpora_value"]),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].model
+        mock_val = vertex_rag_service.AugmentPromptRequest.Model(model="model_value")
+        assert arg == mock_val
+        assert args[0].vertex_rag_store == tool.VertexRagStore(
+            rag_corpora=["rag_corpora_value"]
+        )
+
+
+@pytest.mark.asyncio
+async def test_augment_prompt_flattened_error_async():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.augment_prompt(
+            vertex_rag_service.AugmentPromptRequest(),
+            parent="parent_value",
+            model=vertex_rag_service.AugmentPromptRequest.Model(model="model_value"),
+            vertex_rag_store=tool.VertexRagStore(rag_corpora=["rag_corpora_value"]),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vertex_rag_service.CorroborateContentRequest,
+        dict,
+    ],
+)
+def test_corroborate_content(request_type, transport: str = "grpc"):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = vertex_rag_service.CorroborateContentResponse(
+            corroboration_score=0.2046,
+        )
+        response = client.corroborate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        request = vertex_rag_service.CorroborateContentRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.CorroborateContentResponse)
+    assert math.isclose(response.corroboration_score, 0.2046, rel_tol=1e-6)
+
+
+def test_corroborate_content_non_empty_request_with_auto_populated_field():
+    # This test is a coverage failsafe to make sure that UUID4 fields are
+    # automatically populated, according to AIP-4235, with non-empty requests.
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Populate all string fields in the request which are not UUID4
+    # since we want to check that UUID4 are populated automatically
+    # if they meet the requirements of AIP 4235.
+    request = vertex_rag_service.CorroborateContentRequest(
+        parent="parent_value",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        call.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client.corroborate_content(request=request)
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == vertex_rag_service.CorroborateContentRequest(
+            parent="parent_value",
+        )
+
+
+def test_corroborate_content_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="grpc",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.corroborate_content in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.corroborate_content
+        ] = mock_rpc
+        request = {}
+        client.corroborate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.corroborate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_corroborate_content_async_use_cached_wrapped_rpc(
+    transport: str = "grpc_asyncio",
+):
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
+        client = VertexRagServiceAsyncClient(
+            credentials=async_anonymous_credentials(),
+            transport=transport,
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._client._transport.corroborate_content
+            in client._client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.AsyncMock()
+        mock_rpc.return_value = mock.Mock()
+        client._client._transport._wrapped_methods[
+            client._client._transport.corroborate_content
+        ] = mock_rpc
+
+        request = {}
+        await client.corroborate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        await client.corroborate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_corroborate_content_async(
+    transport: str = "grpc_asyncio",
+    request_type=vertex_rag_service.CorroborateContentRequest,
+):
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.CorroborateContentResponse(
+                corroboration_score=0.2046,
+            )
+        )
+        response = await client.corroborate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        request = vertex_rag_service.CorroborateContentRequest()
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.CorroborateContentResponse)
+    assert math.isclose(response.corroboration_score, 0.2046, rel_tol=1e-6)
+
+
+@pytest.mark.asyncio
+async def test_corroborate_content_async_from_dict():
+    await test_corroborate_content_async(request_type=dict)
+
+
+def test_corroborate_content_field_headers():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = vertex_rag_service.CorroborateContentRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        call.return_value = vertex_rag_service.CorroborateContentResponse()
+        client.corroborate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_corroborate_content_field_headers_async():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = vertex_rag_service.CorroborateContentRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.CorroborateContentResponse()
+        )
+        await client.corroborate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_corroborate_content_flattened():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = vertex_rag_service.CorroborateContentResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.corroborate_content(
+            parent="parent_value",
+            content=gca_content.Content(role="role_value"),
+            facts=[vertex_rag_service.Fact(query="query_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].content
+        mock_val = gca_content.Content(role="role_value")
+        assert arg == mock_val
+        arg = args[0].facts
+        mock_val = [vertex_rag_service.Fact(query="query_value")]
+        assert arg == mock_val
+
+
+def test_corroborate_content_flattened_error():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.corroborate_content(
+            vertex_rag_service.CorroborateContentRequest(),
+            parent="parent_value",
+            content=gca_content.Content(role="role_value"),
+            facts=[vertex_rag_service.Fact(query="query_value")],
+        )
+
+
+@pytest.mark.asyncio
+async def test_corroborate_content_flattened_async():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = vertex_rag_service.CorroborateContentResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.CorroborateContentResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.corroborate_content(
+            parent="parent_value",
+            content=gca_content.Content(role="role_value"),
+            facts=[vertex_rag_service.Fact(query="query_value")],
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].content
+        mock_val = gca_content.Content(role="role_value")
+        assert arg == mock_val
+        arg = args[0].facts
+        mock_val = [vertex_rag_service.Fact(query="query_value")]
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_corroborate_content_flattened_error_async():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.corroborate_content(
+            vertex_rag_service.CorroborateContentRequest(),
+            parent="parent_value",
+            content=gca_content.Content(role="role_value"),
+            facts=[vertex_rag_service.Fact(query="query_value")],
+        )
+
+
 def test_retrieve_contexts_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -1641,6 +2346,373 @@ def test_retrieve_contexts_rest_flattened_error(transport: str = "rest"):
         )
 
 
+def test_augment_prompt_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert client._transport.augment_prompt in client._transport._wrapped_methods
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[client._transport.augment_prompt] = mock_rpc
+
+        request = {}
+        client.augment_prompt(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.augment_prompt(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_augment_prompt_rest_required_fields(
+    request_type=vertex_rag_service.AugmentPromptRequest,
+):
+    transport_class = transports.VertexRagServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).augment_prompt._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).augment_prompt._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = vertex_rag_service.AugmentPromptResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = vertex_rag_service.AugmentPromptResponse.pb(return_value)
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.augment_prompt(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_augment_prompt_rest_unset_required_fields():
+    transport = transports.VertexRagServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.augment_prompt._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("parent",)))
+
+
+def test_augment_prompt_rest_flattened():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vertex_rag_service.AugmentPromptResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            model=vertex_rag_service.AugmentPromptRequest.Model(model="model_value"),
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = vertex_rag_service.AugmentPromptResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.augment_prompt(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}:augmentPrompt"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_augment_prompt_rest_flattened_error(transport: str = "rest"):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.augment_prompt(
+            vertex_rag_service.AugmentPromptRequest(),
+            parent="parent_value",
+            model=vertex_rag_service.AugmentPromptRequest.Model(model="model_value"),
+            vertex_rag_store=tool.VertexRagStore(rag_corpora=["rag_corpora_value"]),
+        )
+
+
+def test_corroborate_content_rest_use_cached_wrapped_rpc():
+    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
+    # instead of constructing them on each call
+    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
+        client = VertexRagServiceClient(
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport="rest",
+        )
+
+        # Should wrap all calls on client creation
+        assert wrapper_fn.call_count > 0
+        wrapper_fn.reset_mock()
+
+        # Ensure method has been cached
+        assert (
+            client._transport.corroborate_content in client._transport._wrapped_methods
+        )
+
+        # Replace cached wrapped function with mock
+        mock_rpc = mock.Mock()
+        mock_rpc.return_value.name = (
+            "foo"  # operation_request.operation in compute client(s) expect a string.
+        )
+        client._transport._wrapped_methods[
+            client._transport.corroborate_content
+        ] = mock_rpc
+
+        request = {}
+        client.corroborate_content(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert mock_rpc.call_count == 1
+
+        client.corroborate_content(request)
+
+        # Establish that a new wrapper was not created for this call
+        assert wrapper_fn.call_count == 0
+        assert mock_rpc.call_count == 2
+
+
+def test_corroborate_content_rest_required_fields(
+    request_type=vertex_rag_service.CorroborateContentRequest,
+):
+    transport_class = transports.VertexRagServiceRestTransport
+
+    request_init = {}
+    request_init["parent"] = ""
+    request = request_type(**request_init)
+    pb_request = request_type.pb(request)
+    jsonified_request = json.loads(
+        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
+    )
+
+    # verify fields with default values are dropped
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).corroborate_content._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with default values are now present
+
+    jsonified_request["parent"] = "parent_value"
+
+    unset_fields = transport_class(
+        credentials=ga_credentials.AnonymousCredentials()
+    ).corroborate_content._get_unset_required_fields(jsonified_request)
+    jsonified_request.update(unset_fields)
+
+    # verify required fields with non-default values are left alone
+    assert "parent" in jsonified_request
+    assert jsonified_request["parent"] == "parent_value"
+
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+    request = request_type(**request_init)
+
+    # Designate an appropriate value for the returned response.
+    return_value = vertex_rag_service.CorroborateContentResponse()
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(Session, "request") as req:
+        # We need to mock transcode() because providing default values
+        # for required fields will fail the real version if the http_options
+        # expect actual values for those fields.
+        with mock.patch.object(path_template, "transcode") as transcode:
+            # A uri without fields and an empty body will force all the
+            # request fields to show up in the query_params.
+            pb_request = request_type.pb(request)
+            transcode_result = {
+                "uri": "v1/sample_method",
+                "method": "post",
+                "query_params": pb_request,
+            }
+            transcode_result["body"] = pb_request
+            transcode.return_value = transcode_result
+
+            response_value = Response()
+            response_value.status_code = 200
+
+            # Convert return value to protobuf type
+            return_value = vertex_rag_service.CorroborateContentResponse.pb(
+                return_value
+            )
+            json_return_value = json_format.MessageToJson(return_value)
+
+            response_value._content = json_return_value.encode("UTF-8")
+            req.return_value = response_value
+
+            response = client.corroborate_content(request)
+
+            expected_params = [("$alt", "json;enum-encoding=int")]
+            actual_params = req.call_args.kwargs["params"]
+            assert expected_params == actual_params
+
+
+def test_corroborate_content_rest_unset_required_fields():
+    transport = transports.VertexRagServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials
+    )
+
+    unset_fields = transport.corroborate_content._get_unset_required_fields({})
+    assert set(unset_fields) == (set(()) & set(("parent",)))
+
+
+def test_corroborate_content_rest_flattened():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vertex_rag_service.CorroborateContentResponse()
+
+        # get arguments that satisfy an http rule for this method
+        sample_request = {"parent": "projects/sample1/locations/sample2"}
+
+        # get truthy value for each flattened field
+        mock_args = dict(
+            parent="parent_value",
+            content=gca_content.Content(role="role_value"),
+            facts=[vertex_rag_service.Fact(query="query_value")],
+        )
+        mock_args.update(sample_request)
+
+        # Wrap the value into a proper Response obj
+        response_value = Response()
+        response_value.status_code = 200
+        # Convert return value to protobuf type
+        return_value = vertex_rag_service.CorroborateContentResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value._content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+
+        client.corroborate_content(**mock_args)
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(req.mock_calls) == 1
+        _, args, _ = req.mock_calls[0]
+        assert path_template.validate(
+            "%s/v1beta1/{parent=projects/*/locations/*}:corroborateContent"
+            % client.transport._host,
+            args[1],
+        )
+
+
+def test_corroborate_content_rest_flattened_error(transport: str = "rest"):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.corroborate_content(
+            vertex_rag_service.CorroborateContentRequest(),
+            parent="parent_value",
+            content=gca_content.Content(role="role_value"),
+            facts=[vertex_rag_service.Fact(query="query_value")],
+        )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.VertexRagServiceGrpcTransport(
@@ -1770,6 +2842,50 @@ def test_retrieve_contexts_empty_call_grpc():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_augment_prompt_empty_call_grpc():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        call.return_value = vertex_rag_service.AugmentPromptResponse()
+        client.augment_prompt(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.AugmentPromptRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_corroborate_content_empty_call_grpc():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        call.return_value = vertex_rag_service.CorroborateContentResponse()
+        client.corroborate_content(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.CorroborateContentRequest()
+
+        assert args[0] == request_msg
+
+
 def test_transport_kind_grpc_asyncio():
     transport = VertexRagServiceAsyncClient.get_transport_class("grpc_asyncio")(
         credentials=async_anonymous_credentials()
@@ -1807,6 +2923,60 @@ async def test_retrieve_contexts_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = vertex_rag_service.RetrieveContextsRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_augment_prompt_empty_call_grpc_asyncio():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.AugmentPromptResponse()
+        )
+        await client.augment_prompt(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.AugmentPromptRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_corroborate_content_empty_call_grpc_asyncio():
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            vertex_rag_service.CorroborateContentResponse(
+                corroboration_score=0.2046,
+            )
+        )
+        await client.corroborate_content(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.CorroborateContentRequest()
 
         assert args[0] == request_msg
 
@@ -1925,6 +3095,245 @@ def test_retrieve_contexts_rest_interceptors(null_interceptor):
         post.return_value = vertex_rag_service.RetrieveContextsResponse()
 
         client.retrieve_contexts(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_augment_prompt_rest_bad_request(
+    request_type=vertex_rag_service.AugmentPromptRequest,
+):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.augment_prompt(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vertex_rag_service.AugmentPromptRequest,
+        dict,
+    ],
+)
+def test_augment_prompt_rest_call_success(request_type):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vertex_rag_service.AugmentPromptResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = vertex_rag_service.AugmentPromptResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.augment_prompt(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.AugmentPromptResponse)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_augment_prompt_rest_interceptors(null_interceptor):
+    transport = transports.VertexRagServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagServiceRestInterceptor(),
+    )
+    client = VertexRagServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.VertexRagServiceRestInterceptor, "post_augment_prompt"
+    ) as post, mock.patch.object(
+        transports.VertexRagServiceRestInterceptor, "pre_augment_prompt"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = vertex_rag_service.AugmentPromptRequest.pb(
+            vertex_rag_service.AugmentPromptRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = vertex_rag_service.AugmentPromptResponse.to_json(
+            vertex_rag_service.AugmentPromptResponse()
+        )
+        req.return_value.content = return_value
+
+        request = vertex_rag_service.AugmentPromptRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = vertex_rag_service.AugmentPromptResponse()
+
+        client.augment_prompt(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+def test_corroborate_content_rest_bad_request(
+    request_type=vertex_rag_service.CorroborateContentRequest,
+):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(Session, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        json_return_value = ""
+        response_value.json = mock.Mock(return_value={})
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        client.corroborate_content(request)
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vertex_rag_service.CorroborateContentRequest,
+        dict,
+    ],
+)
+def test_corroborate_content_rest_call_success(request_type):
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vertex_rag_service.CorroborateContentResponse(
+            corroboration_score=0.2046,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = vertex_rag_service.CorroborateContentResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.content = json_return_value.encode("UTF-8")
+        req.return_value = response_value
+        response = client.corroborate_content(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.CorroborateContentResponse)
+    assert math.isclose(response.corroboration_score, 0.2046, rel_tol=1e-6)
+
+
+@pytest.mark.parametrize("null_interceptor", [True, False])
+def test_corroborate_content_rest_interceptors(null_interceptor):
+    transport = transports.VertexRagServiceRestTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.VertexRagServiceRestInterceptor(),
+    )
+    client = VertexRagServiceClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.VertexRagServiceRestInterceptor, "post_corroborate_content"
+    ) as post, mock.patch.object(
+        transports.VertexRagServiceRestInterceptor, "pre_corroborate_content"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = vertex_rag_service.CorroborateContentRequest.pb(
+            vertex_rag_service.CorroborateContentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = vertex_rag_service.CorroborateContentResponse.to_json(
+            vertex_rag_service.CorroborateContentResponse()
+        )
+        req.return_value.content = return_value
+
+        request = vertex_rag_service.CorroborateContentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = vertex_rag_service.CorroborateContentResponse()
+
+        client.corroborate_content(
             request,
             metadata=[
                 ("key", "val"),
@@ -2570,6 +3979,48 @@ def test_retrieve_contexts_empty_call_rest():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_augment_prompt_empty_call_rest():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        client.augment_prompt(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.AugmentPromptRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+def test_corroborate_content_empty_call_rest():
+    client = VertexRagServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        client.corroborate_content(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.CorroborateContentRequest()
+
+        assert args[0] == request_msg
+
+
 def test_transport_kind_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -2704,6 +4155,277 @@ async def test_retrieve_contexts_rest_asyncio_interceptors(null_interceptor):
         post.return_value = vertex_rag_service.RetrieveContextsResponse()
 
         await client.retrieve_contexts(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_augment_prompt_rest_asyncio_bad_request(
+    request_type=vertex_rag_service.AugmentPromptRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.augment_prompt(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vertex_rag_service.AugmentPromptRequest,
+        dict,
+    ],
+)
+async def test_augment_prompt_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vertex_rag_service.AugmentPromptResponse()
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = vertex_rag_service.AugmentPromptResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.augment_prompt(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.AugmentPromptResponse)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_augment_prompt_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncVertexRagServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagServiceRestInterceptor(),
+    )
+    client = VertexRagServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncVertexRagServiceRestInterceptor, "post_augment_prompt"
+    ) as post, mock.patch.object(
+        transports.AsyncVertexRagServiceRestInterceptor, "pre_augment_prompt"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = vertex_rag_service.AugmentPromptRequest.pb(
+            vertex_rag_service.AugmentPromptRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = vertex_rag_service.AugmentPromptResponse.to_json(
+            vertex_rag_service.AugmentPromptResponse()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = vertex_rag_service.AugmentPromptRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = vertex_rag_service.AugmentPromptResponse()
+
+        await client.augment_prompt(
+            request,
+            metadata=[
+                ("key", "val"),
+                ("cephalopod", "squid"),
+            ],
+        )
+
+        pre.assert_called_once()
+        post.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_corroborate_content_rest_asyncio_bad_request(
+    request_type=vertex_rag_service.CorroborateContentRequest,
+):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a BadRequest error.
+    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
+        core_exceptions.BadRequest
+    ):
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.status_code = 400
+        response_value.request = mock.Mock()
+        req.return_value = response_value
+        await client.corroborate_content(request)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        vertex_rag_service.CorroborateContentRequest,
+        dict,
+    ],
+)
+async def test_corroborate_content_rest_asyncio_call_success(request_type):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+    )
+
+    # send a request that will satisfy transcoding
+    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request = request_type(**request_init)
+
+    # Mock the http request call within the method and fake a response.
+    with mock.patch.object(type(client.transport._session), "request") as req:
+        # Designate an appropriate value for the returned response.
+        return_value = vertex_rag_service.CorroborateContentResponse(
+            corroboration_score=0.2046,
+        )
+
+        # Wrap the value into a proper Response obj
+        response_value = mock.Mock()
+        response_value.status_code = 200
+
+        # Convert return value to protobuf type
+        return_value = vertex_rag_service.CorroborateContentResponse.pb(return_value)
+        json_return_value = json_format.MessageToJson(return_value)
+        response_value.read = mock.AsyncMock(
+            return_value=json_return_value.encode("UTF-8")
+        )
+        req.return_value = response_value
+        response = await client.corroborate_content(request)
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, vertex_rag_service.CorroborateContentResponse)
+    assert math.isclose(response.corroboration_score, 0.2046, rel_tol=1e-6)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("null_interceptor", [True, False])
+async def test_corroborate_content_rest_asyncio_interceptors(null_interceptor):
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    transport = transports.AsyncVertexRagServiceRestTransport(
+        credentials=async_anonymous_credentials(),
+        interceptor=None
+        if null_interceptor
+        else transports.AsyncVertexRagServiceRestInterceptor(),
+    )
+    client = VertexRagServiceAsyncClient(transport=transport)
+
+    with mock.patch.object(
+        type(client.transport._session), "request"
+    ) as req, mock.patch.object(
+        path_template, "transcode"
+    ) as transcode, mock.patch.object(
+        transports.AsyncVertexRagServiceRestInterceptor, "post_corroborate_content"
+    ) as post, mock.patch.object(
+        transports.AsyncVertexRagServiceRestInterceptor, "pre_corroborate_content"
+    ) as pre:
+        pre.assert_not_called()
+        post.assert_not_called()
+        pb_message = vertex_rag_service.CorroborateContentRequest.pb(
+            vertex_rag_service.CorroborateContentRequest()
+        )
+        transcode.return_value = {
+            "method": "post",
+            "uri": "my_uri",
+            "body": pb_message,
+            "query_params": pb_message,
+        }
+
+        req.return_value = mock.Mock()
+        req.return_value.status_code = 200
+        return_value = vertex_rag_service.CorroborateContentResponse.to_json(
+            vertex_rag_service.CorroborateContentResponse()
+        )
+        req.return_value.read = mock.AsyncMock(return_value=return_value)
+
+        request = vertex_rag_service.CorroborateContentRequest()
+        metadata = [
+            ("key", "val"),
+            ("cephalopod", "squid"),
+        ]
+        pre.return_value = request, metadata
+        post.return_value = vertex_rag_service.CorroborateContentResponse()
+
+        await client.corroborate_content(
             request,
             metadata=[
                 ("key", "val"),
@@ -3470,6 +5192,58 @@ async def test_retrieve_contexts_empty_call_rest_asyncio():
         assert args[0] == request_msg
 
 
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_augment_prompt_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(type(client.transport.augment_prompt), "__call__") as call:
+        await client.augment_prompt(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.AugmentPromptRequest()
+
+        assert args[0] == request_msg
+
+
+# This test is a coverage failsafe to make sure that totally empty calls,
+# i.e. request == None and no flattened fields passed, work.
+@pytest.mark.asyncio
+async def test_corroborate_content_empty_call_rest_asyncio():
+    if not HAS_ASYNC_REST_EXTRA:
+        pytest.skip(
+            "the library must be installed with the `async_rest` extra to test this feature."
+        )
+    client = VertexRagServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio",
+    )
+
+    # Mock the actual call, and fake the request.
+    with mock.patch.object(
+        type(client.transport.corroborate_content), "__call__"
+    ) as call:
+        await client.corroborate_content(request=None)
+
+        # Establish that the underlying stub method was called.
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        request_msg = vertex_rag_service.CorroborateContentRequest()
+
+        assert args[0] == request_msg
+
+
 def test_unsupported_parameter_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -3518,6 +5292,8 @@ def test_vertex_rag_service_base_transport():
     # raise NotImplementedError.
     methods = (
         "retrieve_contexts",
+        "augment_prompt",
+        "corroborate_content",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -3788,6 +5564,12 @@ def test_vertex_rag_service_client_transport_session_collision(transport_name):
     )
     session1 = client1.transport.retrieve_contexts._session
     session2 = client2.transport.retrieve_contexts._session
+    assert session1 != session2
+    session1 = client1.transport.augment_prompt._session
+    session2 = client2.transport.augment_prompt._session
+    assert session1 != session2
+    session1 = client1.transport.corroborate_content._session
+    session2 = client2.transport.corroborate_content._session
     assert session1 != session2
 
 

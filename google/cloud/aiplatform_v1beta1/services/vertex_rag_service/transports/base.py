@@ -138,6 +138,16 @@ class VertexRagServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.augment_prompt: gapic_v1.method.wrap_method(
+                self.augment_prompt,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.corroborate_content: gapic_v1.method.wrap_method(
+                self.corroborate_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -207,6 +217,30 @@ class VertexRagServiceTransport(abc.ABC):
         Union[
             vertex_rag_service.RetrieveContextsResponse,
             Awaitable[vertex_rag_service.RetrieveContextsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def augment_prompt(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AugmentPromptRequest],
+        Union[
+            vertex_rag_service.AugmentPromptResponse,
+            Awaitable[vertex_rag_service.AugmentPromptResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def corroborate_content(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.CorroborateContentRequest],
+        Union[
+            vertex_rag_service.CorroborateContentResponse,
+            Awaitable[vertex_rag_service.CorroborateContentResponse],
         ],
     ]:
         raise NotImplementedError()

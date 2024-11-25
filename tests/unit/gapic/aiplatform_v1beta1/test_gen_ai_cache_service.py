@@ -4621,6 +4621,19 @@ def test_create_cached_content_rest_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
                     },
                     "disable_attribution": True,
                 },
@@ -5062,6 +5075,19 @@ def test_update_cached_content_rest_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
                     },
                     "disable_attribution": True,
                 },
@@ -6339,6 +6365,19 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
                     },
                     "disable_attribution": True,
                 },
@@ -6812,6 +6851,19 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         ],
                         "similarity_top_k": 1731,
                         "vector_distance_threshold": 0.2665,
+                        "rag_retrieval_config": {
+                            "top_k": 541,
+                            "hybrid_search": {"alpha": 0.518},
+                            "filter": {
+                                "vector_distance_threshold": 0.2665,
+                                "vector_similarity_threshold": 0.2917,
+                                "metadata_filter": "metadata_filter_value",
+                            },
+                            "ranking": {
+                                "rank_service": {"model_name": "model_name_value"},
+                                "llm_ranker": {"model_name": "model_name_value"},
+                            },
+                        },
                     },
                     "disable_attribution": True,
                 },
