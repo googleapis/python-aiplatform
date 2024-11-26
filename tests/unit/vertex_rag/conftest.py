@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,10 +22,12 @@ from google.cloud.aiplatform_v1beta1 import (
     VertexRagDataServiceAsyncClient,
     VertexRagDataServiceClient,
 )
-import test_rag_constants as tc
+import test_rag_constants_preview
 import mock
 import pytest
 
+
+# -*- coding: utf-8 -*-
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
@@ -37,7 +37,7 @@ def google_auth_mock():
     with mock.patch.object(auth, "default") as auth_mock:
         auth_mock.return_value = (
             auth_credentials.AnonymousCredentials(),
-            tc.TEST_PROJECT,
+            test_rag_constants_preview.TEST_PROJECT,
         )
         yield auth_mock
 
@@ -59,13 +59,17 @@ def rag_data_client_mock():
         api_client_mock = mock.Mock(spec=VertexRagDataServiceClient)
 
         # get_rag_corpus
-        api_client_mock.get_rag_corpus.return_value = tc.TEST_GAPIC_RAG_CORPUS
+        api_client_mock.get_rag_corpus.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS
+        )
         # delete_rag_corpus
         delete_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
         delete_rag_corpus_lro_mock.result.return_value = DeleteRagCorpusRequest()
         api_client_mock.delete_rag_corpus.return_value = delete_rag_corpus_lro_mock
         # get_rag_file
-        api_client_mock.get_rag_file.return_value = tc.TEST_GAPIC_RAG_FILE
+        api_client_mock.get_rag_file.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_FILE
+        )
 
         rag_data_client_mock.return_value = api_client_mock
         yield rag_data_client_mock
