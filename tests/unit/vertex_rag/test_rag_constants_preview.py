@@ -20,10 +20,13 @@ from google.cloud import aiplatform
 
 from vertexai.preview.rag import (
     EmbeddingModelConfig,
+    Filter,
+    HybridSearch,
     Pinecone,
     RagCorpus,
     RagFile,
     RagResource,
+    RagRetrievalConfig,
     SharePointSource,
     SharePointSources,
     SlackChannelsSource,
@@ -528,4 +531,13 @@ TEST_RAG_RESOURCE = RagResource(
 TEST_RAG_RESOURCE_INVALID_NAME = RagResource(
     rag_corpus="213lkj-1/23jkl/",
     rag_file_ids=[TEST_RAG_FILE_ID],
+)
+TEST_RAG_RETRIEVAL_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5),
+)
+TEST_RAG_RETRIEVAL_CONFIG_ALPHA = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5),
+    hybrid_search=HybridSearch(alpha=0.5),
 )

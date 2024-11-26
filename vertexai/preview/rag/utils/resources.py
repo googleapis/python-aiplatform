@@ -20,6 +20,8 @@ from typing import List, Optional, Sequence, Union
 
 from google.protobuf import timestamp_pb2
 
+DEPRECATION_DATE = "June 2025"
+
 
 @dataclasses.dataclass
 class RagFile:
@@ -282,3 +284,92 @@ class SharePointSources:
     """
 
     share_point_sources: Sequence[SharePointSource]
+
+
+@dataclasses.dataclass
+class Filter:
+    """Filter.
+
+    Attributes:
+        vector_distance_threshold: Only returns contexts with vector
+            distance smaller than the threshold.
+        vector_similarity_threshold: Only returns contexts with vector
+            similarity larger than the threshold.
+        metadata_filter: String for metadata filtering.
+    """
+
+    vector_distance_threshold: Optional[float] = None
+    vector_similarity_threshold: Optional[float] = None
+    metadata_filter: Optional[str] = None
+
+
+@dataclasses.dataclass
+class HybridSearch:
+    """HybridSearch.
+
+    Attributes:
+        alpha: Alpha value controls the weight between dense and
+            sparse vector search results. The range is [0, 1], while 0
+            means sparse vector search only and 1 means dense vector
+            search only. The default value is 0.5 which balances sparse
+            and dense vector search equally.
+    """
+
+    alpha: Optional[float] = None
+
+
+@dataclasses.dataclass
+class LlmRanker:
+    """LlmRanker.
+
+    Attributes:
+        model_name: The model name used for ranking.
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RankService:
+    """RankService.
+
+    Attributes:
+        model_name: The model name of the rank service. Format:
+            ``semantic-ranker-512@latest``
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class Ranking:
+    """Ranking.
+
+    Attributes:
+        rank_service: (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking.RankService)
+                Config for Rank Service.
+        llm_ranker (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking.LlmRanker):
+                Config for LlmRanker.
+    """
+
+    rank_service: Optional[RankService] = None
+    llm_ranker: Optional[LlmRanker] = None
+
+
+@dataclasses.dataclass
+class RagRetrievalConfig:
+    """RagRetrievalConfig.
+
+    Attributes:
+        top_k: The number of contexts to retrieve.
+        filter: Config for filters.
+        hybrid_search (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.HybridSearch):
+            Config for Hybrid Search.
+        ranking (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking):
+            Config for ranking and reranking.
+    """
+
+    top_k: Optional[int] = None
+    filter: Optional[Filter] = None
+    hybrid_search: Optional[HybridSearch] = None
+    ranking: Optional[Ranking] = None

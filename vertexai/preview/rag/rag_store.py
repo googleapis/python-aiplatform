@@ -18,11 +18,14 @@
 
 import re
 from typing import List, Optional, Union
-from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
+import warnings
+
+from google.cloud import aiplatform_v1beta1
 from google.cloud.aiplatform import initializer
-from vertexai.preview.rag.utils import _gapic_utils
-from vertexai.preview.rag.utils.resources import RagResource
+from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from vertexai.preview import generative_models
+from vertexai.preview.rag.utils import _gapic_utils
+from vertexai.preview.rag.utils import resources
 
 
 class Retrieval(generative_models.grounding.Retrieval):
@@ -44,10 +47,11 @@ class VertexRagStore:
 
     def __init__(
         self,
-        rag_resources: Optional[List[RagResource]] = None,
+        rag_resources: Optional[List[resources.RagResource]] = None,
         rag_corpora: Optional[List[str]] = None,
-        similarity_top_k: Optional[int] = 10,
-        vector_distance_threshold: Optional[float] = 0.3,
+        similarity_top_k: Optional[int] = None,
+        vector_distance_threshold: Optional[float] = None,
+        rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
     ):
         """Initializes a Vertex RAG store tool.
 
@@ -78,7 +82,11 @@ class VertexRagStore:
             similarity_top_k: Number of top k results to return from the selected
                 corpora.
             vector_distance_threshold (float):
-                Optional. Only return results with vector distance smaller than the threshold.
+                Optional. Only return results with vector distance smaller
+                than the threshold.
+            rag_retrieval_config: Optional. The config containing the retrieval
+                parameters, including similarity_top_k, hybrid search alpha,
+                and vector_distance_threshold.
 
         """
 
@@ -89,6 +97,12 @@ class VertexRagStore:
         elif rag_corpora:
             if len(rag_corpora) > 1:
                 raise ValueError("Currently only support 1 RagCorpus.")
+            warnings.warn(
+                "rag_corpora is deprecated. Please use rag_resources instead."
+                f" After {resources.DEPRECATION_DATE} using"
+                " rag_corpora will raise error",
+                DeprecationWarning,
+            )
             name = rag_corpora[0]
         else:
             raise ValueError("rag_resources or rag_corpora must be specified.")
@@ -101,9 +115,53 @@ class VertexRagStore:
             rag_corpus_name = parent + "/ragCorpora/" + name
         else:
             raise ValueError(
-                "Invalid RagCorpus name: %s. Proper format should be: projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}",
-                rag_corpora,
+                f"Invalid RagCorpus name: {rag_corpora}. Proper format should"
+                + " be: projects/{{project}}/locations/{{location}}/ragCorpora/{{rag_corpus_id}}"
             )
+
+        # Check for deprecated parameters and raise warnings.
+        if similarity_top_k:
+            # If similarity_top_k is specified, throw deprecation warning.
+            warnings.warn(
+                "similarity_top_k is deprecated. Please use"
+                " rag_retrieval_config.top_k instead."
+                f" After {resources.DEPRECATION_DATE} using"
+                " similarity_top_k will raise error",
+                DeprecationWarning,
+            )
+        if vector_distance_threshold:
+            # If vector_distance_threshold is specified, throw deprecation warning.
+            warnings.warn(
+                "vector_distance_threshold is deprecated. Please use"
+                " rag_retrieval_config.filter.vector_distance_threshold instead."
+                f" After {resources.DEPRECATION_DATE} using"
+                " vector_distance_threshold will raise error",
+                DeprecationWarning,
+            )
+
+        # If rag_retrieval_config is not specified, set it to default values.
+        if not rag_retrieval_config:
+            api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig(
+                top_k=similarity_top_k,
+                filter=aiplatform_v1beta1.RagRetrievalConfig.Filter(
+                    vector_distance_threshold=vector_distance_threshold
+                ),
+            )
+        else:
+            # If rag_retrieval_config is specified, check for missing parameters.
+            api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+            if not rag_retrieval_config.top_k:
+                api_retrival_config.top_k = similarity_top_k
+            if (
+                not rag_retrieval_config.filter
+                or not rag_retrieval_config.filter.vector_distance_threshold
+            ):
+                api_retrival_config.filter = (
+                    aiplatform_v1beta1.RagRetrievalConfig.Filter(
+                        vector_distance_threshold=vector_distance_threshold
+                    ),
+                )
+
         if rag_resources:
             gapic_rag_resource = gapic_tool_types.VertexRagStore.RagResource(
                 rag_corpus=rag_corpus_name,
@@ -111,12 +169,10 @@ class VertexRagStore:
             )
             self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
                 rag_resources=[gapic_rag_resource],
-                similarity_top_k=similarity_top_k,
-                vector_distance_threshold=vector_distance_threshold,
+                rag_retrieval_config=api_retrival_config,
             )
         else:
             self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
                 rag_corpora=[rag_corpus_name],
-                similarity_top_k=similarity_top_k,
-                vector_distance_threshold=vector_distance_threshold,
+                rag_retrieval_config=api_retrival_config,
             )

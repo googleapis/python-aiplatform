@@ -21,7 +21,32 @@ import test_rag_constants_preview
 
 
 @pytest.mark.usefixtures("google_auth_mock")
-class TestRagStoreValidations:
+class TestRagStore:
+    def test_retrieval_tool_success(self):
+        with pytest.warns(DeprecationWarning):
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+                        similarity_top_k=3,
+                        vector_distance_threshold=0.4,
+                    ),
+                )
+            )
+
+    def test_retrieval_tool_config_success(self):
+        with pytest.warns(DeprecationWarning):
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_corpora=[
+                            test_rag_constants_preview.TEST_RAG_CORPUS_ID,
+                        ],
+                        rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
+                    ),
+                )
+            )
+
     def test_retrieval_tool_invalid_name(self):
         with pytest.raises(ValueError) as e:
             Tool.from_retrieval(
@@ -32,6 +57,20 @@ class TestRagStoreValidations:
                         ],
                         similarity_top_k=3,
                         vector_distance_threshold=0.4,
+                    ),
+                )
+            )
+            e.match("Invalid RagCorpus name")
+
+    def test_retrieval_tool_invalid_name_config(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[
+                            test_rag_constants_preview.TEST_RAG_RESOURCE_INVALID_NAME
+                        ],
+                        rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
                     ),
                 )
             )
@@ -53,6 +92,21 @@ class TestRagStoreValidations:
             )
             e.match("Currently only support 1 RagCorpus")
 
+    def test_retrieval_tool_multiple_rag_corpora_config(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_corpora=[
+                            test_rag_constants_preview.TEST_RAG_CORPUS_ID,
+                            test_rag_constants_preview.TEST_RAG_CORPUS_ID,
+                        ],
+                        rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
+                    ),
+                )
+            )
+            e.match("Currently only support 1 RagCorpus")
+
     def test_retrieval_tool_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
             Tool.from_retrieval(
@@ -64,6 +118,21 @@ class TestRagStoreValidations:
                         ],
                         similarity_top_k=3,
                         vector_distance_threshold=0.4,
+                    ),
+                )
+            )
+            e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_tool_multiple_rag_resources_config(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[
+                            test_rag_constants_preview.TEST_RAG_RESOURCE,
+                            test_rag_constants_preview.TEST_RAG_RESOURCE,
+                        ],
+                        rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
                     ),
                 )
             )
