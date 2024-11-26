@@ -39,6 +39,7 @@ from vertexai.rag.rag_store import (
 )
 from vertexai.rag.utils.resources import (
     EmbeddingModelConfig,
+    Filter,
     JiraQuery,
     JiraSource,
     Pinecone,
@@ -46,6 +47,7 @@ from vertexai.rag.utils.resources import (
     RagFile,
     RagManagedDb,
     RagResource,
+    RagRetrievalConfig,
     SharePointSource,
     SharePointSources,
     SlackChannel,
@@ -58,6 +60,7 @@ from vertexai.rag.utils.resources import (
 
 __all__ = (
     "EmbeddingModelConfig",
+    "Filter",
     "JiraQuery",
     "JiraSource",
     "Pinecone",
@@ -65,6 +68,7 @@ __all__ = (
     "RagFile",
     "RagManagedDb",
     "RagResource",
+    "RagRetrievalConfig",
     "Retrieval",
     "SharePointSource",
     "SharePointSources",

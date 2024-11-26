@@ -282,3 +282,33 @@ class SharePointSources:
     """
 
     share_point_sources: Sequence[SharePointSource]
+
+
+@dataclasses.dataclass
+class Filter:
+    """Filter.
+
+    Attributes:
+        vector_distance_threshold: Only returns contexts with vector
+            distance smaller than the threshold.
+        vector_similarity_threshold: Only returns contexts with vector
+            similarity larger than the threshold.
+        metadata_filter: String for metadata filtering.
+    """
+
+    vector_distance_threshold: Optional[float] = None
+    vector_similarity_threshold: Optional[float] = None
+    metadata_filter: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagRetrievalConfig:
+    """RagRetrievalConfig.
+
+    Attributes:
+        top_k: The number of contexts to retrieve.
+        filter: Config for filters.
+    """
+
+    top_k: Optional[int] = None
+    filter: Optional[Filter] = None

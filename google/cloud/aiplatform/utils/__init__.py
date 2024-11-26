@@ -90,6 +90,9 @@ from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client_v1,
     vizier_service_client_v1,
     persistent_resource_service_client_v1,
+    vertex_rag_data_service_async_client_v1,
+    vertex_rag_data_service_client_v1,
+    vertex_rag_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -138,6 +141,7 @@ VertexAiServiceClient = TypeVar(
     schedule_service_client_v1.ScheduleServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
     vizier_service_client_v1.VizierServiceClient,
+    vertex_rag_service_client_v1.VertexRagServiceClient,
 )
 
 
@@ -967,8 +971,9 @@ class ReasoningEngineExecutionClientWithOverride(ClientWithOverride):
 
 class VertexRagDataClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (compat.V1, vertex_rag_data_service_client_v1.VertexRagDataServiceClient),
         (
             compat.V1BETA1,
             vertex_rag_data_service_client_v1beta1.VertexRagDataServiceClient,
@@ -978,8 +983,12 @@ class VertexRagDataClientWithOverride(ClientWithOverride):
 
 class VertexRagDataAsyncClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
+        (
+            compat.V1,
+            vertex_rag_data_service_async_client_v1.VertexRagDataServiceAsyncClient,
+        ),
         (
             compat.V1BETA1,
             vertex_rag_data_service_async_client_v1beta1.VertexRagDataServiceAsyncClient,
@@ -989,12 +998,10 @@ class VertexRagDataAsyncClientWithOverride(ClientWithOverride):
 
 class VertexRagClientWithOverride(ClientWithOverride):
     _is_temporary = True
-    _default_version = compat.V1BETA1
+    _default_version = compat.DEFAULT_VERSION
     _version_map = (
-        (
-            compat.V1BETA1,
-            vertex_rag_service_client_v1beta1.VertexRagServiceClient,
-        ),
+        (compat.V1, vertex_rag_service_client_v1.VertexRagServiceClient),
+        (compat.V1BETA1, vertex_rag_service_client_v1beta1.VertexRagServiceClient),
     )
 
 

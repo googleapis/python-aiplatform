@@ -18,27 +18,18 @@
 
 import re
 from typing import List, Optional
-from google.cloud.aiplatform import initializer
 
-from google.cloud.aiplatform_v1beta1 import (
-    RagQuery,
-    RetrieveContextsRequest,
-    RetrieveContextsResponse,
-)
-from vertexai.rag.utils import (
-    _gapic_utils,
-)
-from vertexai.rag.utils.resources import RagResource
+from google.cloud import aiplatform_v1
+from google.cloud.aiplatform import initializer
+from vertexai.rag.utils import _gapic_utils
+from vertexai.rag.utils import resources
 
 
 def retrieval_query(
     text: str,
-    rag_resources: Optional[List[RagResource]] = None,
-    rag_corpora: Optional[List[str]] = None,
-    similarity_top_k: Optional[int] = 10,
-    vector_distance_threshold: Optional[float] = 0.3,
-    vector_search_alpha: Optional[float] = 0.5,
-) -> RetrieveContextsResponse:
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+) -> aiplatform_v1.RetrieveContextsResponse:
     """Retrieve top k relevant docs/chunks.
 
     Example usage:
@@ -55,7 +46,6 @@ def retrieval_query(
         )],
         similarity_top_k=2,
         vector_distance_threshold=0.5,
-        vector_search_alpha=0.5,
     )
     ```
 
@@ -64,15 +54,9 @@ def retrieval_query(
         rag_resources: A list of RagResource. It can be used to specify corpus
             only or ragfiles. Currently only support one corpus or multiple files
             from one corpus. In the future we may open up multiple corpora support.
-        rag_corpora: If rag_resources is not specified, use rag_corpora as a list
-            of rag corpora names.
-        similarity_top_k: The number of contexts to retrieve.
-        vector_distance_threshold: Optional. Only return contexts with vector
-            distance smaller than the threshold.
-        vector_search_alpha: Optional. Controls the weight between dense and
-            sparse vector search results. The range is [0, 1], where 0 means
-            sparse vector search only and 1 means dense vector search only.
-            The default value is 0.5.
+        rag_retrieval_config: Optional. The config containing the retrieval
+            parameters, including similarity_top_k, vector_distance_threshold,
+            and hybrid_search.
 
     Returns:
         RetrieveContextsResonse.
@@ -85,12 +69,8 @@ def retrieval_query(
         if len(rag_resources) > 1:
             raise ValueError("Currently only support 1 RagResource.")
         name = rag_resources[0].rag_corpus
-    elif rag_corpora:
-        if len(rag_corpora) > 1:
-            raise ValueError("Currently only support 1 RagCorpus.")
-        name = rag_corpora[0]
     else:
-        raise ValueError("rag_resources or rag_corpora must be specified.")
+        raise ValueError("rag_resources must be specified.")
 
     data_client = _gapic_utils.create_rag_data_service_client()
     if data_client.parse_rag_corpus_path(name):
@@ -99,32 +79,47 @@ def retrieval_query(
         rag_corpus_name = parent + "/ragCorpora/" + name
     else:
         raise ValueError(
-            "Invalid RagCorpus name: %s. Proper format should be: projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}",
-            rag_corpora,
+            f"Invalid RagCorpus name: {name}. Proper format should be:"
+            " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
         )
 
     if rag_resources:
-        gapic_rag_resource = RetrieveContextsRequest.VertexRagStore.RagResource(
-            rag_corpus=rag_corpus_name,
-            rag_file_ids=rag_resources[0].rag_file_ids,
+        gapic_rag_resource = (
+            aiplatform_v1.RetrieveContextsRequest.VertexRagStore.RagResource(
+                rag_corpus=rag_corpus_name,
+                rag_file_ids=rag_resources[0].rag_file_ids,
+            )
         )
-        vertex_rag_store = RetrieveContextsRequest.VertexRagStore(
+        vertex_rag_store = aiplatform_v1.RetrieveContextsRequest.VertexRagStore(
             rag_resources=[gapic_rag_resource],
         )
     else:
-        vertex_rag_store = RetrieveContextsRequest.VertexRagStore(
+        vertex_rag_store = aiplatform_v1.RetrieveContextsRequest.VertexRagStore(
             rag_corpora=[rag_corpus_name],
         )
 
-    vertex_rag_store.vector_distance_threshold = vector_distance_threshold
-    query = RagQuery(
+    # If rag_retrieval_config is not specified, set it to default values.
+    if not rag_retrieval_config:
+        api_retrival_config = aiplatform_v1.RagRetrievalConfig()
+    else:
+        # If rag_retrieval_config is specified, check for missing parameters.
+        api_retrival_config = aiplatform_v1.RagRetrievalConfig(
+            top_k=rag_retrieval_config.top_k,
+        )
+        if rag_retrieval_config.filter:
+            api_retrival_config.filter = aiplatform_v1.RagRetrievalConfig.Filter(
+                vector_distance_threshold=rag_retrieval_config.filter.vector_distance_threshold
+            )
+        else:
+            api_retrival_config.filter = aiplatform_v1.RagRetrievalConfig.Filter(
+                vector_distance_threshold=None
+            )
+
+    query = aiplatform_v1.RagQuery(
         text=text,
-        similarity_top_k=similarity_top_k,
-        ranking=RagQuery.Ranking(
-            alpha=vector_search_alpha,
-        ),
+        rag_retrieval_config=api_retrival_config,
     )
-    request = RetrieveContextsRequest(
+    request = aiplatform_v1.RetrieveContextsRequest(
         vertex_rag_store=vertex_rag_store,
         parent=parent,
         query=query,

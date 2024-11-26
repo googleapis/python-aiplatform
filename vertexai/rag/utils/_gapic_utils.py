@@ -16,7 +16,7 @@
 #
 import re
 from typing import Any, Dict, Optional, Sequence, Union
-from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.cloud.aiplatform_v1.types import api_auth
 from google.cloud.aiplatform_v1beta1 import (
     RagEmbeddingModelConfig,
     GoogleDriveSource,
@@ -58,19 +58,19 @@ _VALID_RESOURCE_NAME_REGEX = "[a-z][a-zA-Z0-9._-]{0,127}"
 def create_rag_data_service_client():
     return initializer.global_config.create_client(
         client_class=VertexRagDataClientWithOverride,
-    )
+    ).select_version("v1")
 
 
 def create_rag_data_service_async_client():
     return initializer.global_config.create_client(
         client_class=VertexRagDataAsyncClientWithOverride,
-    )
+    ).select_version("v1")
 
 
 def create_rag_service_client():
     return initializer.global_config.create_client(
         client_class=VertexRagClientWithOverride,
-    )
+    ).select_version("v1")
 
 
 def convert_gapic_to_embedding_model_config(

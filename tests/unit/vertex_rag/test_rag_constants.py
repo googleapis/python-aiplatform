@@ -18,12 +18,14 @@
 
 from google.cloud import aiplatform
 
-from vertexai.preview.rag import (
+from vertexai.rag import (
     EmbeddingModelConfig,
+    Filter,
     Pinecone,
     RagCorpus,
     RagFile,
     RagResource,
+    RagRetrievalConfig,
     SharePointSource,
     SharePointSources,
     SlackChannelsSource,
@@ -34,6 +36,7 @@ from vertexai.preview.rag import (
     VertexVectorSearch,
     VertexFeatureStore,
 )
+
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
     RagFileChunkingConfig,
@@ -46,9 +49,11 @@ from google.cloud.aiplatform_v1beta1 import (
     RagFile as GapicRagFile,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
+    RagVectorDbConfig,
+)
+from google.cloud.aiplatform_v1 import (
     RagContexts,
     RetrieveContextsResponse,
-    RagVectorDbConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.protobuf import timestamp_pb2
@@ -528,4 +533,8 @@ TEST_RAG_RESOURCE = RagResource(
 TEST_RAG_RESOURCE_INVALID_NAME = RagResource(
     rag_corpus="213lkj-1/23jkl/",
     rag_file_ids=[TEST_RAG_FILE_ID],
+)
+TEST_RAG_RETRIEVAL_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5),
 )

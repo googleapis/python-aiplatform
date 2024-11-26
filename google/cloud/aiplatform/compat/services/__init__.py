@@ -179,6 +179,15 @@ from google.cloud.aiplatform_v1.services.tensorboard_service import (
 from google.cloud.aiplatform_v1.services.vizier_service import (
     client as vizier_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.vertex_rag_service import (
+    client as vertex_rag_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.vertex_rag_data_service import (
+    client as vertex_rag_data_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.vertex_rag_data_service import (
+    async_client as vertex_rag_data_service_async_client_v1,
+)
 
 __all__ = (
     # v1
@@ -204,6 +213,9 @@ __all__ = (
     specialist_pool_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
+    vertex_rag_data_service_async_client_v1,
+    vertex_rag_data_service_client_v1,
+    vertex_rag_service_client_v1,
     # v1beta1
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
