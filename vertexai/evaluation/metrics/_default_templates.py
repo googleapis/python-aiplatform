@@ -569,7 +569,7 @@ STEP 5: Output your assessment reasoning in the explanation field, justifying yo
 {baseline_model_response}
 
 ### Response B
-{response}  // candidate_model_response
+{response}
 """
 
 MULTI_TURN_CHAT_QUALITY_PROMPT_TEMPLATE = """
@@ -749,7 +749,7 @@ STEP 5: Output your assessment reasoning in the explanation field.
 {baseline_model_response}
 
 ### Response B
-{response}  // candidate_model_response
+{response}
 """
 
 SUMMARIZATION_QUALITY_PROMPT_TEMPLATE = """
