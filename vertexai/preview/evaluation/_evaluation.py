@@ -574,7 +574,6 @@ def _run_runnable_inference(
                         tasks.append(task)
                     for task in tasks:
                         response_dict, latency, failure = task.result()
-                        pbar.update(1)
                         responses.append(response_dict["output"])
                         latency_list.append(latency)
                         failure_list.append(failure)
@@ -602,7 +601,6 @@ def _run_runnable_inference(
                                     "the pre-existing `response` column provided "
                                     "in the evaluation dataset is not used."
                                 )
-                        pbar.update(1)
         elif callable(runnable):
             with tqdm(total=len(evaluation_run_config.dataset)) as pbar:
                 with futures.ThreadPoolExecutor(
@@ -645,7 +643,6 @@ def _run_runnable_inference(
                                     " column provided in the evaluation dataset"
                                     " is not used."
                                 )
-                        pbar.update(1)
         else:
             raise ValueError(f"Unsupported runnable type: {type(runnable)}")
 
