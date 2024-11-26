@@ -255,6 +255,30 @@ class TestgenerativeModelTuning:
         attribute="client_class",
         new=MockTuningJobClientWithOverride,
     )
+    @pytest.mark.parametrize(
+        "supervised_tuning",
+        [supervised_tuning, preview_supervised_tuning],
+    )
+    def test_genai_tuning_service_service_account(
+        self, supervised_tuning: supervised_tuning
+    ):
+        """Test that the service account propagates to the tuning job."""
+        vertexai.init(service_account="test-sa@test-project.iam.gserviceaccount.com")
+
+        sft_tuning_job = supervised_tuning.train(
+            source_model="gemini-1.0-pro-002",
+            train_dataset="gs://some-bucket/some_dataset.jsonl",
+        )
+        assert (
+            sft_tuning_job.service_account
+            == "test-sa@test-project.iam.gserviceaccount.com"
+        )
+
+    @mock.patch.object(
+        target=tuning.TuningJob,
+        attribute="client_class",
+        new=MockTuningJobClientWithOverride,
+    )
     @mock.patch.object(
         target=storage.Bucket,
         attribute="exists",
