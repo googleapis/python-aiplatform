@@ -30,6 +30,7 @@ from google.cloud.aiplatform_v1beta1 import (
     SlackSource as GapicSlackSource,
     JiraSource as GapicJiraSource,
     RagVectorDbConfig,
+    VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
@@ -46,6 +47,7 @@ from vertexai.preview.rag.utils.resources import (
     SharePointSources,
     SlackChannelsSource,
     JiraSource,
+    VertexAiSearchConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -166,6 +168,17 @@ def convert_gapic_to_vector_db(
         return None
 
 
+def convert_gapic_to_vertex_ai_search_config(
+    gapic_vertex_ai_search_config: VertexAiSearchConfig,
+) -> VertexAiSearchConfig:
+    """Convert Gapic VertexAiSearchConfig to VertexAiSearchConfig."""
+    if gapic_vertex_ai_search_config.serving_config:
+        return VertexAiSearchConfig(
+            serving_config=gapic_vertex_ai_search_config.serving_config,
+        )
+    return None
+
+
 def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
     """Convert GapicRagCorpus to RagCorpus."""
     rag_corpus = RagCorpus(
@@ -176,6 +189,9 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
             gapic_rag_corpus.rag_embedding_model_config
         ),
         vector_db=convert_gapic_to_vector_db(gapic_rag_corpus.rag_vector_db_config),
+        vertex_ai_search_config=convert_gapic_to_vertex_ai_search_config(
+            gapic_rag_corpus.vertex_ai_search_config
+        ),
     )
     return rag_corpus
 
@@ -189,6 +205,9 @@ def convert_gapic_to_rag_corpus_no_embedding_model_config(
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
         vector_db=convert_gapic_to_vector_db(gapic_rag_corpus.rag_vector_db_config),
+        vertex_ai_search_config=convert_gapic_to_vertex_ai_search_config(
+            gapic_rag_corpus.vertex_ai_search_config
+        ),
     )
     return rag_corpus
 
@@ -583,4 +602,28 @@ def set_vector_db(
     else:
         raise TypeError(
             "vector_db must be a Weaviate, VertexFeatureStore, VertexVectorSearch, RagManagedDb, or Pinecone."
+        )
+
+
+def set_vertex_ai_search_config(
+    vertex_ai_search_config: VertexAiSearchConfig,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    if not vertex_ai_search_config.serving_config:
+        raise ValueError("serving_config must be set.")
+    engine_resource_name = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/collections/(?P<collection>.+?)/engines/(?P<engine>.+?)/servingConfigs/(?P<serving_config>.+?)$",
+        vertex_ai_search_config.serving_config,
+    )
+    data_store_resource_name = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/collections/(?P<collection>.+?)/dataStores/(?P<data_store>.+?)/servingConfigs/(?P<serving_config>.+?)$",
+        vertex_ai_search_config.serving_config,
+    )
+    if engine_resource_name or data_store_resource_name:
+        rag_corpus.vertex_ai_search_config = GapicVertexAiSearchConfig(
+            serving_config=vertex_ai_search_config.serving_config,
+        )
+    else:
+        raise ValueError(
+            "serving_config must be of the format `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}` or `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}`"
         )

@@ -51,6 +51,7 @@ from vertexai.preview.rag.utils.resources import (
     RagManagedDb,
     SharePointSources,
     SlackChannelsSource,
+    VertexAiSearchConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -64,6 +65,7 @@ def create_corpus(
     vector_db: Optional[
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None,
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -87,6 +89,9 @@ def create_corpus(
         embedding_model_config: The embedding model config.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
             default database Spanner is used.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+            Note: embedding_model_config or vector_db cannot be set if
+            vertex_ai_search_config is specified.
     Returns:
         RagCorpus.
     Raises:
@@ -103,10 +108,25 @@ def create_corpus(
             embedding_model_config=embedding_model_config,
             rag_corpus=rag_corpus,
         )
-    _gapic_utils.set_vector_db(
-        vector_db=vector_db,
-        rag_corpus=rag_corpus,
-    )
+
+    if vertex_ai_search_config and embedding_model_config:
+        raise ValueError(
+            "Only one of vertex_ai_search_config or embedding_model_config can be set."
+        )
+
+    if vertex_ai_search_config and vector_db:
+        raise ValueError("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    if vertex_ai_search_config:
+        _gapic_utils.set_vertex_ai_search_config(
+            vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
+    else:
+        _gapic_utils.set_vector_db(
+            vector_db=vector_db,
+            rag_corpus=rag_corpus,
+        )
 
     request = CreateRagCorpusRequest(
         parent=parent,
@@ -134,6 +154,7 @@ def update_corpus(
             RagManagedDb,
         ]
     ] = None,
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
 ) -> RagCorpus:
     """Updates a RagCorpus resource.
 
@@ -161,6 +182,10 @@ def update_corpus(
           description will not be updated.
         vector_db: The vector db config of the RagCorpus. If not provided, the
           vector db will not be updated.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+          If not provided, the Vertex AI Search config will not be updated.
+          Note: embedding_model_config or vector_db cannot be set if
+          vertex_ai_search_config is specified.
 
     Returns:
         RagCorpus.
@@ -180,10 +205,19 @@ def update_corpus(
     else:
         rag_corpus = GapicRagCorpus(name=corpus_name)
 
-    _gapic_utils.set_vector_db(
-        vector_db=vector_db,
-        rag_corpus=rag_corpus,
-    )
+    if vertex_ai_search_config and vector_db:
+        raise ValueError("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    if vertex_ai_search_config:
+        _gapic_utils.set_vertex_ai_search_config(
+            vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
+    else:
+        _gapic_utils.set_vector_db(
+            vector_db=vector_db,
+            rag_corpus=rag_corpus,
+        )
 
     request = UpdateRagCorpusRequest(
         rag_corpus=rag_corpus,
