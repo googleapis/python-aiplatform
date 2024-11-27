@@ -150,15 +150,31 @@ TEST_RAG_FILE_RESOURCE_NAME = (
     TEST_RAG_CORPUS_RESOURCE_NAME + f"/ragFiles/{TEST_RAG_FILE_ID}"
 )
 TEST_UPLOAD_RAG_FILE_RESPONSE_CONTENT = ""
+TEST_CHUNK_SIZE = 512
+TEST_CHUNK_OVERLAP = 100
 TEST_RAG_FILE_JSON = {
     "ragFile": {
         "name": TEST_RAG_FILE_RESOURCE_NAME,
         "displayName": TEST_FILE_DISPLAY_NAME,
     }
 }
+TEST_RAG_FILE_JSON_WITH_UPLOAD_CONFIG = {
+    "ragFile": {
+        "name": TEST_RAG_FILE_RESOURCE_NAME,
+        "displayName": TEST_FILE_DISPLAY_NAME,
+    },
+    "rag_file_transformation_config": {
+        "rag_file_transformation_config": {
+            "rag_file_chunking_config": {
+                "fixed_length_chunking": {
+                    "chunk_size": TEST_CHUNK_SIZE,
+                    "chunk_overlap": TEST_CHUNK_OVERLAP,
+                }
+            }
+        }
+    },
+}
 TEST_RAG_FILE_JSON_ERROR = {"error": {"code": 13}}
-TEST_CHUNK_SIZE = 512
-TEST_CHUNK_OVERLAP = 100
 TEST_RAG_FILE_TRANSFORMATION_CONFIG = RagFileTransformationConfig(
     rag_file_chunking_config=RagFileChunkingConfig(
         fixed_length_chunking=RagFileChunkingConfig.FixedLengthChunking(
