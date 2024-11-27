@@ -215,6 +215,31 @@ def retrieval_query(
             api_retrival_config.filter.vector_distance_threshold = (
                 vector_distance_threshold
             )
+        if (
+                rag_retrieval_config.ranking
+                and rag_retrieval_config.ranking.rank_service
+                and rag_retrieval_config.ranking.llm_ranker
+            ):
+            raise ValueError(
+                        "Only one of rank_service and llm_ranker can be set."
+                    )
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+        ):
+            api_retrival_config.ranking = aiplatform_v1beta1.RagRetrievalConfig.Ranking(
+                rank_service=aiplatform_v1beta1.RagRetrievalConfig.Ranking.RankService(
+                    model_name=rag_retrieval_config.ranking.rank_service.model_name
+                )
+            )
+        elif (
+            rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker
+        ):
+            api_retrival_config.ranking = aiplatform_v1beta1.RagRetrievalConfig.Ranking(
+                llm_ranker=aiplatform_v1beta1.RagRetrievalConfig.Ranking.LlmRanker(
+                    model_name=rag_retrieval_config.ranking.llm_ranker.model_name
+                )
+            )
     query = aiplatform_v1beta1.RagQuery(
         text=text,
         rag_retrieval_config=api_retrival_config,
