@@ -17,13 +17,13 @@
 import re
 from typing import Any, Dict, Optional, Sequence, Union
 from google.cloud.aiplatform_v1.types import api_auth
-from google.cloud.aiplatform_v1beta1 import (
+from google.cloud.aiplatform_v1 import (
     RagEmbeddingModelConfig,
     GoogleDriveSource,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     RagFileChunkingConfig,
-    RagFileParsingConfig,
+    RagFileTransformationConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
     SharePointSources as GapicSharePointSources,
@@ -37,7 +37,7 @@ from google.cloud.aiplatform.utils import (
     VertexRagDataClientWithOverride,
     VertexRagClientWithOverride,
 )
-from vertexai.preview.rag.utils.resources import (
+from vertexai.rag.utils.resources import (
     EmbeddingModelConfig,
     Pinecone,
     RagCorpus,
@@ -45,6 +45,7 @@ from vertexai.preview.rag.utils.resources import (
     RagManagedDb,
     SharePointSources,
     SlackChannelsSource,
+    TransformationConfig,
     JiraSource,
     VertexFeatureStore,
     VertexVectorSearch,
@@ -345,10 +346,8 @@ def prepare_import_files_request(
     corpus_name: str,
     paths: Optional[Sequence[str]] = None,
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
-    chunk_size: int = 1024,
-    chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
-    use_advanced_pdf_parsing: bool = False,
     partial_failures_sink: Optional[str] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
@@ -356,17 +355,24 @@ def prepare_import_files_request(
             "corpus_name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`"
         )
 
-    rag_file_parsing_config = RagFileParsingConfig(
-        use_advanced_pdf_parsing=use_advanced_pdf_parsing,
+    chunk_size = 1024
+    chunk_overlap = 200
+    if transformation_config and transformation_config.chunking_config:
+        chunk_size = transformation_config.chunking_config.chunk_size
+        chunk_overlap = transformation_config.chunking_config.chunk_overlap
+
+    rag_file_transformation_config = RagFileTransformationConfig(
+        rag_file_chunking_config=RagFileChunkingConfig(
+            fixed_length_chunking=RagFileChunkingConfig.FixedLengthChunking(
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap,
+            ),
+        ),
     )
-    rag_file_chunking_config = RagFileChunkingConfig(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-    )
+
     import_rag_files_config = ImportRagFilesConfig(
-        rag_file_chunking_config=rag_file_chunking_config,
+        rag_file_transformation_config=rag_file_transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
-        rag_file_parsing_config=rag_file_parsing_config,
     )
 
     if source is not None:

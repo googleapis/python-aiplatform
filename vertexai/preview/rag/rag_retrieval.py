@@ -43,6 +43,7 @@ def retrieval_query(
 
     vertexai.init(project="my-project")
 
+    # Using deprecated parameters
     results = vertexai.preview.rag.retrieval_query(
         text="Why is the sky blue?",
         rag_resources=[vertexai.preview.rag.RagResource(
@@ -53,6 +54,26 @@ def retrieval_query(
         vector_distance_threshold=0.5,
         vector_search_alpha=0.5,
     )
+
+    # Using RagRetrievalConfig. Equivalent to the above example.
+    config = vertexai.preview.rag.rag_retrieval_config(
+        top_k=2,
+        filter=vertexai.preview.rag.rag_retrieval_config.filter(
+            vector_distance_threshold=0.5
+        ),
+        hybrid_search=vertexai.preview.rag.rag_retrieval_config.hybrid_search(
+            alpha=0.5
+        ),
+    )
+
+    results = vertexai.preview.rag.retrieval_query(
+        text="Why is the sky blue?",
+        rag_resources=[vertexai.preview.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
     ```
 
     Args:
@@ -61,17 +82,20 @@ def retrieval_query(
             only or ragfiles. Currently only support one corpus or multiple files
             from one corpus. In the future we may open up multiple corpora support.
         rag_corpora: If rag_resources is not specified, use rag_corpora as a list
-            of rag corpora names.
-        similarity_top_k: The number of contexts to retrieve.
+            of rag corpora names. Deprecated. Use rag_resources instead.
+        similarity_top_k: The number of contexts to retrieve. Deprecated. Use
+            rag_retrieval_config.top_k instead.
         vector_distance_threshold: Optional. Only return contexts with vector
-            distance smaller than the threshold.
+            distance smaller than the threshold. Deprecated. Use
+            rag_retrieval_config.filter.vector_distance_threshold instead.
         vector_search_alpha: Optional. Controls the weight between dense and
             sparse vector search results. The range is [0, 1], where 0 means
             sparse vector search only and 1 means dense vector search only.
-            The default value is 0.5.
+            The default value is 0.5. Deprecated. Use
+            rag_retrieval_config.hybrid_search.alpha instead.
         rag_retrieval_config: Optional. The config containing the retrieval
-            parameters, including similarity_top_k, vector_distance_threshold,
-            vector_search_alpha, and hybrid_search.
+            parameters, including top_k, vector_distance_threshold,
+            and alpha.
 
     Returns:
         RetrieveContextsResonse.

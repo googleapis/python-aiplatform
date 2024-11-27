@@ -23,7 +23,7 @@ from google.auth.transport import requests as google_auth_requests
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1 import (
+from google.cloud.aiplatform_v1 import (
     CreateRagCorpusRequest,
     DeleteRagCorpusRequest,
     DeleteRagFileRequest,
@@ -35,7 +35,7 @@ from google.cloud.aiplatform_v1beta1 import (
     RagCorpus as GapicRagCorpus,
     UpdateRagCorpusRequest,
 )
-from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers import (
+from google.cloud.aiplatform_v1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
     ListRagFilesPager,
 )
@@ -51,6 +51,7 @@ from vertexai.rag.utils.resources import (
     RagManagedDb,
     SharePointSources,
     SlackChannelsSource,
+    TransformationConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -70,7 +71,7 @@ def create_corpus(
     Example usage:
     ```
     import vertexai
-    from vertexai.preview import rag
+    from vertexai import rag
 
     vertexai.init(project="my-project")
 
@@ -140,7 +141,7 @@ def update_corpus(
     Example usage:
     ```
     import vertexai
-    from vertexai.preview import rag
+    from vertexai import rag
 
     vertexai.init(project="my-project")
 
@@ -229,7 +230,7 @@ def list_corpora(
     Example usage:
     ```
     import vertexai
-    from vertexai.preview import rag
+    from vertexai import rag
 
     vertexai.init(project="my-project")
 
@@ -299,7 +300,7 @@ def upload_file(
 
     ```
     import vertexai
-    from vertexai.preview import rag
+    from vertexai import rag
 
     vertexai.init(project="my-project")
 
@@ -331,7 +332,7 @@ def upload_file(
     if display_name is None:
         display_name = "vertex-" + utils.timestamped_unique_name()
     headers = {"X-Goog-Upload-Protocol": "multipart"}
-    upload_request_uri = "https://{}-{}/upload/v1beta1/{}/ragFiles:upload".format(
+    upload_request_uri = "https://{}-{}/upload/v1/{}/ragFiles:upload".format(
         location,
         aiplatform.constants.base.API_BASE_PATH,
         corpus_name,
@@ -370,11 +371,9 @@ def import_files(
     corpus_name: str,
     paths: Optional[Sequence[str]] = None,
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
-    chunk_size: int = 1024,
-    chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
-    use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
 ) -> ImportRagFilesResponse:
     """
@@ -384,7 +383,7 @@ def import_files(
 
     ```
     import vertexai
-    from vertexai.preview import rag
+    from vertexai import rag
     from google.protobuf import timestamp_pb2
 
     vertexai.init(project="my-project")
@@ -396,11 +395,17 @@ def import_files(
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     response = rag.import_files(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # Slack example
@@ -429,8 +434,7 @@ def import_files(
     response = rag.import_files(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         source=source,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # SharePoint Example.
@@ -460,8 +464,8 @@ def import_files(
             "https://drive.google.com/corp/drive/folders/...").
         source: The source of the Slack or Jira import.
             Must be either a SlackChannelsSource or JiraSource.
-        chunk_size: The size of the chunks.
-        chunk_overlap: The overlap between chunks.
+        transformation_config: The config for transforming the imported
+            RagFiles.
         max_embedding_requests_per_min:
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -472,8 +476,6 @@ def import_files(
             here. If unspecified, a default value of 1,000
             QPM would be used.
         timeout: Default is 600 seconds.
-        use_advanced_pdf_parsing: Whether to use advanced PDF
-            parsing on uploaded files.
         partial_failures_sink: Either a GCS path to store partial failures or a
             BigQuery table to store partial failures. The format is
             "gs://my-bucket/my/object.ndjson" for GCS or
@@ -494,10 +496,8 @@ def import_files(
         corpus_name=corpus_name,
         paths=paths,
         source=source,
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
+        transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
-        use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
     )
     client = _gapic_utils.create_rag_data_service_client()
@@ -513,10 +513,8 @@ async def import_files_async(
     corpus_name: str,
     paths: Optional[Sequence[str]] = None,
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
-    chunk_size: int = 1024,
-    chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
-    use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
 ) -> operation_async.AsyncOperation:
     """
@@ -526,7 +524,7 @@ async def import_files_async(
 
     ```
     import vertexai
-    from vertexai.preview import rag
+    from vertexai import rag
     from google.protobuf import timestamp_pb2
 
     vertexai.init(project="my-project")
@@ -539,11 +537,17 @@ async def import_files_async(
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     response = await rag.import_files_async(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # Slack example
@@ -572,8 +576,7 @@ async def import_files_async(
     response = await rag.import_files_async(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         source=source,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # SharePoint Example.
@@ -603,8 +606,8 @@ async def import_files_async(
             "https://drive.google.com/corp/drive/folders/...").
         source: The source of the Slack or Jira import.
             Must be either a SlackChannelsSource or JiraSource.
-        chunk_size: The size of the chunks.
-        chunk_overlap: The overlap between chunks.
+        transformation_config: The config for transforming the imported
+            RagFiles.
         max_embedding_requests_per_min:
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -614,8 +617,6 @@ async def import_files_async(
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
-        use_advanced_pdf_parsing: Whether to use advanced PDF
-            parsing on uploaded files.
         partial_failures_sink: Either a GCS path to store partial failures or a
             BigQuery table to store partial failures. The format is
             "gs://my-bucket/my/object.ndjson" for GCS or
@@ -636,10 +637,8 @@ async def import_files_async(
         corpus_name=corpus_name,
         paths=paths,
         source=source,
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
+        transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
-        use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()

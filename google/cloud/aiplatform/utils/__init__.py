@@ -142,6 +142,8 @@ VertexAiServiceClient = TypeVar(
     tensorboard_service_client_v1.TensorboardServiceClient,
     vizier_service_client_v1.VizierServiceClient,
     vertex_rag_service_client_v1.VertexRagServiceClient,
+    vertex_rag_data_service_async_client_v1.VertexRagDataServiceAsyncClient,
+    vertex_rag_data_service_client_v1.VertexRagDataServiceClient,
 )
 
 
