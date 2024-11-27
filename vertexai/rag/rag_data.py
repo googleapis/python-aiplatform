@@ -292,6 +292,7 @@ def upload_file(
     path: Union[str, Sequence[str]],
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    transformation_config: Optional[TransformationConfig] = None,
 ) -> RagFile:
     """
     Synchronous file upload to an existing RagCorpus.
@@ -304,10 +305,19 @@ def upload_file(
 
     vertexai.init(project="my-project")
 
+    // Optional.
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     rag_file = rag.upload_file(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         display_name="my_file.txt",
         path="usr/home/my_file.txt",
+        transformation_config=transformation_config,
     )
     ```
 
@@ -319,6 +329,8 @@ def upload_file(
             "usr/home/my_file.txt".
         display_name: The display name of the data file.
         description: The description of the RagFile.
+        transformation_config: The config for transforming the RagFile, like chunking.
+
     Returns:
         RagFile.
     Raises:
@@ -337,12 +349,25 @@ def upload_file(
         aiplatform.constants.base.API_BASE_PATH,
         corpus_name,
     )
+    js_rag_file = {"rag_file": {"display_name": display_name}}
+
     if description:
-        js_rag_file = {
-            "rag_file": {"display_name": display_name, "description": description}
+        js_rag_file["rag_file"]["description"] = description
+
+    if transformation_config and transformation_config.chunking_config:
+        chunk_size = transformation_config.chunking_config.chunk_size
+        chunk_overlap = transformation_config.chunking_config.chunk_overlap
+        js_rag_file["upload_rag_file_config"] = {
+            "rag_file_transformation_config": {
+                "rag_file_chunking_config": {
+                    "fixed_length_chunking": {
+                        "chunk_size": chunk_size,
+                        "chunk_overlap": chunk_overlap,
+                    }
+                }
+            }
         }
-    else:
-        js_rag_file = {"rag_file": {"display_name": display_name}}
+
     files = {
         "metadata": (None, str(js_rag_file)),
         "file": open(path, "rb"),

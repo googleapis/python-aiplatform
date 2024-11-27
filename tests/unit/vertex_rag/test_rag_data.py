@@ -225,6 +225,15 @@ def upload_file_mock(authorized_session_mock):
 
 
 @pytest.fixture
+def upload_file_with_upload_config_mock(authorized_session_mock):
+    with patch.object(authorized_session_mock, "post") as mock_post:
+        mock_post.return_value = MockResponse(
+            test_rag_constants.TEST_RAG_FILE_JSON_WITH_UPLOAD_CONFIG, 200
+        )
+        yield mock_post
+
+
+@pytest.fixture
 def upload_file_not_found_mock(authorized_session_mock):
     with patch.object(authorized_session_mock, "post") as mock_post:
         mock_post.return_value = MockResponse(None, 404)
@@ -566,6 +575,29 @@ class TestRagDataManagement:
 
         upload_file_mock.assert_called_once()
         _, mock_kwargs = upload_file_mock.call_args
+        assert mock_kwargs["url"] == test_rag_constants.TEST_UPLOAD_REQUEST_URI
+        assert mock_kwargs["headers"] == test_rag_constants.TEST_HEADERS
+
+        rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
+
+    @pytest.mark.usefixtures("open_file_mock")
+    def test_upload_file_success_with_transformation_config(
+        self,
+        upload_file_with_upload_config_mock,
+    ):
+        aiplatform.init(
+            project=test_rag_constants.TEST_PROJECT,
+            location=test_rag_constants.TEST_REGION,
+        )
+        rag_file = rag.upload_file(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            path=test_rag_constants.TEST_PATH,
+            display_name=test_rag_constants.TEST_FILE_DISPLAY_NAME,
+            transformation_config=create_transformation_config(),
+        )
+
+        upload_file_with_upload_config_mock.assert_called_once()
+        _, mock_kwargs = upload_file_with_upload_config_mock.call_args
         assert mock_kwargs["url"] == test_rag_constants.TEST_UPLOAD_REQUEST_URI
         assert mock_kwargs["headers"] == test_rag_constants.TEST_HEADERS
 
