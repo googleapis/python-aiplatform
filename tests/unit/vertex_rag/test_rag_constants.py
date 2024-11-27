@@ -19,22 +19,22 @@
 from google.cloud import aiplatform
 
 from vertexai.rag import (
-    EmbeddingModelConfig,
     Filter,
     Pinecone,
     RagCorpus,
     RagFile,
     RagResource,
     RagRetrievalConfig,
+    RagVectorDbConfig,
     SharePointSource,
     SharePointSources,
     SlackChannelsSource,
     SlackChannel,
     JiraSource,
     JiraQuery,
-    Weaviate,
     VertexVectorSearch,
-    VertexFeatureStore,
+    RagEmbeddingModelConfig,
+    VertexPredictionEndpoint,
 )
 
 from google.cloud.aiplatform_v1 import (
@@ -49,10 +49,9 @@ from google.cloud.aiplatform_v1 import (
     RagFile as GapicRagFile,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
-)
-from google.cloud.aiplatform_v1 import (
     RagContexts,
     RetrieveContextsResponse,
+    RagVectorDbConfig as GapicRagVectorDbConfig,
 )
 from google.cloud.aiplatform_v1.types import api_auth
 from google.protobuf import timestamp_pb2
@@ -72,11 +71,6 @@ TEST_WEAVIATE_HTTP_ENDPOINT = "test.weaviate.com"
 TEST_WEAVIATE_COLLECTION_NAME = "test-collection"
 TEST_WEAVIATE_API_KEY_SECRET_VERSION = (
     "projects/test-project/secrets/test-secret/versions/1"
-)
-TEST_WEAVIATE_CONFIG = Weaviate(
-    weaviate_http_endpoint=TEST_WEAVIATE_HTTP_ENDPOINT,
-    collection_name=TEST_WEAVIATE_COLLECTION_NAME,
-    api_key=TEST_WEAVIATE_API_KEY_SECRET_VERSION,
 )
 TEST_PINECONE_INDEX_NAME = "test-pinecone-index"
 TEST_PINECONE_API_KEY_SECRET_VERSION = (
@@ -98,41 +92,68 @@ TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
 )
-TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
-    publisher_model="publishers/google/models/textembedding-gecko",
+TEST_GAPIC_RAG_CORPUS.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
+    TEST_PROJECT, TEST_REGION
 )
-TEST_VERTEX_FEATURE_STORE_CONFIG = VertexFeatureStore(
-    resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME,
+TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db_config=GapicRagVectorDbConfig(
+        vertex_vector_search=GapicRagVectorDbConfig.VertexVectorSearch(
+            index_endpoint=TEST_VERTEX_VECTOR_SEARCH_INDEX_ENDPOINT,
+            index=TEST_VERTEX_VECTOR_SEARCH_INDEX,
+        ),
+    ),
+)
+TEST_GAPIC_RAG_CORPUS_PINECONE = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db_config=GapicRagVectorDbConfig(
+        pinecone=GapicRagVectorDbConfig.Pinecone(index_name=TEST_PINECONE_INDEX_NAME),
+        api_auth=api_auth.ApiAuth(
+            api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+                api_key_secret_version=TEST_PINECONE_API_KEY_SECRET_VERSION
+            ),
+        ),
+    ),
+)
+
+TEST_EMBEDDING_MODEL_CONFIG = RagEmbeddingModelConfig(
+    vertex_prediction_endpoint=VertexPredictionEndpoint(
+        publisher_model=(
+            "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
+                TEST_PROJECT, TEST_REGION
+            )
+        ),
+    ),
+)
+TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG = RagVectorDbConfig(
+    rag_embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
 )
 TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
+    backend_config=TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
 )
-TEST_RAG_CORPUS_WEAVIATE = RagCorpus(
-    name=TEST_RAG_CORPUS_RESOURCE_NAME,
-    display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_WEAVIATE_CONFIG,
-)
-TEST_RAG_CORPUS_VERTEX_FEATURE_STORE = RagCorpus(
-    name=TEST_RAG_CORPUS_RESOURCE_NAME,
-    display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_VERTEX_FEATURE_STORE_CONFIG,
+TEST_BACKEND_CONFIG_PINECONE_CONFIG = RagVectorDbConfig(
+    vector_db=TEST_PINECONE_CONFIG,
 )
 TEST_RAG_CORPUS_PINECONE = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_PINECONE_CONFIG,
+    backend_config=TEST_BACKEND_CONFIG_PINECONE_CONFIG,
+)
+TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG = RagVectorDbConfig(
+    vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
 )
 TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+    backend_config=TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
 
