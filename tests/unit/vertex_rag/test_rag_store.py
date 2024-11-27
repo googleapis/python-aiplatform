@@ -28,7 +28,7 @@ class TestRagStoreValidations:
                 retrieval=rag.Retrieval(
                     source=rag.VertexRagStore(
                         rag_resources=[tc.TEST_RAG_RESOURCE_INVALID_NAME],
-                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
                     ),
                 )
             )
@@ -45,3 +45,19 @@ class TestRagStoreValidations:
                 )
             )
             e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_tool_invalid_config_filter(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[tc.TEST_RAG_RESOURCE],
+                        rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_ERROR_CONFIG,
+                    )
+                )
+            )
+            e.match(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
