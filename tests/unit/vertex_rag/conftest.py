@@ -29,6 +29,7 @@ from google.cloud.aiplatform_v1beta1 import (
     VertexRagDataServiceClient as VertexRagDataServiceClientPreview,
 )
 import test_rag_constants_preview
+import test_rag_constants
 import mock
 import pytest
 
@@ -66,7 +67,7 @@ def rag_data_client_mock():
 
         # get_rag_corpus
         api_client_mock.get_rag_corpus.return_value = (
-            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS
+            test_rag_constants.TEST_GAPIC_RAG_CORPUS
         )
         # delete_rag_corpus
         delete_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
@@ -74,7 +75,7 @@ def rag_data_client_mock():
         api_client_mock.delete_rag_corpus.return_value = delete_rag_corpus_lro_mock
         # get_rag_file
         api_client_mock.get_rag_file.return_value = (
-            test_rag_constants_preview.TEST_GAPIC_RAG_FILE
+            test_rag_constants.TEST_GAPIC_RAG_FILE
         )
 
         rag_data_client_mock.return_value = api_client_mock

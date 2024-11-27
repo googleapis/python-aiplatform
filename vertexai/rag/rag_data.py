@@ -43,27 +43,24 @@ from vertexai.rag.utils import (
     _gapic_utils,
 )
 from vertexai.rag.utils.resources import (
-    EmbeddingModelConfig,
     JiraSource,
-    Pinecone,
     RagCorpus,
     RagFile,
-    RagManagedDb,
+    RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
-    VertexFeatureStore,
-    VertexVectorSearch,
-    Weaviate,
 )
 
 
 def create_corpus(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
-    embedding_model_config: Optional[EmbeddingModelConfig] = None,
-    vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+    backend_config: Optional[
+        Union[
+            RagVectorDbConfig,
+            None,
+        ]
     ] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
@@ -85,9 +82,8 @@ def create_corpus(
             the RagCorpus. The name can be up to 128 characters long and can
             consist of any UTF-8 characters.
         description: The description of the RagCorpus.
-        embedding_model_config: The embedding model config.
-        vector_db: The vector db config of the RagCorpus. If unspecified, the
-            default database Spanner is used.
+        backend_config: The backend config of the RagCorpus, specifying a
+          data store and/or embedding model.
     Returns:
         RagCorpus.
     Raises:
@@ -99,13 +95,8 @@ def create_corpus(
     parent = initializer.global_config.common_location_path(project=None, location=None)
 
     rag_corpus = GapicRagCorpus(display_name=display_name, description=description)
-    if embedding_model_config:
-        _gapic_utils.set_embedding_model_config(
-            embedding_model_config=embedding_model_config,
-            rag_corpus=rag_corpus,
-        )
-    _gapic_utils.set_vector_db(
-        vector_db=vector_db,
+    _gapic_utils.set_backend_config(
+        backend_config=backend_config,
         rag_corpus=rag_corpus,
     )
 
@@ -126,13 +117,10 @@ def update_corpus(
     corpus_name: str,
     display_name: Optional[str] = None,
     description: Optional[str] = None,
-    vector_db: Optional[
+    backend_config: Optional[
         Union[
-            Weaviate,
-            VertexFeatureStore,
-            VertexVectorSearch,
-            Pinecone,
-            RagManagedDb,
+            RagVectorDbConfig,
+            None,
         ]
     ] = None,
 ) -> RagCorpus:
@@ -160,8 +148,8 @@ def update_corpus(
           and can consist of any UTF-8 characters.
         description: The description of the RagCorpus. If not provided, the
           description will not be updated.
-        vector_db: The vector db config of the RagCorpus. If not provided, the
-          vector db will not be updated.
+        backend_config: The backend config of the RagCorpus, specifying a
+          data store and/or embedding model.
 
     Returns:
         RagCorpus.
@@ -181,8 +169,8 @@ def update_corpus(
     else:
         rag_corpus = GapicRagCorpus(name=corpus_name)
 
-    _gapic_utils.set_vector_db(
-        vector_db=vector_db,
+    _gapic_utils.set_backend_config(
+        backend_config=backend_config,
         rag_corpus=rag_corpus,
     )
 

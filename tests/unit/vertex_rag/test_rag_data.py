@@ -53,41 +53,6 @@ def create_rag_corpus_mock():
         yield create_rag_corpus_mock
 
 
-@pytest.mark.skip(reason="Will update in the follow up CL")
-@pytest.fixture
-def create_rag_corpus_mock_weaviate():
-    with mock.patch.object(
-        VertexRagDataServiceClient,
-        "create_rag_corpus",
-    ) as create_rag_corpus_mock_weaviate:
-        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
-        create_rag_corpus_lro_mock.done.return_value = True
-        create_rag_corpus_lro_mock.result.return_value = (
-            test_rag_constants.TEST_GAPIC_RAG_CORPUS_WEAVIATE
-        )
-        create_rag_corpus_mock_weaviate.return_value = create_rag_corpus_lro_mock
-        yield create_rag_corpus_mock_weaviate
-
-
-@pytest.mark.skip(reason="Will update in the follow up CL")
-@pytest.fixture
-def create_rag_corpus_mock_vertex_feature_store():
-    with mock.patch.object(
-        VertexRagDataServiceClient,
-        "create_rag_corpus",
-    ) as create_rag_corpus_mock_vertex_feature_store:
-        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
-        create_rag_corpus_lro_mock.done.return_value = True
-        create_rag_corpus_lro_mock.result.return_value = (
-            test_rag_constants.TEST_GAPIC_RAG_CORPUS_VERTEX_FEATURE_STORE
-        )
-        create_rag_corpus_mock_vertex_feature_store.return_value = (
-            create_rag_corpus_lro_mock
-        )
-        yield create_rag_corpus_mock_vertex_feature_store
-
-
-@pytest.mark.skip(reason="Will update in the follow up CL")
 @pytest.fixture
 def create_rag_corpus_mock_vertex_vector_search():
     with mock.patch.object(
@@ -105,7 +70,6 @@ def create_rag_corpus_mock_vertex_vector_search():
         yield create_rag_corpus_mock_vertex_vector_search
 
 
-@pytest.mark.skip(reason="Will update in the follow up CL")
 @pytest.fixture
 def create_rag_corpus_mock_pinecone():
     with mock.patch.object(
@@ -121,41 +85,6 @@ def create_rag_corpus_mock_pinecone():
         yield create_rag_corpus_mock_pinecone
 
 
-@pytest.mark.skip(reason="Will update in the follow up CL")
-@pytest.fixture
-def update_rag_corpus_mock_weaviate():
-    with mock.patch.object(
-        VertexRagDataServiceClient,
-        "update_rag_corpus",
-    ) as update_rag_corpus_mock_weaviate:
-        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
-        update_rag_corpus_lro_mock.done.return_value = True
-        update_rag_corpus_lro_mock.result.return_value = (
-            test_rag_constants.TEST_GAPIC_RAG_CORPUS_WEAVIATE
-        )
-        update_rag_corpus_mock_weaviate.return_value = update_rag_corpus_lro_mock
-        yield update_rag_corpus_mock_weaviate
-
-
-@pytest.mark.skip(reason="Will update in the follow up CL")
-@pytest.fixture
-def update_rag_corpus_mock_vertex_feature_store():
-    with mock.patch.object(
-        VertexRagDataServiceClient,
-        "update_rag_corpus",
-    ) as update_rag_corpus_mock_vertex_feature_store:
-        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
-        update_rag_corpus_lro_mock.done.return_value = True
-        update_rag_corpus_lro_mock.result.return_value = (
-            test_rag_constants.TEST_GAPIC_RAG_CORPUS_VERTEX_FEATURE_STORE
-        )
-        update_rag_corpus_mock_vertex_feature_store.return_value = (
-            update_rag_corpus_lro_mock
-        )
-        yield update_rag_corpus_mock_vertex_feature_store
-
-
-@pytest.mark.skip(reason="Will update in the follow up CL")
 @pytest.fixture
 def update_rag_corpus_mock_vertex_vector_search():
     with mock.patch.object(
@@ -173,7 +102,6 @@ def update_rag_corpus_mock_vertex_vector_search():
         yield update_rag_corpus_mock_vertex_vector_search
 
 
-@pytest.mark.skip(reason="Will update in the follow up CL")
 @pytest.fixture
 def update_rag_corpus_mock_pinecone():
     with mock.patch.object(
@@ -312,7 +240,7 @@ def create_transformation_config(
 def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
-    assert returned_corpus.vector_db.__eq__(expected_corpus.vector_db)
+    assert returned_corpus.backend_config.__eq__(expected_corpus.backend_config)
 
 
 def rag_file_eq(returned_file, expected_file):
@@ -357,149 +285,81 @@ class TestRagDataManagement:
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("create_rag_corpus_mock")
     def test_create_corpus_success(self):
         rag_corpus = rag.create_corpus(
             display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            embedding_model_config=test_rag_constants.TEST_EMBEDDING_MODEL_CONFIG,
+            backend_config=test_rag_constants.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
         )
 
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("create_rag_corpus_mock_weaviate")
-    def test_create_corpus_weaviate_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_feature_store")
-    def test_create_corpus_vertex_feature_store_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_VERTEX_FEATURE_STORE_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants.TEST_RAG_CORPUS_VERTEX_FEATURE_STORE
-        )
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_vector_search")
     def test_create_corpus_vertex_vector_search_success(self):
         rag_corpus = rag.create_corpus(
             display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+            backend_config=test_rag_constants.TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG,
         )
 
         rag_corpus_eq(
             rag_corpus, test_rag_constants.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
         )
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone")
     def test_create_corpus_pinecone_success(self):
         rag_corpus = rag.create_corpus(
             display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_PINECONE_CONFIG,
+            backend_config=test_rag_constants.TEST_BACKEND_CONFIG_PINECONE_CONFIG,
         )
 
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_PINECONE)
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_create_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.create_corpus(display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME)
         e.match("Failed in RagCorpus creation due to")
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_no_display_name_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
-            vector_db=test_rag_constants.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_with_description_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
-            description=test_rag_constants.TEST_CORPUS_DISCRIPTION,
-            vector_db=test_rag_constants.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_with_description_and_display_name_success(
-        self,
-    ):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
-            description=test_rag_constants.TEST_CORPUS_DISCRIPTION,
-            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_feature_store")
-    def test_update_corpus_vertex_feature_store_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_VERTEX_FEATURE_STORE_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants.TEST_RAG_CORPUS_VERTEX_FEATURE_STORE
-        )
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
-    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_vector_search")
-    def test_update_corpus_vertex_vector_search_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
-        )
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
-        )
-
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("update_rag_corpus_mock_pinecone")
     def test_update_corpus_pinecone_success(self):
         rag_corpus = rag.update_corpus(
             corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
             display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants.TEST_PINECONE_CONFIG,
+            backend_config=test_rag_constants.TEST_BACKEND_CONFIG_PINECONE_CONFIG,
         )
+
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_PINECONE)
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
+    @pytest.mark.usefixtures("update_rag_corpus_mock_pinecone")
+    def test_update_corpus_pinecone_no_display_name_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            backend_config=test_rag_constants.TEST_BACKEND_CONFIG_PINECONE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_PINECONE)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_pinecone")
+    def test_update_corpus_pinecone_with_description_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            description=test_rag_constants.TEST_CORPUS_DISCRIPTION,
+            backend_config=test_rag_constants.TEST_BACKEND_CONFIG_PINECONE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_PINECONE)
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_pinecone")
+    def test_update_corpus_pinecone_with_description_and_display_name_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            description=test_rag_constants.TEST_CORPUS_DISCRIPTION,
+            display_name=test_rag_constants.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=test_rag_constants.TEST_BACKEND_CONFIG_PINECONE_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS_PINECONE)
+
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_update_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -509,19 +369,16 @@ class TestRagDataManagement:
             )
         e.match("Failed in RagCorpus update due to")
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("rag_data_client_mock")
     def test_get_corpus_success(self):
         rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME)
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("rag_data_client_mock")
     def test_get_corpus_id_success(self):
         rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_ID)
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
-    @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_get_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -866,9 +723,11 @@ class TestRagDataManagement:
         )
 
     def test_set_embedding_model_config_set_both_error(self):
-        embedding_model_config = rag.EmbeddingModelConfig(
-            publisher_model="whatever",
-            endpoint="whatever",
+        embedding_model_config = rag.RagEmbeddingModelConfig(
+            vertex_prediction_endpoint=rag.VertexPredictionEndpoint(
+                publisher_model="whatever",
+                endpoint="whatever",
+            ),
         )
         with pytest.raises(ValueError) as e:
             set_embedding_model_config(
@@ -878,7 +737,9 @@ class TestRagDataManagement:
         e.match("publisher_model and endpoint cannot be set at the same time")
 
     def test_set_embedding_model_config_not_set_error(self):
-        embedding_model_config = rag.EmbeddingModelConfig()
+        embedding_model_config = rag.RagEmbeddingModelConfig(
+            vertex_prediction_endpoint=rag.VertexPredictionEndpoint(),
+        )
         with pytest.raises(ValueError) as e:
             set_embedding_model_config(
                 embedding_model_config,
@@ -887,7 +748,11 @@ class TestRagDataManagement:
         e.match("At least one of publisher_model and endpoint must be set")
 
     def test_set_embedding_model_config_wrong_publisher_model_format_error(self):
-        embedding_model_config = rag.EmbeddingModelConfig(publisher_model="whatever")
+        embedding_model_config = rag.RagEmbeddingModelConfig(
+            vertex_prediction_endpoint=rag.VertexPredictionEndpoint(
+                publisher_model="whatever",
+            ),
+        )
         with pytest.raises(ValueError) as e:
             set_embedding_model_config(
                 embedding_model_config,
@@ -896,7 +761,11 @@ class TestRagDataManagement:
         e.match("publisher_model must be of the format ")
 
     def test_set_embedding_model_config_wrong_endpoint_format_error(self):
-        embedding_model_config = rag.EmbeddingModelConfig(endpoint="whatever")
+        embedding_model_config = rag.RagEmbeddingModelConfig(
+            vertex_prediction_endpoint=rag.VertexPredictionEndpoint(
+                endpoint="whatever",
+            ),
+        )
         with pytest.raises(ValueError) as e:
             set_embedding_model_config(
                 embedding_model_config,

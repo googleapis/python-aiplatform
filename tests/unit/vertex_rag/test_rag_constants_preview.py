@@ -34,6 +34,7 @@ from vertexai.preview.rag import (
     JiraSource,
     JiraQuery,
     Weaviate,
+    VertexAiSearchConfig,
     VertexVectorSearch,
     VertexFeatureStore,
 )
@@ -52,6 +53,7 @@ from google.cloud.aiplatform_v1beta1 import (
     RagContexts,
     RetrieveContextsResponse,
     RagVectorDbConfig,
+    VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.protobuf import timestamp_pb2
@@ -189,6 +191,44 @@ TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
     vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
+# Vertex AI Search Config
+TEST_VERTEX_AI_SEARCH_ENGINE_SERVING_CONFIG = f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/collections/test-collection/engines/test-engine/servingConfigs/test-serving-config"
+TEST_VERTEX_AI_SEARCH_DATASTORE_SERVING_CONFIG = f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/collections/test-collection/dataStores/test-datastore/servingConfigs/test-serving-config"
+TEST_GAPIC_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    vertex_ai_search_config=GapicVertexAiSearchConfig(
+        serving_config=TEST_VERTEX_AI_SEARCH_ENGINE_SERVING_CONFIG,
+    ),
+)
+TEST_GAPIC_RAG_CORPUS_VERTEX_AI_DATASTORE_SEARCH_CONFIG = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    vertex_ai_search_config=GapicVertexAiSearchConfig(
+        serving_config=TEST_VERTEX_AI_SEARCH_DATASTORE_SERVING_CONFIG,
+    ),
+)
+TEST_VERTEX_AI_SEARCH_CONFIG_ENGINE = VertexAiSearchConfig(
+    serving_config=TEST_VERTEX_AI_SEARCH_ENGINE_SERVING_CONFIG,
+)
+TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE = VertexAiSearchConfig(
+    serving_config=TEST_VERTEX_AI_SEARCH_DATASTORE_SERVING_CONFIG,
+)
+TEST_VERTEX_AI_SEARCH_CONFIG_INVALID = VertexAiSearchConfig(
+    serving_config="invalid-serving-config",
+)
+TEST_VERTEX_AI_SEARCH_CONFIG_EMPTY = VertexAiSearchConfig()
+
+TEST_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    vertex_ai_search_config=TEST_VERTEX_AI_SEARCH_CONFIG_ENGINE,
+)
+TEST_RAG_CORPUS_VERTEX_AI_DATASTORE_SEARCH_CONFIG = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    vertex_ai_search_config=TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+)
 
 # RagFiles
 TEST_PATH = "usr/home/my_file.txt"

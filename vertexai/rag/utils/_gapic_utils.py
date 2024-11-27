@@ -18,7 +18,7 @@ import re
 from typing import Any, Dict, Optional, Sequence, Union
 from google.cloud.aiplatform_v1.types import api_auth
 from google.cloud.aiplatform_v1 import (
-    RagEmbeddingModelConfig,
+    RagEmbeddingModelConfig as GapicRagEmbeddingModelConfig,
     GoogleDriveSource,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
@@ -29,7 +29,7 @@ from google.cloud.aiplatform_v1 import (
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
     JiraSource as GapicJiraSource,
-    RagVectorDbConfig,
+    RagVectorDbConfig as GapicRagVectorDbConfig,
 )
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
@@ -38,18 +38,18 @@ from google.cloud.aiplatform.utils import (
     VertexRagClientWithOverride,
 )
 from vertexai.rag.utils.resources import (
-    EmbeddingModelConfig,
     Pinecone,
     RagCorpus,
+    RagEmbeddingModelConfig,
     RagFile,
     RagManagedDb,
+    RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
     JiraSource,
-    VertexFeatureStore,
     VertexVectorSearch,
-    Weaviate,
+    VertexPredictionEndpoint,
 )
 
 
@@ -74,11 +74,11 @@ def create_rag_service_client():
     ).select_version("v1")
 
 
-def convert_gapic_to_embedding_model_config(
-    gapic_embedding_model_config: RagEmbeddingModelConfig,
-) -> EmbeddingModelConfig:
-    """Convert GapicRagEmbeddingModelConfig to EmbeddingModelConfig."""
-    embedding_model_config = EmbeddingModelConfig()
+def convert_gapic_to_rag_embedding_model_config(
+    gapic_embedding_model_config: GapicRagEmbeddingModelConfig,
+) -> RagEmbeddingModelConfig:
+    """Convert GapicRagEmbeddingModelConfig to RagEmbeddingModelConfig."""
+    embedding_model_config = RagEmbeddingModelConfig()
     path = gapic_embedding_model_config.vertex_prediction_endpoint.endpoint
     publisher_model = re.match(
         r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/publishers/google/models/(?P<model_id>.+?)$",
@@ -89,82 +89,86 @@ def convert_gapic_to_embedding_model_config(
         path,
     )
     if publisher_model:
-        embedding_model_config.publisher_model = path
+        embedding_model_config.vertex_prediction_endpoint = VertexPredictionEndpoint(
+            publisher_model=path
+        )
     if endpoint:
-        embedding_model_config.endpoint = path
-        embedding_model_config.model = (
-            gapic_embedding_model_config.vertex_prediction_endpoint.model
+        embedding_model_config.vertex_prediction_endpoint = VertexPredictionEndpoint(
+            endpoint=path,
+            model=gapic_embedding_model_config.vertex_prediction_endpoint.model,
+            model_version_id=gapic_embedding_model_config.vertex_prediction_endpoint.model_version_id,
         )
-        embedding_model_config.model_version_id = (
-            gapic_embedding_model_config.vertex_prediction_endpoint.model_version_id
-        )
-
     return embedding_model_config
 
 
-def _check_weaviate(gapic_vector_db: RagVectorDbConfig) -> bool:
+def _check_weaviate(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("weaviate")
     except AttributeError:
         return gapic_vector_db.weaviate.ByteSize() > 0
 
 
-def _check_rag_managed_db(gapic_vector_db: RagVectorDbConfig) -> bool:
+def _check_rag_managed_db(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("rag_managed_db")
     except AttributeError:
         return gapic_vector_db.rag_managed_db.ByteSize() > 0
 
 
-def _check_vertex_feature_store(gapic_vector_db: RagVectorDbConfig) -> bool:
+def _check_vertex_feature_store(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("vertex_feature_store")
     except AttributeError:
         return gapic_vector_db.vertex_feature_store.ByteSize() > 0
 
 
-def _check_pinecone(gapic_vector_db: RagVectorDbConfig) -> bool:
+def _check_pinecone(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("pinecone")
     except AttributeError:
         return gapic_vector_db.pinecone.ByteSize() > 0
 
 
-def _check_vertex_vector_search(gapic_vector_db: RagVectorDbConfig) -> bool:
+def _check_vertex_vector_search(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("vertex_vector_search")
     except AttributeError:
         return gapic_vector_db.vertex_vector_search.ByteSize() > 0
 
 
-def convert_gapic_to_vector_db(
-    gapic_vector_db: RagVectorDbConfig,
-) -> Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]:
-    """Convert Gapic RagVectorDbConfig to Weaviate, VertexFeatureStore, VertexVectorSearch, RagManagedDb, or Pinecone."""
-    if _check_weaviate(gapic_vector_db):
-        return Weaviate(
-            weaviate_http_endpoint=gapic_vector_db.weaviate.http_endpoint,
-            collection_name=gapic_vector_db.weaviate.collection_name,
-            api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
-        )
-    elif _check_vertex_feature_store(gapic_vector_db):
-        return VertexFeatureStore(
-            resource_name=gapic_vector_db.vertex_feature_store.feature_view_resource_name,
-        )
-    elif _check_pinecone(gapic_vector_db):
-        return Pinecone(
+def _check_rag_embedding_model_config(
+    gapic_vector_db: GapicRagVectorDbConfig,
+) -> bool:
+    try:
+        return gapic_vector_db.__contains__("rag_embedding_model_config")
+    except AttributeError:
+        return gapic_vector_db.rag_embedding_model_config.ByteSize() > 0
+
+
+def convert_gapic_to_backend_config(
+    gapic_vector_db: GapicRagVectorDbConfig,
+) -> RagVectorDbConfig:
+    """Convert Gapic RagVectorDbConfig to VertexVectorSearch, Pinecone, or RagManagedDb."""
+    vector_config = RagVectorDbConfig()
+    if _check_pinecone(gapic_vector_db):
+        vector_config.vector_db = Pinecone(
             index_name=gapic_vector_db.pinecone.index_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
         )
     elif _check_vertex_vector_search(gapic_vector_db):
-        return VertexVectorSearch(
+        vector_config.vector_db = VertexVectorSearch(
             index_endpoint=gapic_vector_db.vertex_vector_search.index_endpoint,
             index=gapic_vector_db.vertex_vector_search.index,
         )
     elif _check_rag_managed_db(gapic_vector_db):
-        return RagManagedDb()
-    else:
-        return None
+        vector_config.vector_db = RagManagedDb()
+    if _check_rag_embedding_model_config(gapic_vector_db):
+        vector_config.rag_embedding_model_config = (
+            convert_gapic_to_rag_embedding_model_config(
+                gapic_vector_db.rag_embedding_model_config
+            )
+        )
+    return vector_config
 
 
 def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
@@ -173,10 +177,9 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
-        embedding_model_config=convert_gapic_to_embedding_model_config(
-            gapic_rag_corpus.rag_embedding_model_config
+        backend_config=convert_gapic_to_backend_config(
+            gapic_rag_corpus.vector_db_config
         ),
-        vector_db=convert_gapic_to_vector_db(gapic_rag_corpus.rag_vector_db_config),
     )
     return rag_corpus
 
@@ -185,11 +188,15 @@ def convert_gapic_to_rag_corpus_no_embedding_model_config(
     gapic_rag_corpus: GapicRagCorpus,
 ) -> RagCorpus:
     """Convert GapicRagCorpus without embedding model config (for UpdateRagCorpus) to RagCorpus."""
+    rag_vector_db_config_no_embedding_model_config = gapic_rag_corpus.vector_db_config
+    rag_vector_db_config_no_embedding_model_config.rag_embedding_model_config = None
     rag_corpus = RagCorpus(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
-        vector_db=convert_gapic_to_vector_db(gapic_rag_corpus.rag_vector_db_config),
+        backend_config=convert_gapic_to_backend_config(
+            rag_vector_db_config_no_embedding_model_config
+        ),
     )
     return rag_corpus
 
@@ -400,22 +407,6 @@ def prepare_import_files_request(
             )
             import_rag_files_config.google_drive_source = google_drive_source
 
-    if partial_failures_sink is not None:
-        if partial_failures_sink.startswith("gs://"):
-            import_rag_files_config.partial_failure_gcs_sink.output_uri_prefix = (
-                partial_failures_sink
-            )
-        elif partial_failures_sink.startswith(
-            "bq://"
-        ) or partial_failures_sink.startswith("bigquery://"):
-            import_rag_files_config.partial_failure_bigquery_sink.output_uri = (
-                partial_failures_sink
-            )
-        else:
-            raise ValueError(
-                "if provided, partial_failures_sink must be a GCS path or a BigQuery table."
-            )
-
     request = ImportRagFilesRequest(
         parent=corpus_name, import_rag_files_config=import_rag_files_config
     )
@@ -468,20 +459,27 @@ def get_file_name(
 
 
 def set_embedding_model_config(
-    embedding_model_config: EmbeddingModelConfig,
+    embedding_model_config: RagEmbeddingModelConfig,
     rag_corpus: GapicRagCorpus,
 ) -> None:
-    if embedding_model_config.publisher_model and embedding_model_config.endpoint:
+    if embedding_model_config.vertex_prediction_endpoint is None:
+        return
+    if (
+        embedding_model_config.vertex_prediction_endpoint.publisher_model
+        and embedding_model_config.vertex_prediction_endpoint.endpoint
+    ):
         raise ValueError("publisher_model and endpoint cannot be set at the same time.")
     if (
-        not embedding_model_config.publisher_model
-        and not embedding_model_config.endpoint
+        not embedding_model_config.vertex_prediction_endpoint.publisher_model
+        and not embedding_model_config.vertex_prediction_endpoint.endpoint
     ):
         raise ValueError("At least one of publisher_model and endpoint must be set.")
     parent = initializer.global_config.common_location_path(project=None, location=None)
 
-    if embedding_model_config.publisher_model:
-        publisher_model = embedding_model_config.publisher_model
+    if embedding_model_config.vertex_prediction_endpoint.publisher_model:
+        publisher_model = (
+            embedding_model_config.vertex_prediction_endpoint.publisher_model
+        )
         full_resource_name = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/publishers/google/models/(?P<model_id>.+?)$",
             publisher_model,
@@ -491,11 +489,11 @@ def set_embedding_model_config(
             publisher_model,
         )
         if full_resource_name:
-            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+            rag_corpus.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
                 publisher_model
             )
         elif resource_name:
-            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+            rag_corpus.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
                 parent + "/" + publisher_model
             )
         else:
@@ -503,8 +501,8 @@ def set_embedding_model_config(
                 "publisher_model must be of the format `projects/{project}/locations/{location}/publishers/google/models/{model_id}` or `publishers/google/models/{model_id}`"
             )
 
-    if embedding_model_config.endpoint:
-        endpoint = embedding_model_config.endpoint
+    if embedding_model_config.vertex_prediction_endpoint.endpoint:
+        endpoint = embedding_model_config.vertex_prediction_endpoint.endpoint
         full_resource_name = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
             endpoint,
@@ -514,11 +512,11 @@ def set_embedding_model_config(
             endpoint,
         )
         if full_resource_name:
-            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+            rag_corpus.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
                 endpoint
             )
         elif resource_name:
-            rag_corpus.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
+            rag_corpus.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
                 parent + "/" + endpoint
             )
         else:
@@ -527,66 +525,47 @@ def set_embedding_model_config(
             )
 
 
-def set_vector_db(
-    vector_db: Union[
-        Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb, None
+def set_backend_config(
+    backend_config: Optional[
+        Union[
+            RagVectorDbConfig,
+            None,
+        ]
     ],
     rag_corpus: GapicRagCorpus,
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
-    if vector_db is None or isinstance(vector_db, RagManagedDb):
-        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
-            rag_managed_db=RagVectorDbConfig.RagManagedDb(),
-        )
-    elif isinstance(vector_db, Weaviate):
-        http_endpoint = vector_db.weaviate_http_endpoint
-        collection_name = vector_db.collection_name
-        api_key = vector_db.api_key
+    if backend_config is None:
+        return
 
-        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
-            weaviate=RagVectorDbConfig.Weaviate(
-                http_endpoint=http_endpoint,
-                collection_name=collection_name,
-            ),
-            api_auth=api_auth.ApiAuth(
-                api_key_config=api_auth.ApiAuth.ApiKeyConfig(
-                    api_key_secret_version=api_key
-                ),
-            ),
-        )
-    elif isinstance(vector_db, VertexFeatureStore):
-        resource_name = vector_db.resource_name
+    if backend_config.vector_db is not None:
+        vector_config = backend_config.vector_db
+        if vector_config is None or isinstance(vector_config, RagManagedDb):
+            rag_corpus.vector_db_config.rag_managed_db.CopyFrom(
+                GapicRagVectorDbConfig.RagManagedDb()
+            )
+        elif isinstance(vector_config, VertexVectorSearch):
+            index_endpoint = vector_config.index_endpoint
+            index = vector_config.index
 
-        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
-            vertex_feature_store=RagVectorDbConfig.VertexFeatureStore(
-                feature_view_resource_name=resource_name,
-            ),
-        )
-    elif isinstance(vector_db, VertexVectorSearch):
-        index_endpoint = vector_db.index_endpoint
-        index = vector_db.index
+            rag_corpus.vector_db_config.vertex_vector_search.index_endpoint = (
+                index_endpoint
+            )
+            rag_corpus.vector_db_config.vertex_vector_search.index = index
+        elif isinstance(vector_config, Pinecone):
+            index_name = vector_config.index_name
+            api_key = vector_config.api_key
 
-        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
-            vertex_vector_search=RagVectorDbConfig.VertexVectorSearch(
-                index_endpoint=index_endpoint,
-                index=index,
-            ),
-        )
-    elif isinstance(vector_db, Pinecone):
-        index_name = vector_db.index_name
-        api_key = vector_db.api_key
-
-        rag_corpus.rag_vector_db_config = RagVectorDbConfig(
-            pinecone=RagVectorDbConfig.Pinecone(
-                index_name=index_name,
-            ),
-            api_auth=api_auth.ApiAuth(
-                api_key_config=api_auth.ApiAuth.ApiKeyConfig(
-                    api_key_secret_version=api_key
-                ),
-            ),
-        )
-    else:
-        raise TypeError(
-            "vector_db must be a Weaviate, VertexFeatureStore, VertexVectorSearch, RagManagedDb, or Pinecone."
-        )
+            rag_corpus.vector_db_config.pinecone.index_name = index_name
+            rag_corpus.vector_db_config.api_auth.api_key_config.api_key_secret_version = (
+                api_key
+            )
+        else:
+            raise TypeError(
+                "backend_config must be a VertexFeatureStore,"
+                "RagManagedDb, or Pinecone."
+            )
+        if backend_config.rag_embedding_model_config:
+            set_embedding_model_config(
+                backend_config.rag_embedding_model_config, rag_corpus
+            )

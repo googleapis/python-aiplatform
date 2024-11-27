@@ -114,6 +114,57 @@ def create_rag_corpus_mock_pinecone():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_vertex_ai_engine_search_config():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_vertex_ai_engine_search_config:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG
+        )
+        create_rag_corpus_mock_vertex_ai_engine_search_config.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_vertex_ai_engine_search_config
+
+
+@pytest.fixture
+def create_rag_corpus_mock_vertex_ai_datastore_search_config():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_vertex_ai_datastore_search_config:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_VERTEX_AI_DATASTORE_SEARCH_CONFIG
+        )
+        create_rag_corpus_mock_vertex_ai_datastore_search_config.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_vertex_ai_datastore_search_config
+
+
+@pytest.fixture
+def update_rag_corpus_mock_vertex_ai_engine_search_config():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_corpus",
+    ) as update_rag_corpus_mock_vertex_ai_engine_search_config:
+        update_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_corpus_lro_mock.done.return_value = True
+        update_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG
+        )
+        update_rag_corpus_mock_vertex_ai_engine_search_config.return_value = (
+            update_rag_corpus_lro_mock
+        )
+        yield update_rag_corpus_mock_vertex_ai_engine_search_config
+
+
+@pytest.fixture
 def update_rag_corpus_mock_weaviate():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -280,6 +331,9 @@ def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
     assert returned_corpus.vector_db.__eq__(expected_corpus.vector_db)
+    assert returned_corpus.vertex_ai_search_config.__eq__(
+        expected_corpus.vertex_ai_search_config
+    )
 
 
 def rag_file_eq(returned_file, expected_file):
@@ -373,6 +427,70 @@ class TestRagDataManagement:
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE)
 
+    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_ai_engine_search_config")
+    def test_create_corpus_vais_engine_search_config_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_ENGINE,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG,
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_ai_datastore_search_config")
+    def test_create_corpus_vais_datastore_search_config_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_AI_DATASTORE_SEARCH_CONFIG,
+        )
+
+    def test_create_corpus_vais_datastore_search_config_with_vector_db_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+                vector_db=test_rag_constants_preview.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+            )
+        e.match("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    def test_create_corpus_vais_datastore_search_config_with_embedding_model_config_failure(
+        self,
+    ):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+                embedding_model_config=test_rag_constants_preview.TEST_EMBEDDING_MODEL_CONFIG,
+            )
+        e.match(
+            "Only one of vertex_ai_search_config or embedding_model_config can be set."
+        )
+
+    def test_set_vertex_ai_search_config_with_invalid_serving_config_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_INVALID,
+            )
+        e.match(
+            "serving_config must be of the format `projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}` or `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}`"
+        )
+
+    def test_set_vertex_ai_search_config_with_empty_serving_config_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_EMPTY,
+            )
+        e.match("serving_config must be set.")
+
     @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_create_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -461,6 +579,29 @@ class TestRagDataManagement:
                 display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
             )
         e.match("Failed in RagCorpus update due to")
+
+    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_ai_engine_search_config")
+    def test_update_corpus_vais_engine_search_config_success(self):
+        rag_corpus = rag.update_corpus(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_ENGINE,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG,
+        )
+
+    def test_update_corpus_vais_datastore_search_config_with_vector_db_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.update_corpus(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+                vector_db=test_rag_constants_preview.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+            )
+        e.match("Only one of vertex_ai_search_config or vector_db can be set.")
 
     @pytest.mark.usefixtures("rag_data_client_preview_mock")
     def test_get_corpus_success(self):
