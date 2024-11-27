@@ -126,6 +126,27 @@ _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
     "required": ["location"],
 }
 
+_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT = {
+    "type": "object",
+    "properties": {
+        "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA",
+        },
+        "unit": {
+            "type": "string",
+            "enum": [
+                "celsius",
+                "fahrenheit",
+            ],
+        },
+        "weather": {
+            "type": "string",
+        },
+    },
+}
+
+
 # Input and expected output schema for renaming tests.
 _RENAMING_INPUT_SCHEMA = {
     "type": "object",
@@ -1085,6 +1106,7 @@ class TestGenerativeModels:
             name="get_current_weather",
             description="Get the current weather in a given location",
             parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+            response=_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT,
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
@@ -1180,6 +1202,7 @@ class TestGenerativeModels:
             name="get_current_weather",
             description="Get the current weather in a given location",
             parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+            response=_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT,
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
@@ -1239,6 +1262,7 @@ class TestGenerativeModels:
             name="get_current_weather",
             description="Get the current weather in a given location",
             parameters=_REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT,
+            response=_REQUEST_FUNCTION_RESPONSE_SCHEMA_STRUCT,
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],

@@ -2120,6 +2120,16 @@ class FunctionDeclaration:
                     "location"
                 ]
             },
+            # Optional:
+            response={
+                "type": "object",
+                "properties": {
+                    "weather": {
+                        "type": "string",
+                        "description": "The weather in the city"
+                    },
+                },
+            },
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
@@ -2160,6 +2170,7 @@ class FunctionDeclaration:
         name: str,
         parameters: Dict[str, Any],
         description: Optional[str] = None,
+        response: Dict[str, Any] = None,
     ):
         """Constructs a FunctionDeclaration.
 
@@ -2168,12 +2179,24 @@ class FunctionDeclaration:
             parameters: Describes the parameters to this function in JSON Schema Object format.
             description: Description and purpose of the function.
                 Model uses it to decide how and whether to call the function.
+            response: Describes the response type of this function in JSON Schema format.
         """
         parameters = copy.deepcopy(parameters)
         _fix_schema_dict_for_gapic_in_place(parameters)
         raw_schema = _dict_to_proto(aiplatform_types.Schema, parameters)
+
+        if response:
+            response = copy.deepcopy(response)
+            _fix_schema_dict_for_gapic_in_place(response)
+            raw_response_schema = _dict_to_proto(aiplatform_types.Schema, response)
+        else:
+            raw_response_schema = None
+
         self._raw_function_declaration = gapic_tool_types.FunctionDeclaration(
-            name=name, description=description, parameters=raw_schema
+            name=name,
+            description=description,
+            parameters=raw_schema,
+            response=raw_response_schema,
         )
 
     @classmethod
