@@ -3875,15 +3875,7 @@ def test_update_reasoning_engine_rest_unset_required_fields():
     )
 
     unset_fields = transport.update_reasoning_engine._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(("updateMask",))
-        & set(
-            (
-                "reasoningEngine",
-                "updateMask",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(("updateMask",)) & set(("reasoningEngine",)))
 
 
 def test_update_reasoning_engine_rest_flattened():
