@@ -38,14 +38,20 @@ def retrieval_query(
 
     vertexai.init(project="my-project")
 
-    results = vertexai.preview.rag.retrieval_query(
+    config = vertexai.rag.rag_retrieval_config(
+        top_k=2,
+        filter=vertexai.rag.rag_retrieval_config.filter(
+            vector_distance_threshold=0.5
+        ),
+    )
+
+    results = vertexai.rag.retrieval_query(
         text="Why is the sky blue?",
-        rag_resources=[vertexai.preview.rag.RagResource(
+        rag_resources=[vertexai.rag.RagResource(
             rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
             rag_file_ids=["rag-file-1", "rag-file-2", ...],
         )],
-        similarity_top_k=2,
-        vector_distance_threshold=0.5,
+        rag_retrieval_config=config,
     )
     ```
 
@@ -55,8 +61,7 @@ def retrieval_query(
             only or ragfiles. Currently only support one corpus or multiple files
             from one corpus. In the future we may open up multiple corpora support.
         rag_retrieval_config: Optional. The config containing the retrieval
-            parameters, including similarity_top_k, vector_distance_threshold,
-            and hybrid_search.
+            parameters, including similarity_top_k and vector_distance_threshold
 
     Returns:
         RetrieveContextsResonse.

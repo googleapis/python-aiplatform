@@ -57,20 +57,20 @@ class VertexRagStore:
 
         vertexai.init(project="my-project")
 
-        config = vertexai.preview.rag.RagRetrievalConfig(
+        config = vertexai.rag.RagRetrievalConfig(
             top_k=2,
-            filter=vertexai.preview.rag.RagRetrievalConfig.Filter(
+            filter=vertexai.rag.RagRetrievalConfig.Filter(
                 vector_distance_threshold=0.5
             ),
         )
 
-        results = vertexai.preview.rag.retrieval_query(
-            text="Why is the sky blue?",
-            rag_resources=[vertexai.preview.rag.RagResource(
-                rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
-                rag_file_ids=["rag-file-1", "rag-file-2", ...],
-            )],
-            rag_retrieval_config=config,
+        tool = Tool.from_retrieval(
+            retrieval=vertexai.rag.Retrieval(
+                source=vertexai.rag.VertexRagStore(
+                    rag_corpora=["projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1"],
+                    rag_retrieval_config=config,
+                ),
+            )
         )
         ```
 

@@ -61,14 +61,32 @@ class VertexRagStore:
 
         vertexai.init(project="my-project")
 
-        results = vertexai.preview.rag.retrieval_query(
-            text="Why is the sky blue?",
-            rag_resources=[vertexai.preview.rag.RagResource(
-                rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
-                rag_file_ids=["rag-file-1", "rag-file-2", ...],
-            )],
-            similarity_top_k=2,
-            vector_distance_threshold=0.5,
+        # Using deprecated parameters
+        tool = Tool.from_retrieval(
+            retrieval=vertexai.preview.rag.Retrieval(
+                source=vertexai.preview.rag.VertexRagStore(
+                    rag_corpora=["projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1"],
+                    similarity_top_k=3,
+                    vector_distance_threshold=0.4,
+                ),
+            )
+        )
+
+        # Using RagRetrievalConfig. Equivalent to the above example.
+        config = vertexai.preview.rag.RagRetrievalConfig(
+            top_k=2,
+            filter=vertexai.preview.rag.RagRetrievalConfig.Filter(
+                vector_distance_threshold=0.5
+            ),
+        )
+
+        tool = Tool.from_retrieval(
+            retrieval=vertexai.preview.rag.Retrieval(
+                source=vertexai.preview.rag.VertexRagStore(
+                    rag_corpora=["projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1"],
+                    rag_retrieval_config=config,
+                ),
+            )
         )
         ```
 
@@ -78,16 +96,15 @@ class VertexRagStore:
                 corpus or multiple files from one corpus. In the future we
                 may open up multiple corpora support.
             rag_corpora: If rag_resources is not specified, use rag_corpora as a
-                list of rag corpora names.
+                list of rag corpora names. Deprecated. Use rag_resources instead.
             similarity_top_k: Number of top k results to return from the selected
-                corpora.
+                corpora. Deprecated. Use rag_retrieval_config.top_k instead.
             vector_distance_threshold (float):
                 Optional. Only return results with vector distance smaller
-                than the threshold.
+                than the threshold. Deprecated. Use
+                rag_retrieval_config.filter.vector_distance_threshold instead.
             rag_retrieval_config: Optional. The config containing the retrieval
-                parameters, including similarity_top_k, hybrid search alpha,
-                and vector_distance_threshold.
-
+                parameters, including top_k and vector_distance_threshold.
         """
 
         if rag_resources:
