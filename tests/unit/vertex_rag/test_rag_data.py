@@ -503,7 +503,7 @@ class TestRagDataManagement:
     @pytest.mark.skip(reason="Need to fix the test later for v1.")
     @pytest.mark.usefixtures("rag_data_client_mock")
     def test_get_corpus_success(self):
-        rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME)
+    rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME)
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
     @pytest.mark.skip(reason="Need to fix the test later for v1.")

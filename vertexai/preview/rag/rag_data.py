@@ -51,6 +51,7 @@ from vertexai.preview.rag.utils.resources import (
     RagManagedDb,
     SharePointSources,
     SlackChannelsSource,
+    TransformationConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -291,6 +292,7 @@ def upload_file(
     path: Union[str, Sequence[str]],
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    transformation_config: Optional[TransformationConfig] = None,
 ) -> RagFile:
     """
     Synchronous file upload to an existing RagCorpus.
@@ -303,10 +305,19 @@ def upload_file(
 
     vertexai.init(project="my-project")
 
+    // Optional.
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     rag_file = rag.upload_file(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         display_name="my_file.txt",
         path="usr/home/my_file.txt",
+        transformation_config=transformation_config,
     )
     ```
 
@@ -318,6 +329,7 @@ def upload_file(
             "usr/home/my_file.txt".
         display_name: The display name of the data file.
         description: The description of the RagFile.
+        transformation_config: The config for transforming the RagFile, liking chunking.
     Returns:
         RagFile.
     Raises:
@@ -336,12 +348,24 @@ def upload_file(
         aiplatform.constants.base.API_BASE_PATH,
         corpus_name,
     )
+    js_rag_file = {"rag_file": {"display_name": display_name}}
+
     if description:
-        js_rag_file = {
-            "rag_file": {"display_name": display_name, "description": description}
-        }
-    else:
-        js_rag_file = {"rag_file": {"display_name": display_name}}
+        js_rag_file["rag_file"]["description"] = description
+
+    if transformation_config and transformation_config.chunking_config:
+        chunk_size = transformation_config.chunking_config.chunk_size
+        chunk_overlap = transformation_config.chunking_config.chunk_overlap
+        js_rag_file["upload_rag_file_config"] = {
+                "rag_file_transformation_config": {
+                    "rag_file_chunking_config": {
+                        "fixed_length_chunking": {
+                            "chunk_size": chunk_size,
+                            "chunk_overlap": chunk_overlap,
+                        }
+                    }
+                }
+            }
     files = {
         "metadata": (None, str(js_rag_file)),
         "file": open(path, "rb"),
@@ -372,6 +396,7 @@ def import_files(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
@@ -396,11 +421,17 @@ def import_files(
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     response = rag.import_files(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # Slack example
@@ -429,8 +460,7 @@ def import_files(
     response = rag.import_files(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         source=source,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # SharePoint Example.
@@ -460,8 +490,12 @@ def import_files(
             "https://drive.google.com/corp/drive/folders/...").
         source: The source of the Slack or Jira import.
             Must be either a SlackChannelsSource or JiraSource.
-        chunk_size: The size of the chunks.
-        chunk_overlap: The overlap between chunks.
+        chunk_size: The size of the chunks. This field is deprecated. Please use
+            transformation_config instead.
+        chunk_overlap: The overlap between chunks. This field is deprecated. Please use
+            transformation_config instead.
+        transformation_config: The config for transforming the imported
+            RagFiles.
         max_embedding_requests_per_min:
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -496,6 +530,7 @@ def import_files(
         source=source,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
+        transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
@@ -515,6 +550,7 @@ async def import_files_async(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
@@ -539,11 +575,17 @@ async def import_files_async(
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     response = await rag.import_files_async(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # Slack example
@@ -572,8 +614,7 @@ async def import_files_async(
     response = await rag.import_files_async(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         source=source,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # SharePoint Example.
@@ -603,8 +644,12 @@ async def import_files_async(
             "https://drive.google.com/corp/drive/folders/...").
         source: The source of the Slack or Jira import.
             Must be either a SlackChannelsSource or JiraSource.
-        chunk_size: The size of the chunks.
-        chunk_overlap: The overlap between chunks.
+        chunk_size: The size of the chunks. This field is deprecated. Please use
+            transformation_config instead.
+        chunk_overlap: The overlap between chunks. This field is deprecated. Please use
+            transformation_config instead.
+        transformation_config: The config for transforming the imported
+            RagFiles.
         max_embedding_requests_per_min:
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -638,6 +683,7 @@ async def import_files_async(
         source=source,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
+        transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
