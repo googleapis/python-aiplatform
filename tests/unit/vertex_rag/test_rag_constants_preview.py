@@ -581,3 +581,12 @@ TEST_RAG_RETRIEVAL_CONFIG_ALPHA = RagRetrievalConfig(
     filter=Filter(vector_distance_threshold=0.5),
     hybrid_search=HybridSearch(alpha=0.5),
 )
+TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5),
+    hybrid_search=HybridSearch(alpha=0.5),
+)
+TEST_RAG_RETRIEVAL_ERROR_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5, vector_similarity_threshold=0.5),
+)

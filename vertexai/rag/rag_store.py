@@ -103,20 +103,29 @@ class VertexRagStore:
             )
 
         # If rag_retrieval_config is not specified, set it to default values.
-        if not rag_retrieval_config:
-            api_retrival_config = aiplatform_v1.RagRetrievalConfig()
-        else:
-            # If rag_retrieval_config is specified, check for missing parameters.
-            api_retrival_config = aiplatform_v1.RagRetrievalConfig(
-                top_k=rag_retrieval_config.top_k,
-            )
+        api_retrival_config = aiplatform_v1.RagRetrievalConfig()
+        # If rag_retrieval_config is specified, populate the default config.
+        if rag_retrieval_config:
+            api_retrival_config.top_k = rag_retrieval_config.top_k
+            # Set vector_distance_threshold to config value if specified
             if rag_retrieval_config.filter:
-                api_retrival_config.filter = aiplatform_v1.RagRetrievalConfig.Filter(
-                    vector_distance_threshold=rag_retrieval_config.filter.vector_distance_threshold
+                # Check if both vector_distance_threshold and
+                # vector_similarity_threshold are specified.
+                if (
+                    rag_retrieval_config.filter
+                    and rag_retrieval_config.filter.vector_distance_threshold
+                    and rag_retrieval_config.filter.vector_similarity_threshold
+                ):
+                    raise ValueError(
+                        "Only one of vector_distance_threshold or"
+                        " vector_similarity_threshold can be specified at a time"
+                        " in rag_retrieval_config."
+                    )
+                api_retrival_config.filter.vector_distance_threshold = (
+                    rag_retrieval_config.filter.vector_distance_threshold
                 )
-            else:
-                api_retrival_config.filter = aiplatform_v1.RagRetrievalConfig.Filter(
-                    vector_distance_threshold=None
+                api_retrival_config.filter.vector_similarity_threshold = (
+                    rag_retrieval_config.filter.vector_similarity_threshold
                 )
 
         if rag_resources:

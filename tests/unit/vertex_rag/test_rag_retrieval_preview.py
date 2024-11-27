@@ -97,6 +97,17 @@ class TestRagRetrieval:
         )
 
     @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_resources_similarity_config_success(self):
+        response = rag.retrieval_query(
+            rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
     def test_retrieval_query_rag_resources_default_config_success(self):
         response = rag.retrieval_query(
             rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
@@ -223,3 +234,28 @@ class TestRagRetrieval:
                 rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
             )
             e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_query_multiple_rag_resources_similarity_config(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[
+                    test_rag_constants_preview.TEST_RAG_RESOURCE,
+                    test_rag_constants_preview.TEST_RAG_RESOURCE,
+                ],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
+            )
+            e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_query_invalid_config_filter(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_ERROR_CONFIG,
+            )
+            e.match(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
