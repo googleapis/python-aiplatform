@@ -24,6 +24,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_execution_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
@@ -269,6 +270,37 @@ class ReasoningEngineExecutionServiceGrpcTransport(
                 response_deserializer=reasoning_engine_execution_service.QueryReasoningEngineResponse.deserialize,
             )
         return self._stubs["query_reasoning_engine"]
+
+    @property
+    def stream_query_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_execution_service.StreamQueryReasoningEngineRequest],
+        httpbody_pb2.HttpBody,
+    ]:
+        r"""Return a callable for the stream query reasoning engine method over gRPC.
+
+        Streams queries using a reasoning engine.
+
+        Returns:
+            Callable[[~.StreamQueryReasoningEngineRequest],
+                    ~.HttpBody]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "stream_query_reasoning_engine" not in self._stubs:
+            self._stubs[
+                "stream_query_reasoning_engine"
+            ] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService/StreamQueryReasoningEngine",
+                request_serializer=reasoning_engine_execution_service.StreamQueryReasoningEngineRequest.serialize,
+                response_deserializer=httpbody_pb2.HttpBody.FromString,
+            )
+        return self._stubs["stream_query_reasoning_engine"]
 
     def close(self):
         self.grpc_channel.close()
