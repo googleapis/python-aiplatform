@@ -312,3 +312,27 @@ class RagRetrievalConfig:
 
     top_k: Optional[int] = None
     filter: Optional[Filter] = None
+
+
+@dataclasses.dataclass
+class ChunkingConfig:
+    """ChunkingConfig.
+
+    Attributes:
+        chunk_size: The size of each chunk.
+        chunk_overlap: The size of the overlap between chunks.
+    """
+
+    chunk_size: int
+    chunk_overlap: int
+
+
+@dataclasses.dataclass
+class TransformationConfig:
+    """TransformationConfig.
+
+    Attributes:
+        chunking_config: The chunking config.
+    """
+
+    chunking_config: Optional[ChunkingConfig] = None

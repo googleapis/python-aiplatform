@@ -373,7 +373,7 @@ class TestRagDataManagement:
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE)
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_create_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.create_corpus(
@@ -453,7 +453,7 @@ class TestRagDataManagement:
         )
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE)
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_update_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.update_corpus(
@@ -462,19 +462,19 @@ class TestRagDataManagement:
             )
         e.match("Failed in RagCorpus update due to")
 
-    @pytest.mark.usefixtures("rag_data_client_mock")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock")
     def test_get_corpus_success(self):
         rag_corpus = rag.get_corpus(
             test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME
         )
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS)
 
-    @pytest.mark.usefixtures("rag_data_client_mock")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock")
     def test_get_corpus_id_success(self):
         rag_corpus = rag.get_corpus(test_rag_constants_preview.TEST_RAG_CORPUS_ID)
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS)
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_get_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.get_corpus(test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME)
@@ -490,21 +490,21 @@ class TestRagDataManagement:
         list_rag_corpora_pager_mock.assert_called_once()
         assert pager[0].next_page_token == test_rag_constants_preview.TEST_PAGE_TOKEN
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_list_corpora_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.list_corpora()
         e.match("Failed in listing the RagCorpora due to")
 
-    def test_delete_corpus_success(self, rag_data_client_mock):
+    def test_delete_corpus_success(self, rag_data_client_preview_mock):
         rag.delete_corpus(test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME)
-        assert rag_data_client_mock.call_count == 2
+        assert rag_data_client_preview_mock.call_count == 2
 
-    def test_delete_corpus_id_success(self, rag_data_client_mock):
+    def test_delete_corpus_id_success(self, rag_data_client_preview_mock):
         rag.delete_corpus(test_rag_constants_preview.TEST_RAG_CORPUS_ID)
-        assert rag_data_client_mock.call_count == 2
+        assert rag_data_client_preview_mock.call_count == 2
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_delete_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.delete_corpus(test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME)
@@ -571,7 +571,7 @@ class TestRagDataManagement:
 
         assert response.imported_rag_files_count == 2
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_import_files_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.import_files(
@@ -591,7 +591,7 @@ class TestRagDataManagement:
         assert response.result().imported_rag_files_count == 2
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures("rag_data_async_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_async_client_preview_mock_exception")
     async def test_import_files_async_failure(self):
         with pytest.raises(RuntimeError) as e:
             await rag.import_files_async(
@@ -600,12 +600,12 @@ class TestRagDataManagement:
             )
         e.match("Failed in importing the RagFiles due to")
 
-    @pytest.mark.usefixtures("rag_data_client_mock")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock")
     def test_get_file_success(self):
         rag_file = rag.get_file(test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME)
         rag_file_eq(rag_file, test_rag_constants_preview.TEST_RAG_FILE)
 
-    @pytest.mark.usefixtures("rag_data_client_mock")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock")
     def test_get_file_id_success(self):
         rag_file = rag.get_file(
             name=test_rag_constants_preview.TEST_RAG_FILE_ID,
@@ -613,7 +613,7 @@ class TestRagDataManagement:
         )
         rag_file_eq(rag_file, test_rag_constants_preview.TEST_RAG_FILE)
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_get_file_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.get_file(test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME)
@@ -627,7 +627,7 @@ class TestRagDataManagement:
         list_rag_files_pager_mock.assert_called_once()
         assert files[0].next_page_token == test_rag_constants_preview.TEST_PAGE_TOKEN
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_list_files_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.list_files(
@@ -635,19 +635,19 @@ class TestRagDataManagement:
             )
         e.match("Failed in listing the RagFiles due to")
 
-    def test_delete_file_success(self, rag_data_client_mock):
+    def test_delete_file_success(self, rag_data_client_preview_mock):
         rag.delete_file(test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME)
-        assert rag_data_client_mock.call_count == 2
+        assert rag_data_client_preview_mock.call_count == 2
 
-    def test_delete_file_id_success(self, rag_data_client_mock):
+    def test_delete_file_id_success(self, rag_data_client_preview_mock):
         rag.delete_file(
             name=test_rag_constants_preview.TEST_RAG_FILE_ID,
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_ID,
         )
         # Passing corpus_name will result in 3 calls to rag_data_client
-        assert rag_data_client_mock.call_count == 3
+        assert rag_data_client_preview_mock.call_count == 3
 
-    @pytest.mark.usefixtures("rag_data_client_mock_exception")
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
     def test_delete_file_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.delete_file(test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME)

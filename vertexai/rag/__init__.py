@@ -38,6 +38,7 @@ from vertexai.rag.rag_store import (
     VertexRagStore,
 )
 from vertexai.rag.utils.resources import (
+    ChunkingConfig,
     EmbeddingModelConfig,
     Filter,
     JiraQuery,
@@ -52,6 +53,7 @@ from vertexai.rag.utils.resources import (
     SharePointSources,
     SlackChannel,
     SlackChannelsSource,
+    TransformationConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -59,6 +61,7 @@ from vertexai.rag.utils.resources import (
 
 
 __all__ = (
+    "ChunkingConfig",
     "EmbeddingModelConfig",
     "Filter",
     "JiraQuery",
@@ -74,6 +77,7 @@ __all__ = (
     "SharePointSources",
     "SlackChannel",
     "SlackChannelsSource",
+    "TransformationConfig",
     "VertexFeatureStore",
     "VertexRagStore",
     "VertexVectorSearch",
