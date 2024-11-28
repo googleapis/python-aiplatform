@@ -204,6 +204,31 @@ class VertexRagStore:
                 api_retrival_config.filter.vector_similarity_threshold = (
                     rag_retrieval_config.filter.vector_similarity_threshold
                 )
+            # Check if both rank_service and llm_ranker are specified.
+            if (
+                rag_retrieval_config.ranking
+                and rag_retrieval_config.ranking.rank_service
+                and rag_retrieval_config.ranking.rank_service.model_name
+                and rag_retrieval_config.ranking.llm_ranker
+                and rag_retrieval_config.ranking.llm_ranker.model_name
+            ):
+                raise ValueError(
+                    "Only one of rank_service or llm_ranker can be specified"
+                    " at a time in rag_retrieval_config."
+                )
+            # Set rank_service to config value if specified
+            if (
+                rag_retrieval_config.ranking
+                and rag_retrieval_config.ranking.rank_service
+            ):
+                api_retrival_config.ranking.rank_service.model_name = (
+                    rag_retrieval_config.ranking.rank_service.model_name
+                )
+            # Set llm_ranker to config value if specified
+            if rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+                api_retrival_config.ranking.llm_ranker.model_name = (
+                    rag_retrieval_config.ranking.llm_ranker.model_name
+                )
 
         if rag_resources:
             gapic_rag_resource = gapic_tool_types.VertexRagStore.RagResource(

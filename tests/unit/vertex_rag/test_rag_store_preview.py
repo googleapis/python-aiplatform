@@ -60,6 +60,19 @@ class TestRagStore:
                 )
             )
 
+    def test_retrieval_tool_ranking_config_success(self):
+        with pytest.warns(DeprecationWarning):
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_corpora=[
+                            test_rag_constants_preview.TEST_RAG_CORPUS_ID,
+                        ],
+                        rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_RANKING_CONFIG,
+                    ),
+                )
+            )
+
     def test_retrieval_tool_invalid_name(self):
         with pytest.raises(ValueError) as e:
             Tool.from_retrieval(
@@ -158,6 +171,22 @@ class TestRagStore:
                     source=rag.VertexRagStore(
                         rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
                         rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_ERROR_CONFIG,
+                    )
+                )
+            )
+            e.match(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
+
+    def test_retrieval_tool_invalid_ranking_config_filter(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+                        rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_ERROR_RANKING_CONFIG,
                     )
                 )
             )

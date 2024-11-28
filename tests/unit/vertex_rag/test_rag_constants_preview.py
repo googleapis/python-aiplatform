@@ -27,6 +27,9 @@ from vertexai.preview.rag import (
     RagFile,
     RagResource,
     RagRetrievalConfig,
+    Ranking,
+    RankService,
+    LlmRanker,
     SharePointSource,
     SharePointSources,
     SlackChannelsSource,
@@ -589,4 +592,17 @@ TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG = RagRetrievalConfig(
 TEST_RAG_RETRIEVAL_ERROR_CONFIG = RagRetrievalConfig(
     top_k=2,
     filter=Filter(vector_distance_threshold=0.5, vector_similarity_threshold=0.5),
+)
+TEST_RAG_RETRIEVAL_RANKING_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5),
+    ranking=Ranking(rank_service=RankService(model_name="test-rank-service")),
+)
+TEST_RAG_RETRIEVAL_ERROR_RANKING_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5),
+    ranking=Ranking(
+        rank_service=RankService(model_name="test-rank-service"),
+        llm_ranker=LlmRanker(model_name="test-llm-ranker"),
+    ),
 )
