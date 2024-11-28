@@ -56,14 +56,19 @@ def retrieval_query(
     )
 
     # Using RagRetrievalConfig. Equivalent to the above example.
-    config = vertexai.preview.rag.rag_retrieval_config(
+    config = vertexai.preview.rag.RagRetrievalConfig(
         top_k=2,
-        filter=vertexai.preview.rag.rag_retrieval_config.filter(
+        filter=vertexai.preview.rag.Filter(
             vector_distance_threshold=0.5
         ),
         hybrid_search=vertexai.preview.rag.rag_retrieval_config.hybrid_search(
             alpha=0.5
         ),
+        ranking=vertex.preview.rag.Ranking(
+            llm_ranker=vertexai.preview.rag.LlmRanker(
+                model_name="gemini-1.5-flash-002"
+            )
+        )
     )
 
     results = vertexai.preview.rag.retrieval_query(
@@ -238,6 +243,20 @@ def retrieval_query(
                 rag_retrieval_config.filter.vector_similarity_threshold
             )
 
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrival_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrival_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
     query = aiplatform_v1beta1.RagQuery(
         text=text,
         rag_retrieval_config=api_retrival_config,

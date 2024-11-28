@@ -24,6 +24,7 @@ from google.cloud.aiplatform_v1beta1 import (
     ImportRagFilesRequest,
     RagFileChunkingConfig,
     RagFileParsingConfig,
+    RagFileTransformationConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
     SharePointSources as GapicSharePointSources,
@@ -46,6 +47,7 @@ from vertexai.preview.rag.utils.resources import (
     RagManagedDb,
     SharePointSources,
     SlackChannelsSource,
+    TransformationConfig,
     JiraSource,
     VertexAiSearchConfig,
     VertexFeatureStore,
@@ -366,6 +368,7 @@ def prepare_import_files_request(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: bool = False,
     partial_failures_sink: Optional[str] = None,
@@ -376,14 +379,26 @@ def prepare_import_files_request(
         )
 
     rag_file_parsing_config = RagFileParsingConfig(
-        use_advanced_pdf_parsing=use_advanced_pdf_parsing,
+        advanced_parser=RagFileParsingConfig.AdvancedParser(
+            use_advanced_pdf_parsing=use_advanced_pdf_parsing,
+        ),
     )
-    rag_file_chunking_config = RagFileChunkingConfig(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
+    local_chunk_size = chunk_size
+    local_chunk_overlap = chunk_overlap
+    if transformation_config and transformation_config.chunking_config:
+        local_chunk_size = transformation_config.chunking_config.chunk_size
+        local_chunk_overlap = transformation_config.chunking_config.chunk_overlap
+
+    rag_file_transformation_config = RagFileTransformationConfig(
+        rag_file_chunking_config=RagFileChunkingConfig(
+            fixed_length_chunking=RagFileChunkingConfig.FixedLengthChunking(
+                chunk_size=local_chunk_size,
+                chunk_overlap=local_chunk_overlap,
+            ),
+        ),
     )
     import_rag_files_config = ImportRagFilesConfig(
-        rag_file_chunking_config=rag_file_chunking_config,
+        rag_file_transformation_config=rag_file_transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         rag_file_parsing_config=rag_file_parsing_config,
     )

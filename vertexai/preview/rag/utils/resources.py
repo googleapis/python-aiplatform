@@ -340,7 +340,8 @@ class LlmRanker:
     """LlmRanker.
 
     Attributes:
-        model_name: The model name used for ranking.
+        model_name: The model name used for ranking. Only Gemini models are
+            supported for now.
     """
 
     model_name: Optional[str] = None
@@ -390,3 +391,27 @@ class RagRetrievalConfig:
     filter: Optional[Filter] = None
     hybrid_search: Optional[HybridSearch] = None
     ranking: Optional[Ranking] = None
+
+
+@dataclasses.dataclass
+class ChunkingConfig:
+    """ChunkingConfig.
+
+    Attributes:
+        chunk_size: The size of each chunk.
+        chunk_overlap: The size of the overlap between chunks.
+    """
+
+    chunk_size: int
+    chunk_overlap: int
+
+
+@dataclasses.dataclass
+class TransformationConfig:
+    """TransformationConfig.
+
+    Attributes:
+        chunking_config: The chunking config.
+    """
+
+    chunking_config: Optional[ChunkingConfig] = None

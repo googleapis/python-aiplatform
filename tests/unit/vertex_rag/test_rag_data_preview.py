@@ -21,6 +21,10 @@ from vertexai.preview.rag.utils._gapic_utils import (
     prepare_import_files_request,
     set_embedding_model_config,
 )
+from vertexai.rag.utils.resources import (
+    ChunkingConfig,
+    TransformationConfig,
+)
 from google.cloud.aiplatform_v1beta1 import (
     VertexRagDataServiceAsyncClient,
     VertexRagDataServiceClient,
@@ -327,6 +331,18 @@ def list_rag_files_pager_mock():
         yield list_rag_files_pager_mock
 
 
+def create_transformation_config(
+    chunk_size: int = test_rag_constants_preview.TEST_CHUNK_SIZE,
+    chunk_overlap: int = test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+):
+    return TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+        ),
+    )
+
+
 def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
@@ -362,6 +378,10 @@ def import_files_request_eq(returned_request, expected_request):
     assert (
         returned_request.import_rag_files_config.rag_file_parsing_config
         == expected_request.import_rag_files_config.rag_file_parsing_config
+    )
+    assert (
+        returned_request.import_rag_files_config.rag_file_transformation_config
+        == expected_request.import_rag_files_config.rag_file_transformation_config
     )
 
 
@@ -799,6 +819,17 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=paths,
+            transformation_config=create_transformation_config(),
+        )
+        import_files_request_eq(
+            request, test_rag_constants_preview.TEST_IMPORT_REQUEST_GCS
+        )
+
+    def test_prepare_import_files_request_list_gcs_uris_no_transformation_config(self):
+        paths = [test_rag_constants_preview.TEST_GCS_PATH]
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=paths,
             chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
             chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
         )
@@ -817,8 +848,7 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=[path],
-            chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-            chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+            transformation_config=create_transformation_config(),
         )
         import_files_request_eq(
             request, test_rag_constants_preview.TEST_IMPORT_REQUEST_DRIVE_FOLDER
@@ -835,8 +865,7 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=[path],
-            chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-            chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+            transformation_config=create_transformation_config(),
             use_advanced_pdf_parsing=True,
         )
         import_files_request_eq(
@@ -848,8 +877,7 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=paths,
-            chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-            chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+            transformation_config=create_transformation_config(),
             max_embedding_requests_per_min=800,
         )
         import_files_request_eq(
@@ -862,8 +890,7 @@ class TestRagDataManagement:
             prepare_import_files_request(
                 corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
                 paths=paths,
-                chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-                chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+                transformation_config=create_transformation_config(),
             )
         e.match("is not a valid Google Drive url")
 
@@ -873,8 +900,7 @@ class TestRagDataManagement:
             prepare_import_files_request(
                 corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
                 paths=paths,
-                chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-                chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+                transformation_config=create_transformation_config(),
             )
         e.match("path must be a Google Cloud Storage uri or a Google Drive url")
 
@@ -882,8 +908,7 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             source=test_rag_constants_preview.TEST_SLACK_SOURCE,
-            chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-            chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+            transformation_config=create_transformation_config(),
         )
         import_files_request_eq(
             request, test_rag_constants_preview.TEST_IMPORT_REQUEST_SLACK_SOURCE
@@ -893,8 +918,7 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             source=test_rag_constants_preview.TEST_JIRA_SOURCE,
-            chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-            chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+            transformation_config=create_transformation_config(),
         )
         import_files_request_eq(
             request, test_rag_constants_preview.TEST_IMPORT_REQUEST_JIRA_SOURCE
@@ -904,8 +928,7 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             source=test_rag_constants_preview.TEST_SHARE_POINT_SOURCE,
-            chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-            chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+            transformation_config=create_transformation_config(),
         )
         import_files_request_eq(
             request, test_rag_constants_preview.TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE
@@ -916,8 +939,7 @@ class TestRagDataManagement:
             prepare_import_files_request(
                 corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
                 source=test_rag_constants_preview.TEST_SHARE_POINT_SOURCE_2_DRIVES,
-                chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-                chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+                transformation_config=create_transformation_config(),
             )
         e.match("drive_name and drive_id cannot both be set.")
 
@@ -926,8 +948,7 @@ class TestRagDataManagement:
             prepare_import_files_request(
                 corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
                 source=test_rag_constants_preview.TEST_SHARE_POINT_SOURCE_2_FOLDERS,
-                chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-                chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+                transformation_config=create_transformation_config(),
             )
         e.match("sharepoint_folder_path and sharepoint_folder_id cannot both be set.")
 
@@ -936,8 +957,7 @@ class TestRagDataManagement:
             prepare_import_files_request(
                 corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
                 source=test_rag_constants_preview.TEST_SHARE_POINT_SOURCE_NO_DRIVES,
-                chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-                chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+                transformation_config=create_transformation_config(),
             )
         e.match("Either drive_name and drive_id must be set.")
 
@@ -945,8 +965,7 @@ class TestRagDataManagement:
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
             source=test_rag_constants_preview.TEST_SHARE_POINT_SOURCE_NO_FOLDERS,
-            chunk_size=test_rag_constants_preview.TEST_CHUNK_SIZE,
-            chunk_overlap=test_rag_constants_preview.TEST_CHUNK_OVERLAP,
+            transformation_config=create_transformation_config(),
         )
         import_files_request_eq(
             request,

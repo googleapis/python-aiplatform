@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from vertexai.preview.rag.rag_data import (
     create_corpus,
     update_corpus,
@@ -28,21 +26,21 @@ from vertexai.preview.rag.rag_data import (
     list_files,
     delete_file,
 )
-
 from vertexai.preview.rag.rag_retrieval import (
     retrieval_query,
 )
-
 from vertexai.preview.rag.rag_store import (
     Retrieval,
     VertexRagStore,
 )
 from vertexai.preview.rag.utils.resources import (
+    ChunkingConfig,
     EmbeddingModelConfig,
     Filter,
     HybridSearch,
     JiraQuery,
     JiraSource,
+    LlmRanker,
     Pinecone,
     RagCorpus,
     RagFile,
@@ -51,24 +49,25 @@ from vertexai.preview.rag.utils.resources import (
     RagRetrievalConfig,
     Ranking,
     RankService,
-    LlmRanker,
     SharePointSource,
     SharePointSources,
     SlackChannel,
     SlackChannelsSource,
+    TransformationConfig,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
 )
 
-
 __all__ = (
+    "ChunkingConfig",
     "EmbeddingModelConfig",
     "Filter",
     "HybridSearch",
     "JiraQuery",
     "JiraSource",
+    "LlmRanker",
     "Pinecone",
     "RagCorpus",
     "RagFile",
@@ -77,12 +76,12 @@ __all__ = (
     "RagRetrievalConfig",
     "Ranking",
     "RankService",
-    "LlmRanker",
     "Retrieval",
     "SharePointSource",
     "SharePointSources",
     "SlackChannel",
     "SlackChannelsSource",
+    "TransformationConfig",
     "VertexAiSearchConfig",
     "VertexFeatureStore",
     "VertexRagStore",
