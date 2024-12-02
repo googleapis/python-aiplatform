@@ -58,6 +58,9 @@ from vertexai.preview.rag.utils.resources import (
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
+    RagEmbeddingModelConfig,
+    VertexPredictionEndpoint,
+    RagVectorDbConfig,
 )
 
 __all__ = (
@@ -87,6 +90,9 @@ __all__ = (
     "VertexRagStore",
     "VertexVectorSearch",
     "Weaviate",
+    "RagEmbeddingModelConfig",
+    "VertexPredictionEndpoint",
+    "RagVectorDbConfig",
     "create_corpus",
     "delete_corpus",
     "delete_file",

@@ -72,6 +72,47 @@ class EmbeddingModelConfig:
 
 
 @dataclasses.dataclass
+class VertexPredictionEndpoint:
+    """VertexPredictionEndpoint.
+
+    Attributes:
+        publisher_model: 1P publisher model resource name. Format:
+            ``publishers/google/models/{model}`` or
+            ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+        endpoint: 1P fine tuned embedding model resource name. Format:
+            ``endpoints/{endpoint}`` or
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+        model:
+            Output only. The resource name of the model that is deployed
+            on the endpoint. Present only when the endpoint is not a
+            publisher model. Pattern:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id:
+            Output only. Version ID of the model that is
+            deployed on the endpoint. Present only when the
+            endpoint is not a publisher model.
+    """
+
+    endpoint: Optional[str] = None
+    publisher_model: Optional[str] = None
+    model: Optional[str] = None
+    model_version_id: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagEmbeddingModelConfig:
+    """RagEmbeddingModelConfig.
+
+    Attributes:
+        vertex_prediction_endpoint: The Vertex AI Prediction Endpoint resource
+            name. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+    """
+
+    vertex_prediction_endpoint: Optional[VertexPredictionEndpoint] = None
+
+
+@dataclasses.dataclass
 class Weaviate:
     """Weaviate.
 
@@ -152,6 +193,22 @@ class VertexAiSearchConfig:
 
 
 @dataclasses.dataclass
+class RagVectorDbConfig:
+    """RagVectorDbConfig.
+
+    Attributes:
+        vector_db: Can be one of the following: Weaviate, VertexFeatureStore,
+            VertexVectorSearch, Pinecone, RagManagedDb.
+        rag_embedding_model_config: The embedding model config of the Vector DB.
+    """
+
+    vector_db: Optional[
+        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+    ] = None
+    rag_embedding_model_config: Optional[RagEmbeddingModelConfig] = None
+
+
+@dataclasses.dataclass
 class RagCorpus:
     """RAG corpus(output only).
 
@@ -161,8 +218,12 @@ class RagCorpus:
         display_name: Display name that was configured at client side.
         description: The description of the RagCorpus.
         embedding_model_config: The embedding model config of the RagCorpus.
+            Note: Deprecated. Use backend_config instead.
         vector_db: The Vector DB of the RagCorpus.
+            Note: Deprecated. Use backend_config instead.
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+        backend_config: The backend config of the RagCorpus. It can specify a
+            Vector DB and/or the embedding model config.
     """
 
     name: Optional[str] = None
@@ -173,6 +234,7 @@ class RagCorpus:
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
+    backend_config: Optional[RagVectorDbConfig] = None
 
 
 @dataclasses.dataclass

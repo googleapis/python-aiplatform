@@ -49,6 +49,7 @@ from vertexai.preview.rag.utils.resources import (
     RagCorpus,
     RagFile,
     RagManagedDb,
+    RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
     VertexAiSearchConfig,
@@ -67,6 +68,7 @@ def create_corpus(
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
+    backend_config: Optional[RagVectorDbConfig] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -88,11 +90,15 @@ def create_corpus(
             consist of any UTF-8 characters.
         description: The description of the RagCorpus.
         embedding_model_config: The embedding model config.
+            Note: Deprecated. Use backend_config instead.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
             default database Spanner is used.
+            Note: Deprecated. Use backend_config instead.
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
             Note: embedding_model_config or vector_db cannot be set if
             vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. It can specify a
+            Vector DB and/or the embedding model config.
     Returns:
         RagCorpus.
     Raises:
@@ -113,6 +119,22 @@ def create_corpus(
     if vertex_ai_search_config and embedding_model_config:
         raise ValueError(
             "Only one of vertex_ai_search_config or embedding_model_config can be set."
+        )
+
+    if vertex_ai_search_config and backend_config:
+        raise ValueError(
+            "Only one of vertex_ai_search_config or backend_config can be set."
+        )
+
+    if backend_config and (embedding_model_config or vector_db):
+        raise ValueError(
+            "Only one of backend_config or embedding_model_config and vector_db can be set. embedding_model_config and vector_db are deprecated, use backend_config instead."
+        )
+
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
         )
 
     if vertex_ai_search_config and vector_db:
@@ -156,6 +178,7 @@ def update_corpus(
         ]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
+    backend_config: Optional[RagVectorDbConfig] = None,
 ) -> RagCorpus:
     """Updates a RagCorpus resource.
 
@@ -187,6 +210,8 @@ def update_corpus(
           If not provided, the Vertex AI Search config will not be updated.
           Note: embedding_model_config or vector_db cannot be set if
           vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. Specifies a Vector
+          DB and/or the embedding model config.
 
     Returns:
         RagCorpus.
@@ -208,6 +233,12 @@ def update_corpus(
 
     if vertex_ai_search_config and vector_db:
         raise ValueError("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
+        )
 
     if vertex_ai_search_config:
         _gapic_utils.set_vertex_ai_search_config(

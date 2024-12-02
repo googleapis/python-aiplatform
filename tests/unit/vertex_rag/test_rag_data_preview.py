@@ -54,6 +54,21 @@ def create_rag_corpus_mock():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_backend():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_BACKEND_CONFIG
+        )
+        create_rag_corpus_mock.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock
+
+
+@pytest.fixture
 def create_rag_corpus_mock_weaviate():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -103,6 +118,23 @@ def create_rag_corpus_mock_vertex_vector_search():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_vertex_vector_search_backend():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_vertex_vector_search:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH_BACKEND_CONFIG
+        )
+        create_rag_corpus_mock_vertex_vector_search.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_vertex_vector_search
+
+
+@pytest.fixture
 def create_rag_corpus_mock_pinecone():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -112,6 +144,21 @@ def create_rag_corpus_mock_pinecone():
         create_rag_corpus_lro_mock.done.return_value = True
         create_rag_corpus_lro_mock.result.return_value = (
             test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_PINECONE
+        )
+        create_rag_corpus_mock_pinecone.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_pinecone
+
+
+@pytest.fixture
+def create_rag_corpus_mock_pinecone_backend():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_pinecone:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_PINECONE_BACKEND_CONFIG
         )
         create_rag_corpus_mock_pinecone.return_value = create_rag_corpus_lro_mock
         yield create_rag_corpus_mock_pinecone
@@ -407,6 +454,15 @@ class TestRagDataManagement:
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS)
 
+    @pytest.mark.usefixtures("create_rag_corpus_mock_backend")
+    def test_create_corpus_backend_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_BACKEND)
+
     @pytest.mark.usefixtures("create_rag_corpus_mock_weaviate")
     def test_create_corpus_weaviate_success(self):
         rag_corpus = rag.create_corpus(
@@ -438,6 +494,18 @@ class TestRagDataManagement:
             rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
         )
 
+    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_vector_search_backend")
+    def test_create_corpus_vertex_vector_search_backend_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH_BACKEND,
+        )
+
     @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone")
     def test_create_corpus_pinecone_success(self):
         rag_corpus = rag.create_corpus(
@@ -446,6 +514,43 @@ class TestRagDataManagement:
         )
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE)
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone_backend")
+    def test_create_corpus_pinecone_backend_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_PINECONE_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE_BACKEND
+        )
+
+    def test_create_corpus_backend_config_with_embedding_model_config_failure(
+        self,
+    ):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
+                embedding_model_config=test_rag_constants_preview.TEST_EMBEDDING_MODEL_CONFIG,
+            )
+        e.match(
+            "Only one of backend_config or embedding_model_config and vector_db can be set. embedding_model_config and vector_db are deprecated, use backend_config instead."
+        )
+
+    def test_create_corpus_backend_config_with_vector_db_failure(
+        self,
+    ):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
+                vector_db=test_rag_constants_preview.TEST_PINECONE_CONFIG,
+            )
+        e.match(
+            "Only one of backend_config or embedding_model_config and vector_db can be set. embedding_model_config and vector_db are deprecated, use backend_config instead."
+        )
 
     @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_ai_engine_search_config")
     def test_create_corpus_vais_engine_search_config_success(self):
@@ -479,6 +584,17 @@ class TestRagDataManagement:
                 vector_db=test_rag_constants_preview.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
             )
         e.match("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    def test_create_corpus_vais_datastore_search_config_with_backend_config_failure(
+        self,
+    ):
+        with pytest.raises(ValueError) as e:
+            rag.create_corpus(
+                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
+                backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
+            )
+        e.match("Only one of vertex_ai_search_config or backend_config can be set.")
 
     def test_create_corpus_vais_datastore_search_config_with_embedding_model_config_failure(
         self,
