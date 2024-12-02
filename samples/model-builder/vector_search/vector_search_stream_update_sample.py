@@ -18,10 +18,13 @@ from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_vector_search_stream_update_sample]
-def stream_update_vector_search_index(
-    project: str, location: str, index_name: str, datapoints: Sequence[dict]
+def vector_search_upsert_datapoints(
+    project: str,
+    location: str,
+    index_name: str,
+    datapoints: Sequence[aiplatform.compat.types.index_v1beta1.IndexDatapoint],
 ) -> None:
-    """Stream update an existing vector search index
+    """Upsert datapoints to the index.
 
     Args:
       project (str): Required. The Project ID
@@ -30,8 +33,10 @@ def stream_update_vector_search_index(
         resource name or a index ID.  Example:
         "projects/123/locations/us-central1/indexes/my_index_id" or
         "my_index_id".
-      datapoints: Sequence[dict]: Required. The datapoints to be updated. The dict
-        element should be of the IndexDatapoint type.
+      datapoints: Sequence[IndexDatapoint]: Required. The datapoints to be
+        updated. For example:
+        [IndexDatapoint(datapoint_id="1", feature_vector=[1.0, 2.0, 3.0]),
+        IndexDatapoint(datapoint_id="2", feature_vector=[4.0, 5.0, 6.0])]
     """
     # Initialize the Vertex AI client
     aiplatform.init(project=project, location=location)

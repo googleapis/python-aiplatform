@@ -183,6 +183,30 @@ chat = model.start_chat(responder=afc_responder)
 print(chat.send_message("What is the weather like in Boston?"))
 ```
 
+### Grounding with Google Search
+
+```
+from vertexai import generative_models
+from vertexai.generative_models import GenerativeModel, Tool
+
+model=GenerativeModel(
+    "gemini-pro",
+    tools=[Tool.from_google_search_retrieval(
+        google_search_retrieval=generative_models.grounding.GoogleSearchRetrieval(
+            dynamic_retrieval_config=generative_models.grounding.DynamicRetrievalConfig(
+                mode=generative_models.grounding.DynamicRetrievalConfig.Mode.MODE_DYNAMIC)))
+    ],
+)
+
+response = gnd_model.generate_content("Who win Euro 2024")
+
+print(response.text)
+
+# Checking grounding metadata. It contains grounding supports and the follow-up search entry widget.
+if response.candidates:
+    print(response.candidates[0].grounding_metadata)
+```
+
 ## Documentation
 
 You can find complete documentation for the Vertex AI SDKs and the Gemini model in the Google Cloud [documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)

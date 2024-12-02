@@ -102,27 +102,27 @@ class Tensor(proto.Message):
             corresponding to "dtype" can be set. The values hold the
             flattened representation of the tensor in row major order.
 
-            [BOOL][google.aiplatform.master.Tensor.DataType.BOOL]
+            [BOOL][google.cloud.aiplatform.v1.Tensor.DataType.BOOL]
         string_val (MutableSequence[str]):
-            [STRING][google.aiplatform.master.Tensor.DataType.STRING]
+            [STRING][google.cloud.aiplatform.v1.Tensor.DataType.STRING]
         bytes_val (MutableSequence[bytes]):
-            [STRING][google.aiplatform.master.Tensor.DataType.STRING]
+            [STRING][google.cloud.aiplatform.v1.Tensor.DataType.STRING]
         float_val (MutableSequence[float]):
-            [FLOAT][google.aiplatform.master.Tensor.DataType.FLOAT]
+            [FLOAT][google.cloud.aiplatform.v1.Tensor.DataType.FLOAT]
         double_val (MutableSequence[float]):
-            [DOUBLE][google.aiplatform.master.Tensor.DataType.DOUBLE]
+            [DOUBLE][google.cloud.aiplatform.v1.Tensor.DataType.DOUBLE]
         int_val (MutableSequence[int]):
-            [INT_8][google.aiplatform.master.Tensor.DataType.INT8]
-            [INT_16][google.aiplatform.master.Tensor.DataType.INT16]
-            [INT_32][google.aiplatform.master.Tensor.DataType.INT32]
+            [INT_8][google.cloud.aiplatform.v1.Tensor.DataType.INT8]
+            [INT_16][google.cloud.aiplatform.v1.Tensor.DataType.INT16]
+            [INT_32][google.cloud.aiplatform.v1.Tensor.DataType.INT32]
         int64_val (MutableSequence[int]):
-            [INT64][google.aiplatform.master.Tensor.DataType.INT64]
+            [INT64][google.cloud.aiplatform.v1.Tensor.DataType.INT64]
         uint_val (MutableSequence[int]):
-            [UINT8][google.aiplatform.master.Tensor.DataType.UINT8]
-            [UINT16][google.aiplatform.master.Tensor.DataType.UINT16]
-            [UINT32][google.aiplatform.master.Tensor.DataType.UINT32]
+            [UINT8][google.cloud.aiplatform.v1.Tensor.DataType.UINT8]
+            [UINT16][google.cloud.aiplatform.v1.Tensor.DataType.UINT16]
+            [UINT32][google.cloud.aiplatform.v1.Tensor.DataType.UINT32]
         uint64_val (MutableSequence[int]):
-            [UINT64][google.aiplatform.master.Tensor.DataType.UINT64]
+            [UINT64][google.cloud.aiplatform.v1.Tensor.DataType.UINT64]
         list_val (MutableSequence[google.cloud.aiplatform_v1.types.Tensor]):
             A list of tensor values.
         struct_val (MutableMapping[str, google.cloud.aiplatform_v1.types.Tensor]):

@@ -18,6 +18,7 @@
 
 from typing import Union
 
+from vertexai.evaluation import constants
 from vertexai.evaluation.metrics import _base
 from vertexai.evaluation.metrics import (
     metric_prompt_template as metric_prompt_template_base,
@@ -75,4 +76,70 @@ class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acc
         super().__init__(
             metric_prompt_template=metric_prompt_template,
             metric=metric,
+        )
+
+
+class Comet(_base._TranslationMetric):  # pylint: disable=protected-access
+    """A COMET metric.
+
+    Evaluates a score for the given instance using
+    https://huggingface.co/Unbabel/wmt22-comet-da
+    """
+
+    _metric_name = constants.Metric.COMET
+
+    def __init__(
+        self,
+        *,
+        version: str = "COMET_22_SRC_REF",
+        source_language: str = None,
+        target_language: str = None,
+    ):
+        """Initializes the COMET metric.
+
+        Args:
+          version: The COMET version to use for evaluation eg.
+            "COMET_22_SRC_REF".
+          source_language: Optional. The source language of the translation.
+          target_language: Optional. The target language of the translation.
+        """
+
+        super().__init__(
+            name=Comet._metric_name,
+            version=version,
+            source_language=source_language,
+            target_language=target_language,
+        )
+
+
+class MetricX(_base._TranslationMetric):  # pylint: disable=protected-access
+    """A MetricX metric.
+
+    Evaluates a score for the given instance using
+    https://github.com/google-research/metricx
+    """
+
+    _metric_name = constants.Metric.METRICX
+
+    def __init__(
+        self,
+        *,
+        version: str = "METRICX_24_SRC_REF",
+        source_language: str = None,
+        target_language: str = None,
+    ):
+        """Initializes the MetricX metric.
+
+        Args:
+          version: The MetricX version to use for evaluation. Can be one of
+            "METRICX_24_SRC_REF", "METRICX_24_SRC", or "METRICX_24_REF".
+          source_language: Optional. The source language of the translation.
+          target_language: Optional. The target language of the translation.
+        """
+
+        super().__init__(
+            name=MetricX._metric_name,
+            version=version,
+            source_language=source_language,
+            target_language=target_language,
         )

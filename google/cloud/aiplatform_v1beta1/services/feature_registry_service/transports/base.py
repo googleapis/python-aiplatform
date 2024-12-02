@@ -29,6 +29,11 @@ from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature_group
+from google.cloud.aiplatform_v1beta1.types import feature_monitor
+from google.cloud.aiplatform_v1beta1.types import feature_monitor_job
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor_job as gca_feature_monitor_job,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_registry_service
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.cloud.location import locations_pb2  # type: ignore
@@ -167,6 +172,11 @@ class FeatureRegistryServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_create_features: gapic_v1.method.wrap_method(
+                self.batch_create_features,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_feature: gapic_v1.method.wrap_method(
                 self.get_feature,
                 default_timeout=None,
@@ -184,6 +194,41 @@ class FeatureRegistryServiceTransport(abc.ABC):
             ),
             self.delete_feature: gapic_v1.method.wrap_method(
                 self.delete_feature,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_feature_monitor: gapic_v1.method.wrap_method(
+                self.create_feature_monitor,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_feature_monitor: gapic_v1.method.wrap_method(
+                self.get_feature_monitor,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_feature_monitors: gapic_v1.method.wrap_method(
+                self.list_feature_monitors,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_feature_monitor: gapic_v1.method.wrap_method(
+                self.delete_feature_monitor,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_feature_monitor_job: gapic_v1.method.wrap_method(
+                self.create_feature_monitor_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_feature_monitor_job: gapic_v1.method.wrap_method(
+                self.get_feature_monitor_job,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_feature_monitor_jobs: gapic_v1.method.wrap_method(
+                self.list_feature_monitor_jobs,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -311,6 +356,15 @@ class FeatureRegistryServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def batch_create_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchCreateFeaturesRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def get_feature(
         self,
     ) -> Callable[
@@ -346,6 +400,83 @@ class FeatureRegistryServiceTransport(abc.ABC):
     ) -> Callable[
         [featurestore_service.DeleteFeatureRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.CreateFeatureMonitorRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.GetFeatureMonitorRequest],
+        Union[
+            feature_monitor.FeatureMonitor, Awaitable[feature_monitor.FeatureMonitor]
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_feature_monitors(
+        self,
+    ) -> Callable[
+        [feature_registry_service.ListFeatureMonitorsRequest],
+        Union[
+            feature_registry_service.ListFeatureMonitorsResponse,
+            Awaitable[feature_registry_service.ListFeatureMonitorsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.DeleteFeatureMonitorRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_feature_monitor_job(
+        self,
+    ) -> Callable[
+        [feature_registry_service.CreateFeatureMonitorJobRequest],
+        Union[
+            gca_feature_monitor_job.FeatureMonitorJob,
+            Awaitable[gca_feature_monitor_job.FeatureMonitorJob],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_feature_monitor_job(
+        self,
+    ) -> Callable[
+        [feature_registry_service.GetFeatureMonitorJobRequest],
+        Union[
+            feature_monitor_job.FeatureMonitorJob,
+            Awaitable[feature_monitor_job.FeatureMonitorJob],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_feature_monitor_jobs(
+        self,
+    ) -> Callable[
+        [feature_registry_service.ListFeatureMonitorJobsRequest],
+        Union[
+            feature_registry_service.ListFeatureMonitorJobsResponse,
+            Awaitable[feature_registry_service.ListFeatureMonitorJobsResponse],
+        ],
     ]:
         raise NotImplementedError()
 

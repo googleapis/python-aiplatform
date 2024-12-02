@@ -19,11 +19,11 @@ from vector_search import vector_search_stream_update_sample
 def test_vector_search_stream_update_sample(
     mock_sdk_init, mock_index_init, mock_index_upsert_datapoints
 ):
-    vector_search_stream_update_sample.stream_update_vector_search_index(
+    vector_search_stream_update_sample.vector_search_upsert_datapoints(
         project=constants.PROJECT,
         location=constants.LOCATION,
         index_name=constants.VECTOR_SEARCH_INDEX,
-        datapoints=constants.VECTOR_SERACH_INDEX_DATAPOINTS,
+        datapoints=constants.VECTOR_SEARCH_INDEX_DATAPOINTS,
     )
 
     # Check client initialization
@@ -36,5 +36,5 @@ def test_vector_search_stream_update_sample(
 
     # Check index.upsert_datapoints is called with right params.
     mock_index_upsert_datapoints.assert_called_with(
-        datapoints=constants.VECTOR_SERACH_INDEX_DATAPOINTS
+        datapoints=constants.VECTOR_SEARCH_INDEX_DATAPOINTS
     )

@@ -78,6 +78,8 @@ class PredictionServiceAsyncClient:
     parse_endpoint_path = staticmethod(PredictionServiceClient.parse_endpoint_path)
     model_path = staticmethod(PredictionServiceClient.model_path)
     parse_model_path = staticmethod(PredictionServiceClient.parse_model_path)
+    rag_corpus_path = staticmethod(PredictionServiceClient.rag_corpus_path)
+    parse_rag_corpus_path = staticmethod(PredictionServiceClient.parse_rag_corpus_path)
     common_billing_account_path = staticmethod(
         PredictionServiceClient.common_billing_account_path
     )

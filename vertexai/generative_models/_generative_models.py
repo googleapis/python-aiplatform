@@ -15,8 +15,8 @@
 """Classes for working with generative models."""
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
-from collections.abc import Mapping
 import copy
+import functools
 import io
 import json
 import pathlib
@@ -30,6 +30,7 @@ from typing import (
     Iterable,
     List,
     Literal,
+    Mapping,
     Optional,
     Sequence,
     Type,
@@ -384,106 +385,69 @@ class _GenerativeModel:
             labels=labels,
         )
 
-    @property
+    @functools.cached_property
     def _prediction_client(self) -> prediction_service.PredictionServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                self._prediction_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=prediction_service.PredictionServiceClient,
-                        api_key=aiplatform_initializer.global_config.api_key,
-                        prediction_client=True,
-                    )
-                )
-            else:
-                self._prediction_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=prediction_service.PredictionServiceClient,
-                        location_override=self._location,
-                        prediction_client=True,
-                    )
-                )
-        return self._prediction_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service.PredictionServiceClient,
+            prediction_client=True,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _prediction_async_client(
         self,
     ) -> prediction_service.PredictionServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_async_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                raise RuntimeError(
-                    "Using an api key is not supported yet for async clients."
-                )
-            else:
-                self._prediction_async_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=prediction_service.PredictionServiceAsyncClient,
-                        location_override=self._location,
-                        prediction_client=True,
-                    )
-                )
-        return self._prediction_async_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise RuntimeError(
+                "Using an api key is not supported yet for async clients."
+            )
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service.PredictionServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            prediction_client=True,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_client(self) -> llm_utility_service.LlmUtilityServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                self._llm_utility_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=llm_utility_service.LlmUtilityServiceClient,
-                        api_key=aiplatform_initializer.global_config.api_key,
-                        prediction_client=True,
-                    )
-                )
-            else:
-                self._llm_utility_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=llm_utility_service.LlmUtilityServiceClient,
-                        location_override=self._location,
-                        prediction_client=True,
-                    )
-                )
-        return self._llm_utility_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service.PredictionServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_async_client(
         self,
     ) -> llm_utility_service.LlmUtilityServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_async_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                raise RuntimeError(
-                    "Using an api key is not supported yet for async clients."
-                )
-            else:
-                self._llm_utility_async_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
-                        location_override=self._location,
-                        prediction_client=True,
-                    )
-                )
-        return self._llm_utility_async_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise RuntimeError(
+                "Using an api key is not supported yet for async clients."
+            )
+        return aiplatform_initializer.global_config.create_client(
+            client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
     def _prepare_request(
         self,
         contents: ContentsType,
         *,
+        model: Optional[str] = None,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
@@ -495,6 +459,7 @@ class _GenerativeModel:
         if not contents:
             raise TypeError("contents must not be empty")
 
+        model = model or self._prediction_resource_name
         generation_config = generation_config or self._generation_config
         safety_settings = safety_settings or self._safety_settings
         tools = tools or self._tools
@@ -563,7 +528,7 @@ class _GenerativeModel:
             # The `model` parameter now needs to be set for the vision models.
             # Always need to pass the resource via the `model` parameter.
             # Even when resource is an endpoint.
-            model=self._prediction_resource_name,
+            model=model,
             contents=contents,
             generation_config=gapic_generation_config,
             safety_settings=gapic_safety_settings,
@@ -2072,10 +2037,25 @@ class ToolConfig:
                 )
             )
 
+        def __repr__(self) -> str:
+            return self._gapic_function_calling_config.__repr__()
+
     def __init__(self, function_calling_config: "ToolConfig.FunctionCallingConfig"):
         self._gapic_tool_config = gapic_tool_types.ToolConfig(
             function_calling_config=function_calling_config._gapic_function_calling_config
         )
+
+    @classmethod
+    def _from_gapic(
+        cls,
+        gapic_tool_config: gapic_tool_types.ToolConfig,
+    ) -> "ToolConfig":
+        response = cls.__new__(cls)
+        response._gapic_tool_config = gapic_tool_config
+        return response
+
+    def __repr__(self) -> str:
+        return self._gapic_tool_config.__repr__()
 
 
 class FunctionDeclaration:
@@ -2105,6 +2085,16 @@ class FunctionDeclaration:
                 "required": [
                     "location"
                 ]
+            },
+            # Optional:
+            response={
+                "type": "object",
+                "properties": {
+                    "weather": {
+                        "type": "string",
+                        "description": "The weather in the city"
+                    },
+                },
             },
         )
         weather_tool = generative_models.Tool(
@@ -2146,6 +2136,7 @@ class FunctionDeclaration:
         name: str,
         parameters: Dict[str, Any],
         description: Optional[str] = None,
+        response: Dict[str, Any] = None,
     ):
         """Constructs a FunctionDeclaration.
 
@@ -2154,12 +2145,24 @@ class FunctionDeclaration:
             parameters: Describes the parameters to this function in JSON Schema Object format.
             description: Description and purpose of the function.
                 Model uses it to decide how and whether to call the function.
+            response: Describes the response type of this function in JSON Schema format.
         """
         parameters = copy.deepcopy(parameters)
         _fix_schema_dict_for_gapic_in_place(parameters)
         raw_schema = _dict_to_proto(aiplatform_types.Schema, parameters)
+
+        if response:
+            response = copy.deepcopy(response)
+            _fix_schema_dict_for_gapic_in_place(response)
+            raw_response_schema = _dict_to_proto(aiplatform_types.Schema, response)
+        else:
+            raw_response_schema = None
+
         self._raw_function_declaration = gapic_tool_types.FunctionDeclaration(
-            name=name, description=description, parameters=raw_schema
+            name=name,
+            description=description,
+            parameters=raw_schema,
+            response=raw_response_schema,
         )
 
     @classmethod
@@ -2631,7 +2634,11 @@ class FunctionCall:
         return response
 
     def to_dict(self) -> Dict[str, Any]:
-        return _proto_to_dict(self._raw_message)
+        function_call_dict = _proto_to_dict(self._raw_message)
+        function_call_dict["args"] = self._convert_number_values(
+            function_call_dict["args"]
+        )
+        return function_call_dict
 
     def __repr__(self) -> str:
         return self._raw_message.__repr__()
@@ -2644,7 +2651,21 @@ class FunctionCall:
     def args(self) -> Dict[str, Any]:
         # We cannot use `type(self.args).to_dict(self.args)`
         # due to: AttributeError: type object 'MapComposite' has no attribute 'to_dict'
-        return self.to_dict().get("args")
+        args_dict = self.to_dict().get("args")
+        return self._convert_number_values(args_dict)
+
+    def _convert_number_values(self, data: Any) -> Any:
+        """Converts float values with no decimal part to integers."""
+        if isinstance(data, float) and data.is_integer():
+            return int(data)
+        elif isinstance(data, dict):
+            return {
+                key: self._convert_number_values(value) for key, value in data.items()
+            }
+        elif isinstance(data, list):
+            return [self._convert_number_values(item) for item in data]
+        else:
+            return data
 
 
 class SafetySetting:
@@ -2710,14 +2731,41 @@ class grounding:  # pylint: disable=invalid-name
     def __init__(self):
         raise RuntimeError("This class must not be instantiated.")
 
+    class DynamicRetrievalConfig:
+        """Config for dynamic retrieval."""
+
+        Mode = gapic_tool_types.DynamicRetrievalConfig.Mode
+
+        def __init__(
+            self,
+            mode: Mode = Mode.MODE_UNSPECIFIED,
+            dynamic_threshold: Optional[float] = None,
+        ):
+            """Initializes a DynamicRetrievalConfig."""
+            self._raw_dynamic_retrieval_config = (
+                gapic_tool_types.DynamicRetrievalConfig(
+                    mode=mode,
+                    dynamic_threshold=dynamic_threshold,
+                )
+            )
+
     class GoogleSearchRetrieval:
         r"""Tool to retrieve public web data for grounding, powered by
         Google Search.
         """
 
-        def __init__(self):
+        def __init__(
+            self,
+            dynamic_retrieval_config: Optional[
+                "grounding.DynamicRetrievalConfig"
+            ] = None,
+        ):
             """Initializes a Google Search Retrieval tool."""
-            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval()
+            self._raw_google_search_retrieval = gapic_tool_types.GoogleSearchRetrieval(
+                dynamic_retrieval_config=dynamic_retrieval_config._raw_dynamic_retrieval_config
+                if dynamic_retrieval_config
+                else None
+            )
 
 
 class preview_grounding:  # pylint: disable=invalid-name
@@ -2935,11 +2983,19 @@ def _append_gapic_part(
 
 def _proto_to_dict(message) -> Dict[str, Any]:
     """Converts a proto-plus protobuf message to a dictionary."""
-    return type(message).to_dict(
+    # The best way to convert proto to dict is not trivial.
+    # Ideally, we want original keys in snake_case.
+    # The preserving_proto_field_name flag controls key names, but states have issues:
+    # `False` leads to keys using camelCase instead of snake_case.
+    # `True` leads to keys using snake_case, but has renamed names like `type_`.
+    # We needs to fix this issue using _fix_renamed_proto_dict_keys_in_place.
+    result = type(message).to_dict(
         message,
         including_default_value_fields=False,
         use_integers_for_enums=False,
     )
+    _fix_renamed_proto_dict_keys_in_place(result)
+    return result
 
 
 def _dict_to_proto(message_type: Type[T], message_dict: Dict[str, Any]) -> T:
@@ -2954,6 +3010,21 @@ def _dict_to_proto(message_type: Type[T], message_dict: Dict[str, Any]) -> T:
 def _dict_to_pretty_string(d: dict) -> str:
     """Format dict as a pretty-printed JSON string."""
     return json.dumps(d, indent=2)
+
+
+def _fix_renamed_proto_dict_keys_in_place(d: Mapping[str, Any]):
+    """Fixes proto dict keys in place."""
+    for key, value in list(d.items()):
+        if key.endswith("_"):
+            new_key = key.rstrip("_")
+            del d[key]
+            d[new_key] = value
+        if isinstance(value, Mapping):
+            _fix_renamed_proto_dict_keys_in_place(value)
+        if isinstance(value, Sequence) and not isinstance(value, str):
+            for item in value:
+                if isinstance(item, Mapping):
+                    _fix_renamed_proto_dict_keys_in_place(item)
 
 
 _FORMAT_TO_MIME_TYPE = {
@@ -3130,66 +3201,85 @@ class AutomaticFunctionCallingResponder:
 class GenerativeModel(_GenerativeModel):
     __module__ = "vertexai.generative_models"
 
-    @property
+    @functools.cached_property
     def _prediction_client(self) -> prediction_service_v1.PredictionServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_client_value", None):
-            self._prediction_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service_v1.PredictionServiceClient,
-                    location_override=self._location,
-                    prediction_client=True,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._prediction_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service_v1.PredictionServiceClient,
+            location_override=self._location if not api_key else None,
+            prediction_client=True,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _prediction_async_client(
         self,
     ) -> prediction_service_v1.PredictionServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_async_client_value", None):
-            self._prediction_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service_v1.PredictionServiceAsyncClient,
-                    location_override=self._location,
-                    prediction_client=True,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._prediction_async_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service_v1.PredictionServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            prediction_client=True,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_client(self) -> llm_utility_service_v1.LlmUtilityServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_client_value", None):
-            self._llm_utility_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service_v1.LlmUtilityServiceClient,
-                    location_override=self._location,
-                    prediction_client=True,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._llm_utility_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=llm_utility_service_v1.LlmUtilityServiceClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_async_client(
         self,
     ) -> llm_utility_service_v1.LlmUtilityServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_async_client_value", None):
-            self._llm_utility_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service_v1.LlmUtilityServiceAsyncClient,
-                    location_override=self._location,
-                    prediction_client=True,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._llm_utility_async_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=llm_utility_service_v1.LlmUtilityServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
     def _prepare_request(
         self,
         contents: ContentsType,
         *,
+        model: Optional[str] = None,
         generation_config: Optional[GenerationConfigType] = None,
         safety_settings: Optional[SafetySettingsType] = None,
         tools: Optional[List["Tool"]] = None,
@@ -3200,6 +3290,7 @@ class GenerativeModel(_GenerativeModel):
         """Prepares a GAPIC GenerateContentRequest."""
         request_v1beta1 = super()._prepare_request(
             contents=contents,
+            model=model,
             generation_config=generation_config,
             safety_settings=safety_settings,
             tools=tools,

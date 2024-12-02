@@ -4809,8 +4809,34 @@ def test_parse_endpoint_path():
     assert expected == actual
 
 
+def test_rag_corpus_path():
+    project = "cuttlefish"
+    location = "mussel"
+    rag_corpus = "winkle"
+    expected = "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
+        project=project,
+        location=location,
+        rag_corpus=rag_corpus,
+    )
+    actual = LlmUtilityServiceClient.rag_corpus_path(project, location, rag_corpus)
+    assert expected == actual
+
+
+def test_parse_rag_corpus_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "rag_corpus": "abalone",
+    }
+    path = LlmUtilityServiceClient.rag_corpus_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = LlmUtilityServiceClient.parse_rag_corpus_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -4820,7 +4846,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = LlmUtilityServiceClient.common_billing_account_path(**expected)
 
@@ -4830,7 +4856,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -4840,7 +4866,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = LlmUtilityServiceClient.common_folder_path(**expected)
 
@@ -4850,7 +4876,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -4860,7 +4886,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = LlmUtilityServiceClient.common_organization_path(**expected)
 
@@ -4870,7 +4896,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -4880,7 +4906,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = LlmUtilityServiceClient.common_project_path(**expected)
 
@@ -4890,8 +4916,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -4902,8 +4928,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = LlmUtilityServiceClient.common_location_path(**expected)
 

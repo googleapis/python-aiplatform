@@ -82,12 +82,17 @@ from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 from .services.tensorboard_service import TensorboardServiceClient
 from .services.tensorboard_service import TensorboardServiceAsyncClient
+from .services.vertex_rag_data_service import VertexRagDataServiceClient
+from .services.vertex_rag_data_service import VertexRagDataServiceAsyncClient
+from .services.vertex_rag_service import VertexRagServiceClient
+from .services.vertex_rag_service import VertexRagServiceAsyncClient
 from .services.vizier_service import VizierServiceClient
 from .services.vizier_service import VizierServiceAsyncClient
 
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
+from .types.api_auth import ApiAuth
 from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
 from .types.completion_stats import CompletionStats
@@ -179,8 +184,10 @@ from .types.deployment_resource_pool_service import (
 )
 from .types.deployment_resource_pool_service import UpdateDeploymentResourcePoolRequest
 from .types.encryption_spec import EncryptionSpec
+from .types.endpoint import ClientConnectionConfig
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
@@ -198,6 +205,8 @@ from .types.endpoint_service import MutateDeployedModelResponse
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
+from .types.endpoint_service import UpdateEndpointLongRunningRequest
+from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
@@ -213,6 +222,10 @@ from .types.evaluation_service import CoherenceInput
 from .types.evaluation_service import CoherenceInstance
 from .types.evaluation_service import CoherenceResult
 from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import CometInput
+from .types.evaluation_service import CometInstance
+from .types.evaluation_service import CometResult
+from .types.evaluation_service import CometSpec
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
 from .types.evaluation_service import ExactMatchInput
@@ -232,6 +245,10 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import MetricxInput
+from .types.evaluation_service import MetricxInstance
+from .types.evaluation_service import MetricxResult
+from .types.evaluation_service import MetricxSpec
 from .types.evaluation_service import PairwiseMetricInput
 from .types.evaluation_service import PairwiseMetricInstance
 from .types.evaluation_service import PairwiseMetricResult
@@ -482,8 +499,13 @@ from .types.io import BigQuerySource
 from .types.io import ContainerRegistryDestination
 from .types.io import CsvDestination
 from .types.io import CsvSource
+from .types.io import DirectUploadSource
 from .types.io import GcsDestination
 from .types.io import GcsSource
+from .types.io import GoogleDriveSource
+from .types.io import JiraSource
+from .types.io import SharePointSources
+from .types.io import SlackSource
 from .types.io import TFRecordDestination
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
@@ -873,10 +895,12 @@ from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
+from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
 from .types.tool import Tool
 from .types.tool import ToolConfig
 from .types.tool import VertexAISearch
+from .types.tool import VertexRagStore
 from .types.training_pipeline import FilterSplit
 from .types.training_pipeline import FractionSplit
 from .types.training_pipeline import InputDataConfig
@@ -900,6 +924,43 @@ from .types.types import Tensor
 from .types.unmanaged_container_model import UnmanagedContainerModel
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
+from .types.vertex_rag_data import CorpusStatus
+from .types.vertex_rag_data import FileStatus
+from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagCorpus
+from .types.vertex_rag_data import RagEmbeddingModelConfig
+from .types.vertex_rag_data import RagFile
+from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileTransformationConfig
+from .types.vertex_rag_data import RagVectorDbConfig
+from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
+from .types.vertex_rag_data_service import CreateRagCorpusRequest
+from .types.vertex_rag_data_service import DeleteRagCorpusRequest
+from .types.vertex_rag_data_service import DeleteRagFileRequest
+from .types.vertex_rag_data_service import GetRagCorpusRequest
+from .types.vertex_rag_data_service import GetRagFileRequest
+from .types.vertex_rag_data_service import ImportRagFilesOperationMetadata
+from .types.vertex_rag_data_service import ImportRagFilesRequest
+from .types.vertex_rag_data_service import ImportRagFilesResponse
+from .types.vertex_rag_data_service import ListRagCorporaRequest
+from .types.vertex_rag_data_service import ListRagCorporaResponse
+from .types.vertex_rag_data_service import ListRagFilesRequest
+from .types.vertex_rag_data_service import ListRagFilesResponse
+from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
+from .types.vertex_rag_data_service import UpdateRagCorpusRequest
+from .types.vertex_rag_data_service import UploadRagFileRequest
+from .types.vertex_rag_data_service import UploadRagFileResponse
+from .types.vertex_rag_service import AugmentPromptRequest
+from .types.vertex_rag_service import AugmentPromptResponse
+from .types.vertex_rag_service import Claim
+from .types.vertex_rag_service import CorroborateContentRequest
+from .types.vertex_rag_service import CorroborateContentResponse
+from .types.vertex_rag_service import Fact
+from .types.vertex_rag_service import RagContexts
+from .types.vertex_rag_service import RagQuery
+from .types.vertex_rag_service import RetrieveContextsRequest
+from .types.vertex_rag_service import RetrieveContextsResponse
 from .types.vizier_service import AddTrialMeasurementRequest
 from .types.vizier_service import CheckTrialEarlyStoppingStateMetatdata
 from .types.vizier_service import CheckTrialEarlyStoppingStateRequest
@@ -950,6 +1011,8 @@ __all__ = (
     "ScheduleServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
     "TensorboardServiceAsyncClient",
+    "VertexRagDataServiceAsyncClient",
+    "VertexRagServiceAsyncClient",
     "VizierServiceAsyncClient",
     "AcceleratorType",
     "ActiveLearningConfig",
@@ -962,10 +1025,13 @@ __all__ = (
     "AddTrialMeasurementRequest",
     "Annotation",
     "AnnotationSpec",
+    "ApiAuth",
     "Artifact",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
     "Attribution",
+    "AugmentPromptRequest",
+    "AugmentPromptResponse",
     "AutomaticResources",
     "AutoscalingMetricSpec",
     "AvroSource",
@@ -1019,10 +1085,16 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "Claim",
+    "ClientConnectionConfig",
     "CoherenceInput",
     "CoherenceInstance",
     "CoherenceResult",
     "CoherenceSpec",
+    "CometInput",
+    "CometInstance",
+    "CometResult",
+    "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
@@ -1034,6 +1106,9 @@ __all__ = (
     "CopyModelOperationMetadata",
     "CopyModelRequest",
     "CopyModelResponse",
+    "CorpusStatus",
+    "CorroborateContentRequest",
+    "CorroborateContentResponse",
     "CountTokensRequest",
     "CountTokensResponse",
     "CreateArtifactRequest",
@@ -1079,6 +1154,8 @@ __all__ = (
     "CreatePersistentResourceOperationMetadata",
     "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
+    "CreateRagCorpusOperationMetadata",
+    "CreateRagCorpusRequest",
     "CreateRegistryFeatureOperationMetadata",
     "CreateScheduleRequest",
     "CreateSpecialistPoolOperationMetadata",
@@ -1137,6 +1214,8 @@ __all__ = (
     "DeleteOperationMetadata",
     "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
+    "DeleteRagCorpusRequest",
+    "DeleteRagFileRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
     "DeleteSpecialistPoolRequest",
@@ -1165,6 +1244,7 @@ __all__ = (
     "DirectPredictResponse",
     "DirectRawPredictRequest",
     "DirectRawPredictResponse",
+    "DirectUploadSource",
     "DiskSpec",
     "DoubleArray",
     "DynamicRetrievalConfig",
@@ -1212,6 +1292,8 @@ __all__ = (
     "ExportModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
+    "Fact",
+    "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
     "FeatureNoiseSigma",
@@ -1235,6 +1317,7 @@ __all__ = (
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
     "FileData",
+    "FileStatus",
     "FilterSplit",
     "FindNeighborsRequest",
     "FindNeighborsResponse",
@@ -1294,6 +1377,8 @@ __all__ = (
     "GetPersistentResourceRequest",
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
+    "GetRagCorpusRequest",
+    "GetRagFileRequest",
     "GetScheduleRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
@@ -1304,6 +1389,7 @@ __all__ = (
     "GetTrainingPipelineRequest",
     "GetTrialRequest",
     "GetTuningJobRequest",
+    "GoogleDriveSource",
     "GoogleSearchRetrieval",
     "GroundednessInput",
     "GroundednessInstance",
@@ -1323,6 +1409,10 @@ __all__ = (
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
     "ImportModelEvaluationRequest",
+    "ImportRagFilesConfig",
+    "ImportRagFilesOperationMetadata",
+    "ImportRagFilesRequest",
+    "ImportRagFilesResponse",
     "Index",
     "IndexDatapoint",
     "IndexEndpoint",
@@ -1333,6 +1423,7 @@ __all__ = (
     "InputDataConfig",
     "Int64Array",
     "IntegratedGradientsAttribution",
+    "JiraSource",
     "JobServiceClient",
     "JobState",
     "LargeModelReference",
@@ -1411,6 +1502,10 @@ __all__ = (
     "ListPersistentResourcesResponse",
     "ListPipelineJobsRequest",
     "ListPipelineJobsResponse",
+    "ListRagCorporaRequest",
+    "ListRagCorporaResponse",
+    "ListRagFilesRequest",
+    "ListRagFilesResponse",
     "ListSavedQueriesRequest",
     "ListSavedQueriesResponse",
     "ListSchedulesRequest",
@@ -1444,6 +1539,10 @@ __all__ = (
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "MetricxInput",
+    "MetricxInstance",
+    "MetricxResult",
+    "MetricxSpec",
     "MigratableResource",
     "MigrateResourceRequest",
     "MigrateResourceResponse",
@@ -1568,6 +1667,15 @@ __all__ = (
     "QuestionAnsweringRelevanceInstance",
     "QuestionAnsweringRelevanceResult",
     "QuestionAnsweringRelevanceSpec",
+    "RagContexts",
+    "RagCorpus",
+    "RagEmbeddingModelConfig",
+    "RagFile",
+    "RagFileChunkingConfig",
+    "RagFileTransformationConfig",
+    "RagQuery",
+    "RagRetrievalConfig",
+    "RagVectorDbConfig",
     "RawPredictRequest",
     "RayLogsSpec",
     "RayMetricSpec",
@@ -1603,6 +1711,8 @@ __all__ = (
     "ResumeScheduleRequest",
     "Retrieval",
     "RetrievalMetadata",
+    "RetrieveContextsRequest",
+    "RetrieveContextsResponse",
     "RougeInput",
     "RougeInstance",
     "RougeMetricValue",
@@ -1636,7 +1746,9 @@ __all__ = (
     "SearchNearestEntitiesResponse",
     "Segment",
     "ServiceAccountSpec",
+    "SharePointSources",
     "ShieldedVmConfig",
+    "SlackSource",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
@@ -1744,6 +1856,8 @@ __all__ = (
     "UpdateDatasetVersionRequest",
     "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateDeploymentResourcePoolRequest",
+    "UpdateEndpointLongRunningRequest",
+    "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",
@@ -1769,6 +1883,8 @@ __all__ = (
     "UpdateNotebookRuntimeTemplateRequest",
     "UpdatePersistentResourceOperationMetadata",
     "UpdatePersistentResourceRequest",
+    "UpdateRagCorpusOperationMetadata",
+    "UpdateRagCorpusRequest",
     "UpdateScheduleRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
@@ -1783,11 +1899,17 @@ __all__ = (
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
+    "UploadRagFileConfig",
+    "UploadRagFileRequest",
+    "UploadRagFileResponse",
     "UpsertDatapointsRequest",
     "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexRagDataServiceClient",
+    "VertexRagServiceClient",
+    "VertexRagStore",
     "VideoMetadata",
     "VizierServiceClient",
     "WorkerPoolSpec",

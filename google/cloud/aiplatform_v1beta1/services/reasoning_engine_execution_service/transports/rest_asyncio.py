@@ -48,6 +48,7 @@ import dataclasses
 from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 
 
+from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_execution_service
 from google.longrunning import operations_pb2  # type: ignore
 
@@ -91,6 +92,14 @@ class AsyncReasoningEngineExecutionServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            async def pre_stream_query_reasoning_engine(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_stream_query_reasoning_engine(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
         transport = AsyncReasoningEngineExecutionServiceRestTransport(interceptor=MyCustomReasoningEngineExecutionServiceInterceptor())
         client = async ReasoningEngineExecutionServiceClient(transport=transport)
 
@@ -116,6 +125,32 @@ class AsyncReasoningEngineExecutionServiceRestInterceptor:
         self, response: reasoning_engine_execution_service.QueryReasoningEngineResponse
     ) -> reasoning_engine_execution_service.QueryReasoningEngineResponse:
         """Post-rpc interceptor for query_reasoning_engine
+
+        Override in a subclass to manipulate the response
+        after it is returned by the ReasoningEngineExecutionService server but before
+        it is returned to user code.
+        """
+        return response
+
+    async def pre_stream_query_reasoning_engine(
+        self,
+        request: reasoning_engine_execution_service.StreamQueryReasoningEngineRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        reasoning_engine_execution_service.StreamQueryReasoningEngineRequest,
+        Sequence[Tuple[str, str]],
+    ]:
+        """Pre-rpc interceptor for stream_query_reasoning_engine
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ReasoningEngineExecutionService server.
+        """
+        return request, metadata
+
+    async def post_stream_query_reasoning_engine(
+        self, response: rest_streaming_async.AsyncResponseIterator
+    ) -> rest_streaming_async.AsyncResponseIterator:
+        """Post-rpc interceptor for stream_query_reasoning_engine
 
         Override in a subclass to manipulate the response
         after it is returned by the ReasoningEngineExecutionService server but before
@@ -425,6 +460,11 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.stream_query_reasoning_engine: self._wrap_method(
+                self.stream_query_reasoning_engine,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: self._wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -593,6 +633,165 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             resp = await self._interceptor.post_query_reasoning_engine(resp)
             return resp
 
+    class _StreamQueryReasoningEngine(
+        _BaseReasoningEngineExecutionServiceRestTransport._BaseStreamQueryReasoningEngine,
+        AsyncReasoningEngineExecutionServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash(
+                "AsyncReasoningEngineExecutionServiceRestTransport.StreamQueryReasoningEngine"
+            )
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: reasoning_engine_execution_service.StreamQueryReasoningEngineRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> rest_streaming_async.AsyncResponseIterator:
+            r"""Call the stream query reasoning
+            engine method over HTTP.
+
+                Args:
+                    request (~.reasoning_engine_execution_service.StreamQueryReasoningEngineRequest):
+                        The request object. Request message for
+                    [ReasoningEngineExecutionService.StreamQuery][].
+                    retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.httpbody_pb2.HttpBody:
+                        Message that represents an arbitrary HTTP body. It
+                    should only be used for payload formats that can't be
+                    represented as JSON, such as raw binary or an HTML page.
+
+                    This message can be used both in streaming and
+                    non-streaming API methods in the request as well as the
+                    response.
+
+                    It can be used as a top-level request field, which is
+                    convenient if one wants to extract parameters from
+                    either the URL or HTTP template into the request fields
+                    and also want access to the raw HTTP body.
+
+                    Example:
+
+                    ::
+
+                        message GetResourceRequest {
+                          // A unique request id.
+                          string request_id = 1;
+
+                          // The raw HTTP body is bound to this field.
+                          google.api.HttpBody http_body = 2;
+
+                        }
+
+                        service ResourceService {
+                          rpc GetResource(GetResourceRequest)
+                            returns (google.api.HttpBody);
+                          rpc UpdateResource(google.api.HttpBody)
+                            returns (google.protobuf.Empty);
+
+                        }
+
+                    Example with streaming methods:
+
+                    ::
+
+                        service CaldavService {
+                          rpc GetCalendar(stream google.api.HttpBody)
+                            returns (stream google.api.HttpBody);
+                          rpc UpdateCalendar(stream google.api.HttpBody)
+                            returns (stream google.api.HttpBody);
+
+                        }
+
+                    Use of this type only changes how the request and
+                    response bodies are handled, all other features will
+                    continue to work unchanged.
+
+            """
+
+            http_options = (
+                _BaseReasoningEngineExecutionServiceRestTransport._BaseStreamQueryReasoningEngine._get_http_options()
+            )
+            (
+                request,
+                metadata,
+            ) = await self._interceptor.pre_stream_query_reasoning_engine(
+                request, metadata
+            )
+            transcoded_request = _BaseReasoningEngineExecutionServiceRestTransport._BaseStreamQueryReasoningEngine._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseReasoningEngineExecutionServiceRestTransport._BaseStreamQueryReasoningEngine._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseReasoningEngineExecutionServiceRestTransport._BaseStreamQueryReasoningEngine._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = await AsyncReasoningEngineExecutionServiceRestTransport._StreamQueryReasoningEngine._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = rest_streaming_async.AsyncResponseIterator(
+                response, httpbody_pb2.HttpBody
+            )
+            resp = await self._interceptor.post_stream_query_reasoning_engine(resp)
+            return resp
+
     @property
     def query_reasoning_engine(
         self,
@@ -601,6 +800,15 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
         reasoning_engine_execution_service.QueryReasoningEngineResponse,
     ]:
         return self._QueryReasoningEngine(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def stream_query_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_execution_service.StreamQueryReasoningEngineRequest],
+        httpbody_pb2.HttpBody,
+    ]:
+        return self._StreamQueryReasoningEngine(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def get_location(self):

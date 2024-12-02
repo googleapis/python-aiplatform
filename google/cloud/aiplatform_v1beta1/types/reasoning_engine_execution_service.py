@@ -27,6 +27,7 @@ __protobuf__ = proto.module(
     manifest={
         "QueryReasoningEngineRequest",
         "QueryReasoningEngineResponse",
+        "StreamQueryReasoningEngineRequest",
     },
 )
 
@@ -43,6 +44,10 @@ class QueryReasoningEngineRequest(proto.Message):
             Optional. Input content provided by users in
             JSON object format. Examples include text query,
             function calling parameters, media bytes, etc.
+        class_method (str):
+            Optional. Class method to be used for the
+            query. It is optional and defaults to "query" if
+            unspecified.
     """
 
     name: str = proto.Field(
@@ -53,6 +58,10 @@ class QueryReasoningEngineRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Struct,
+    )
+    class_method: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
@@ -69,6 +78,38 @@ class QueryReasoningEngineResponse(proto.Message):
         proto.MESSAGE,
         number=1,
         message=struct_pb2.Value,
+    )
+
+
+class StreamQueryReasoningEngineRequest(proto.Message):
+    r"""Request message for [ReasoningEngineExecutionService.StreamQuery][].
+
+    Attributes:
+        name (str):
+            Required. The name of the ReasoningEngine resource to use.
+            Format:
+            ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
+        input (google.protobuf.struct_pb2.Struct):
+            Optional. Input content provided by users in
+            JSON object format. Examples include text query,
+            function calling parameters, media bytes, etc.
+        class_method (str):
+            Optional. Class method to be used for the stream query. It
+            is optional and defaults to "stream_query" if unspecified.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    input: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Struct,
+    )
+    class_method: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

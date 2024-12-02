@@ -1978,6 +1978,7 @@ class FeatureOnlineStoreAdminServiceClient(
                 -  ``feature_registry_source.feature_groups``
                 -  ``sync_config``
                 -  ``sync_config.cron``
+                -  ``optimized_config.automatic_resources``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2101,7 +2102,7 @@ class FeatureOnlineStoreAdminServiceClient(
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteFeatureViewRequest, dict]):
                 The request object. Request message for
-                [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+                [FeatureOnlineStoreAdminService.DeleteFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.DeleteFeatureView].
             name (str):
                 Required. The name of the FeatureView to be deleted.
                 Format:

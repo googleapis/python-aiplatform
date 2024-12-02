@@ -21,6 +21,8 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import job_state as gca_job_state
+from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import network_spec as gca_network_spec
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
@@ -63,6 +65,11 @@ class NotebookExecutionJob(proto.Message):
         notebook_runtime_template_resource_name (str):
             The NotebookRuntimeTemplate to source compute
             configuration from.
+
+            This field is a member of `oneof`_ ``environment_spec``.
+        custom_environment_spec (google.cloud.aiplatform_v1beta1.types.NotebookExecutionJob.CustomEnvironmentSpec):
+            The custom compute configuration for an
+            execution job.
 
             This field is a member of `oneof`_ ``environment_spec``.
         gcs_output_uri (str):
@@ -186,6 +193,37 @@ class NotebookExecutionJob(proto.Message):
             number=1,
         )
 
+    class CustomEnvironmentSpec(proto.Message):
+        r"""Compute configuration to use for an execution job.
+
+        Attributes:
+            machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
+                The specification of a single machine for the
+                execution job.
+            persistent_disk_spec (google.cloud.aiplatform_v1beta1.types.PersistentDiskSpec):
+                The specification of a persistent disk to
+                attach for the execution job.
+            network_spec (google.cloud.aiplatform_v1beta1.types.NetworkSpec):
+                The network configuration to use for the
+                execution job.
+        """
+
+        machine_spec: machine_resources.MachineSpec = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=machine_resources.MachineSpec,
+        )
+        persistent_disk_spec: machine_resources.PersistentDiskSpec = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=machine_resources.PersistentDiskSpec,
+        )
+        network_spec: gca_network_spec.NetworkSpec = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            message=gca_network_spec.NetworkSpec,
+        )
+
     dataform_repository_source: DataformRepositorySource = proto.Field(
         proto.MESSAGE,
         number=3,
@@ -208,6 +246,12 @@ class NotebookExecutionJob(proto.Message):
         proto.STRING,
         number=14,
         oneof="environment_spec",
+    )
+    custom_environment_spec: CustomEnvironmentSpec = proto.Field(
+        proto.MESSAGE,
+        number=16,
+        oneof="environment_spec",
+        message=CustomEnvironmentSpec,
     )
     gcs_output_uri: str = proto.Field(
         proto.STRING,

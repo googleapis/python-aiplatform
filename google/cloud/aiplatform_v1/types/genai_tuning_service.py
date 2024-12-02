@@ -93,8 +93,9 @@ class ListTuningJobsRequest(proto.Message):
             Optional. The standard list page size.
         page_token (str):
             Optional. The standard list page token. Typically obtained
-            via [ListTuningJob.next_page_token][] of the previous
-            GenAiTuningService.ListTuningJob][] call.
+            via
+            [ListTuningJobsResponse.next_page_token][google.cloud.aiplatform.v1.ListTuningJobsResponse.next_page_token]
+            of the previous GenAiTuningService.ListTuningJob][] call.
     """
 
     parent: str = proto.Field(

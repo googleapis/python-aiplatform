@@ -794,6 +794,9 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         r"""Return a callable for the list annotations method over gRPC.
 
         Lists Annotations belongs to a dataitem
+        This RPC is only available in InternalDatasetService. It
+        is only used for exporting conversation data to CCAI
+        Insights.
 
         Returns:
             Callable[[~.ListAnnotationsRequest],

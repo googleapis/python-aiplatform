@@ -124,33 +124,73 @@ def _validate_metric_column_map(
                     )
 
 
-def _validate_dataset_for_automatic_metrics(
+def _validate_dataset(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
-):
-    """Validates the required columns exist in the dataset for automatic metrics."""
+) -> None:
+    """Validates the required columns exists in the dataset."""
+    _validate_response_column_required(evaluation_run_config)
+    _validate_reference_column_required(evaluation_run_config)
+    _validate_reference_or_source_column_required(evaluation_run_config)
+
+
+def _validate_response_column_required(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+) -> None:
+    """Validates the response column exists in the dataset."""
+    for metric in evaluation_run_config.metrics:
+        if metric in constants.Metric.AUTOMATIC_METRIC_LIST or isinstance(
+            metric, metrics_base._TranslationMetric  # pylint: disable=protected-access
+        ):
+            _validate_column_provided(
+                evaluation_run_config,
+                constants.Dataset.MODEL_RESPONSE_COLUMN,
+            )
+
+
+def _validate_reference_column_required(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+) -> None:
+    """Validates the reference column exists in the dataset."""
     if set(evaluation_run_config.metrics).intersection(
         set(constants.Metric.AUTOMATIC_METRIC_LIST)
     ):
-        if (
-            constants.Dataset.REFERENCE_COLUMN
-            not in evaluation_run_config.metric_column_mapping
-        ):
-            evaluation_run_config.metric_column_mapping[
-                constants.Dataset.REFERENCE_COLUMN
-            ] = constants.Dataset.REFERENCE_COLUMN
-        evaluation_run_config.validate_dataset_column(
-            constants.Dataset.REFERENCE_COLUMN
+        _validate_column_provided(
+            evaluation_run_config,
+            constants.Dataset.REFERENCE_COLUMN,
         )
-        if (
-            constants.Dataset.MODEL_RESPONSE_COLUMN
-            not in evaluation_run_config.metric_column_mapping
+
+
+def _validate_column_provided(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    column_name: str,
+) -> None:
+    """Validates the required column exist in the dataset."""
+    if column_name not in evaluation_run_config.metric_column_mapping:
+        evaluation_run_config.metric_column_mapping[column_name] = column_name
+    evaluation_run_config.validate_dataset_column(column_name)
+
+
+def _validate_reference_or_source_column_required(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+) -> None:
+    """Validates one of reference or source columns exist in the dataset."""
+    for metric in evaluation_run_config.metrics:
+        if isinstance(
+            metric, metrics_base._TranslationMetric  # pylint: disable=protected-access
         ):
-            evaluation_run_config.metric_column_mapping[
-                constants.Dataset.MODEL_RESPONSE_COLUMN
-            ] = constants.Dataset.MODEL_RESPONSE_COLUMN
-        evaluation_run_config.validate_dataset_column(
-            constants.Dataset.MODEL_RESPONSE_COLUMN
-        )
+            # Validate the reference column.
+            # This is optional if source column is provided.
+            try:
+                _validate_column_provided(
+                    evaluation_run_config,
+                    constants.Dataset.REFERENCE_COLUMN,
+                )
+            except KeyError:
+                # Reference column is optional. Checking for source column.
+                _validate_column_provided(
+                    evaluation_run_config,
+                    constants.Dataset.SOURCE_COLUMN,
+                )
 
 
 def _compute_custom_metrics(
@@ -639,6 +679,15 @@ def _parse_metric_results_to_dataframe(
                 metrics_table,
                 constants.MetricResult.SCORE_KEY,
             )
+        elif isinstance(
+            metric, metrics_base._TranslationMetric  # pylint: disable=protected-access
+        ):
+            _set_metric_table(
+                str(metric),
+                metric_results,
+                metrics_table,
+                constants.MetricResult.SCORE_KEY,
+            )
         else:
             _LOGGER.warning(
                 f"Metric name: {str(metric)} is not supported when parsing"
@@ -856,15 +905,28 @@ def evaluate(
     """
     _validate_metrics(metrics)
     metrics = _convert_metric_prompt_template_example(metrics)
-
+    copied_metrics = []
+    for metric in metrics:
+        if isinstance(metric, pairwise_metric.PairwiseMetric):
+            copied_metrics.append(
+                pairwise_metric.PairwiseMetric(
+                    metric=metric.metric_name,
+                    metric_prompt_template=metric.metric_prompt_template,
+                    baseline_model=metric.baseline_model,
+                )
+            )
+        else:
+            copied_metrics.append(copy.deepcopy(metric))
     evaluation_run_config = evaluation_base.EvaluationRunConfig(
         dataset=dataset.copy(deep=True),
-        metrics=copy.deepcopy(metrics),
+        metrics=copied_metrics,
         metric_column_mapping=copy.deepcopy(metric_column_mapping),
         client=utils.create_evaluation_service_client(),
-        evaluation_service_qps=evaluation_service_qps
-        if evaluation_service_qps
-        else constants.QuotaLimit.EVAL_SERVICE_QPS,
+        evaluation_service_qps=(
+            evaluation_service_qps
+            if evaluation_service_qps
+            else constants.QuotaLimit.EVAL_SERVICE_QPS
+        ),
         retry_timeout=retry_timeout,
     )
 
@@ -876,7 +938,7 @@ def evaluate(
         evaluation_run_config=evaluation_run_config,
         response_column_name=constants.Dataset.MODEL_RESPONSE_COLUMN,
     )
-    _validate_dataset_for_automatic_metrics(evaluation_run_config)
+    _validate_dataset(evaluation_run_config)
 
     pairwise_metric_exists = any(
         isinstance(metric, pairwise_metric.PairwiseMetric)

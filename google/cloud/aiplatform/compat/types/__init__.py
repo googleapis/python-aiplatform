@@ -44,6 +44,8 @@ from google.cloud.aiplatform_v1beta1.types import (
     explanation_metadata as explanation_metadata_v1beta1,
     feature as feature_v1beta1,
     feature_group as feature_group_v1beta1,
+    feature_monitor as feature_monitor_v1beta1,
+    feature_monitor_job as feature_monitor_job_v1beta1,
     feature_monitoring_stats as feature_monitoring_stats_v1beta1,
     feature_online_store as feature_online_store_v1beta1,
     feature_online_store_admin_service as feature_online_store_admin_service_v1beta1,

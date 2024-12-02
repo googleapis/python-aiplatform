@@ -1913,6 +1913,7 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 request (~.dataset_service.GetDatasetRequest):
                     The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
+                Next ID: 4
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -2016,6 +2017,7 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 request (~.dataset_service.GetDatasetVersionRequest):
                     The request object. Request message for
                 [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
+                Next ID: 4
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -3422,6 +3424,14 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -3761,6 +3771,14 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -4135,6 +4153,14 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -4528,6 +4554,14 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -4871,6 +4905,14 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

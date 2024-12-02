@@ -47,7 +47,7 @@ packages += [
 ]
 
 profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
+    "tensorboard-plugin-profile >= 2.4.0, <2.18.0",  # <3.0.0dev",
     "werkzeug >= 2.0.0, <2.1.0dev",
     "tensorflow >=2.4.0, <3.0.0dev",
 ]
@@ -143,7 +143,7 @@ reasoning_engine_extra_require = [
     "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-trace < 2",
-    "pydantic >= 2.6.3, < 3",
+    "pydantic >= 2.6.3, < 2.10",
 ]
 
 evaluation_extra_require = [
@@ -152,12 +152,10 @@ evaluation_extra_require = [
 ]
 
 langchain_extra_require = [
-    "langchain >= 0.1.16, < 0.3",
-    "langchain-core < 0.3",
-    "langchain-google-vertexai < 2",
+    "langchain >= 0.1.16, < 0.4",
+    "langchain-core < 0.4",
+    "langchain-google-vertexai < 3",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
-    "tenacity <= 8.3",
-    "orjson <= 3.10.6",
 ]
 
 langchain_testing_extra_require = list(

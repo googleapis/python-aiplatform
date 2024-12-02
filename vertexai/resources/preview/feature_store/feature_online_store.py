@@ -21,6 +21,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Union,
 )
 
 from google.auth import credentials as auth_credentials
@@ -40,6 +41,7 @@ from vertexai.resources.preview.feature_store.feature_view import (
 from vertexai.resources.preview.feature_store.utils import (
     IndexConfig,
     FeatureViewBigQuerySource,
+    FeatureViewVertexRagSource,
 )
 
 
@@ -404,7 +406,10 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
     def create_feature_view(
         self,
         name: str,
-        source: FeatureViewBigQuerySource,
+        source: Union[
+            FeatureViewBigQuerySource,
+            FeatureViewVertexRagSource,
+        ],
         labels: Optional[Dict[str, str]] = None,
         sync_config: Optional[str] = None,
         index_config: Optional[IndexConfig] = None,
@@ -420,7 +425,7 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         Example Usage:
         ```
         existing_fos = FeatureOnlineStore('my_fos')
-        new_fv = existing_fos.create_feature_view_from_bigquery(
+        new_fv = existing_fos.create_feature_view(
                 'my_fos',
                 BigQuerySource(
                     uri='bq://my-proj/dataset/table',
@@ -428,7 +433,7 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
                 )
         )
         # Example for how to create an embedding FeatureView.
-        embedding_fv = existing_fos.create_feature_view_from_bigquery(
+        embedding_fv = existing_fos.create_feature_view(
                 'my_fos',
                 BigQuerySource(
                     uri='bq://my-proj/dataset/table',
@@ -448,7 +453,7 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
             name: The name of the feature view.
             source:
                 The source to load data from when a feature view sync runs.
-                Currently supports a BigQuery source.
+                Currently supports a BigQuery source or a Vertex RAG source.
             labels:
                 The labels with user-defined metadata to organize your
                 FeatureViews.
@@ -499,22 +504,36 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         if not source:
             raise ValueError("Please specify a valid source.")
 
-        # Only BigQuery source is supported right now.
-        if not isinstance(source, FeatureViewBigQuerySource):
-            raise ValueError("Only FeatureViewBigQuerySource is a supported source.")
+        big_query_source = None
+        vertex_rag_source = None
 
-        # BigQuery source validation.
-        if not source.uri:
-            raise ValueError("Please specify URI in BigQuery source.")
+        if isinstance(source, FeatureViewBigQuerySource):
+            if not source.uri:
+                raise ValueError("Please specify URI in BigQuery source.")
 
-        if not source.entity_id_columns:
-            raise ValueError("Please specify entity ID columns in BigQuery source.")
+            if not source.entity_id_columns:
+                raise ValueError("Please specify entity ID columns in BigQuery source.")
 
-        gapic_feature_view = gca_feature_view.FeatureView(
-            big_query_source=gca_feature_view.FeatureView.BigQuerySource(
+            big_query_source = gca_feature_view.FeatureView.BigQuerySource(
                 uri=source.uri,
                 entity_id_columns=source.entity_id_columns,
-            ),
+            )
+        elif isinstance(source, FeatureViewVertexRagSource):
+            if not source.uri:
+                raise ValueError("Please specify URI in Vertex RAG source.")
+
+            vertex_rag_source = gca_feature_view.FeatureView.VertexRagSource(
+                uri=source.uri,
+                rag_corpus_id=source.rag_corpus_id or None,
+            )
+        else:
+            raise ValueError(
+                "Only FeatureViewBigQuerySource and FeatureViewVertexRagSource are supported sources."
+            )
+
+        gapic_feature_view = gca_feature_view.FeatureView(
+            big_query_source=big_query_source,
+            vertex_rag_source=vertex_rag_source,
             sync_config=gca_feature_view.FeatureView.SyncConfig(cron=sync_config)
             if sync_config
             else None,

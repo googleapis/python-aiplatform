@@ -37,6 +37,11 @@ import warnings
 
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature_group
+from google.cloud.aiplatform_v1beta1.types import feature_monitor
+from google.cloud.aiplatform_v1beta1.types import feature_monitor_job
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_monitor_job as gca_feature_monitor_job,
+)
 from google.cloud.aiplatform_v1beta1.types import feature_registry_service
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -73,6 +78,14 @@ class FeatureRegistryServiceRestInterceptor:
 
     .. code-block:: python
         class MyCustomFeatureRegistryServiceInterceptor(FeatureRegistryServiceRestInterceptor):
+            def pre_batch_create_features(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_batch_create_features(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_create_feature(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -86,6 +99,22 @@ class FeatureRegistryServiceRestInterceptor:
                 return request, metadata
 
             def post_create_feature_group(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            def pre_create_feature_monitor(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_create_feature_monitor(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            def pre_create_feature_monitor_job(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_create_feature_monitor_job(self, response):
                 logging.log(f"Received response: {response}")
                 return response
 
@@ -105,6 +134,14 @@ class FeatureRegistryServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_delete_feature_monitor(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_delete_feature_monitor(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_get_feature(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -121,11 +158,43 @@ class FeatureRegistryServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_get_feature_monitor(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_get_feature_monitor(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            def pre_get_feature_monitor_job(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_get_feature_monitor_job(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_list_feature_groups(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
 
             def post_list_feature_groups(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            def pre_list_feature_monitor_jobs(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_list_feature_monitor_jobs(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            def pre_list_feature_monitors(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_list_feature_monitors(self, response):
                 logging.log(f"Received response: {response}")
                 return response
 
@@ -158,6 +227,31 @@ class FeatureRegistryServiceRestInterceptor:
 
 
     """
+
+    def pre_batch_create_features(
+        self,
+        request: featurestore_service.BatchCreateFeaturesRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        featurestore_service.BatchCreateFeaturesRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for batch_create_features
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_batch_create_features(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for batch_create_features
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
 
     def pre_create_feature(
         self,
@@ -200,6 +294,57 @@ class FeatureRegistryServiceRestInterceptor:
         self, response: operations_pb2.Operation
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_feature_group
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_create_feature_monitor(
+        self,
+        request: feature_registry_service.CreateFeatureMonitorRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        feature_registry_service.CreateFeatureMonitorRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for create_feature_monitor
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_create_feature_monitor(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for create_feature_monitor
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_create_feature_monitor_job(
+        self,
+        request: feature_registry_service.CreateFeatureMonitorJobRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        feature_registry_service.CreateFeatureMonitorJobRequest,
+        Sequence[Tuple[str, str]],
+    ]:
+        """Pre-rpc interceptor for create_feature_monitor_job
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_create_feature_monitor_job(
+        self, response: gca_feature_monitor_job.FeatureMonitorJob
+    ) -> gca_feature_monitor_job.FeatureMonitorJob:
+        """Post-rpc interceptor for create_feature_monitor_job
 
         Override in a subclass to manipulate the response
         after it is returned by the FeatureRegistryService server but before
@@ -255,6 +400,31 @@ class FeatureRegistryServiceRestInterceptor:
         """
         return response
 
+    def pre_delete_feature_monitor(
+        self,
+        request: feature_registry_service.DeleteFeatureMonitorRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        feature_registry_service.DeleteFeatureMonitorRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for delete_feature_monitor
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_delete_feature_monitor(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for delete_feature_monitor
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
+
     def pre_get_feature(
         self,
         request: featurestore_service.GetFeatureRequest,
@@ -301,6 +471,56 @@ class FeatureRegistryServiceRestInterceptor:
         """
         return response
 
+    def pre_get_feature_monitor(
+        self,
+        request: feature_registry_service.GetFeatureMonitorRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        feature_registry_service.GetFeatureMonitorRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for get_feature_monitor
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_get_feature_monitor(
+        self, response: feature_monitor.FeatureMonitor
+    ) -> feature_monitor.FeatureMonitor:
+        """Post-rpc interceptor for get_feature_monitor
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_get_feature_monitor_job(
+        self,
+        request: feature_registry_service.GetFeatureMonitorJobRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        feature_registry_service.GetFeatureMonitorJobRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for get_feature_monitor_job
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_get_feature_monitor_job(
+        self, response: feature_monitor_job.FeatureMonitorJob
+    ) -> feature_monitor_job.FeatureMonitorJob:
+        """Post-rpc interceptor for get_feature_monitor_job
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
+
     def pre_list_feature_groups(
         self,
         request: feature_registry_service.ListFeatureGroupsRequest,
@@ -319,6 +539,57 @@ class FeatureRegistryServiceRestInterceptor:
         self, response: feature_registry_service.ListFeatureGroupsResponse
     ) -> feature_registry_service.ListFeatureGroupsResponse:
         """Post-rpc interceptor for list_feature_groups
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_list_feature_monitor_jobs(
+        self,
+        request: feature_registry_service.ListFeatureMonitorJobsRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        feature_registry_service.ListFeatureMonitorJobsRequest,
+        Sequence[Tuple[str, str]],
+    ]:
+        """Pre-rpc interceptor for list_feature_monitor_jobs
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_list_feature_monitor_jobs(
+        self, response: feature_registry_service.ListFeatureMonitorJobsResponse
+    ) -> feature_registry_service.ListFeatureMonitorJobsResponse:
+        """Post-rpc interceptor for list_feature_monitor_jobs
+
+        Override in a subclass to manipulate the response
+        after it is returned by the FeatureRegistryService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_list_feature_monitors(
+        self,
+        request: feature_registry_service.ListFeatureMonitorsRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[
+        feature_registry_service.ListFeatureMonitorsRequest, Sequence[Tuple[str, str]]
+    ]:
+        """Pre-rpc interceptor for list_feature_monitors
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the FeatureRegistryService server.
+        """
+        return request, metadata
+
+    def post_list_feature_monitors(
+        self, response: feature_registry_service.ListFeatureMonitorsResponse
+    ) -> feature_registry_service.ListFeatureMonitorsResponse:
+        """Post-rpc interceptor for list_feature_monitors
 
         Override in a subclass to manipulate the response
         after it is returned by the FeatureRegistryService server but before
@@ -2762,6 +3033,110 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
         # Return the client from cache.
         return self._operations_client
 
+    class _BatchCreateFeatures(
+        _BaseFeatureRegistryServiceRestTransport._BaseBatchCreateFeatures,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.BatchCreateFeatures")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: featurestore_service.BatchCreateFeaturesRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the batch create features method over HTTP.
+
+            Args:
+                request (~.featurestore_service.BatchCreateFeaturesRequest):
+                    The request object. Request message for
+                [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
+                Request message for
+                [FeatureRegistryService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeatureRegistryService.BatchCreateFeatures].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseBatchCreateFeatures._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_batch_create_features(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseBatchCreateFeatures._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseFeatureRegistryServiceRestTransport._BaseBatchCreateFeatures._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseBatchCreateFeatures._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                FeatureRegistryServiceRestTransport._BatchCreateFeatures._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_batch_create_features(resp)
+            return resp
+
     class _CreateFeature(
         _BaseFeatureRegistryServiceRestTransport._BaseCreateFeature,
         FeatureRegistryServiceRestStub,
@@ -2964,6 +3339,208 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = self._interceptor.post_create_feature_group(resp)
             return resp
 
+    class _CreateFeatureMonitor(
+        _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitor,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.CreateFeatureMonitor")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: feature_registry_service.CreateFeatureMonitorRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the create feature monitor method over HTTP.
+
+            Args:
+                request (~.feature_registry_service.CreateFeatureMonitorRequest):
+                    The request object. Request message for
+                [FeatureRegistryService.CreateFeatureMonitorRequest][].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitor._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_create_feature_monitor(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitor._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitor._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitor._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                FeatureRegistryServiceRestTransport._CreateFeatureMonitor._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_create_feature_monitor(resp)
+            return resp
+
+    class _CreateFeatureMonitorJob(
+        _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitorJob,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.CreateFeatureMonitorJob")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: feature_registry_service.CreateFeatureMonitorJobRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> gca_feature_monitor_job.FeatureMonitorJob:
+            r"""Call the create feature monitor
+            job method over HTTP.
+
+                Args:
+                    request (~.feature_registry_service.CreateFeatureMonitorJobRequest):
+                        The request object. Request message for
+                    [FeatureRegistryService.CreateFeatureMonitorJobRequest][].
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
+
+                Returns:
+                    ~.gca_feature_monitor_job.FeatureMonitorJob:
+                        Vertex AI Feature Monitor Job.
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitorJob._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_create_feature_monitor_job(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitorJob._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitorJob._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureMonitorJob._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = FeatureRegistryServiceRestTransport._CreateFeatureMonitorJob._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = gca_feature_monitor_job.FeatureMonitorJob()
+            pb_resp = gca_feature_monitor_job.FeatureMonitorJob.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_create_feature_monitor_job(resp)
+            return resp
+
     class _DeleteFeature(
         _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeature,
         FeatureRegistryServiceRestStub,
@@ -3152,6 +3729,102 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
             resp = self._interceptor.post_delete_feature_group(resp)
+            return resp
+
+    class _DeleteFeatureMonitor(
+        _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeatureMonitor,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.DeleteFeatureMonitor")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        def __call__(
+            self,
+            request: feature_registry_service.DeleteFeatureMonitorRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the delete feature monitor method over HTTP.
+
+            Args:
+                request (~.feature_registry_service.DeleteFeatureMonitorRequest):
+                    The request object. Request message for
+                [FeatureRegistryService.DeleteFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.DeleteFeatureMonitor].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeatureMonitor._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_delete_feature_monitor(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeatureMonitor._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeatureMonitor._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                FeatureRegistryServiceRestTransport._DeleteFeatureMonitor._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_delete_feature_monitor(resp)
             return resp
 
     class _GetFeature(
@@ -3345,6 +4018,196 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = self._interceptor.post_get_feature_group(resp)
             return resp
 
+    class _GetFeatureMonitor(
+        _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitor,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.GetFeatureMonitor")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        def __call__(
+            self,
+            request: feature_registry_service.GetFeatureMonitorRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> feature_monitor.FeatureMonitor:
+            r"""Call the get feature monitor method over HTTP.
+
+            Args:
+                request (~.feature_registry_service.GetFeatureMonitorRequest):
+                    The request object. Request message for
+                [FeatureRegistryService.GetFeatureMonitor][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureMonitor].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.feature_monitor.FeatureMonitor:
+                    Vertex AI Feature Monitor.
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitor._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_get_feature_monitor(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitor._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitor._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                FeatureRegistryServiceRestTransport._GetFeatureMonitor._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = feature_monitor.FeatureMonitor()
+            pb_resp = feature_monitor.FeatureMonitor.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_get_feature_monitor(resp)
+            return resp
+
+    class _GetFeatureMonitorJob(
+        _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitorJob,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.GetFeatureMonitorJob")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        def __call__(
+            self,
+            request: feature_registry_service.GetFeatureMonitorJobRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> feature_monitor_job.FeatureMonitorJob:
+            r"""Call the get feature monitor job method over HTTP.
+
+            Args:
+                request (~.feature_registry_service.GetFeatureMonitorJobRequest):
+                    The request object. Request message for
+                [FeatureRegistryService.GetFeatureMonitorJob][google.cloud.aiplatform.v1beta1.FeatureRegistryService.GetFeatureMonitorJob].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.feature_monitor_job.FeatureMonitorJob:
+                    Vertex AI Feature Monitor Job.
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitorJob._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_get_feature_monitor_job(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitorJob._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureMonitorJob._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                FeatureRegistryServiceRestTransport._GetFeatureMonitorJob._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = feature_monitor_job.FeatureMonitorJob()
+            pb_resp = feature_monitor_job.FeatureMonitorJob.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_get_feature_monitor_job(resp)
+            return resp
+
     class _ListFeatureGroups(
         _BaseFeatureRegistryServiceRestTransport._BaseListFeatureGroups,
         FeatureRegistryServiceRestStub,
@@ -3440,6 +4303,198 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
             resp = self._interceptor.post_list_feature_groups(resp)
+            return resp
+
+    class _ListFeatureMonitorJobs(
+        _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitorJobs,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.ListFeatureMonitorJobs")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        def __call__(
+            self,
+            request: feature_registry_service.ListFeatureMonitorJobsRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> feature_registry_service.ListFeatureMonitorJobsResponse:
+            r"""Call the list feature monitor jobs method over HTTP.
+
+            Args:
+                request (~.feature_registry_service.ListFeatureMonitorJobsRequest):
+                    The request object. Request message for
+                [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.feature_registry_service.ListFeatureMonitorJobsResponse:
+                    Response message for
+                [FeatureRegistryService.ListFeatureMonitorJobs][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitorJobs].
+
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitorJobs._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_list_feature_monitor_jobs(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitorJobs._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitorJobs._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = FeatureRegistryServiceRestTransport._ListFeatureMonitorJobs._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = feature_registry_service.ListFeatureMonitorJobsResponse()
+            pb_resp = feature_registry_service.ListFeatureMonitorJobsResponse.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_list_feature_monitor_jobs(resp)
+            return resp
+
+    class _ListFeatureMonitors(
+        _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitors,
+        FeatureRegistryServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("FeatureRegistryServiceRestTransport.ListFeatureMonitors")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        def __call__(
+            self,
+            request: feature_registry_service.ListFeatureMonitorsRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> feature_registry_service.ListFeatureMonitorsResponse:
+            r"""Call the list feature monitors method over HTTP.
+
+            Args:
+                request (~.feature_registry_service.ListFeatureMonitorsRequest):
+                    The request object. Request message for
+                [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.feature_registry_service.ListFeatureMonitorsResponse:
+                    Response message for
+                [FeatureRegistryService.ListFeatureMonitors][google.cloud.aiplatform.v1beta1.FeatureRegistryService.ListFeatureMonitors].
+
+            """
+
+            http_options = (
+                _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitors._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_list_feature_monitors(
+                request, metadata
+            )
+            transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitors._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseFeatureRegistryServiceRestTransport._BaseListFeatureMonitors._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = (
+                FeatureRegistryServiceRestTransport._ListFeatureMonitors._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = feature_registry_service.ListFeatureMonitorsResponse()
+            pb_resp = feature_registry_service.ListFeatureMonitorsResponse.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_list_feature_monitors(resp)
             return resp
 
     class _ListFeatures(
@@ -3742,6 +4797,16 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             return resp
 
     @property
+    def batch_create_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchCreateFeaturesRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._BatchCreateFeatures(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
     def create_feature(
         self,
     ) -> Callable[
@@ -3760,6 +4825,27 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._CreateFeatureGroup(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def create_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.CreateFeatureMonitorRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._CreateFeatureMonitor(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def create_feature_monitor_job(
+        self,
+    ) -> Callable[
+        [feature_registry_service.CreateFeatureMonitorJobRequest],
+        gca_feature_monitor_job.FeatureMonitorJob,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._CreateFeatureMonitorJob(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def delete_feature(
@@ -3782,6 +4868,16 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
         return self._DeleteFeatureGroup(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
+    def delete_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.DeleteFeatureMonitorRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._DeleteFeatureMonitor(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
     def get_feature(
         self,
     ) -> Callable[[featurestore_service.GetFeatureRequest], feature.Feature]:
@@ -3800,6 +4896,28 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
         return self._GetFeatureGroup(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
+    def get_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.GetFeatureMonitorRequest],
+        feature_monitor.FeatureMonitor,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._GetFeatureMonitor(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def get_feature_monitor_job(
+        self,
+    ) -> Callable[
+        [feature_registry_service.GetFeatureMonitorJobRequest],
+        feature_monitor_job.FeatureMonitorJob,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._GetFeatureMonitorJob(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
     def list_feature_groups(
         self,
     ) -> Callable[
@@ -3809,6 +4927,28 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._ListFeatureGroups(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def list_feature_monitor_jobs(
+        self,
+    ) -> Callable[
+        [feature_registry_service.ListFeatureMonitorJobsRequest],
+        feature_registry_service.ListFeatureMonitorJobsResponse,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._ListFeatureMonitorJobs(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def list_feature_monitors(
+        self,
+    ) -> Callable[
+        [feature_registry_service.ListFeatureMonitorsRequest],
+        feature_registry_service.ListFeatureMonitorsResponse,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._ListFeatureMonitors(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def list_features(

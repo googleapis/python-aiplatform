@@ -544,13 +544,13 @@ class Scheduling(proto.Message):
 
     Attributes:
         timeout (google.protobuf.duration_pb2.Duration):
-            The maximum job running time. The default is
-            7 days.
+            Optional. The maximum job running time. The
+            default is 7 days.
         restart_job_on_worker_restart (bool):
-            Restarts the entire CustomJob if a worker
-            gets restarted. This feature can be used by
-            distributed training jobs that are not resilient
-            to workers leaving and joining a job.
+            Optional. Restarts the entire CustomJob if a
+            worker gets restarted. This feature can be used
+            by distributed training jobs that are not
+            resilient to workers leaving and joining a job.
         strategy (google.cloud.aiplatform_v1.types.Scheduling.Strategy):
             Optional. This determines which type of
             scheduling strategy to use.

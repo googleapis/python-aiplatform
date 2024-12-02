@@ -351,6 +351,7 @@ class TestClusterManagement:
             network=tc.ProjectConstants.TEST_VPC_NETWORK,
             cluster_name=tc.ClusterConstants.TEST_VERTEX_RAY_PR_ID,
             custom_images=custom_images,
+            nfs_mounts=[tc.ClusterConstants.TEST_NFS_MOUNT],
         )
 
         assert tc.ClusterConstants.TEST_VERTEX_RAY_PR_ADDRESS == cluster_name

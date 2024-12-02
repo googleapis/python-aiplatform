@@ -114,6 +114,7 @@ REPLICA_COUNT = 1
 MACHINE_TYPE = "n1-standard-4"
 ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
 ACCELERATOR_COUNT = 0
+NETWORK_ATTACHMENT_NAME = "network-attachment-name"
 
 # Model constants
 MODEL_RESOURCE_NAME = f"{PARENT}/models/1234"
@@ -264,6 +265,11 @@ FEATURE_VIEW_BQ_SOURCE = (
         entity_id_columns=FEATURE_VIEW_BQ_ENTITY_ID_COLUMNS,
     )
 )
+FEATURE_VIEW_RAG_SOURCE = (
+    vertexai.resources.preview.feature_store.utils.FeatureViewVertexRagSource(
+        uri=FEATURE_VIEW_BQ_URI,
+    )
+)
 FEATURE_VIEW_BQ_EMBEDDING_COLUMN = "embedding"
 FEATURE_VIEW_BQ_EMBEDDING_DIMENSIONS = 10
 FEATURE_VIEW_BQ_INDEX_CONFIG = (
@@ -375,8 +381,9 @@ TENSORBOARD_PLUGIN_PROFILE_NAME = "profile"
 
 # Vector Search
 VECTOR_SEARCH_INDEX = "123"
-VECTOR_SERACH_INDEX_DATAPOINTS = [
-    {"datapoint_id": "datapoint_id_1", "feature_vector": [0.1]}
+VECTOR_SEARCH_INDEX_DATAPOINTS = [
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_1", feature_vector=[0.1, 0.2]),
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_2", feature_vector=[0.3, 0.4]),
 ]
 VECTOR_SEARCH_INDEX_DATAPOINT_IDS = ["datapoint_id_1", "datapoint_id_2"]
 VECTOR_SEARCH_INDEX_ENDPOINT = "456"
@@ -410,3 +417,7 @@ VECTOR_SEARCH_INDEX_ENDPOINT_DISPLAY_NAME = "my-vector-search-index-endpoint"
 VECTOR_SEARCH_PRIVATE_ENDPOINT_SIGNED_JWT = "fake-signed-jwt"
 VECTOR_SEARCH_VPC_NETWORK = "vpc-network"
 VECTOR_SEARCH_PSC_PROJECT_ALLOWLIST = ["test-project", "test-project-2"]
+VECTOR_SEARCH_PSC_AUTOMATION_CONFIGS = [
+    ("test-project", "network1"),
+    ("test-project2", "network2"),
+]

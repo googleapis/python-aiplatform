@@ -444,6 +444,35 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         return self._stubs["create_feature"]
 
     @property
+    def batch_create_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchCreateFeaturesRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch create features method over gRPC.
+
+        Creates a batch of Features in a given FeatureGroup.
+
+        Returns:
+            Callable[[~.BatchCreateFeaturesRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_create_features" not in self._stubs:
+            self._stubs["batch_create_features"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.FeatureRegistryService/BatchCreateFeatures",
+                request_serializer=featurestore_service.BatchCreateFeaturesRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_create_features"]
+
+    @property
     def get_feature(
         self,
     ) -> Callable[[featurestore_service.GetFeatureRequest], Awaitable[feature.Feature]]:
@@ -584,6 +613,11 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
             ),
             self.create_feature: self._wrap_method(
                 self.create_feature,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_create_features: self._wrap_method(
+                self.batch_create_features,
                 default_timeout=None,
                 client_info=client_info,
             ),

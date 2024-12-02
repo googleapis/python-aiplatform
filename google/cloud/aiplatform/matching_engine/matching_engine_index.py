@@ -122,10 +122,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             contents_delta_uri (str):
-                Optional. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
-                The string must be a valid Google Cloud Storage directory path. If this
-                field is set when calling IndexService.UpdateIndex, then no other
-                Index field can be  also updated as part of the same call.
+                Optional. Allows inserting the initial contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path.
                 The expected structure and format of the files this URI points to is
                 described at
                 https://cloud.google.com/vertex-ai/docs/vector-search/setup/format-structure
@@ -445,7 +443,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 contents_delta_uri="gs://my_bucket/embeddings",
                 dimensions=1,
                 approximate_neighbors_count=150,
-                distance_measure_type="SQUARED_L2_DISTANCE",
+                distance_measure_type=matching_engine_index_config.DistanceMeasureType.SQUARED_L2_DISTANCE,
                 leaf_node_embedding_count=100,
                 leaf_nodes_to_search_percent=50,
                 description="my description",
@@ -458,10 +456,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             contents_delta_uri (str):
-                Optional. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
-                The string must be a valid Google Cloud Storage directory path. If this
-                field is set when calling IndexService.UpdateIndex, then no other
-                Index field can be  also updated as part of the same call.
+                Optional. Allows inserting the initial contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path.
                 The expected structure and format of the files this URI points to is
                 described at
                 https://cloud.google.com/vertex-ai/docs/vector-search/setup/format-structure
@@ -608,7 +604,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 contents_delta_uri="gs://my_bucket/embeddings",
                 dimensions=1,
                 approximate_neighbors_count=150,
-                distance_measure_type="SQUARED_L2_DISTANCE",
+                distance_measure_type=matching_engine_index_config.DistanceMeasureType.SQUARED_L2_DISTANCE,
                 description="my description",
                 labels={ "label_name": "label_value" },
             )
@@ -619,10 +615,8 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             contents_delta_uri (str):
-                Optional. Allows inserting, updating  or deleting the contents of the Matching Engine Index.
-                The string must be a valid Google Cloud Storage directory path. If this
-                field is set when calling IndexService.UpdateIndex, then no other
-                Index field can be  also updated as part of the same call.
+                Optional. Allows inserting the initial contents of the Matching Engine Index.
+                The string must be a valid Google Cloud Storage directory path.
                 The expected structure and format of the files this URI points to is
                 described at
                 https://cloud.google.com/vertex-ai/docs/vector-search/setup/format-structure

@@ -430,6 +430,34 @@ class FeatureRegistryServiceGrpcTransport(FeatureRegistryServiceTransport):
         return self._stubs["create_feature"]
 
     @property
+    def batch_create_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchCreateFeaturesRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the batch create features method over gRPC.
+
+        Creates a batch of Features in a given FeatureGroup.
+
+        Returns:
+            Callable[[~.BatchCreateFeaturesRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_create_features" not in self._stubs:
+            self._stubs["batch_create_features"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.FeatureRegistryService/BatchCreateFeatures",
+                request_serializer=featurestore_service.BatchCreateFeaturesRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_create_features"]
+
+    @property
     def get_feature(
         self,
     ) -> Callable[[featurestore_service.GetFeatureRequest], feature.Feature]:

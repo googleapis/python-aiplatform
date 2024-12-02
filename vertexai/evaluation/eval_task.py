@@ -244,6 +244,7 @@ class EvalTask:
                 ],
                 metrics_base.CustomMetric,
                 metrics_base._AutomaticMetric,
+                metrics_base._TranslationMetric,
                 pointwise_metric.PointwiseMetric,
                 pairwise_metric.PairwiseMetric,
             ]

@@ -72,11 +72,14 @@ from google.cloud.aiplatform_v1.services.schedule_service import (
 from google.cloud.aiplatform_v1.services.schedule_service import ScheduleServiceClient
 from google.cloud.aiplatform_v1.services.schedule_service import pagers
 from google.cloud.aiplatform_v1.services.schedule_service import transports
+from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import artifact
 from google.cloud.aiplatform_v1.types import context
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import execution
 from google.cloud.aiplatform_v1.types import job_state
+from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import network_spec
 from google.cloud.aiplatform_v1.types import notebook_execution_job
 from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -84,6 +87,7 @@ from google.cloud.aiplatform_v1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1.types import pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import pipeline_state
+from google.cloud.aiplatform_v1.types import reservation_affinity
 from google.cloud.aiplatform_v1.types import schedule
 from google.cloud.aiplatform_v1.types import schedule as gca_schedule
 from google.cloud.aiplatform_v1.types import schedule_service
@@ -5649,6 +5653,28 @@ def test_create_schedule_rest_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
+                    },
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -6600,6 +6626,28 @@ def test_update_schedule_rest_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
+                    },
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -7754,6 +7802,28 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
+                    },
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -8801,6 +8871,28 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                 },
                 "direct_notebook_source": {"content": b"content_blob"},
                 "notebook_runtime_template_resource_name": "notebook_runtime_template_resource_name_value",
+                "custom_environment_spec": {
+                    "machine_spec": {
+                        "machine_type": "machine_type_value",
+                        "accelerator_type": 1,
+                        "accelerator_count": 1805,
+                        "tpu_topology": "tpu_topology_value",
+                        "reservation_affinity": {
+                            "reservation_affinity_type": 1,
+                            "key": "key_value",
+                            "values": ["values_value1", "values_value2"],
+                        },
+                    },
+                    "persistent_disk_spec": {
+                        "disk_type": "disk_type_value",
+                        "disk_size_gb": 1261,
+                    },
+                    "network_spec": {
+                        "enable_internet_access": True,
+                        "network": "network_value",
+                        "subnetwork": "subnetwork_value",
+                    },
+                },
                 "gcs_output_uri": "gcs_output_uri_value",
                 "execution_user": "execution_user_value",
                 "service_account": "service_account_value",
@@ -10667,10 +10759,38 @@ def test_parse_pipeline_job_path():
     assert expected == actual
 
 
+def test_reservation_path():
+    project_id_or_number = "oyster"
+    zone = "nudibranch"
+    reservation_name = "cuttlefish"
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
+        project_id_or_number=project_id_or_number,
+        zone=zone,
+        reservation_name=reservation_name,
+    )
+    actual = ScheduleServiceClient.reservation_path(
+        project_id_or_number, zone, reservation_name
+    )
+    assert expected == actual
+
+
+def test_parse_reservation_path():
+    expected = {
+        "project_id_or_number": "mussel",
+        "zone": "winkle",
+        "reservation_name": "nautilus",
+    }
+    path = ScheduleServiceClient.reservation_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_reservation_path(path)
+    assert expected == actual
+
+
 def test_schedule_path():
-    project = "oyster"
-    location = "nudibranch"
-    schedule = "cuttlefish"
+    project = "scallop"
+    location = "abalone"
+    schedule = "squid"
     expected = "projects/{project}/locations/{location}/schedules/{schedule}".format(
         project=project,
         location=location,
@@ -10682,14 +10802,40 @@ def test_schedule_path():
 
 def test_parse_schedule_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "schedule": "nautilus",
+        "project": "clam",
+        "location": "whelk",
+        "schedule": "octopus",
     }
     path = ScheduleServiceClient.schedule_path(**expected)
 
     # Check that the path construction is reversible.
     actual = ScheduleServiceClient.parse_schedule_path(path)
+    assert expected == actual
+
+
+def test_subnetwork_path():
+    project = "oyster"
+    region = "nudibranch"
+    subnetwork = "cuttlefish"
+    expected = "projects/{project}/regions/{region}/subnetworks/{subnetwork}".format(
+        project=project,
+        region=region,
+        subnetwork=subnetwork,
+    )
+    actual = ScheduleServiceClient.subnetwork_path(project, region, subnetwork)
+    assert expected == actual
+
+
+def test_parse_subnetwork_path():
+    expected = {
+        "project": "mussel",
+        "region": "winkle",
+        "subnetwork": "nautilus",
+    }
+    path = ScheduleServiceClient.subnetwork_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ScheduleServiceClient.parse_subnetwork_path(path)
     assert expected == actual
 
 

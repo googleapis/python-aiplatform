@@ -19,15 +19,18 @@ import io
 import os
 import sys
 import tarfile
+import types
 import typing
-from typing import Optional, Protocol, Sequence, Union, List
+from typing import Any, Callable, Dict, List, Optional, Protocol, Sequence, Union
+
+import proto
 
 from google.api_core import exceptions
 from google.cloud import storage
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
-from google.cloud.aiplatform_v1beta1 import types
+from google.cloud.aiplatform_v1beta1 import types as aip_types
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_service
 from vertexai.reasoning_engines import _utils
 from google.protobuf import field_mask_pb2
@@ -39,6 +42,22 @@ _DEFAULT_GCS_DIR_NAME = "reasoning_engine"
 _BLOB_FILENAME = "reasoning_engine.pkl"
 _REQUIREMENTS_FILE = "requirements.txt"
 _EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
+_STANDARD_API_MODE = ""
+_MODE_KEY_IN_SCHEMA = "api_mode"
+_DEFAULT_METHOD_NAME = "query"
+_DEFAULT_METHOD_DOCSTRING = """
+    Runs the Reasoning Engine to serve the user query.
+
+    This will be based on the `.query(...)` method of the python object that
+    was passed in when creating the Reasoning Engine.
+
+    Args:
+        **kwargs:
+            Optional. The arguments of the `.query(...)` method.
+
+    Returns:
+        dict[str, Any]: The response from serving the user query.
+"""
 
 
 @typing.runtime_checkable
@@ -59,7 +78,16 @@ class Cloneable(Protocol):
         """Return a clone of the object."""
 
 
-class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
+@typing.runtime_checkable
+class OperationRegistrable(Protocol):
+    """Protocol for applications that has registered operations."""
+
+    @abc.abstractmethod
+    def register_operations(self, **kwargs):
+        """Register the user provided operations (modes and methods)."""
+
+
+class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
     """Represents a Vertex AI Reasoning Engine resource."""
 
     client_class = aip_utils.ReasoningEngineClientWithOverride
@@ -84,6 +112,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             client_class=aip_utils.ReasoningEngineExecutionClientWithOverride,
         )
         self._gca_resource = self._get_gca_resource(resource_name=reasoning_engine_name)
+        _register_api_method(self)
         self._operation_schemas = None
 
     @property
@@ -219,7 +248,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             extra_packages=extra_packages,
         )
         # Update the package spec.
-        package_spec = types.ReasoningEngineSpec.PackageSpec(
+        package_spec = aip_types.ReasoningEngineSpec.PackageSpec(
             python_version=sys_version,
             pickle_object_gcs_uri="{}/{}/{}".format(
                 staging_bucket,
@@ -239,22 +268,18 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
                 gcs_dir_name,
                 _REQUIREMENTS_FILE,
             )
-        reasoning_engine_spec = types.ReasoningEngineSpec(
+        reasoning_engine_spec = aip_types.ReasoningEngineSpec(
             package_spec=package_spec,
         )
-        try:
-            schema_dict = _utils.generate_schema(
-                reasoning_engine.query,
-                schema_name=f"{type(reasoning_engine).__name__}_query",
-            )
-            reasoning_engine_spec.class_methods.append(_utils.to_proto(schema_dict))
-        except Exception as e:
-            _LOGGER.warning(f"failed to generate schema: {e}")
+        class_methods_spec = _generate_class_methods_spec_or_raise(
+            reasoning_engine, _get_registered_operations(reasoning_engine)
+        )
+        reasoning_engine_spec.class_methods.extend(class_methods_spec)
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
             ),
-            reasoning_engine=types.ReasoningEngine(
+            reasoning_engine=aip_types.ReasoningEngine(
                 name=reasoning_engine_name,
                 display_name=display_name,
                 description=description,
@@ -279,6 +304,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
             credentials=sdk_resource.credentials,
             location_override=sdk_resource.location,
         )
+        _register_api_method(sdk_resource)
         sdk_resource._operation_schemas = None
         return sdk_resource
 
@@ -406,6 +432,12 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         created_resource = operation_future.result()
         _LOGGER.info(f"ReasoningEngine updated. Resource name: {created_resource.name}")
         self._operation_schemas = None
+        self.execution_api_client = initializer.global_config.create_client(
+            client_class=aip_utils.ReasoningEngineExecutionClientWithOverride,
+        )
+        # We use `._get_gca_resource(...)` instead of `created_resource` to
+        # fully instantiate the attributes of the reasoning engine.
+        self._gca_resource = self._get_gca_resource(resource_name=self.resource_name)
         return self
 
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
@@ -414,30 +446,6 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager, Queryable):
         if self._operation_schemas is None:
             self._operation_schemas = spec.get("class_methods", [])
         return self._operation_schemas
-
-    def query(self, **kwargs) -> _utils.JsonDict:
-        """Runs the Reasoning Engine to serve the user query.
-
-        This will be based on the `.query(...)` method of the python object that
-        was passed in when creating the Reasoning Engine.
-
-        Args:
-            **kwargs:
-                Optional. The arguments of the `.query(...)` method.
-
-        Returns:
-            dict[str, Any]: The response from serving the user query.
-        """
-        response = self.execution_api_client.query_reasoning_engine(
-            request=types.QueryReasoningEngineRequest(
-                name=self.resource_name,
-                input=kwargs,
-            ),
-        )
-        output = _utils.to_dict(response)
-        if "output" in output:
-            return output.get("output")
-        return output
 
 
 def _validate_sys_version_or_raise(sys_version: str) -> None:
@@ -614,8 +622,8 @@ def _generate_update_request_or_raise(
     """Tries to generates the update request for the reasoning engine."""
     is_spec_update = False
     update_masks: List[str] = []
-    reasoning_engine_spec = types.ReasoningEngineSpec()
-    package_spec = types.ReasoningEngineSpec.PackageSpec()
+    reasoning_engine_spec = aip_types.ReasoningEngineSpec()
+    package_spec = aip_types.ReasoningEngineSpec.PackageSpec()
     if requirements is not None:
         is_spec_update = True
         update_masks.append("spec.package_spec.requirements_gcs_uri")
@@ -640,17 +648,13 @@ def _generate_update_request_or_raise(
             gcs_dir_name,
             _BLOB_FILENAME,
         )
-        try:
-            schema_dict = _utils.generate_schema(
-                reasoning_engine.query,
-                schema_name=f"{type(reasoning_engine).__name__}_query",
-            )
-            reasoning_engine_spec.class_methods.append(_utils.to_proto(schema_dict))
-        except Exception as e:
-            _LOGGER.warning(f"failed to generate schema: {e}")
+        class_methods_spec = _generate_class_methods_spec_or_raise(
+            reasoning_engine, _get_registered_operations(reasoning_engine)
+        )
+        reasoning_engine_spec.class_methods.extend(class_methods_spec)
         update_masks.append("spec.class_methods")
 
-    reasoning_engine_message = types.ReasoningEngine(name=resource_name)
+    reasoning_engine_message = aip_types.ReasoningEngine(name=resource_name)
     if is_spec_update:
         reasoning_engine_spec.package_spec = package_spec
         reasoning_engine_message.spec = reasoning_engine_spec
@@ -670,3 +674,101 @@ def _generate_update_request_or_raise(
         reasoning_engine=reasoning_engine_message,
         update_mask=field_mask_pb2.FieldMask(paths=update_masks),
     )
+
+
+def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.JsonDict]:
+    """Wraps a Reasoning Engine method, creating a callable for `query` API.
+
+    This function creates a callable object that executes the specified
+    Reasoning Engine method using the `query` API.  It handles the creation of
+    the API request and the processing of the API response.
+
+    Args:
+        method_name: The name of the Reasoning Engine method to call.
+        doc: Documentation string for the method.
+
+    Returns:
+        A callable object that executes the method on the Reasoning Engine via
+        the `query` API.
+    """
+
+    def _method(self, **kwargs) -> _utils.JsonDict:
+        response = self.execution_api_client.query_reasoning_engine(
+            request=aip_types.QueryReasoningEngineRequest(
+                name=self.resource_name,
+                input=kwargs,
+            ),
+        )
+        output = _utils.to_dict(response)
+        return output.get("output", output)
+
+    _method.__name__ = method_name
+    _method.__doc__ = doc
+
+    return _method
+
+
+def _register_api_method(obj: "ReasoningEngine"):
+    """Registers Reasoning Engine API methods based on operation schemas.
+
+    This function registers `query` method on the ReasoningEngine object
+    to handle API calls based on the specified API mode.
+
+    Args:
+        obj: The ReasoningEngine object to augment with API methods.
+    """
+    query_method = _wrap_query_operation(
+        method_name=_DEFAULT_METHOD_NAME, doc=_DEFAULT_METHOD_DOCSTRING
+    )
+    # Binds the method to the object.
+    setattr(obj, _DEFAULT_METHOD_NAME, types.MethodType(query_method, obj))
+
+
+def _get_registered_operations(reasoning_engine: Any) -> Dict[str, List[str]]:
+    """Retrieves registered operations for a ReasoningEngine."""
+    if isinstance(reasoning_engine, OperationRegistrable):
+        return reasoning_engine.register_operations()
+
+    operations = {}
+    if isinstance(reasoning_engine, Queryable):
+        operations[_STANDARD_API_MODE] = [_DEFAULT_METHOD_NAME]
+    return operations
+
+
+def _generate_class_methods_spec_or_raise(
+    reasoning_engine: Any, operations: Dict[str, List[str]]
+) -> List[proto.Message]:
+    """Generates a ReasoningEngineSpec based on the registered operations.
+
+    Args:
+        reasoning_engine: The ReasoningEngine instance.
+        operations: A dictionary of API modes and method names.
+
+    Returns:
+        A list of ReasoningEngineSpec.ClassMethod messages.
+
+    Raises:
+        ValueError: If a method defined in `register_operations` is not found on
+        the ReasoningEngine.
+    """
+    class_methods_spec = []
+    for mode, method_names in operations.items():
+        for method_name in method_names:
+            if not hasattr(reasoning_engine, method_name):
+                raise ValueError(
+                    f"Method `{method_name}` defined in `register_operations`"
+                    " not found on ReasoningEngine."
+                )
+
+            method = getattr(reasoning_engine, method_name)
+            try:
+                schema_dict = _utils.generate_schema(method, schema_name=method_name)
+            except Exception as e:
+                _LOGGER.warning(f"failed to generate schema for {method_name}: {e}")
+                continue
+
+            class_method = _utils.to_proto(schema_dict)
+            class_method[_MODE_KEY_IN_SCHEMA] = mode
+            class_methods_spec.append(class_method)
+
+    return class_methods_spec

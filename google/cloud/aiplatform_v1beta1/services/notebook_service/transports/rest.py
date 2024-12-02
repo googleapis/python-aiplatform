@@ -176,6 +176,14 @@ class NotebookServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_stop_notebook_runtime(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_stop_notebook_runtime(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_update_notebook_runtime_template(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -510,6 +518,29 @@ class NotebookServiceRestInterceptor:
         self, response: operations_pb2.Operation
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for start_notebook_runtime
+
+        Override in a subclass to manipulate the response
+        after it is returned by the NotebookService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_stop_notebook_runtime(
+        self,
+        request: notebook_service.StopNotebookRuntimeRequest,
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[notebook_service.StopNotebookRuntimeRequest, Sequence[Tuple[str, str]]]:
+        """Pre-rpc interceptor for stop_notebook_runtime
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the NotebookService server.
+        """
+        return request, metadata
+
+    def post_stop_notebook_runtime(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for stop_notebook_runtime
 
         Override in a subclass to manipulate the response
         after it is returned by the NotebookService server but before
@@ -4211,6 +4242,106 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = self._interceptor.post_start_notebook_runtime(resp)
             return resp
 
+    class _StopNotebookRuntime(
+        _BaseNotebookServiceRestTransport._BaseStopNotebookRuntime,
+        NotebookServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("NotebookServiceRestTransport.StopNotebookRuntime")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: notebook_service.StopNotebookRuntimeRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the stop notebook runtime method over HTTP.
+
+            Args:
+                request (~.notebook_service.StopNotebookRuntimeRequest):
+                    The request object. Request message for
+                [NotebookService.StopNotebookRuntime][google.cloud.aiplatform.v1beta1.NotebookService.StopNotebookRuntime].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseNotebookServiceRestTransport._BaseStopNotebookRuntime._get_http_options()
+            )
+            request, metadata = self._interceptor.pre_stop_notebook_runtime(
+                request, metadata
+            )
+            transcoded_request = _BaseNotebookServiceRestTransport._BaseStopNotebookRuntime._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseNotebookServiceRestTransport._BaseStopNotebookRuntime._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseNotebookServiceRestTransport._BaseStopNotebookRuntime._get_query_params_json(
+                transcoded_request
+            )
+
+            # Send the request
+            response = NotebookServiceRestTransport._StopNotebookRuntime._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+            resp = self._interceptor.post_stop_notebook_runtime(resp)
+            return resp
+
     class _UpdateNotebookRuntimeTemplate(
         _BaseNotebookServiceRestTransport._BaseUpdateNotebookRuntimeTemplate,
         NotebookServiceRestStub,
@@ -4554,6 +4685,16 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._StartNotebookRuntime(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def stop_notebook_runtime(
+        self,
+    ) -> Callable[
+        [notebook_service.StopNotebookRuntimeRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._StopNotebookRuntime(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def update_notebook_runtime_template(

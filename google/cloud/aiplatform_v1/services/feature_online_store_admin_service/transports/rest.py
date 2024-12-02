@@ -1146,6 +1146,14 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1485,6 +1493,14 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1859,6 +1875,14 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2252,6 +2276,14 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -2595,6 +2627,14 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3018,7 +3058,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             Args:
                 request (~.feature_online_store_admin_service.DeleteFeatureViewRequest):
                     The request object. Request message for
-                [FeatureOnlineStoreAdminService.DeleteFeatureViews][].
+                [FeatureOnlineStoreAdminService.DeleteFeatureView][google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService.DeleteFeatureView].
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.

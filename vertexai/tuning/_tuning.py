@@ -108,6 +108,11 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
         return self._gca_resource.state
 
     @property
+    def service_account(self) -> Optional[str]:
+        self._assert_gca_resource_is_available()
+        return self._gca_resource.service_account
+
+    @property
     def has_ended(self):
         return self.state in jobs._JOB_COMPLETE_STATES
 
@@ -204,6 +209,9 @@ class TuningJob(aiplatform_base._VertexAiResourceNounPlus):
             gca_tuning_job.encryption_spec.kms_key_name = (
                 aiplatform_initializer.global_config.encryption_spec_key_name
             )
+        gca_tuning_job.service_account = (
+            aiplatform_initializer.global_config.service_account
+        )
 
         tuning_job: TuningJob = cls._construct_sdk_resource_from_gapic(
             gapic_resource=gca_tuning_job,

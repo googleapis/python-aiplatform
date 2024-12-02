@@ -40,11 +40,11 @@ class _Metric(abc.ABC):
 
 
 class _ModelBasedMetric(_Metric):
-    # TODO(b/354796368) Update the link to the public doc or the link content.
     """A Model-based Metric.
 
-    An evaluation metric that evaluate generative AI model responses with a
-    generative model as a rater. It can be for a single model, or two models.
+    An evaluation metric that evaluates generative AI model responses with
+    another ML model (eg. Gemini) as a rater. It can be for a single model,
+    or two models.
 
     For more details on when to use model-based metrics, see
     [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
@@ -123,3 +123,49 @@ class _AutomaticMetric(_Metric):
           metric: The automatic evaluation metric name.
         """
         super().__init__(metric=metric)
+
+
+class _TranslationMetric(_Metric):
+    """A Translation Metric.
+
+    Evaluates a score for the given instance using an underlying machine
+    learning model.
+    For now, only COMET and MetricX are supported.
+
+    For more details on how to evaluate translation, see
+    [Evaluation a translation
+    model](https://cloud.google.com/vertex-ai/generative-ai/docs/models/run-evaluation#translation).
+    """
+
+    def __init__(
+        self,
+        name: str,
+        version: str,
+        source_language: str,
+        target_language: str,
+    ):
+        """Initializes the Translation metric.
+
+        Args:
+          name: The name of the metric.
+          version: The version to use for evaluation.
+          source_language: The source language of the translation.
+          target_language: The target language of the translation.
+        """
+        self._version = version
+        self._source_language = source_language
+        self._target_language = target_language
+
+        super().__init__(metric=name)
+
+    @property
+    def version(self) -> str:
+        return self._version
+
+    @property
+    def source_language(self) -> str:
+        return self._source_language
+
+    @property
+    def target_language(self) -> str:
+        return self._target_language

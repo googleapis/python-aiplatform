@@ -1265,6 +1265,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 request (~.featurestore_service.BatchCreateFeaturesRequest):
                     The request object. Request message for
                 [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
+                Request message for
+                [FeatureRegistryService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeatureRegistryService.BatchCreateFeatures].
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -1805,7 +1807,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             Args:
                 request (~.featurestore_service.DeleteEntityTypeRequest):
                     The request object. Request message for
-                [FeaturestoreService.DeleteEntityTypes][].
+                [FeaturestoreService.DeleteEntityType][google.cloud.aiplatform.v1.FeaturestoreService.DeleteEntityType].
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -3757,6 +3759,14 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -4096,6 +4106,14 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -4470,6 +4488,14 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                     },
                     {
                         "method": "get",
@@ -4863,6 +4889,14 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -5206,6 +5240,14 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

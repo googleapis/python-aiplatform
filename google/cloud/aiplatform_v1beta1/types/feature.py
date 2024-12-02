@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import feature_monitor
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import featurestore_monitoring
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -116,6 +117,10 @@ class Feature(proto.Message):
             Output only. Only applicable for Vertex AI
             Feature Store (Legacy). The list of historical
             stats and anomalies with specified objectives.
+        feature_stats_and_anomaly (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureStatsAndAnomaly]):
+            Output only. Only applicable for Vertex AI
+            Feature Store. The list of historical stats and
+            anomalies.
         version_column_name (str):
             Only applicable for Vertex AI Feature Store. The name of the
             BigQuery Table/View column hosting data for this version. If
@@ -272,6 +277,13 @@ class Feature(proto.Message):
         proto.MESSAGE,
         number=11,
         message=MonitoringStatsAnomaly,
+    )
+    feature_stats_and_anomaly: MutableSequence[
+        feature_monitor.FeatureStatsAndAnomaly
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=13,
+        message=feature_monitor.FeatureStatsAndAnomaly,
     )
     version_column_name: str = proto.Field(
         proto.STRING,

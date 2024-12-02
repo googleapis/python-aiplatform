@@ -105,8 +105,12 @@ class ScheduleServiceAsyncClient:
     parse_pipeline_job_path = staticmethod(
         ScheduleServiceClient.parse_pipeline_job_path
     )
+    reservation_path = staticmethod(ScheduleServiceClient.reservation_path)
+    parse_reservation_path = staticmethod(ScheduleServiceClient.parse_reservation_path)
     schedule_path = staticmethod(ScheduleServiceClient.schedule_path)
     parse_schedule_path = staticmethod(ScheduleServiceClient.parse_schedule_path)
+    subnetwork_path = staticmethod(ScheduleServiceClient.subnetwork_path)
+    parse_subnetwork_path = staticmethod(ScheduleServiceClient.parse_subnetwork_path)
     common_billing_account_path = staticmethod(
         ScheduleServiceClient.common_billing_account_path
     )
@@ -897,8 +901,9 @@ class ScheduleServiceAsyncClient:
         When the Schedule is resumed, new runs will be scheduled
         starting from the next execution time after the current time
         based on the time_specification in the Schedule. If
-        [Schedule.catchUp][] is set up true, all missed runs will be
-        scheduled for backfill first.
+        [Schedule.catch_up][google.cloud.aiplatform.v1.Schedule.catch_up]
+        is set up true, all missed runs will be scheduled for backfill
+        first.
 
         .. code-block:: python
 

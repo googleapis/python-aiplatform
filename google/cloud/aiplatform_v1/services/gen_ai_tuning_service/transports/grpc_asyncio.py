@@ -405,9 +405,6 @@ class GenAiTuningServiceGrpcAsyncIOTransport(GenAiTuningServiceTransport):
         r"""Return a callable for the rebase tuned model method over gRPC.
 
         Rebase a TunedModel.
-        Creates a LongRunningOperation that takes a legacy Tuned
-        GenAI model Reference and creates a TuningJob based on
-        newly available model.
 
         Returns:
             Callable[[~.RebaseTunedModelRequest],

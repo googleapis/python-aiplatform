@@ -136,6 +136,8 @@ class ScheduleServiceAsyncClient:
     parse_reservation_path = staticmethod(ScheduleServiceClient.parse_reservation_path)
     schedule_path = staticmethod(ScheduleServiceClient.schedule_path)
     parse_schedule_path = staticmethod(ScheduleServiceClient.parse_schedule_path)
+    subnetwork_path = staticmethod(ScheduleServiceClient.subnetwork_path)
+    parse_subnetwork_path = staticmethod(ScheduleServiceClient.parse_subnetwork_path)
     common_billing_account_path = staticmethod(
         ScheduleServiceClient.common_billing_account_path
     )

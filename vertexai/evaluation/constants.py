@@ -55,6 +55,10 @@ class Metric:
     POINTWISE_METRIC = "pointwise_metric"
     PAIRWISE_METRIC = "pairwise_metric"
 
+    # Model-based translation Metrics.
+    COMET = "comet"
+    METRICX = "metricx"
+
     # Automatic Metrics.
     EXACT_MATCH = "exact_match"
     BLEU = "bleu"
@@ -113,6 +117,8 @@ class Metric:
 
 @dataclasses.dataclass(frozen=True)
 class MetricResult:
+    """Namespace for Metric Results."""
+
     ROW_COUNT_KEY = "row_count"
     SCORE_KEY = "score"
     EXPLANATION_KEY = "explanation"
@@ -129,6 +135,9 @@ class MetricResult:
 
     POINTWISE_METRIC_RESULT = "pointwise_metric_result"
     PAIRWISE_METRIC_RESULT = "pairwise_metric_result"
+
+    COMET_RESULT = "comet_result"
+    METRICX_RESULT = "metricx_result"
 
     AUTOMATIC_METRIC_RESULTS_LIST = (
         EXACT_MATCH_RESULTS,
@@ -148,6 +157,7 @@ class Dataset:
     BASELINE_MODEL_RESPONSE_COLUMN = "baseline_model_response"
     PROMPT_COLUMN = "prompt"
     REFERENCE_COLUMN = "reference"
+    SOURCE_COLUMN = "source"
 
 
 @dataclasses.dataclass(frozen=True)

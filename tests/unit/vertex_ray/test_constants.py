@@ -21,10 +21,14 @@ import sys
 from google.cloud.aiplatform.vertex_ray.util.resources import Cluster
 from google.cloud.aiplatform.vertex_ray.util.resources import (
     AutoscalingSpec,
+    NfsMount,
     PscIConfig,
     Resources,
 )
 from google.cloud.aiplatform_v1beta1.types.machine_resources import DiskSpec
+from google.cloud.aiplatform_v1beta1.types.machine_resources import (
+    NfsMount as GapicNfsMount,
+)
 from google.cloud.aiplatform_v1beta1.types.machine_resources import (
     MachineSpec,
 )
@@ -105,6 +109,12 @@ class ClusterConstants:
     TEST_VERTEX_RAY_PR_ADDRESS = (
         f"{ProjectConstants.TEST_PARENT}/persistentResources/" + TEST_VERTEX_RAY_PR_ID
     )
+    TEST_NFS_MOUNT = NfsMount(
+        server="10.10.10.10", path="nfs_path", mount_point="nfs_mount_point"
+    )
+    TEST_GAPIC_NFS_MOUNT = GapicNfsMount(
+        server="10.10.10.10", path="nfs_path", mount_point="nfs_mount_point"
+    )
     TEST_CPU_IMAGE_2_9 = "us-docker.pkg.dev/vertex-ai/training/ray-cpu.2-9.py310:latest"
     TEST_GPU_IMAGE_2_9 = "us-docker.pkg.dev/vertex-ai/training/ray-gpu.2-9.py310:latest"
     TEST_CPU_IMAGE_2_33 = (
@@ -177,6 +187,7 @@ class ClusterConstants:
                 resource_pool_images={"head-node": TEST_CUSTOM_IMAGE},
                 ray_metric_spec=RayMetricSpec(disabled=False),
                 ray_logs_spec=RayLogsSpec(disabled=False),
+                nfs_mounts=[TEST_GAPIC_NFS_MOUNT],
             ),
         ),
         psc_interface_config=None,
@@ -227,6 +238,7 @@ class ClusterConstants:
             ray_spec=RaySpec(
                 resource_pool_images={"head-node": TEST_CUSTOM_IMAGE},
                 ray_metric_spec=RayMetricSpec(disabled=False),
+                nfs_mounts=[TEST_GAPIC_NFS_MOUNT],
             ),
         ),
         psc_interface_config=None,

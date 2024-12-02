@@ -35,6 +35,7 @@ class PipelineRuntimeConfigBuilder(object):
         parameter_values: Optional[Dict[str, Any]] = None,
         input_artifacts: Optional[Dict[str, str]] = None,
         failure_policy: Optional[pipeline_failure_policy.PipelineFailurePolicy] = None,
+        default_runtime: Optional[Dict[str, Any]] = None,
     ):
         """Creates a PipelineRuntimeConfigBuilder object.
 
@@ -57,6 +58,8 @@ class PipelineRuntimeConfigBuilder(object):
               set to PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop
               scheduling any new tasks when a task has failed. Any
               scheduled tasks will continue to completion.
+          default_runtime (Dict[str, Any]):
+              Optional. The default runtime config for the pipeline.
         """
         self._pipeline_root = pipeline_root
         self._schema_version = schema_version
@@ -64,6 +67,7 @@ class PipelineRuntimeConfigBuilder(object):
         self._parameter_values = copy.deepcopy(parameter_values or {})
         self._input_artifacts = copy.deepcopy(input_artifacts or {})
         self._failure_policy = failure_policy
+        self._default_runtime = default_runtime
 
     @classmethod
     def from_job_spec_json(
@@ -163,6 +167,16 @@ class PipelineRuntimeConfigBuilder(object):
                     f'failure_policy should be either "slow" or "fast", but got: "{failure_policy}".'
                 )
 
+    def update_default_runtime(self, default_runtime: Dict[str, Any]) -> None:
+        """Merges default runtime.
+
+        Args:
+          default_runtime (Dict[str, Any]):
+              default runtime config for the pipeline.
+        """
+        if default_runtime:
+            self._default_runtime = default_runtime
+
     def build(self) -> Dict[str, Any]:
         """Build a RuntimeConfig proto.
 
@@ -192,6 +206,10 @@ class PipelineRuntimeConfigBuilder(object):
                 k: {"artifactId": v} for k, v in self._input_artifacts.items()
             },
         }
+        if self._default_runtime:
+            # Only v1beta1 supports DefaultRuntime. For other cases, the field is
+            # None and we clear the defaultRuntime field.
+            runtime_config["defaultRuntime"] = self._default_runtime
 
         if self._failure_policy:
             runtime_config["failurePolicy"] = self._failure_policy

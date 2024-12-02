@@ -17,7 +17,7 @@
 """Unit tests for generative model prompts."""
 # pylint: disable=protected-access,bad-continuation
 
-from vertexai.generative_models._prompts import Prompt
+from vertexai.prompts._prompts import Prompt
 from vertexai.generative_models import (
     Content,
     Part,
