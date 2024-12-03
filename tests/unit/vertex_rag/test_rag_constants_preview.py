@@ -22,6 +22,7 @@ from vertexai.preview.rag import (
     EmbeddingModelConfig,
     Filter,
     HybridSearch,
+    LayoutParserConfig,
     LlmRanker,
     Pinecone,
     RagCorpus,
@@ -612,6 +613,16 @@ TEST_SHARE_POINT_SOURCE_NO_FOLDERS = SharePointSources(
     ],
 )
 
+TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG = LayoutParserConfig(
+    processor_name="projects/test-project/locations/us/processors/abc123",
+    max_parsing_requests_per_min=100,
+)
+
+TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG = LayoutParserConfig(
+    processor_name="projects/test-project/locations/us/processors/abc123/processorVersions/pretrained-layout-parser-v0.0-2020-01-0",
+    max_parsing_requests_per_min=100,
+)
+
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     share_point_sources=GapicSharePointSources(
@@ -632,6 +643,38 @@ TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
 TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE,
+)
+
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_PATH = ImportRagFilesConfig(
+    TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER
+)
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_PATH.rag_file_parsing_config = (
+    RagFileParsingConfig(
+        layout_parser=RagFileParsingConfig.LayoutParser(
+            processor_name="projects/test-project/locations/us/processors/abc123",
+            max_parsing_requests_per_min=100,
+        )
+    )
+)
+
+TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_PATH,
+)
+
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH = (
+    ImportRagFilesConfig(TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER)
+)
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH.rag_file_parsing_config = RagFileParsingConfig(
+    layout_parser=RagFileParsingConfig.LayoutParser(
+        processor_name="projects/test-project/locations/us/processors/abc123/processorVersions/pretrained-layout-parser-v0.0-2020-01-0",
+        max_parsing_requests_per_min=100,
+    )
+)
+
+TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH,
 )
 
 # Retrieval

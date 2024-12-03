@@ -1088,6 +1088,74 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE_NO_FOLDERS,
         )
 
+    def test_prepare_import_files_request_valid_layout_parser_with_processor_path(self):
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+            transformation_config=create_transformation_config(),
+            layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants_preview.TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH,
+        )
+
+    def test_prepare_import_files_request_valid_layout_parser_with_processor_version_path(
+        self,
+    ):
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+            transformation_config=create_transformation_config(),
+            layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants_preview.TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH,
+        )
+
+    def test_prepare_import_files_request_invalid_layout_parser_name(self):
+        layout_parser = rag.LayoutParserConfig(
+            processor_name="projects/test-project/locations/us/processorTypes/LAYOUT_PARSER",
+        )
+        with pytest.raises(ValueError) as e:
+            prepare_import_files_request(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=layout_parser,
+            )
+        e.match("processor_name must be of the format")
+
+    def test_advanced_pdf_parsing_and_layout_parser_both_set_error(self):
+        with pytest.raises(ValueError) as e:
+            rag.import_files(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                use_advanced_pdf_parsing=True,
+                layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+            )
+        e.match(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
+
+    @pytest.mark.asyncio
+    async def test_advanced_pdf_parsing_and_layout_parser_both_set_error_async(self):
+        with pytest.raises(ValueError) as e:
+            await rag.import_files_async(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                use_advanced_pdf_parsing=True,
+                layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+            )
+        e.match(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
+
     def test_set_embedding_model_config_set_both_error(self):
         embedding_model_config = rag.EmbeddingModelConfig(
             publisher_model="whatever",

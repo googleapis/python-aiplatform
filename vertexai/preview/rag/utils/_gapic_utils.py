@@ -42,6 +42,7 @@ from google.cloud.aiplatform.utils import (
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     VertexPredictionEndpoint,
+    LayoutParserConfig,
     Pinecone,
     RagCorpus,
     RagFile,
@@ -60,6 +61,9 @@ from vertexai.preview.rag.utils.resources import (
 
 
 _VALID_RESOURCE_NAME_REGEX = "[a-z][a-zA-Z0-9._-]{0,127}"
+_VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX = (
+    r"projects/[^/]+/locations/[^/]+/processors/[^/]+(?:/processorVersions/[^/]+)?"
+)
 
 
 def create_rag_data_service_client():
@@ -445,6 +449,7 @@ def prepare_import_files_request(
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: bool = False,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -456,6 +461,24 @@ def prepare_import_files_request(
             use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         ),
     )
+    if layout_parser is not None:
+        if (
+            re.fullmatch(
+                _VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX, layout_parser.processor_name
+            )
+            is None
+        ):
+            raise ValueError(
+                "processor_name must be of the format "
+                "`projects/{project_id}/locations/{location}/processors/{processor_id}`"
+                "or "
+                "`projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`, "
+                f"got {layout_parser.processor_name!r}"
+            )
+        rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
+            processor_name=layout_parser.processor_name,
+            max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
+        )
     local_chunk_size = chunk_size
     local_chunk_overlap = chunk_overlap
     if transformation_config and transformation_config.chunking_config:

@@ -45,6 +45,7 @@ from vertexai.preview.rag.utils import (
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     JiraSource,
+    LayoutParserConfig,
     Pinecone,
     RagCorpus,
     RagFile,
@@ -466,6 +467,7 @@ def import_files(
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -581,6 +583,9 @@ def import_files(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None,`use_advanced_pdf_parsing` must be False.
     Returns:
         ImportRagFilesResponse.
     """
@@ -588,6 +593,11 @@ def import_files(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and layout_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -599,6 +609,7 @@ def import_files(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -619,6 +630,7 @@ async def import_files_async(
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -734,6 +746,9 @@ async def import_files_async(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None,`use_advanced_pdf_parsing` must be False.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -741,6 +756,11 @@ async def import_files_async(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and layout_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -752,6 +772,7 @@ async def import_files_async(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:
