@@ -1308,20 +1308,13 @@ class TestGenerativeModels:
         assert response.to_dict()["candidates"][0]["finish_reason"] == "STOP"
 
     @patch_genai_services
-    def test_generate_content_grounding_google_search_retriever_preview(self):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
-        google_search_retriever_tool = (
-            preview_generative_models.Tool.from_google_search_retrieval(
-                preview_generative_models.grounding.GoogleSearchRetrieval()
-            )
-        )
-        response = model.generate_content(
-            "Why is sky blue?", tools=[google_search_retriever_tool]
-        )
-        assert response.text
-
-    @patch_genai_services
-    def test_generate_content_grounding_google_search_retriever(self):
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_grounding_google_search_retriever(
+        self, generative_models: generative_models
+    ):
         model = generative_models.GenerativeModel("gemini-pro")
         google_search_retriever_tool = (
             generative_models.Tool.from_google_search_retrieval(
@@ -1334,11 +1327,17 @@ class TestGenerativeModels:
         assert response.text
 
     @patch_genai_services
-    def test_generate_content_grounding_vertex_ai_search_retriever(self):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
-        vertex_ai_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
-            retrieval=preview_generative_models.grounding.Retrieval(
-                source=preview_generative_models.grounding.VertexAISearch(
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_grounding_vertex_ai_search_retriever(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("gemini-pro")
+        vertex_ai_search_retriever_tool = generative_models.Tool.from_retrieval(
+            retrieval=generative_models.grounding.Retrieval(
+                source=generative_models.grounding.VertexAISearch(
                     datastore=f"projects/{_TEST_PROJECT}/locations/global/collections/default_collection/dataStores/test-datastore",
                 )
             )
@@ -1349,13 +1348,17 @@ class TestGenerativeModels:
         assert response.text
 
     @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generate_content_grounding_vertex_ai_search_retriever_with_project_and_location(
-        self,
+        self, generative_models: generative_models
     ):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
-        vertex_ai_search_retriever_tool = preview_generative_models.Tool.from_retrieval(
-            retrieval=preview_generative_models.grounding.Retrieval(
-                source=preview_generative_models.grounding.VertexAISearch(
+        model = generative_models.GenerativeModel("gemini-pro")
+        vertex_ai_search_retriever_tool = generative_models.Tool.from_retrieval(
+            retrieval=generative_models.grounding.Retrieval(
+                source=generative_models.grounding.VertexAISearch(
                     datastore="test-datastore",
                     project=_TEST_PROJECT,
                     location="global",

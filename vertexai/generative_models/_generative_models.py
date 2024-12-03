@@ -1931,7 +1931,7 @@ class Tool:
     @classmethod
     def from_retrieval(
         cls,
-        retrieval: Union["preview_grounding.Retrieval"],
+        retrieval: Union["grounding.Retrieval"],
     ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)
@@ -2767,16 +2767,6 @@ class grounding:  # pylint: disable=invalid-name
                 else None
             )
 
-
-class preview_grounding:  # pylint: disable=invalid-name
-    """Grounding namespace (preview)."""
-
-    __name__ = "grounding"
-    __module__ = "vertexai.preview.generative_models"
-
-    def __init__(self):
-        raise RuntimeError("This class must not be instantiated.")
-
     class Retrieval:
         """Defines a retrieval tool that model can call to access external knowledge."""
 
@@ -2838,7 +2828,15 @@ class preview_grounding:  # pylint: disable=invalid-name
                 datastore=datastore,
             )
 
-    GoogleSearchRetrieval = grounding.GoogleSearchRetrieval
+
+class preview_grounding(grounding):  # pylint: disable=invalid-name
+    """Grounding namespace (preview)."""
+
+    __name__ = "grounding"
+    __module__ = "vertexai.preview.generative_models"
+
+    def __init__(self):
+        raise RuntimeError("This class must not be instantiated.")
 
 
 def _to_content(
