@@ -45,12 +45,16 @@ from vertexai.preview.rag.utils import (
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     JiraSource,
+    LayoutParserConfig,
     Pinecone,
     RagCorpus,
     RagFile,
     RagManagedDb,
+    RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
+    VertexAiSearchConfig,
+    TransformationConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -64,6 +68,8 @@ def create_corpus(
     vector_db: Optional[
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None,
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
+    backend_config: Optional[RagVectorDbConfig] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -85,8 +91,15 @@ def create_corpus(
             consist of any UTF-8 characters.
         description: The description of the RagCorpus.
         embedding_model_config: The embedding model config.
+            Note: Deprecated. Use backend_config instead.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
             default database Spanner is used.
+            Note: Deprecated. Use backend_config instead.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+            Note: embedding_model_config or vector_db cannot be set if
+            vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. It can specify a
+            Vector DB and/or the embedding model config.
     Returns:
         RagCorpus.
     Raises:
@@ -103,10 +116,41 @@ def create_corpus(
             embedding_model_config=embedding_model_config,
             rag_corpus=rag_corpus,
         )
-    _gapic_utils.set_vector_db(
-        vector_db=vector_db,
-        rag_corpus=rag_corpus,
-    )
+
+    if vertex_ai_search_config and embedding_model_config:
+        raise ValueError(
+            "Only one of vertex_ai_search_config or embedding_model_config can be set."
+        )
+
+    if vertex_ai_search_config and backend_config:
+        raise ValueError(
+            "Only one of vertex_ai_search_config or backend_config can be set."
+        )
+
+    if backend_config and (embedding_model_config or vector_db):
+        raise ValueError(
+            "Only one of backend_config or embedding_model_config and vector_db can be set. embedding_model_config and vector_db are deprecated, use backend_config instead."
+        )
+
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
+        )
+
+    if vertex_ai_search_config and vector_db:
+        raise ValueError("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    if vertex_ai_search_config:
+        _gapic_utils.set_vertex_ai_search_config(
+            vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
+    else:
+        _gapic_utils.set_vector_db(
+            vector_db=vector_db,
+            rag_corpus=rag_corpus,
+        )
 
     request = CreateRagCorpusRequest(
         parent=parent,
@@ -134,6 +178,8 @@ def update_corpus(
             RagManagedDb,
         ]
     ] = None,
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
+    backend_config: Optional[RagVectorDbConfig] = None,
 ) -> RagCorpus:
     """Updates a RagCorpus resource.
 
@@ -161,6 +207,12 @@ def update_corpus(
           description will not be updated.
         vector_db: The vector db config of the RagCorpus. If not provided, the
           vector db will not be updated.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+          If not provided, the Vertex AI Search config will not be updated.
+          Note: embedding_model_config or vector_db cannot be set if
+          vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. Specifies a Vector
+          DB and/or the embedding model config.
 
     Returns:
         RagCorpus.
@@ -180,10 +232,25 @@ def update_corpus(
     else:
         rag_corpus = GapicRagCorpus(name=corpus_name)
 
-    _gapic_utils.set_vector_db(
-        vector_db=vector_db,
-        rag_corpus=rag_corpus,
-    )
+    if vertex_ai_search_config and vector_db:
+        raise ValueError("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
+        )
+
+    if vertex_ai_search_config:
+        _gapic_utils.set_vertex_ai_search_config(
+            vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
+    else:
+        _gapic_utils.set_vector_db(
+            vector_db=vector_db,
+            rag_corpus=rag_corpus,
+        )
 
     request = UpdateRagCorpusRequest(
         rag_corpus=rag_corpus,
@@ -291,6 +358,7 @@ def upload_file(
     path: Union[str, Sequence[str]],
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    transformation_config: Optional[TransformationConfig] = None,
 ) -> RagFile:
     """
     Synchronous file upload to an existing RagCorpus.
@@ -303,10 +371,19 @@ def upload_file(
 
     vertexai.init(project="my-project")
 
+    # Optional.
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     rag_file = rag.upload_file(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         display_name="my_file.txt",
         path="usr/home/my_file.txt",
+        transformation_config=transformation_config,
     )
     ```
 
@@ -318,6 +395,7 @@ def upload_file(
             "usr/home/my_file.txt".
         display_name: The display name of the data file.
         description: The description of the RagFile.
+        transformation_config: The config for transforming the RagFile, such as chunking.
     Returns:
         RagFile.
     Raises:
@@ -336,12 +414,24 @@ def upload_file(
         aiplatform.constants.base.API_BASE_PATH,
         corpus_name,
     )
+    js_rag_file = {"rag_file": {"display_name": display_name}}
+
     if description:
-        js_rag_file = {
-            "rag_file": {"display_name": display_name, "description": description}
+        js_rag_file["rag_file"]["description"] = description
+
+    if transformation_config and transformation_config.chunking_config:
+        chunk_size = transformation_config.chunking_config.chunk_size
+        chunk_overlap = transformation_config.chunking_config.chunk_overlap
+        js_rag_file["upload_rag_file_config"] = {
+            "rag_file_transformation_config": {
+                "rag_file_chunking_config": {
+                    "fixed_length_chunking": {
+                        "chunk_size": chunk_size,
+                        "chunk_overlap": chunk_overlap,
+                    }
+                }
+            }
         }
-    else:
-        js_rag_file = {"rag_file": {"display_name": display_name}}
     files = {
         "metadata": (None, str(js_rag_file)),
         "file": open(path, "rb"),
@@ -372,10 +462,12 @@ def import_files(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -396,11 +488,17 @@ def import_files(
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     response = rag.import_files(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # Slack example
@@ -429,8 +527,7 @@ def import_files(
     response = rag.import_files(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         source=source,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # SharePoint Example.
@@ -460,8 +557,12 @@ def import_files(
             "https://drive.google.com/corp/drive/folders/...").
         source: The source of the Slack or Jira import.
             Must be either a SlackChannelsSource or JiraSource.
-        chunk_size: The size of the chunks.
-        chunk_overlap: The overlap between chunks.
+        chunk_size: The size of the chunks. This field is deprecated. Please use
+            transformation_config instead.
+        chunk_overlap: The overlap between chunks. This field is deprecated. Please use
+            transformation_config instead.
+        transformation_config: The config for transforming the imported
+            RagFiles.
         max_embedding_requests_per_min:
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -473,7 +574,7 @@ def import_files(
             QPM would be used.
         timeout: Default is 600 seconds.
         use_advanced_pdf_parsing: Whether to use advanced PDF
-            parsing on uploaded files.
+            parsing on uploaded files. This field is deprecated.
         partial_failures_sink: Either a GCS path to store partial failures or a
             BigQuery table to store partial failures. The format is
             "gs://my-bucket/my/object.ndjson" for GCS or
@@ -482,6 +583,9 @@ def import_files(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None,`use_advanced_pdf_parsing` must be False.
     Returns:
         ImportRagFilesResponse.
     """
@@ -489,6 +593,11 @@ def import_files(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and layout_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -496,9 +605,11 @@ def import_files(
         source=source,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
+        transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -515,9 +626,11 @@ async def import_files_async(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     chunk_size: int = 1024,
     chunk_overlap: int = 200,
+    transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -539,11 +652,17 @@ async def import_files_async(
     # Google Cloud Storage example
     paths = ["gs://my_bucket/my_files_dir", ...]
 
+    transformation_config = TransformationConfig(
+        chunking_config=ChunkingConfig(
+            chunk_size=1024,
+            chunk_overlap=200,
+        ),
+    )
+
     response = await rag.import_files_async(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         paths=paths,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # Slack example
@@ -572,8 +691,7 @@ async def import_files_async(
     response = await rag.import_files_async(
         corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
         source=source,
-        chunk_size=512,
-        chunk_overlap=100,
+        transformation_config=transformation_config,
     )
 
     # SharePoint Example.
@@ -603,8 +721,12 @@ async def import_files_async(
             "https://drive.google.com/corp/drive/folders/...").
         source: The source of the Slack or Jira import.
             Must be either a SlackChannelsSource or JiraSource.
-        chunk_size: The size of the chunks.
-        chunk_overlap: The overlap between chunks.
+        chunk_size: The size of the chunks. This field is deprecated. Please use
+            transformation_config instead.
+        chunk_overlap: The overlap between chunks. This field is deprecated. Please use
+            transformation_config instead.
+        transformation_config: The config for transforming the imported
+            RagFiles.
         max_embedding_requests_per_min:
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -624,6 +746,9 @@ async def import_files_async(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None,`use_advanced_pdf_parsing` must be False.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -631,6 +756,11 @@ async def import_files_async(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and layout_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -638,9 +768,11 @@ async def import_files_async(
         source=source,
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
+        transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:

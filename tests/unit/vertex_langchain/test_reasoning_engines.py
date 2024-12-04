@@ -80,6 +80,33 @@ class OperationRegistrableEngine:
         }
 
 
+class SameRegisteredOperationsEngine:
+    """Add a test class that is different from `OperationRegistrableEngine` but has the same registered operations."""
+
+    def query(self, unused_arbitrary_string_name: str) -> str:
+        """Runs the engine."""
+        return unused_arbitrary_string_name.upper()
+
+    # Add a custom method to test the custom method registration
+    def custom_method(self, x: str) -> str:
+        return x.upper()
+
+    # Add a custom method that is not registered.ration
+    def custom_method_2(self, x: str) -> str:
+        return x.upper()
+
+    def clone(self):
+        return self
+
+    def register_operations(self) -> Dict[str, List[str]]:
+        return {
+            _TEST_STANDARD_API_MODE: [
+                _TEST_DEFAULT_METHOD_NAME,
+                _TEST_CUSTOM_METHOD_NAME,
+            ]
+        }
+
+
 class OperationNotRegisteredEngine:
     """Add a test class that has a method that is not registered."""
 
@@ -127,6 +154,23 @@ class RegisteredOperationNotExistEngine:
         }
 
 
+class MethodToBeUnregisteredEngine:
+    """A Reasoning Engine that has a method to be unregistered."""
+
+    def method_to_be_unregistered(self, unused_arbitrary_string_name: str) -> str:
+        """Method to be unregistered."""
+        return unused_arbitrary_string_name.upper()
+
+    def register_operations(self) -> Dict[str, List[str]]:
+        # Registered method `missing_method` is not a method of the
+        # ReasoningEngine.
+        return {
+            _TEST_STANDARD_API_MODE: [
+                _TEST_METHOD_TO_BE_UNREGISTERED_NAME,
+            ]
+        }
+
+
 _TEST_RETRY = base._DEFAULT_RETRY
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 _TEST_STAGING_BUCKET = "gs://test-bucket"
@@ -144,10 +188,26 @@ _TEST_BLOB_FILENAME = _reasoning_engines._BLOB_FILENAME
 _TEST_REQUIREMENTS_FILE = _reasoning_engines._REQUIREMENTS_FILE
 _TEST_EXTRA_PACKAGES_FILE = _reasoning_engines._EXTRA_PACKAGES_FILE
 _TEST_STANDARD_API_MODE = _reasoning_engines._STANDARD_API_MODE
-_TEST_MODE_KEY_IN_SCHEMA = _reasoning_engines._MODE_KEY_IN_SCHEMA
 _TEST_DEFAULT_METHOD_NAME = _reasoning_engines._DEFAULT_METHOD_NAME
-_TEST_DEFAULT_METHOD_DOCSTRING = _reasoning_engines._DEFAULT_METHOD_DOCSTRING
+_TEST_CAPITALIZE_ENGINE_METHOD_DOCSTRING = "Runs the engine."
+_TEST_MODE_KEY_IN_SCHEMA = _reasoning_engines._MODE_KEY_IN_SCHEMA
+_TEST_METHOD_NAME_KEY_IN_SCHEMA = _reasoning_engines._METHOD_NAME_KEY_IN_SCHEMA
 _TEST_CUSTOM_METHOD_NAME = "custom_method"
+_TEST_CUSTOM_METHOD_DEFAULT_DOCSTRING = """
+    Runs the Reasoning Engine to serve the user query.
+
+    This will be based on the `.custom_method(...)` of the python object that
+    was passed in when creating the Reasoning Engine. The method will invoke the
+    `query` API client of the python object.
+
+    Args:
+        **kwargs:
+            Optional. The arguments of the `.custom_method(...)` method.
+
+    Returns:
+        dict[str, Any]: The response from serving the user query.
+"""
+_TEST_METHOD_TO_BE_UNREGISTERED_NAME = "method_to_be_unregistered"
 _TEST_QUERY_PROMPT = "Find the first fibonacci number greater than 999"
 _TEST_REASONING_ENGINE_GCS_URI = "{}/{}/{}".format(
     _TEST_STAGING_BUCKET,
@@ -222,6 +282,7 @@ _TEST_UPDATE_REASONING_ENGINE_OBJ.spec.class_methods.append(
 _TEST_REASONING_ENGINE_QUERY_REQUEST = types.QueryReasoningEngineRequest(
     name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
     input={_TEST_DEFAULT_METHOD_NAME: _TEST_QUERY_PROMPT},
+    class_method=_TEST_DEFAULT_METHOD_NAME,
 )
 _TEST_REASONING_ENGINE_QUERY_RESPONSE = {}
 _TEST_REASONING_ENGINE_OPERATION_SCHEMAS = []
@@ -250,6 +311,15 @@ _TEST_REGISTERED_OPERATION_NOT_EXIST_SCHEMAS = [
 _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_REASONING_ENGINE_QUERY_SCHEMA,
 ]
+_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _utils.to_proto(
+    _utils.generate_schema(
+        MethodToBeUnregisteredEngine().method_to_be_unregistered,
+        schema_name=_TEST_METHOD_TO_BE_UNREGISTERED_NAME,
+    )
+)
+_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
+    _TEST_MODE_KEY_IN_SCHEMA
+] = _TEST_STANDARD_API_MODE
 
 
 def _create_empty_fake_package(package_name: str) -> str:
@@ -435,6 +505,15 @@ def get_gca_resource_mock():
         yield get_gca_resource_mock
 
 
+@pytest.fixture(scope="function")
+def unregister_api_methods_mock():
+    with mock.patch.object(
+        _reasoning_engines,
+        "_unregister_api_methods",
+    ) as unregister_api_methods_mock:
+        yield unregister_api_methods_mock
+
+
 class InvalidCapitalizeEngineWithoutQuerySelf:
     """A sample Reasoning Engine with an invalid query method."""
 
@@ -442,6 +521,17 @@ class InvalidCapitalizeEngineWithoutQuerySelf:
         pass
 
     def query() -> str:
+        """Runs the engine."""
+        return "RESPONSE"
+
+
+class InvalidCapitalizeEngineWithoutRegisterOperationsSelf:
+    """A sample Reasoning Engine with an invalid register_operations method."""
+
+    def set_up(self):
+        pass
+
+    def register_operations() -> str:
         """Runs the engine."""
         return "RESPONSE"
 
@@ -523,7 +613,10 @@ class TestReasoningEngine:
             )
             upload_extra_packages_mock.assert_called()  # user wants to override
 
-    def test_get_reasoning_engine(self, get_reasoning_engine_mock):
+    def test_get_reasoning_engine(
+        self,
+        get_reasoning_engine_mock,
+    ):
         reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
@@ -741,6 +834,7 @@ class TestReasoningEngine:
         update_reasoning_engine_mock,
         tarfile_open_mock,
         cloudpickle_dump_mock,
+        get_gca_resource_mock,
     ):
         test_reasoning_engine = _generate_reasoning_engine_to_update()
         test_reasoning_engine.update(**test_kwargs)
@@ -757,6 +851,7 @@ class TestReasoningEngine:
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
         cloudpickle_dump_mock,
+        get_gca_resource_mock,
     ):
         test_reasoning_engine = _generate_reasoning_engine_to_update()
         # Update the reasoning engine's sys_version alone will raise
@@ -771,6 +866,8 @@ class TestReasoningEngine:
         update_reasoning_engine_mock,
         tarfile_open_mock,
         cloudpickle_dump_mock,
+        get_gca_resource_mock,
+        unregister_api_methods_mock,
     ):
         test_reasoning_engine = _generate_reasoning_engine_to_update()
         with mock.patch(
@@ -801,6 +898,7 @@ class TestReasoningEngine:
                 )
             },
         )
+        unregister_api_methods_mock.assert_not_called()
 
     def test_delete_after_create_reasoning_engine(
         self,
@@ -866,7 +964,9 @@ class TestReasoningEngine:
         with mock.patch.object(_utils, "to_dict") as to_dict_mock:
             to_dict_mock.return_value = {}
             test_reasoning_engine.query(query=_TEST_QUERY_PROMPT)
-            assert test_reasoning_engine.query.__doc__ == _TEST_DEFAULT_METHOD_DOCSTRING
+            assert (
+                test_reasoning_engine.query.__doc__ == CapitalizeEngine().query.__doc__
+            )
             query_reasoning_engine_mock.assert_called_with(
                 request=_TEST_REASONING_ENGINE_QUERY_REQUEST
             )
@@ -886,27 +986,77 @@ class TestReasoningEngine:
         with mock.patch.object(_utils, "to_dict") as to_dict_mock:
             to_dict_mock.return_value = {}
             test_reasoning_engine.query(query=_TEST_QUERY_PROMPT)
-            query_reasoning_engine_mock.assert_called_with(
-                request=_TEST_REASONING_ENGINE_QUERY_REQUEST
-            )
             to_dict_mock.assert_called_once()
+        query_reasoning_engine_mock.assert_called_with(
+            request=_TEST_REASONING_ENGINE_QUERY_REQUEST
+        )
 
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_class_methods_spec, want_operation_schemas",
+        [
+            (
+                "Default (Not Operation Registrable) Engine",
+                _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS,
+                [
+                    _utils.generate_schema(
+                        CapitalizeEngine().query,
+                        schema_name=_TEST_DEFAULT_METHOD_NAME,
+                    )
+                ],
+            ),
+            (
+                "Operation Registrable Engine",
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+                [
+                    _utils.generate_schema(
+                        OperationRegistrableEngine().query,
+                        schema_name=_TEST_DEFAULT_METHOD_NAME,
+                    ),
+                    _utils.generate_schema(
+                        OperationRegistrableEngine().custom_method,
+                        schema_name=_TEST_CUSTOM_METHOD_NAME,
+                    ),
+                ],
+            ),
+            (
+                "Operation Not Registered Engine",
+                _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+                [
+                    _utils.generate_schema(
+                        OperationNotRegisteredEngine().custom_method,
+                        schema_name=_TEST_CUSTOM_METHOD_NAME,
+                    ),
+                ],
+            ),
+        ],
+    )
     def test_operation_schemas(
         self,
+        test_case_name,
+        test_class_methods_spec,
+        want_operation_schemas,
         get_reasoning_engine_mock,
-        get_gca_resource_mock,
     ):
-        test_reasoning_engine = reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
-        test_reasoning_engine._operation_schemas = (
-            _TEST_REASONING_ENGINE_OPERATION_SCHEMAS
-        )
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_reasoning_engine = reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
+
         get_reasoning_engine_mock.assert_called_with(
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
         )
-        assert test_reasoning_engine.operation_schemas() == (
-            _TEST_REASONING_ENGINE_OPERATION_SCHEMAS
-        )
+        for want_operation_schema in want_operation_schemas:
+            want_operation_schema[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_STANDARD_API_MODE
+        assert test_reasoning_engine.operation_schemas() == want_operation_schemas
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
@@ -953,6 +1103,249 @@ class TestReasoningEngine:
                 "spec": want_spec,
             },
         )
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_method_docs, test_class_methods_spec",
+        [
+            (
+                "Default (Not Operation Registrable) Engine",
+                CapitalizeEngine(),
+                {
+                    _TEST_DEFAULT_METHOD_NAME: _TEST_CAPITALIZE_ENGINE_METHOD_DOCSTRING,
+                },
+                _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                {
+                    _TEST_DEFAULT_METHOD_NAME: _TEST_CAPITALIZE_ENGINE_METHOD_DOCSTRING,
+                    _TEST_CUSTOM_METHOD_NAME: _TEST_CUSTOM_METHOD_DEFAULT_DOCSTRING,
+                },
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+            (
+                "Operation Not Registered Engine",
+                OperationNotRegisteredEngine(),
+                {
+                    _TEST_CUSTOM_METHOD_NAME: _TEST_CUSTOM_METHOD_DEFAULT_DOCSTRING,
+                },
+                _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+            ),
+        ],
+    )
+    def test_query_after_create_reasoning_engine_with_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_method_docs,
+        test_class_methods_spec,
+        get_reasoning_engine_mock,
+        query_reasoning_engine_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
+                test_engine
+            )
+
+        get_reasoning_engine_mock.assert_called_with(
+            name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+        for method_name, test_doc in test_class_method_docs.items():
+            with mock.patch.object(_utils, "to_dict") as to_dict_mock:
+                to_dict_mock.return_value = {}
+                getattr(test_reasoning_engine, method_name)(query=_TEST_QUERY_PROMPT)
+                to_dict_mock.assert_called_once()
+
+            query_reasoning_engine_mock.assert_called_with(
+                request=types.QueryReasoningEngineRequest(
+                    name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                    input={_TEST_DEFAULT_METHOD_NAME: _TEST_QUERY_PROMPT},
+                    class_method=method_name,
+                )
+            )
+
+            invoked_method = getattr(test_reasoning_engine, method_name)
+            assert invoked_method.__doc__ == test_doc
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_methods, test_class_methods_spec",
+        [
+            (
+                "Default (Not Operation Registrable) Engine",
+                CapitalizeEngine(),
+                [_TEST_DEFAULT_METHOD_NAME],
+                _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                [_TEST_DEFAULT_METHOD_NAME, _TEST_CUSTOM_METHOD_NAME],
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+            (
+                "Operation Not Registered Engine",
+                OperationNotRegisteredEngine(),
+                [_TEST_CUSTOM_METHOD_NAME],
+                _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+            ),
+        ],
+    )
+    def test_query_after_update_reasoning_engine_with_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_methods,
+        test_class_methods_spec,
+        get_reasoning_engine_mock,
+        query_reasoning_engine_mock,
+        update_reasoning_engine_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.append(_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME, spec=test_spec
+            )
+            test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
+                MethodToBeUnregisteredEngine()
+            )
+            assert hasattr(test_reasoning_engine, _TEST_METHOD_TO_BE_UNREGISTERED_NAME)
+
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_reasoning_engine.update(reasoning_engine=test_engine)
+
+        get_reasoning_engine_mock.assert_called_with(
+            name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+        assert not hasattr(test_reasoning_engine, _TEST_METHOD_TO_BE_UNREGISTERED_NAME)
+        for method_name in test_class_methods:
+            with mock.patch.object(_utils, "to_dict") as to_dict_mock:
+                to_dict_mock.return_value = {}
+                getattr(test_reasoning_engine, method_name)(query=_TEST_QUERY_PROMPT)
+                to_dict_mock.assert_called_once()
+
+            query_reasoning_engine_mock.assert_called_with(
+                request=types.QueryReasoningEngineRequest(
+                    name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                    input={_TEST_DEFAULT_METHOD_NAME: _TEST_QUERY_PROMPT},
+                    class_method=method_name,
+                )
+            )
+
+    def test_query_after_update_reasoning_engine_with_same_operation_schema(
+        self,
+        update_reasoning_engine_mock,
+        unregister_api_methods_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(_TEST_OPERATION_REGISTRABLE_SCHEMAS)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_reasoning_engine = reasoning_engines.ReasoningEngine.create(
+                OperationRegistrableEngine()
+            )
+            test_reasoning_engine.update(
+                reasoning_engine=SameRegisteredOperationsEngine()
+            )
+            unregister_api_methods_mock.assert_not_called()
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_methods, test_class_methods_spec",
+        [
+            (
+                "Default (Not Operation Registrable) Engine",
+                CapitalizeEngine(),
+                [_TEST_DEFAULT_METHOD_NAME],
+                _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                [_TEST_DEFAULT_METHOD_NAME, _TEST_CUSTOM_METHOD_NAME],
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+            (
+                "Operation Not Registered Engine",
+                OperationNotRegisteredEngine(),
+                [_TEST_CUSTOM_METHOD_NAME],
+                _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+            ),
+        ],
+    )
+    def test_query_reasoning_engine_with_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_methods,
+        test_class_methods_spec,
+        get_reasoning_engine_mock,
+        query_reasoning_engine_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_reasoning_engine = reasoning_engines.ReasoningEngine(_TEST_RESOURCE_ID)
+
+        get_reasoning_engine_mock.assert_called_with(
+            name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+        for method_name in test_class_methods:
+            with mock.patch.object(_utils, "to_dict") as to_dict_mock:
+                to_dict_mock.return_value = {}
+                getattr(test_reasoning_engine, method_name)(query=_TEST_QUERY_PROMPT)
+                to_dict_mock.assert_called_once()
+
+            query_reasoning_engine_mock.assert_called_with(
+                request=types.QueryReasoningEngineRequest(
+                    name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
+                    input={_TEST_DEFAULT_METHOD_NAME: _TEST_QUERY_PROMPT},
+                    class_method=method_name,
+                )
+            )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1009,7 +1402,10 @@ class TestReasoningEngineErrors:
     ):
         with pytest.raises(
             TypeError,
-            match="does not have a callable method named `query`",
+            match=(
+                "reasoning_engine has neither a callable method named"
+                " `query` nor a callable method named `register_operations`."
+            ),
         ):
             reasoning_engines.ReasoningEngine.create(
                 InvalidCapitalizeEngineWithoutQueryMethod(),
@@ -1027,7 +1423,10 @@ class TestReasoningEngineErrors:
     ):
         with pytest.raises(
             TypeError,
-            match="does not have a callable method named `query`",
+            match=(
+                "reasoning_engine has neither a callable method named"
+                " `query` nor a callable method named `register_operations`."
+            ),
         ):
             reasoning_engines.ReasoningEngine.create(
                 InvalidCapitalizeEngineWithNoncallableQuery(),
@@ -1097,6 +1496,21 @@ class TestReasoningEngineErrors:
                 requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
             )
 
+    def test_create_reasoning_engine_with_invalid_register_operations_method(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_reasoning_engine_mock,
+    ):
+        with pytest.raises(ValueError, match="Invalid register_operations signature"):
+            reasoning_engines.ReasoningEngine.create(
+                InvalidCapitalizeEngineWithoutRegisterOperationsSelf(),
+                display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            )
+
     def test_update_reasoning_engine_unspecified_staging_bucket(
         self,
         update_reasoning_engine_mock,
@@ -1136,7 +1550,10 @@ class TestReasoningEngineErrors:
     ):
         with pytest.raises(
             TypeError,
-            match="does not have a callable method named `query`",
+            match=(
+                "reasoning_engine has neither a callable method named"
+                " `query` nor a callable method named `register_operations`."
+            ),
         ):
             test_reasoning_engine = _generate_reasoning_engine_to_update()
             test_reasoning_engine.update(
@@ -1153,7 +1570,10 @@ class TestReasoningEngineErrors:
     ):
         with pytest.raises(
             TypeError,
-            match="does not have a callable method named `query`",
+            match=(
+                "reasoning_engine has neither a callable method named"
+                " `query` nor a callable method named `register_operations`."
+            ),
         ):
             test_reasoning_engine = _generate_reasoning_engine_to_update()
             test_reasoning_engine.update(
@@ -1241,6 +1661,66 @@ class TestReasoningEngineErrors:
             test_reasoning_engine.update(
                 reasoning_engine=RegisteredOperationNotExistEngine()
             )
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_operation_schemas, want_log_output",
+        [
+            (
+                "No API mode in operation schema",
+                [
+                    {
+                        _TEST_METHOD_NAME_KEY_IN_SCHEMA: _TEST_DEFAULT_METHOD_NAME,
+                    },
+                ],
+                (
+                    "Failed to register API methods: {Operation schema {'name':"
+                    " 'query'} does not contain an `api_mode` field.}"
+                ),
+            ),
+            (
+                "No method name in operation schema",
+                [
+                    {
+                        _TEST_MODE_KEY_IN_SCHEMA: _TEST_STANDARD_API_MODE,
+                    },
+                ],
+                (
+                    "Failed to register API methods: {Operation schema"
+                    " {'api_mode': ''} does not contain a `name` field.}"
+                ),
+            ),
+            (
+                "Unknown API mode in operation schema",
+                [
+                    {
+                        _TEST_MODE_KEY_IN_SCHEMA: "UNKNOWN_API_MODE",
+                        _TEST_METHOD_NAME_KEY_IN_SCHEMA: _TEST_DEFAULT_METHOD_NAME,
+                    },
+                ],
+                (
+                    "Failed to register API methods: {Unsupported api mode:"
+                    " `UNKNOWN_API_MODE`, Supporting mode is: ``}"
+                ),
+            ),
+        ],
+    )
+    @pytest.mark.usefixtures("caplog")
+    def test_invalid_operation_schema(
+        self,
+        test_case_name,
+        test_operation_schemas,
+        want_log_output,
+        caplog,
+    ):
+        with mock.patch.object(
+            _reasoning_engines.ReasoningEngine,
+            "operation_schemas",
+        ) as mock_operation_schemas:
+            mock_operation_schemas.return_value = test_operation_schemas
+            _reasoning_engines.ReasoningEngine(_TEST_REASONING_ENGINE_RESOURCE_NAME)
+
+        assert want_log_output in caplog.text
 
 
 def _generate_reasoning_engine_to_update() -> "reasoning_engines.ReasoningEngine":

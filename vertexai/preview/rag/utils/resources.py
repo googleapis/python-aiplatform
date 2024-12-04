@@ -20,6 +20,8 @@ from typing import List, Optional, Sequence, Union
 
 from google.protobuf import timestamp_pb2
 
+DEPRECATION_DATE = "June 2025"
+
 
 @dataclasses.dataclass
 class RagFile:
@@ -67,6 +69,47 @@ class EmbeddingModelConfig:
     endpoint: Optional[str] = None
     model: Optional[str] = None
     model_version_id: Optional[str] = None
+
+
+@dataclasses.dataclass
+class VertexPredictionEndpoint:
+    """VertexPredictionEndpoint.
+
+    Attributes:
+        publisher_model: 1P publisher model resource name. Format:
+            ``publishers/google/models/{model}`` or
+            ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+        endpoint: 1P fine tuned embedding model resource name. Format:
+            ``endpoints/{endpoint}`` or
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+        model:
+            Output only. The resource name of the model that is deployed
+            on the endpoint. Present only when the endpoint is not a
+            publisher model. Pattern:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id:
+            Output only. Version ID of the model that is
+            deployed on the endpoint. Present only when the
+            endpoint is not a publisher model.
+    """
+
+    endpoint: Optional[str] = None
+    publisher_model: Optional[str] = None
+    model: Optional[str] = None
+    model_version_id: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagEmbeddingModelConfig:
+    """RagEmbeddingModelConfig.
+
+    Attributes:
+        vertex_prediction_endpoint: The Vertex AI Prediction Endpoint resource
+            name. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+    """
+
+    vertex_prediction_endpoint: Optional[VertexPredictionEndpoint] = None
 
 
 @dataclasses.dataclass
@@ -135,6 +178,37 @@ class Pinecone:
 
 
 @dataclasses.dataclass
+class VertexAiSearchConfig:
+    """VertexAiSearchConfig.
+
+    Attributes:
+        serving_config: The resource name of the Vertex AI Search serving config.
+            Format:
+                ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
+            or
+                ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}``
+    """
+
+    serving_config: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagVectorDbConfig:
+    """RagVectorDbConfig.
+
+    Attributes:
+        vector_db: Can be one of the following: Weaviate, VertexFeatureStore,
+            VertexVectorSearch, Pinecone, RagManagedDb.
+        rag_embedding_model_config: The embedding model config of the Vector DB.
+    """
+
+    vector_db: Optional[
+        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+    ] = None
+    rag_embedding_model_config: Optional[RagEmbeddingModelConfig] = None
+
+
+@dataclasses.dataclass
 class RagCorpus:
     """RAG corpus(output only).
 
@@ -144,7 +218,12 @@ class RagCorpus:
         display_name: Display name that was configured at client side.
         description: The description of the RagCorpus.
         embedding_model_config: The embedding model config of the RagCorpus.
+            Note: Deprecated. Use backend_config instead.
         vector_db: The Vector DB of the RagCorpus.
+            Note: Deprecated. Use backend_config instead.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+        backend_config: The backend config of the RagCorpus. It can specify a
+            Vector DB and/or the embedding model config.
     """
 
     name: Optional[str] = None
@@ -154,6 +233,8 @@ class RagCorpus:
     vector_db: Optional[
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
+    backend_config: Optional[RagVectorDbConfig] = None
 
 
 @dataclasses.dataclass
@@ -282,3 +363,140 @@ class SharePointSources:
     """
 
     share_point_sources: Sequence[SharePointSource]
+
+
+@dataclasses.dataclass
+class Filter:
+    """Filter.
+
+    Attributes:
+        vector_distance_threshold: Only returns contexts with vector
+            distance smaller than the threshold.
+        vector_similarity_threshold: Only returns contexts with vector
+            similarity larger than the threshold.
+        metadata_filter: String for metadata filtering.
+    """
+
+    vector_distance_threshold: Optional[float] = None
+    vector_similarity_threshold: Optional[float] = None
+    metadata_filter: Optional[str] = None
+
+
+@dataclasses.dataclass
+class HybridSearch:
+    """HybridSearch.
+
+    Attributes:
+        alpha: Alpha value controls the weight between dense and
+            sparse vector search results. The range is [0, 1], while 0
+            means sparse vector search only and 1 means dense vector
+            search only. The default value is 0.5 which balances sparse
+            and dense vector search equally.
+    """
+
+    alpha: Optional[float] = None
+
+
+@dataclasses.dataclass
+class LlmRanker:
+    """LlmRanker.
+
+    Attributes:
+        model_name: The model name used for ranking. Only Gemini models are
+            supported for now.
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RankService:
+    """RankService.
+
+    Attributes:
+        model_name: The model name of the rank service. Format:
+            ``semantic-ranker-512@latest``
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class Ranking:
+    """Ranking.
+
+    Attributes:
+        rank_service: (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking.RankService)
+                Config for Rank Service.
+        llm_ranker (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking.LlmRanker):
+                Config for LlmRanker.
+    """
+
+    rank_service: Optional[RankService] = None
+    llm_ranker: Optional[LlmRanker] = None
+
+
+@dataclasses.dataclass
+class RagRetrievalConfig:
+    """RagRetrievalConfig.
+
+    Attributes:
+        top_k: The number of contexts to retrieve.
+        filter: Config for filters.
+        hybrid_search (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.HybridSearch):
+            Config for Hybrid Search.
+        ranking (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig.Ranking):
+            Config for ranking and reranking.
+    """
+
+    top_k: Optional[int] = None
+    filter: Optional[Filter] = None
+    hybrid_search: Optional[HybridSearch] = None
+    ranking: Optional[Ranking] = None
+
+
+@dataclasses.dataclass
+class ChunkingConfig:
+    """ChunkingConfig.
+
+    Attributes:
+        chunk_size: The size of each chunk.
+        chunk_overlap: The size of the overlap between chunks.
+    """
+
+    chunk_size: int
+    chunk_overlap: int
+
+
+@dataclasses.dataclass
+class TransformationConfig:
+    """TransformationConfig.
+
+    Attributes:
+        chunking_config: The chunking config.
+    """
+
+    chunking_config: Optional[ChunkingConfig] = None
+
+
+@dataclasses.dataclass
+class LayoutParserConfig:
+    """Configuration for the Document AI Layout Parser Processor.
+
+    Attributes:
+        processor_name (str):
+            The full resource name of a Document AI processor or processor
+            version. The processor must have type `LAYOUT_PARSER_PROCESSOR`.
+            Format:
+            -  `projects/{project_id}/locations/{location}/processors/{processor_id}`
+            -  `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`
+        max_parsing_requests_per_min (int):
+            The maximum number of requests the job is allowed to make to the
+            Document AI processor per minute. Consult
+            https://cloud.google.com/document-ai/quotas and the Quota page for
+            your project to set an appropriate value here. If unspecified, a
+            default value of 120 QPM will be used.
+    """
+
+    processor_name: str
+    max_parsing_requests_per_min: Optional[int] = None

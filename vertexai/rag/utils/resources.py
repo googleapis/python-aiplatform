@@ -38,6 +38,47 @@ class RagFile:
 
 
 @dataclasses.dataclass
+class VertexPredictionEndpoint:
+    """VertexPredictionEndpoint.
+
+    Attributes:
+        publisher_model: 1P publisher model resource name. Format:
+            ``publishers/google/models/{model}`` or
+            ``projects/{project}/locations/{location}/publishers/google/models/{model}``
+        endpoint: 1P fine tuned embedding model resource name. Format:
+            ``endpoints/{endpoint}`` or
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+        model:
+            Output only. The resource name of the model that is deployed
+            on the endpoint. Present only when the endpoint is not a
+            publisher model. Pattern:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id:
+            Output only. Version ID of the model that is
+            deployed on the endpoint. Present only when the
+            endpoint is not a publisher model.
+    """
+
+    endpoint: Optional[str] = None
+    publisher_model: Optional[str] = None
+    model: Optional[str] = None
+    model_version_id: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagEmbeddingModelConfig:
+    """RagEmbeddingModelConfig.
+
+    Attributes:
+        vertex_prediction_endpoint: The Vertex AI Prediction Endpoint resource
+            name. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+    """
+
+    vertex_prediction_endpoint: Optional[VertexPredictionEndpoint] = None
+
+
+@dataclasses.dataclass
 class EmbeddingModelConfig:
     """EmbeddingModelConfig.
 
@@ -135,6 +176,26 @@ class Pinecone:
 
 
 @dataclasses.dataclass
+class RagVectorDbConfig:
+    """RagVectorDbConfig.
+
+    Attributes:
+        vector_db: Can be one of the following: RagManagedDb, Pinecone,
+        VertexVectorSearch.
+        rag_embedding_model_config: The embedding model config of the Vector DB.
+    """
+
+    vector_db: Optional[
+        Union[
+            VertexVectorSearch,
+            Pinecone,
+            RagManagedDb,
+        ]
+    ] = None
+    rag_embedding_model_config: Optional[RagEmbeddingModelConfig] = None
+
+
+@dataclasses.dataclass
 class RagCorpus:
     """RAG corpus(output only).
 
@@ -143,16 +204,18 @@ class RagCorpus:
             ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}``
         display_name: Display name that was configured at client side.
         description: The description of the RagCorpus.
-        embedding_model_config: The embedding model config of the RagCorpus.
-        vector_db: The Vector DB of the RagCorpus.
+        backend_config: The backend config of the RagCorpus. It can be a data
+            store and/or retrieval engine.
     """
 
     name: Optional[str] = None
     display_name: Optional[str] = None
     description: Optional[str] = None
-    embedding_model_config: Optional[EmbeddingModelConfig] = None
-    vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+    backend_config: Optional[
+        Union[
+            RagVectorDbConfig,
+            None,
+        ]
     ] = None
 
 
@@ -282,3 +345,57 @@ class SharePointSources:
     """
 
     share_point_sources: Sequence[SharePointSource]
+
+
+@dataclasses.dataclass
+class Filter:
+    """Filter.
+
+    Attributes:
+        vector_distance_threshold: Only returns contexts with vector
+            distance smaller than the threshold.
+        vector_similarity_threshold: Only returns contexts with vector
+            similarity larger than the threshold.
+        metadata_filter: String for metadata filtering.
+    """
+
+    vector_distance_threshold: Optional[float] = None
+    vector_similarity_threshold: Optional[float] = None
+    metadata_filter: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagRetrievalConfig:
+    """RagRetrievalConfig.
+
+    Attributes:
+        top_k: The number of contexts to retrieve.
+        filter: Config for filters.
+    """
+
+    top_k: Optional[int] = None
+    filter: Optional[Filter] = None
+
+
+@dataclasses.dataclass
+class ChunkingConfig:
+    """ChunkingConfig.
+
+    Attributes:
+        chunk_size: The size of each chunk.
+        chunk_overlap: The size of the overlap between chunks.
+    """
+
+    chunk_size: int
+    chunk_overlap: int
+
+
+@dataclasses.dataclass
+class TransformationConfig:
+    """TransformationConfig.
+
+    Attributes:
+        chunking_config: The chunking config.
+    """
+
+    chunking_config: Optional[ChunkingConfig] = None

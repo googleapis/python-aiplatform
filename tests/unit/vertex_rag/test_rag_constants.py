@@ -18,26 +18,29 @@
 
 from google.cloud import aiplatform
 
-from vertexai.preview.rag import (
-    EmbeddingModelConfig,
+from vertexai.rag import (
+    Filter,
     Pinecone,
     RagCorpus,
     RagFile,
     RagResource,
+    RagRetrievalConfig,
+    RagVectorDbConfig,
     SharePointSource,
     SharePointSources,
     SlackChannelsSource,
     SlackChannel,
     JiraSource,
     JiraQuery,
-    Weaviate,
     VertexVectorSearch,
-    VertexFeatureStore,
+    RagEmbeddingModelConfig,
+    VertexPredictionEndpoint,
 )
-from google.cloud.aiplatform_v1beta1 import (
+
+from google.cloud.aiplatform_v1 import (
     GoogleDriveSource,
     RagFileChunkingConfig,
-    RagFileParsingConfig,
+    RagFileTransformationConfig,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     ImportRagFilesResponse,
@@ -48,9 +51,9 @@ from google.cloud.aiplatform_v1beta1 import (
     SlackSource as GapicSlackSource,
     RagContexts,
     RetrieveContextsResponse,
-    RagVectorDbConfig,
+    RagVectorDbConfig as GapicRagVectorDbConfig,
 )
-from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.cloud.aiplatform_v1.types import api_auth
 from google.protobuf import timestamp_pb2
 
 
@@ -68,11 +71,6 @@ TEST_WEAVIATE_HTTP_ENDPOINT = "test.weaviate.com"
 TEST_WEAVIATE_COLLECTION_NAME = "test-collection"
 TEST_WEAVIATE_API_KEY_SECRET_VERSION = (
     "projects/test-project/secrets/test-secret/versions/1"
-)
-TEST_WEAVIATE_CONFIG = Weaviate(
-    weaviate_http_endpoint=TEST_WEAVIATE_HTTP_ENDPOINT,
-    collection_name=TEST_WEAVIATE_COLLECTION_NAME,
-    api_key=TEST_WEAVIATE_API_KEY_SECRET_VERSION,
 )
 TEST_PINECONE_INDEX_NAME = "test-pinecone-index"
 TEST_PINECONE_API_KEY_SECRET_VERSION = (
@@ -94,43 +92,15 @@ TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
 )
-TEST_GAPIC_RAG_CORPUS.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
-    "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
-        TEST_PROJECT, TEST_REGION
-    )
-)
-TEST_GAPIC_RAG_CORPUS_WEAVIATE = GapicRagCorpus(
-    name=TEST_RAG_CORPUS_RESOURCE_NAME,
-    display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        weaviate=RagVectorDbConfig.Weaviate(
-            http_endpoint=TEST_WEAVIATE_HTTP_ENDPOINT,
-            collection_name=TEST_WEAVIATE_COLLECTION_NAME,
-        ),
-        api_auth=api_auth.ApiAuth(
-            api_key_config=api_auth.ApiAuth.ApiKeyConfig(
-                api_key_secret_version=TEST_WEAVIATE_API_KEY_SECRET_VERSION
-            ),
-        ),
-    ),
-)
-TEST_GAPIC_RAG_CORPUS_VERTEX_FEATURE_STORE = GapicRagCorpus(
-    name=TEST_RAG_CORPUS_RESOURCE_NAME,
-    display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        vertex_feature_store=RagVectorDbConfig.VertexFeatureStore(
-            feature_view_resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME
-        ),
-    ),
+TEST_GAPIC_RAG_CORPUS.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
+    TEST_PROJECT, TEST_REGION
 )
 TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        vertex_vector_search=RagVectorDbConfig.VertexVectorSearch(
+    vector_db_config=GapicRagVectorDbConfig(
+        vertex_vector_search=GapicRagVectorDbConfig.VertexVectorSearch(
             index_endpoint=TEST_VERTEX_VECTOR_SEARCH_INDEX_ENDPOINT,
             index=TEST_VERTEX_VECTOR_SEARCH_INDEX,
         ),
@@ -140,8 +110,8 @@ TEST_GAPIC_RAG_CORPUS_PINECONE = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        pinecone=RagVectorDbConfig.Pinecone(index_name=TEST_PINECONE_INDEX_NAME),
+    vector_db_config=GapicRagVectorDbConfig(
+        pinecone=GapicRagVectorDbConfig.Pinecone(index_name=TEST_PINECONE_INDEX_NAME),
         api_auth=api_auth.ApiAuth(
             api_key_config=api_auth.ApiAuth.ApiKeyConfig(
                 api_key_secret_version=TEST_PINECONE_API_KEY_SECRET_VERSION
@@ -149,41 +119,41 @@ TEST_GAPIC_RAG_CORPUS_PINECONE = GapicRagCorpus(
         ),
     ),
 )
-TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
-    publisher_model="publishers/google/models/textembedding-gecko",
+
+TEST_EMBEDDING_MODEL_CONFIG = RagEmbeddingModelConfig(
+    vertex_prediction_endpoint=VertexPredictionEndpoint(
+        publisher_model=(
+            "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
+                TEST_PROJECT, TEST_REGION
+            )
+        ),
+    ),
 )
-TEST_VERTEX_FEATURE_STORE_CONFIG = VertexFeatureStore(
-    resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME,
+TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG = RagVectorDbConfig(
+    rag_embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
 )
 TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
+    backend_config=TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
 )
-TEST_RAG_CORPUS_WEAVIATE = RagCorpus(
-    name=TEST_RAG_CORPUS_RESOURCE_NAME,
-    display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_WEAVIATE_CONFIG,
-)
-TEST_RAG_CORPUS_VERTEX_FEATURE_STORE = RagCorpus(
-    name=TEST_RAG_CORPUS_RESOURCE_NAME,
-    display_name=TEST_CORPUS_DISPLAY_NAME,
-    description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_VERTEX_FEATURE_STORE_CONFIG,
+TEST_BACKEND_CONFIG_PINECONE_CONFIG = RagVectorDbConfig(
+    vector_db=TEST_PINECONE_CONFIG,
 )
 TEST_RAG_CORPUS_PINECONE = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_PINECONE_CONFIG,
+    backend_config=TEST_BACKEND_CONFIG_PINECONE_CONFIG,
+)
+TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG = RagVectorDbConfig(
+    vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
 )
 TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+    backend_config=TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
 
@@ -193,7 +163,7 @@ TEST_GCS_PATH = "gs://usr/home/data_dir/"
 TEST_FILE_DISPLAY_NAME = "my-file.txt"
 TEST_FILE_DESCRIPTION = "my file."
 TEST_HEADERS = {"X-Goog-Upload-Protocol": "multipart"}
-TEST_UPLOAD_REQUEST_URI = "https://{}/upload/v1beta1/projects/{}/locations/{}/ragCorpora/{}/ragFiles:upload".format(
+TEST_UPLOAD_REQUEST_URI = "https://{}/upload/v1/projects/{}/locations/{}/ragCorpora/{}/ragFiles:upload".format(
     TEST_API_ENDPOINT, TEST_PROJECT_NUMBER, TEST_REGION, TEST_RAG_CORPUS_ID
 )
 TEST_RAG_FILE_ID = "generate-456"
@@ -201,19 +171,44 @@ TEST_RAG_FILE_RESOURCE_NAME = (
     TEST_RAG_CORPUS_RESOURCE_NAME + f"/ragFiles/{TEST_RAG_FILE_ID}"
 )
 TEST_UPLOAD_RAG_FILE_RESPONSE_CONTENT = ""
+TEST_CHUNK_SIZE = 512
+TEST_CHUNK_OVERLAP = 100
 TEST_RAG_FILE_JSON = {
     "ragFile": {
         "name": TEST_RAG_FILE_RESOURCE_NAME,
         "displayName": TEST_FILE_DISPLAY_NAME,
     }
 }
+TEST_RAG_FILE_JSON_WITH_UPLOAD_CONFIG = {
+    "ragFile": {
+        "name": TEST_RAG_FILE_RESOURCE_NAME,
+        "displayName": TEST_FILE_DISPLAY_NAME,
+    },
+    "rag_file_transformation_config": {
+        "rag_file_transformation_config": {
+            "rag_file_chunking_config": {
+                "fixed_length_chunking": {
+                    "chunk_size": TEST_CHUNK_SIZE,
+                    "chunk_overlap": TEST_CHUNK_OVERLAP,
+                }
+            }
+        }
+    },
+}
 TEST_RAG_FILE_JSON_ERROR = {"error": {"code": 13}}
-TEST_CHUNK_SIZE = 512
-TEST_CHUNK_OVERLAP = 100
+TEST_RAG_FILE_TRANSFORMATION_CONFIG = RagFileTransformationConfig(
+    rag_file_chunking_config=RagFileChunkingConfig(
+        fixed_length_chunking=RagFileChunkingConfig.FixedLengthChunking(
+            chunk_size=TEST_CHUNK_SIZE,
+            chunk_overlap=TEST_CHUNK_OVERLAP,
+        ),
+    ),
+)
 # GCS
-TEST_IMPORT_FILES_CONFIG_GCS = ImportRagFilesConfig()
+TEST_IMPORT_FILES_CONFIG_GCS = ImportRagFilesConfig(
+    rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
+)
 TEST_IMPORT_FILES_CONFIG_GCS.gcs_source.uris = [TEST_GCS_PATH]
-TEST_IMPORT_FILES_CONFIG_GCS.rag_file_parsing_config.use_advanced_pdf_parsing = False
 TEST_IMPORT_REQUEST_GCS = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_GCS,
@@ -226,16 +221,15 @@ TEST_DRIVE_FOLDER = (
 TEST_DRIVE_FOLDER_2 = (
     f"https://drive.google.com/drive/folders/{TEST_DRIVE_FOLDER_ID}?resourcekey=0-eiOT3"
 )
-TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER = ImportRagFilesConfig()
+TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER = ImportRagFilesConfig(
+    rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
+)
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER.google_drive_source.resource_ids = [
     GoogleDriveSource.ResourceId(
         resource_id=TEST_DRIVE_FOLDER_ID,
         resource_type=GoogleDriveSource.ResourceId.ResourceType.RESOURCE_TYPE_FOLDER,
     )
 ]
-TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER.rag_file_parsing_config.use_advanced_pdf_parsing = (
-    False
-)
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING = ImportRagFilesConfig()
 TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING.google_drive_source.resource_ids = [
     GoogleDriveSource.ResourceId(
@@ -243,9 +237,6 @@ TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING.google_drive_source.resource_ids =
         resource_type=GoogleDriveSource.ResourceId.ResourceType.RESOURCE_TYPE_FOLDER,
     )
 ]
-TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING.rag_file_parsing_config.use_advanced_pdf_parsing = (
-    True
-)
 TEST_IMPORT_REQUEST_DRIVE_FOLDER = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER,
@@ -258,11 +249,7 @@ TEST_IMPORT_REQUEST_DRIVE_FOLDER_PARSING = ImportRagFilesRequest(
 TEST_DRIVE_FILE_ID = "456"
 TEST_DRIVE_FILE = f"https://drive.google.com/file/d/{TEST_DRIVE_FILE_ID}"
 TEST_IMPORT_FILES_CONFIG_DRIVE_FILE = ImportRagFilesConfig(
-    rag_file_chunking_config=RagFileChunkingConfig(
-        chunk_size=TEST_CHUNK_SIZE,
-        chunk_overlap=TEST_CHUNK_OVERLAP,
-    ),
-    rag_file_parsing_config=RagFileParsingConfig(use_advanced_pdf_parsing=False),
+    rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
 )
 TEST_IMPORT_FILES_CONFIG_DRIVE_FILE.max_embedding_requests_per_min = 800
 
@@ -317,10 +304,7 @@ TEST_SLACK_SOURCE = SlackChannelsSource(
     ],
 )
 TEST_IMPORT_FILES_CONFIG_SLACK_SOURCE = ImportRagFilesConfig(
-    rag_file_chunking_config=RagFileChunkingConfig(
-        chunk_size=TEST_CHUNK_SIZE,
-        chunk_overlap=TEST_CHUNK_OVERLAP,
-    )
+    rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
 )
 TEST_IMPORT_FILES_CONFIG_SLACK_SOURCE.slack_source.channels = [
     GapicSlackSource.SlackChannels(
@@ -372,10 +356,7 @@ TEST_JIRA_SOURCE = JiraSource(
     ],
 )
 TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE = ImportRagFilesConfig(
-    rag_file_chunking_config=RagFileChunkingConfig(
-        chunk_size=TEST_CHUNK_SIZE,
-        chunk_overlap=TEST_CHUNK_OVERLAP,
-    )
+    rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
 )
 TEST_IMPORT_FILES_CONFIG_JIRA_SOURCE.jira_source.jira_queries = [
     GapicJiraSource.JiraQueries(
@@ -407,10 +388,7 @@ TEST_SHARE_POINT_SOURCE = SharePointSources(
     ],
 )
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE = ImportRagFilesConfig(
-    rag_file_chunking_config=RagFileChunkingConfig(
-        chunk_size=TEST_CHUNK_SIZE,
-        chunk_overlap=TEST_CHUNK_OVERLAP,
-    ),
+    rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     share_point_sources=GapicSharePointSources(
         share_point_sources=[
             GapicSharePointSources.SharePointSource(
@@ -485,10 +463,7 @@ TEST_SHARE_POINT_SOURCE_NO_FOLDERS = SharePointSources(
 )
 
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
-    rag_file_chunking_config=RagFileChunkingConfig(
-        chunk_size=TEST_CHUNK_SIZE,
-        chunk_overlap=TEST_CHUNK_OVERLAP,
-    ),
+    rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     share_point_sources=GapicSharePointSources(
         share_point_sources=[
             GapicSharePointSources.SharePointSource(
@@ -528,4 +503,16 @@ TEST_RAG_RESOURCE = RagResource(
 TEST_RAG_RESOURCE_INVALID_NAME = RagResource(
     rag_corpus="213lkj-1/23jkl/",
     rag_file_ids=[TEST_RAG_FILE_ID],
+)
+TEST_RAG_RETRIEVAL_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5),
+)
+TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_similarity_threshold=0.5),
+)
+TEST_RAG_RETRIEVAL_ERROR_CONFIG = RagRetrievalConfig(
+    top_k=2,
+    filter=Filter(vector_distance_threshold=0.5, vector_similarity_threshold=0.5),
 )

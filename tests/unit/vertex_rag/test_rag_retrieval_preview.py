@@ -73,12 +73,45 @@ class TestRagRetrieval:
 
     @pytest.mark.usefixtures("retrieve_contexts_mock")
     def test_retrieval_query_rag_resources_success(self):
+        with pytest.warns(DeprecationWarning):
+            response = rag.retrieval_query(
+                rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                similarity_top_k=2,
+                vector_distance_threshold=0.5,
+                vector_search_alpha=0.5,
+            )
+            retrieve_contexts_eq(
+                response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+            )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_resources_config_success(self):
         response = rag.retrieval_query(
             rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
             text=test_rag_constants_preview.TEST_QUERY_TEXT,
-            similarity_top_k=2,
-            vector_distance_threshold=0.5,
-            vector_search_alpha=0.5,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_resources_similarity_config_success(self):
+        response = rag.retrieval_query(
+            rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_resources_default_config_success(self):
+        response = rag.retrieval_query(
+            rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
         )
         retrieve_contexts_eq(
             response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
@@ -86,11 +119,45 @@ class TestRagRetrieval:
 
     @pytest.mark.usefixtures("retrieve_contexts_mock")
     def test_retrieval_query_rag_corpora_success(self):
+        with pytest.warns(DeprecationWarning):
+            response = rag.retrieval_query(
+                rag_corpora=[test_rag_constants_preview.TEST_RAG_CORPUS_ID],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                similarity_top_k=2,
+                vector_distance_threshold=0.5,
+            )
+            retrieve_contexts_eq(
+                response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+            )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_corpora_config_success(self):
         response = rag.retrieval_query(
             rag_corpora=[test_rag_constants_preview.TEST_RAG_CORPUS_ID],
             text=test_rag_constants_preview.TEST_QUERY_TEXT,
-            similarity_top_k=2,
-            vector_distance_threshold=0.5,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_corpora_config_rank_service_success(self):
+        response = rag.retrieval_query(
+            rag_corpora=[test_rag_constants_preview.TEST_RAG_CORPUS_ID],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_RANK_SERVICE,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_rag_corpora_config_llm_ranker_success(self):
+        response = rag.retrieval_query(
+            rag_corpora=[test_rag_constants_preview.TEST_RAG_CORPUS_ID],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_LLM_RANKER,
         )
         retrieve_contexts_eq(
             response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
@@ -107,6 +174,16 @@ class TestRagRetrieval:
             )
             e.match("Failed in retrieving contexts due to")
 
+    @pytest.mark.usefixtures("rag_client_mock_exception")
+    def test_retrieval_query_config_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.retrieval_query(
+                rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
+            )
+            e.match("Failed in retrieving contexts due to")
+
     def test_retrieval_query_invalid_name(self):
         with pytest.raises(ValueError) as e:
             rag.retrieval_query(
@@ -116,6 +193,17 @@ class TestRagRetrieval:
                 text=test_rag_constants_preview.TEST_QUERY_TEXT,
                 similarity_top_k=2,
                 vector_distance_threshold=0.5,
+            )
+            e.match("Invalid RagCorpus name")
+
+    def test_retrieval_query_invalid_name_config(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[
+                    test_rag_constants_preview.TEST_RAG_RESOURCE_INVALID_NAME
+                ],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
             )
             e.match("Invalid RagCorpus name")
 
@@ -132,6 +220,18 @@ class TestRagRetrieval:
             )
             e.match("Currently only support 1 RagCorpus")
 
+    def test_retrieval_query_multiple_rag_corpora_config(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_corpora=[
+                    test_rag_constants_preview.TEST_RAG_CORPUS_ID,
+                    test_rag_constants_preview.TEST_RAG_CORPUS_ID,
+                ],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
+            )
+            e.match("Currently only support 1 RagCorpus")
+
     def test_retrieval_query_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
             rag.retrieval_query(
@@ -144,3 +244,40 @@ class TestRagRetrieval:
                 vector_distance_threshold=0.5,
             )
             e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_query_multiple_rag_resources_config(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[
+                    test_rag_constants_preview.TEST_RAG_RESOURCE,
+                    test_rag_constants_preview.TEST_RAG_RESOURCE,
+                ],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG,
+            )
+            e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_query_multiple_rag_resources_similarity_config(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[
+                    test_rag_constants_preview.TEST_RAG_RESOURCE,
+                    test_rag_constants_preview.TEST_RAG_RESOURCE,
+                ],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
+            )
+            e.match("Currently only support 1 RagResource")
+
+    def test_retrieval_query_invalid_config_filter(self):
+        with pytest.raises(ValueError) as e:
+            rag.retrieval_query(
+                rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_ERROR_CONFIG,
+            )
+            e.match(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )

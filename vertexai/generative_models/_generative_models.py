@@ -16,6 +16,7 @@
 # pylint: disable=bad-continuation, line-too-long, protected-access
 
 import copy
+import functools
 import io
 import json
 import pathlib
@@ -398,98 +399,63 @@ class _GenerativeModel:
             labels=labels,
         )
 
-    @property
+    @functools.cached_property
     def _prediction_client(self) -> prediction_service.PredictionServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                self._prediction_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=prediction_service.PredictionServiceClient,
-                        api_key=aiplatform_initializer.global_config.api_key,
-                        prediction_client=True,
-                    )
-                )
-            else:
-                self._prediction_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=prediction_service.PredictionServiceClient,
-                        location_override=self._location,
-                        prediction_client=True,
-                    )
-                )
-        return self._prediction_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service.PredictionServiceClient,
+            prediction_client=True,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _prediction_async_client(
         self,
     ) -> prediction_service.PredictionServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_async_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                raise RuntimeError(
-                    "Using an api key is not supported yet for async clients."
-                )
-            else:
-                self._prediction_async_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=prediction_service.PredictionServiceAsyncClient,
-                        location_override=self._location,
-                        prediction_client=True,
-                    )
-                )
-        return self._prediction_async_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise RuntimeError(
+                "Using an api key is not supported yet for async clients."
+            )
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service.PredictionServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            prediction_client=True,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_client(self) -> llm_utility_service.LlmUtilityServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                self._llm_utility_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=llm_utility_service.LlmUtilityServiceClient,
-                        api_key=aiplatform_initializer.global_config.api_key,
-                    )
-                )
-            else:
-                self._llm_utility_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=llm_utility_service.LlmUtilityServiceClient,
-                        location_override=self._location,
-                    )
-                )
-        return self._llm_utility_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service.PredictionServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_async_client(
         self,
     ) -> llm_utility_service.LlmUtilityServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_async_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                raise RuntimeError(
-                    "Using an api key is not supported yet for async clients."
-                )
-            else:
-                self._llm_utility_async_client_value = (
-                    aiplatform_initializer.global_config.create_client(
-                        client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
-                        location_override=self._location,
-                    )
-                )
-        return self._llm_utility_async_client_value
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise RuntimeError(
+                "Using an api key is not supported yet for async clients."
+            )
+        return aiplatform_initializer.global_config.create_client(
+            client_class=llm_utility_service.LlmUtilityServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
     def _prepare_request(
         self,
@@ -1979,7 +1945,7 @@ class Tool:
     @classmethod
     def from_retrieval(
         cls,
-        retrieval: Union["preview_grounding.Retrieval"],
+        retrieval: Union["grounding.Retrieval"],
     ) -> "Tool":
         raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
         return cls._from_gapic(raw_tool=raw_tool)
@@ -2134,6 +2100,16 @@ class FunctionDeclaration:
                     "location"
                 ]
             },
+            # Optional:
+            response={
+                "type": "object",
+                "properties": {
+                    "weather": {
+                        "type": "string",
+                        "description": "The weather in the city"
+                    },
+                },
+            },
         )
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
@@ -2174,6 +2150,7 @@ class FunctionDeclaration:
         name: str,
         parameters: Dict[str, Any],
         description: Optional[str] = None,
+        response: Dict[str, Any] = None,
     ):
         """Constructs a FunctionDeclaration.
 
@@ -2182,12 +2159,24 @@ class FunctionDeclaration:
             parameters: Describes the parameters to this function in JSON Schema Object format.
             description: Description and purpose of the function.
                 Model uses it to decide how and whether to call the function.
+            response: Describes the response type of this function in JSON Schema format.
         """
         parameters = copy.deepcopy(parameters)
         _fix_schema_dict_for_gapic_in_place(parameters)
         raw_schema = _dict_to_proto(aiplatform_types.Schema, parameters)
+
+        if response:
+            response = copy.deepcopy(response)
+            _fix_schema_dict_for_gapic_in_place(response)
+            raw_response_schema = _dict_to_proto(aiplatform_types.Schema, response)
+        else:
+            raw_response_schema = None
+
         self._raw_function_declaration = gapic_tool_types.FunctionDeclaration(
-            name=name, description=description, parameters=raw_schema
+            name=name,
+            description=description,
+            parameters=raw_schema,
+            response=raw_response_schema,
         )
 
     @classmethod
@@ -2792,16 +2781,6 @@ class grounding:  # pylint: disable=invalid-name
                 else None
             )
 
-
-class preview_grounding:  # pylint: disable=invalid-name
-    """Grounding namespace (preview)."""
-
-    __name__ = "grounding"
-    __module__ = "vertexai.preview.generative_models"
-
-    def __init__(self):
-        raise RuntimeError("This class must not be instantiated.")
-
     class Retrieval:
         """Defines a retrieval tool that model can call to access external knowledge."""
 
@@ -2863,7 +2842,15 @@ class preview_grounding:  # pylint: disable=invalid-name
                 datastore=datastore,
             )
 
-    GoogleSearchRetrieval = grounding.GoogleSearchRetrieval
+
+class preview_grounding(grounding):  # pylint: disable=invalid-name
+    """Grounding namespace (preview)."""
+
+    __name__ = "grounding"
+    __module__ = "vertexai.preview.generative_models"
+
+    def __init__(self):
+        raise RuntimeError("This class must not be instantiated.")
 
 
 def _to_content(
@@ -3226,77 +3213,79 @@ class AutomaticFunctionCallingResponder:
 class GenerativeModel(_GenerativeModel):
     __module__ = "vertexai.generative_models"
 
-    @property
+    @functools.cached_property
     def _prediction_client(self) -> prediction_service_v1.PredictionServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                raise ValueError(
-                    "Api keys are only supported with the preview namespace. "
-                    "Import the preview namespace instead:\n"
-                    "from vertexai.preview import generative_models"
-                )
-            self._prediction_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service_v1.PredictionServiceClient,
-                    location_override=self._location,
-                    prediction_client=True,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._prediction_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service_v1.PredictionServiceClient,
+            location_override=self._location if not api_key else None,
+            prediction_client=True,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _prediction_async_client(
         self,
     ) -> prediction_service_v1.PredictionServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_prediction_async_client_value", None):
-            if (
-                aiplatform_initializer.global_config.api_key
-                and not aiplatform_initializer.global_config.project
-            ):
-                raise ValueError(
-                    "Api keys are only supported with the preview namespace. "
-                    "Import the preview namespace instead:\n"
-                    "from vertexai.preview import generative_models"
-                )
-            self._prediction_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=prediction_service_v1.PredictionServiceAsyncClient,
-                    location_override=self._location,
-                    prediction_client=True,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._prediction_async_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=prediction_service_v1.PredictionServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            prediction_client=True,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_client(self) -> llm_utility_service_v1.LlmUtilityServiceClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_client_value", None):
-            self._llm_utility_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service_v1.LlmUtilityServiceClient,
-                    location_override=self._location,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._llm_utility_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=llm_utility_service_v1.LlmUtilityServiceClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
-    @property
+    @functools.cached_property
     def _llm_utility_async_client(
         self,
     ) -> llm_utility_service_v1.LlmUtilityServiceAsyncClient:
-        # Switch to @functools.cached_property once its available.
-        if not getattr(self, "_llm_utility_async_client_value", None):
-            self._llm_utility_async_client_value = (
-                aiplatform_initializer.global_config.create_client(
-                    client_class=llm_utility_service_v1.LlmUtilityServiceAsyncClient,
-                    location_override=self._location,
-                )
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        if api_key:
+            raise ValueError(
+                "Api keys are only supported with the preview namespace. "
+                "Import the preview namespace instead:\n"
+                "from vertexai.preview import generative_models"
             )
-        return self._llm_utility_async_client_value
+        return aiplatform_initializer.global_config.create_client(
+            client_class=llm_utility_service_v1.LlmUtilityServiceAsyncClient,
+            location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
 
     def _prepare_request(
         self,

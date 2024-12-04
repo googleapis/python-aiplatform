@@ -18,11 +18,13 @@
 
 import re
 from typing import List, Optional, Union
-from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
+
+from google.cloud import aiplatform_v1
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform_v1.types import tool as gapic_tool_types
+from vertexai.preview import generative_models
 from vertexai.rag.utils import _gapic_utils
-from vertexai.rag.utils.resources import RagResource
-from vertexai import generative_models
+from vertexai.rag.utils import resources
 
 
 class Retrieval(generative_models.grounding.Retrieval):
@@ -44,10 +46,8 @@ class VertexRagStore:
 
     def __init__(
         self,
-        rag_resources: Optional[List[RagResource]] = None,
-        rag_corpora: Optional[List[str]] = None,
-        similarity_top_k: Optional[int] = 10,
-        vector_distance_threshold: Optional[float] = 0.3,
+        rag_resources: Optional[List[resources.RagResource]] = None,
+        rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
     ):
         """Initializes a Vertex RAG store tool.
 
@@ -57,14 +57,20 @@ class VertexRagStore:
 
         vertexai.init(project="my-project")
 
-        results = vertexai.preview.rag.retrieval_query(
-            text="Why is the sky blue?",
-            rag_resources=[vertexai.preview.rag.RagResource(
-                rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
-                rag_file_ids=["rag-file-1", "rag-file-2", ...],
-            )],
-            similarity_top_k=2,
-            vector_distance_threshold=0.5,
+        config = vertexai.rag.RagRetrievalConfig(
+            top_k=2,
+            filter=vertexai.rag.RagRetrievalConfig.Filter(
+                vector_distance_threshold=0.5
+            ),
+        )
+
+        tool = Tool.from_retrieval(
+            retrieval=vertexai.rag.Retrieval(
+                source=vertexai.rag.VertexRagStore(
+                    rag_corpora=["projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1"],
+                    rag_retrieval_config=config,
+                ),
+            )
         )
         ```
 
@@ -73,25 +79,16 @@ class VertexRagStore:
                 to specify corpus only or ragfiles. Currently only support one
                 corpus or multiple files from one corpus. In the future we
                 may open up multiple corpora support.
-            rag_corpora: If rag_resources is not specified, use rag_corpora as a
-                list of rag corpora names.
-            similarity_top_k: Number of top k results to return from the selected
-                corpora.
-            vector_distance_threshold (float):
-                Optional. Only return results with vector distance smaller than the threshold.
-
+            rag_retrieval_config: Optional. The config containing the retrieval
+                parameters, including similarity_top_k and vector_distance_threshold.
         """
 
         if rag_resources:
             if len(rag_resources) > 1:
                 raise ValueError("Currently only support 1 RagResource.")
             name = rag_resources[0].rag_corpus
-        elif rag_corpora:
-            if len(rag_corpora) > 1:
-                raise ValueError("Currently only support 1 RagCorpus.")
-            name = rag_corpora[0]
         else:
-            raise ValueError("rag_resources or rag_corpora must be specified.")
+            raise ValueError("rag_resources must be specified.")
 
         data_client = _gapic_utils.create_rag_data_service_client()
         if data_client.parse_rag_corpus_path(name):
@@ -101,9 +98,36 @@ class VertexRagStore:
             rag_corpus_name = parent + "/ragCorpora/" + name
         else:
             raise ValueError(
-                "Invalid RagCorpus name: %s. Proper format should be: projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}",
-                rag_corpora,
+                f"Invalid RagCorpus name: {name}. Proper format should be:"
+                " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
             )
+
+        # If rag_retrieval_config is not specified, set it to default values.
+        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
+        # If rag_retrieval_config is specified, populate the default config.
+        if rag_retrieval_config:
+            api_retrieval_config.top_k = rag_retrieval_config.top_k
+            # Set vector_distance_threshold to config value if specified
+            if rag_retrieval_config.filter:
+                # Check if both vector_distance_threshold and
+                # vector_similarity_threshold are specified.
+                if (
+                    rag_retrieval_config.filter
+                    and rag_retrieval_config.filter.vector_distance_threshold
+                    and rag_retrieval_config.filter.vector_similarity_threshold
+                ):
+                    raise ValueError(
+                        "Only one of vector_distance_threshold or"
+                        " vector_similarity_threshold can be specified at a time"
+                        " in rag_retrieval_config."
+                    )
+                api_retrieval_config.filter.vector_distance_threshold = (
+                    rag_retrieval_config.filter.vector_distance_threshold
+                )
+                api_retrieval_config.filter.vector_similarity_threshold = (
+                    rag_retrieval_config.filter.vector_similarity_threshold
+                )
+
         if rag_resources:
             gapic_rag_resource = gapic_tool_types.VertexRagStore.RagResource(
                 rag_corpus=rag_corpus_name,
@@ -111,12 +135,10 @@ class VertexRagStore:
             )
             self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
                 rag_resources=[gapic_rag_resource],
-                similarity_top_k=similarity_top_k,
-                vector_distance_threshold=vector_distance_threshold,
+                rag_retrieval_config=api_retrieval_config,
             )
         else:
             self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
                 rag_corpora=[rag_corpus_name],
-                similarity_top_k=similarity_top_k,
-                vector_distance_threshold=vector_distance_threshold,
+                rag_retrieval_config=api_retrieval_config,
             )
