@@ -16,7 +16,21 @@
 from vertexai.prompts._prompts import (
     Prompt,
 )
+from vertexai.prompts._prompt_management import (
+    create_version,
+    delete,
+    get,
+    list_prompts as list,
+    list_versions,
+    restore_version,
+)
 
 __all__ = [
     "Prompt",
+    "delete",
+    "create_version",
+    "get",
+    "list",
+    "list_versions",
+    "restore_version",
 ]
