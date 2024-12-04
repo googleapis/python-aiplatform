@@ -285,7 +285,7 @@ class _ExperimentTracker:
                 f"{self.experiment.resource_name}-",
                 "",
             )
-            self._experiment_run = experiment_run_resource.ExperimentRun(
+            self._experiment_run = experiment_run_resource.ExperimentRun.get(
                 env_experiment_run,
                 experiment=self.experiment,
             )
