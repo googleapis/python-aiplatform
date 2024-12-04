@@ -5455,6 +5455,7 @@ def test_get_notebook_execution_job(request_type, transport: str = 'grpc'):
             display_name='display_name_value',
             schedule_resource_name='schedule_resource_name_value',
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name='kernel_name_value',
             notebook_runtime_template_resource_name='notebook_runtime_template_resource_name_value',
             gcs_output_uri='gcs_output_uri_value',
             execution_user='execution_user_value',
@@ -5473,6 +5474,7 @@ def test_get_notebook_execution_job(request_type, transport: str = 'grpc'):
     assert response.display_name == 'display_name_value'
     assert response.schedule_resource_name == 'schedule_resource_name_value'
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == 'kernel_name_value'
 
 
 def test_get_notebook_execution_job_non_empty_request_with_auto_populated_field():
@@ -5589,6 +5591,7 @@ async def test_get_notebook_execution_job_async(transport: str = 'grpc_asyncio',
             display_name='display_name_value',
             schedule_resource_name='schedule_resource_name_value',
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name='kernel_name_value',
         ))
         response = await client.get_notebook_execution_job(request)
 
@@ -5604,6 +5607,7 @@ async def test_get_notebook_execution_job_async(transport: str = 'grpc_asyncio',
     assert response.display_name == 'display_name_value'
     assert response.schedule_resource_name == 'schedule_resource_name_value'
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == 'kernel_name_value'
 
 
 @pytest.mark.asyncio
@@ -10318,6 +10322,7 @@ async def test_get_notebook_execution_job_empty_call_grpc_asyncio():
             display_name='display_name_value',
             schedule_resource_name='schedule_resource_name_value',
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name='kernel_name_value',
         ))
         await client.get_notebook_execution_job(request=None)
 
@@ -11758,7 +11763,7 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["notebook_execution_job"] = {'dataform_repository_source': {'dataform_repository_resource_name': 'dataform_repository_resource_name_value', 'commit_sha': 'commit_sha_value'}, 'gcs_notebook_source': {'uri': 'uri_value', 'generation': 'generation_value'}, 'direct_notebook_source': {'content': b'content_blob'}, 'notebook_runtime_template_resource_name': 'notebook_runtime_template_resource_name_value', 'custom_environment_spec': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'persistent_disk_spec': {'disk_type': 'disk_type_value', 'disk_size_gb': 1261}, 'network_spec': {'enable_internet_access': True, 'network': 'network_value', 'subnetwork': 'subnetwork_value'}}, 'gcs_output_uri': 'gcs_output_uri_value', 'execution_user': 'execution_user_value', 'service_account': 'service_account_value', 'name': 'name_value', 'display_name': 'display_name_value', 'execution_timeout': {'seconds': 751, 'nanos': 543}, 'schedule_resource_name': 'schedule_resource_name_value', 'job_state': 1, 'status': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'update_time': {}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
+    request_init["notebook_execution_job"] = {'dataform_repository_source': {'dataform_repository_resource_name': 'dataform_repository_resource_name_value', 'commit_sha': 'commit_sha_value'}, 'gcs_notebook_source': {'uri': 'uri_value', 'generation': 'generation_value'}, 'direct_notebook_source': {'content': b'content_blob'}, 'notebook_runtime_template_resource_name': 'notebook_runtime_template_resource_name_value', 'custom_environment_spec': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'persistent_disk_spec': {'disk_type': 'disk_type_value', 'disk_size_gb': 1261}, 'network_spec': {'enable_internet_access': True, 'network': 'network_value', 'subnetwork': 'subnetwork_value'}}, 'gcs_output_uri': 'gcs_output_uri_value', 'execution_user': 'execution_user_value', 'service_account': 'service_account_value', 'workbench_runtime': {}, 'name': 'name_value', 'display_name': 'display_name_value', 'execution_timeout': {'seconds': 751, 'nanos': 543}, 'schedule_resource_name': 'schedule_resource_name_value', 'job_state': 1, 'status': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'update_time': {}, 'labels': {}, 'kernel_name': 'kernel_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -11926,6 +11931,7 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
               display_name='display_name_value',
               schedule_resource_name='schedule_resource_name_value',
               job_state=job_state.JobState.JOB_STATE_QUEUED,
+              kernel_name='kernel_name_value',
             notebook_runtime_template_resource_name='notebook_runtime_template_resource_name_value',
             gcs_output_uri='gcs_output_uri_value',
             execution_user='execution_user_value',
@@ -11948,6 +11954,7 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
     assert response.display_name == 'display_name_value'
     assert response.schedule_resource_name == 'schedule_resource_name_value'
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == 'kernel_name_value'
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -14535,7 +14542,7 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
 
     # send a request that will satisfy transcoding
     request_init = {'parent': 'projects/sample1/locations/sample2'}
-    request_init["notebook_execution_job"] = {'dataform_repository_source': {'dataform_repository_resource_name': 'dataform_repository_resource_name_value', 'commit_sha': 'commit_sha_value'}, 'gcs_notebook_source': {'uri': 'uri_value', 'generation': 'generation_value'}, 'direct_notebook_source': {'content': b'content_blob'}, 'notebook_runtime_template_resource_name': 'notebook_runtime_template_resource_name_value', 'custom_environment_spec': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'persistent_disk_spec': {'disk_type': 'disk_type_value', 'disk_size_gb': 1261}, 'network_spec': {'enable_internet_access': True, 'network': 'network_value', 'subnetwork': 'subnetwork_value'}}, 'gcs_output_uri': 'gcs_output_uri_value', 'execution_user': 'execution_user_value', 'service_account': 'service_account_value', 'name': 'name_value', 'display_name': 'display_name_value', 'execution_timeout': {'seconds': 751, 'nanos': 543}, 'schedule_resource_name': 'schedule_resource_name_value', 'job_state': 1, 'status': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'update_time': {}, 'labels': {}, 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
+    request_init["notebook_execution_job"] = {'dataform_repository_source': {'dataform_repository_resource_name': 'dataform_repository_resource_name_value', 'commit_sha': 'commit_sha_value'}, 'gcs_notebook_source': {'uri': 'uri_value', 'generation': 'generation_value'}, 'direct_notebook_source': {'content': b'content_blob'}, 'notebook_runtime_template_resource_name': 'notebook_runtime_template_resource_name_value', 'custom_environment_spec': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'tpu_topology': 'tpu_topology_value', 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}}, 'persistent_disk_spec': {'disk_type': 'disk_type_value', 'disk_size_gb': 1261}, 'network_spec': {'enable_internet_access': True, 'network': 'network_value', 'subnetwork': 'subnetwork_value'}}, 'gcs_output_uri': 'gcs_output_uri_value', 'execution_user': 'execution_user_value', 'service_account': 'service_account_value', 'workbench_runtime': {}, 'name': 'name_value', 'display_name': 'display_name_value', 'execution_timeout': {'seconds': 751, 'nanos': 543}, 'schedule_resource_name': 'schedule_resource_name_value', 'job_state': 1, 'status': {'code': 411, 'message': 'message_value', 'details': [{'type_url': 'type.googleapis.com/google.protobuf.Duration', 'value': b'\x08\x0c\x10\xdb\x07'}]}, 'create_time': {'seconds': 751, 'nanos': 543}, 'update_time': {}, 'labels': {}, 'kernel_name': 'kernel_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
@@ -14710,6 +14717,7 @@ async def test_get_notebook_execution_job_rest_asyncio_call_success(request_type
               display_name='display_name_value',
               schedule_resource_name='schedule_resource_name_value',
               job_state=job_state.JobState.JOB_STATE_QUEUED,
+              kernel_name='kernel_name_value',
             notebook_runtime_template_resource_name='notebook_runtime_template_resource_name_value',
             gcs_output_uri='gcs_output_uri_value',
             execution_user='execution_user_value',
@@ -14732,6 +14740,7 @@ async def test_get_notebook_execution_job_rest_asyncio_call_success(request_type
     assert response.display_name == 'display_name_value'
     assert response.schedule_resource_name == 'schedule_resource_name_value'
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == 'kernel_name_value'
 
 
 @pytest.mark.asyncio
