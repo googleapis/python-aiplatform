@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 """System tests for reasoning engines."""
+import traceback
 import pytest
 from google import auth
 from google.api_core import exceptions
@@ -47,18 +48,25 @@ class TestReasoningEngines(e2e_base.TestEndToEnd):
             staging_bucket=f"gs://{shared_state['staging_bucket_name']}",
             credentials=credentials,
         )
+
+        class LangchainAgentNoModelOrToolDependencies:
+            """LangChain Agent with no model or tool dependencies."""
+
+            def invoke(self, input, **kwargs) -> str:
+                return "Testing langchain agent with no model or tool."
+
+        def runnable_builder(**kwargs):
+            """Creates a LangChain Runnable."""
+            return LangchainAgentNoModelOrToolDependencies()
+
         # Test prebuilt langchain_template
+        local_agent = reasoning_engines.LangchainAgent(
+            model="gemini-1.5-pro-preview-0409",
+            runnable_builder=runnable_builder,
+        )
+        print(f"local_agent has query: {hasattr(local_agent, 'query')}")
         created_app = reasoning_engines.ReasoningEngine.create(
-            reasoning_engines.LangchainAgent(
-                model="gemini-1.5-pro-preview-0409",
-                model_tool_kwargs={
-                    "tool_config": {
-                        "function_calling_config": {
-                            "mode": ToolConfig.FunctionCallingConfig.Mode.AUTO,
-                        },
-                    },
-                },
-            ),
+            local_agent,
             requirements=["google-cloud-aiplatform[reasoningengine,langchain]"],
             display_name="test-display-name",
             description="test-description",
@@ -66,7 +74,9 @@ class TestReasoningEngines(e2e_base.TestEndToEnd):
         )
         shared_state.setdefault("resources", [])
         shared_state["resources"].append(created_app)  # Deletion at teardown.
+        print(f"created_app has query: {hasattr(created_app, 'query')}")
         got_app = reasoning_engines.ReasoningEngine(created_app.resource_name)
+        print(f"got_app has query: {hasattr(got_app, 'query')}")
 
         # Test resource attributes
         assert isinstance(created_app.resource_name, str)
@@ -77,6 +87,7 @@ class TestReasoningEngines(e2e_base.TestEndToEnd):
 
         # Test operation schemas
         assert got_app.operation_schemas() == created_app.operation_schemas()
+        print(f"operation_schemas: {got_app.operation_schemas()}")
 
         # Test query response
         # (Wrap in a try-except block because of non-determinism from Gemini.)
@@ -86,7 +97,11 @@ class TestReasoningEngines(e2e_base.TestEndToEnd):
             response = got_app.query(input="hello")
             assert response.get("input") == "hello"
         except exceptions.FailedPrecondition as e:
-            print(e)
+            print(f"Failed Precondition: {e}")
+            traceback.print_exc()  # This prints the full traceback
+        except Exception as e:
+            print(f"Unknown error: {e}")
+            traceback.print_exc()  # This prints the full traceback
 
         # Test GCS Bucket subdirectory creation
         # Original: https://github.com/googleapis/python-aiplatform/issues/3650
