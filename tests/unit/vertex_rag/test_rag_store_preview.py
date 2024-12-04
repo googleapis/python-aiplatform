@@ -73,6 +73,30 @@ class TestRagStore:
                 )
             )
 
+    def test_empty_retrieval_tool_success(self):
+        tool = Tool.from_retrieval(
+            retrieval=rag.Retrieval(
+                source=rag.VertexRagStore(
+                    rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+                    rag_retrieval_config=rag.RagRetrievalConfig(),
+                    similarity_top_k=3,
+                    vector_distance_threshold=0.4,
+                ),
+            )
+        )
+        assert tool is not None
+
+    def test_retrieval_tool_no_rag_resources(self):
+        with pytest.raises(ValueError) as e:
+            Tool.from_retrieval(
+                retrieval=rag.Retrieval(
+                    source=rag.VertexRagStore(
+                        rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
+                    ),
+                )
+            )
+            e.match("rag_resources or rag_corpora must be specified.")
+
     def test_retrieval_tool_invalid_name(self):
         with pytest.raises(ValueError) as e:
             Tool.from_retrieval(

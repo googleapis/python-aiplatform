@@ -19,10 +19,10 @@
 import re
 from typing import List, Optional, Union
 
-from google.cloud import aiplatform_v1
+from google.cloud import aiplatform_v1beta1
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1.types import tool as gapic_tool_types
-from vertexai.preview import generative_models
+from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
+from vertexai import generative_models
 from vertexai.rag.utils import _gapic_utils
 from vertexai.rag.utils import resources
 
@@ -103,7 +103,7 @@ class VertexRagStore:
             )
 
         # If rag_retrieval_config is not specified, set it to default values.
-        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
+        api_retrieval_config = aiplatform_v1beta1.RagRetrievalConfig()
         # If rag_retrieval_config is specified, populate the default config.
         if rag_retrieval_config:
             api_retrieval_config.top_k = rag_retrieval_config.top_k
@@ -128,17 +128,11 @@ class VertexRagStore:
                     rag_retrieval_config.filter.vector_similarity_threshold
                 )
 
-        if rag_resources:
-            gapic_rag_resource = gapic_tool_types.VertexRagStore.RagResource(
-                rag_corpus=rag_corpus_name,
-                rag_file_ids=rag_resources[0].rag_file_ids,
-            )
-            self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
-                rag_resources=[gapic_rag_resource],
-                rag_retrieval_config=api_retrieval_config,
-            )
-        else:
-            self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
-                rag_corpora=[rag_corpus_name],
-                rag_retrieval_config=api_retrieval_config,
-            )
+        gapic_rag_resource = gapic_tool_types.VertexRagStore.RagResource(
+            rag_corpus=rag_corpus_name,
+            rag_file_ids=rag_resources[0].rag_file_ids,
+        )
+        self._raw_vertex_rag_store = gapic_tool_types.VertexRagStore(
+            rag_resources=[gapic_rag_resource],
+            rag_retrieval_config=api_retrieval_config,
+        )
