@@ -382,14 +382,18 @@ TENSORBOARD_PLUGIN_PROFILE_NAME = "profile"
 # Vector Search
 VECTOR_SEARCH_INDEX = "123"
 VECTOR_SEARCH_INDEX_DATAPOINTS = [
-    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_1", feature_vector=[0.1, 0.2]),
-    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_2", feature_vector=[0.3, 0.4]),
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(
+        datapoint_id="datapoint_id_1", feature_vector=[0.1, 0.2]
+    ),
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(
+        datapoint_id="datapoint_id_2", feature_vector=[0.3, 0.4]
+    ),
 ]
 VECTOR_SEARCH_INDEX_DATAPOINT_IDS = ["datapoint_id_1", "datapoint_id_2"]
 VECTOR_SEARCH_INDEX_ENDPOINT = "456"
 VECTOR_SEARCH_DEPLOYED_INDEX_ID = "789"
-VECTOR_SERACH_INDEX_QUERIES = [[0.1]]
-VECTOR_SERACH_INDEX_HYBRID_QUERIES = [
+VECTOR_SEARCH_INDEX_QUERIES = [[0.1]]
+VECTOR_SEARCH_INDEX_HYBRID_QUERIES = [
     aiplatform.matching_engine.matching_engine_index_endpoint.HybridQuery(
         dense_embedding=[1, 2, 3],
         sparse_embedding_dimensions=[10, 20, 30],
@@ -409,6 +413,20 @@ VECTOR_SERACH_INDEX_HYBRID_QUERIES = [
         dense_embedding=[1, 2, 3]
     ),
 ]
+VECTOR_SEARCH_FILTER = [
+    aiplatform.matching_engine.matching_engine_index_endpoint.Namespace(
+        "color", ["red"], []
+    ),
+    aiplatform.matching_engine.matching_engine_index_endpoint.Namespace(
+        "shape", [], ["squared"]
+    ),
+]
+VECTOR_SEARCH_NUMERIC_FILTER = [
+    aiplatform.matching_engine.matching_engine_index_endpoint.NumericNamespace(
+        name="cost", value_int=5, op="GREATER"
+    )
+]
+VECTOR_SEARCH_PER_CROWDING_ATTRIBUTE_NEIGHBOR_COUNT = 5
 VECTOR_SEARCH_INDEX_DISPLAY_NAME = "my-vector-search-index"
 VECTOR_SEARCH_INDEX_DESCRIPTION = "test description"
 VECTOR_SEARCH_INDEX_LABELS = {"my_key": "my_value"}
