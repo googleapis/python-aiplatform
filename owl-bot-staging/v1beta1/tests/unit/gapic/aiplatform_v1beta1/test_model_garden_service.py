@@ -1805,7 +1805,7 @@ def test_list_publisher_models_rest_required_fields(request_type=model_garden_se
 
     unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_publisher_models._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("filter", "language_code", "order_by", "page_size", "page_token", "view", ))
+    assert not set(unset_fields) - set(("filter", "language_code", "list_all_versions", "order_by", "page_size", "page_token", "view", ))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -1859,7 +1859,7 @@ def test_list_publisher_models_rest_unset_required_fields():
     transport = transports.ModelGardenServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.list_publisher_models._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("filter", "languageCode", "orderBy", "pageSize", "pageToken", "view", )) & set(("parent", )))
+    assert set(unset_fields) == (set(("filter", "languageCode", "listAllVersions", "orderBy", "pageSize", "pageToken", "view", )) & set(("parent", )))
 
 
 def test_list_publisher_models_rest_flattened():

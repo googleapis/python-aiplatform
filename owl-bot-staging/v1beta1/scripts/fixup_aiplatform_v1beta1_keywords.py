@@ -278,7 +278,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'list_optimal_trials': ('parent', ),
         'list_persistent_resources': ('parent', 'page_size', 'page_token', ),
         'list_pipeline_jobs': ('parent', 'filter', 'page_size', 'page_token', 'order_by', 'read_mask', ),
-        'list_publisher_models': ('parent', 'filter', 'page_size', 'page_token', 'view', 'order_by', 'language_code', ),
+        'list_publisher_models': ('parent', 'filter', 'page_size', 'page_token', 'view', 'order_by', 'language_code', 'list_all_versions', ),
         'list_rag_corpora': ('parent', 'page_size', 'page_token', ),
         'list_rag_files': ('parent', 'page_size', 'page_token', ),
         'list_reasoning_engines': ('parent', 'filter', 'page_size', 'page_token', ),
