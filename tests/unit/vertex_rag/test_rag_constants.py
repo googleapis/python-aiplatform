@@ -163,8 +163,10 @@ TEST_GCS_PATH = "gs://usr/home/data_dir/"
 TEST_FILE_DISPLAY_NAME = "my-file.txt"
 TEST_FILE_DESCRIPTION = "my file."
 TEST_HEADERS = {"X-Goog-Upload-Protocol": "multipart"}
-TEST_UPLOAD_REQUEST_URI = "https://{}/upload/v1/projects/{}/locations/{}/ragCorpora/{}/ragFiles:upload".format(
-    TEST_API_ENDPOINT, TEST_PROJECT_NUMBER, TEST_REGION, TEST_RAG_CORPUS_ID
+TEST_UPLOAD_REQUEST_URI = (
+    "https://{}/v1/projects/{}/locations/{}/ragCorpora/{}/ragFiles:upload".format(
+        TEST_API_ENDPOINT, TEST_PROJECT_NUMBER, TEST_REGION, TEST_RAG_CORPUS_ID
+    )
 )
 TEST_RAG_FILE_ID = "generate-456"
 TEST_RAG_FILE_RESOURCE_NAME = (

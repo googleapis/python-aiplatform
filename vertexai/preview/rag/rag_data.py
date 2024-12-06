@@ -409,9 +409,14 @@ def upload_file(
     if display_name is None:
         display_name = "vertex-" + utils.timestamped_unique_name()
     headers = {"X-Goog-Upload-Protocol": "multipart"}
-    upload_request_uri = "https://{}-{}/upload/v1beta1/{}/ragFiles:upload".format(
-        location,
-        aiplatform.constants.base.API_BASE_PATH,
+    if not initializer.global_config.api_endpoint:
+        request_endpoint = "{}-{}".format(
+            location, aiplatform.constants.base.API_BASE_PATH
+        )
+    else:
+        request_endpoint = initializer.global_config.api_endpoint
+    upload_request_uri = "https://{}/v1beta1/{}/ragFiles:upload".format(
+        request_endpoint,
         corpus_name,
     )
     js_rag_file = {"rag_file": {"display_name": display_name}}
@@ -448,7 +453,9 @@ def upload_file(
         raise RuntimeError("Failed in uploading the RagFile due to: ", e) from e
 
     if response.status_code == 404:
-        raise ValueError("RagCorpus '%s' is not found.", corpus_name)
+        raise ValueError(
+            "RagCorpus '%s' is not found: %s", corpus_name, upload_request_uri
+        )
     if response.json().get("error"):
         raise RuntimeError(
             "Failed in indexing the RagFile due to: ", response.json().get("error")
