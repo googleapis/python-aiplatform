@@ -252,6 +252,11 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0dev, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
         "shapely < 3.0.0dev",
+        "opentelemetry-sdk < 2",
+        "opentelemetry-api >= 1.28.0, < 2",
+        "opentelemetry-instrumentation",
+        "opentelemetry-semantic-conventions",
+        "opentelemetry-semantic-conventions-ai",
     )
     + genai_requires,
     extras_require={
