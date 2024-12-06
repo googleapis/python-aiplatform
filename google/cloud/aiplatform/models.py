@@ -252,6 +252,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
         required_replica_count: Optional[int] = 0,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -332,6 +333,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
 
         Returns:
             DeploymentResourcePool
@@ -363,6 +367,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             create_request_timeout=create_request_timeout,
             required_replica_count=required_replica_count,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
     @classmethod
@@ -389,6 +394,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         required_replica_count: Optional[int] = 0,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -472,6 +478,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
 
         Returns:
             DeploymentResourcePool
@@ -505,6 +514,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 [autoscaling_metric_spec]
             )
 
+        # TODO(joelletiangco): accelerator_type present here
         if accelerator_type and accelerator_count:
             utils.validate_accelerator_type(accelerator_type)
             machine_spec.accelerator_type = accelerator_type
@@ -1327,6 +1337,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        multihost_gpu_node_count: Optional[int] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -1399,6 +1410,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -1500,6 +1514,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            multihost_gpu_node_count=multihost_gpu_node_count,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
             reservation_affinity_values=reservation_affinity_values,
@@ -1532,6 +1547,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        multihost_gpu_node_count: Optional[int] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
@@ -1601,6 +1617,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
             reservation_affinity_type (str):
                 Optional. The type of reservation affinity.
                 One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
@@ -1686,6 +1705,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            multihost_gpu_node_count=multihost_gpu_node_count,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
             reservation_affinity_values=reservation_affinity_values,
@@ -1725,6 +1745,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        multihost_gpu_node_count: Optional[int] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
@@ -1803,6 +1824,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
             reservation_affinity_type (str):
                 Optional. The type of reservation affinity.
                 One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
@@ -2029,6 +2053,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
                 if tpu_topology is not None:
                     machine_spec.tpu_topology = tpu_topology
+
+                if multihost_gpu_node_count is not None:
+                    machine_spec.multihost_gpu_node_count = multihost_gpu_node_count
 
                 dedicated_resources.machine_spec = machine_spec
                 deployed_model.dedicated_resources = dedicated_resources
@@ -4012,6 +4039,7 @@ class PrivateEndpoint(Endpoint):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        multihost_gpu_node_count: Optional[int] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -4089,6 +4117,9 @@ class PrivateEndpoint(Endpoint):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Required for CloudTPU multihost deployments.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -4190,6 +4221,7 @@ class PrivateEndpoint(Endpoint):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            multihost_gpu_node_count=multihost_gpu_node_count,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
             reservation_affinity_values=reservation_affinity_values,
@@ -5241,6 +5273,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        multihost_gpu_node_count: Optional[int] = None,
         service_account: Optional[str] = None,
         explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[
@@ -5318,6 +5351,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Requireid for CloudTPU multihost deployments.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
             service_account (str):
                 The service account that the DeployedModel's container runs as. Specify the
                 email address of the service account. If this service account is not
@@ -5462,6 +5498,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            multihost_gpu_node_count=multihost_gpu_node_count,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
             reservation_affinity_values=reservation_affinity_values,
@@ -5505,6 +5542,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
+        multihost_gpu_node_count: Optional[int] = None,
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
@@ -5579,6 +5617,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             tpu_topology (str):
                 Optional. The TPU topology to use for the DeployedModel.
                 Requireid for CloudTPU multihost deployments.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU DeployedModel.
+                Required for multihost GPU deployments.
             reservation_affinity_type (str):
                 Optional. The type of reservation affinity.
                 One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
@@ -5713,6 +5754,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
+            multihost_gpu_node_count=multihost_gpu_node_count,
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
             reservation_affinity_values=reservation_affinity_values,
