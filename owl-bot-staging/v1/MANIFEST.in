@@ -1,0 +1,2 @@
+recursive-include google/cloud/aiplatform/v1/schema/trainingjob/definition *.py
+recursive-include google/cloud/aiplatform/v1/schema/trainingjob/definition_v1 *.py
