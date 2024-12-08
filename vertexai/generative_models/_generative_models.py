@@ -2306,6 +2306,10 @@ class GenerationResponse:
 
     # GenerationPart properties
     @property
+    def is_single_text(self) -> bool:
+        return len(self.candidates) == 1 and self.candidates[0].is_single_text
+
+    @property
     def text(self) -> str:
         if len(self.candidates) > 1:
             raise ValueError(
@@ -2406,6 +2410,10 @@ class Candidate:
 
     # GenerationPart properties
     @property
+    def is_single_text(self) -> bool:
+        return self.content.is_single_text
+
+    @property
     def text(self) -> str:
         try:
             return self.content.text
@@ -2481,6 +2489,10 @@ class Content:
         self._raw_content.role = role
 
     # GenerationPart properties
+    @property
+    def is_single_text(self) -> bool:
+        return len(self.parts) == 1 and self.parts[0].is_text
+
     @property
     def text(self) -> str:
         if len(self.parts) > 1:
@@ -2572,6 +2584,10 @@ class Part:
 
     def to_dict(self) -> Dict[str, Any]:
         return _proto_to_dict(self._raw_part)
+
+    @property
+    def is_text(self) -> bool:
+        return "text" in self._raw_part
 
     @property
     def text(self) -> str:
