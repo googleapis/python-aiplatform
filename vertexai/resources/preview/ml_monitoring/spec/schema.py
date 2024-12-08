@@ -19,7 +19,10 @@ import json
 import logging
 import os
 from typing import Dict, List, MutableSequence, Optional
+from google.auth import credentials as auth_credentials
 from google.cloud import bigquery
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     model_monitor_v1beta1 as model_monitor,
 )
@@ -32,6 +35,8 @@ try:
     import tensorflow as tf
 except ImportError:
     tf = None
+
+ROWS_LIMIT = 100
 
 
 class FieldSchema:
@@ -438,4 +443,105 @@ def transform_schema_from_json(
             dict_dataset, feature_fields, ground_truth_fields, prediction_fields
         )
         f.close()
+    return monitoring_schema
+
+
+def transform_schema_from_endpoint_logging(
+    endpoint: str,
+    feature_fields: list[str] | None = None,
+    ground_truth_fields: list[str] | None = None,
+    prediction_fields: list[str] | None = None,
+    location: str | None = None,
+    credentials: auth_credentials.Credentials | None = None,
+) -> ModelMonitoringSchema:
+    """Transform the existing endpoint's logging table to ModelMonitoringSchema as model monitor could accept.
+
+    Args:
+        endpoint:
+            Required. The uri of endpoint for the logging table.
+        feature_fields:
+            Optional. The input feature fields for given dataset.
+            By default all features we find would be the input features.
+        ground_truth_fields:
+            Optional. The ground truth fields for given dataset.
+            By default all features we find would be the input features.
+        prediction_fields:
+            Optional. The prediction output field for given dataset.
+            By default all features we find would be the input features.
+        location:
+            Optional. Location to retrieve endpoint from. If not set,
+            location set in aiplatform.init will be used.
+        credentials:
+            Optional. Custom credentials to use to get endpoint.
+            Overrides credentials set in aiplatform.init.
+    """
+    api_client = initializer.global_config.create_client(
+        client_class=utils.EndpointClientWithOverride,
+        credentials=credentials,
+        location_override=location,
+    )
+    user_endpoint = api_client.select_version("v1beta1").get_endpoint(name=endpoint)
+    logging_config = user_endpoint.predict_request_response_logging_config
+    if not logging_config.enabled:
+        raise ValueError("The logging for the endpoint provided is not enabled.")
+    try:
+        if logging_config.bigquery_destination.output_uri.startswith("bq://"):
+            table_uri = (
+                logging_config.bigquery_destination.output_uri[len("bq://") :])
+        else:
+            table_uri = logging_config.bigquery_destination.output_uri
+        client = bigquery.Client()
+        table = client.get_table(table_uri)
+        rows = client.list_rows(
+                table=table_uri,
+                selected_fields=table.schema[-2:],
+                max_results=ROWS_LIMIT)
+    except Exception as e:
+        raise ValueError(
+            "Failed to get logging table from endpoint provided.") from e
+    request_response_dict = dict()
+    for row in rows:
+        if row["request_payload"]:
+            request_row = json.loads(row["request_payload"][0])
+            if not isinstance(request_row, dict):
+                raise ValueError("Supports only parsing JSON in dictionary format.")
+            for field in request_row:
+                if (not request_response_dict.get(field)) and isinstance(
+                        request_row[field], list):
+                    request_response_dict[field] = request_row[field]
+                elif not request_response_dict.get(field):
+                    request_response_dict[field] = [request_row[field]]
+                elif isinstance(request_row[field], list):
+                    request_response_dict[field] += request_row[field]
+                else:
+                    request_response_dict[field].append(request_row[field])
+        if row["response_payload"]:
+            response_row = json.loads(row["response_payload"][0])
+            if not isinstance(response_row, dict):
+                raise ValueError("Supports only parsing JSON in dictionary format.")
+            for field in response_row:
+                if (not request_response_dict.get(field)) and isinstance(
+                        response_row[field], list):
+                    request_response_dict[field] = response_row[field]
+                elif not request_response_dict.get(field):
+                    request_response_dict[field] = [response_row[field]]
+                elif isinstance(response_row[field], list):
+                    request_response_dict[field] += response_row[field]
+                else:
+                    request_response_dict[field].append(response_row[field])
+    if not request_response_dict:
+        raise ValueError("No request and response payload found.")
+    try:
+        df = pd.DataFrame.from_dict(
+                dict([(k, pd.Series(v)) for k, v in request_response_dict.items()]))
+    except Exception as e:
+        raise ValueError(
+                "Failed to convert request and response payload to dataframe.") from e
+    for field in df.columns:
+        request_response_dict[field] = df.convert_dtypes().dtypes[field]
+    monitoring_schema = _transform_schema_pandas(
+            request_response_dict,
+            feature_fields,
+            ground_truth_fields,
+            prediction_fields)
     return monitoring_schema
