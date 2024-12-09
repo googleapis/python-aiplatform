@@ -415,7 +415,7 @@ def upload_file(
         )
     else:
         request_endpoint = initializer.global_config.api_endpoint
-    upload_request_uri = "https://{}/v1beta1/{}/ragFiles:upload".format(
+    upload_request_uri = "https://{}/upload/v1beta1/{}/ragFiles:upload".format(
         request_endpoint,
         corpus_name,
     )
