@@ -2332,6 +2332,7 @@ def test_list_publisher_models_rest_required_fields(
         (
             "filter",
             "language_code",
+            "list_all_versions",
             "order_by",
             "page_size",
             "page_token",
@@ -2398,6 +2399,7 @@ def test_list_publisher_models_rest_unset_required_fields():
             (
                 "filter",
                 "languageCode",
+                "listAllVersions",
                 "orderBy",
                 "pageSize",
                 "pageToken",
