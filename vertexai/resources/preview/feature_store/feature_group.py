@@ -15,13 +15,7 @@
 # limitations under the License.
 #
 
-from typing import (
-    Sequence,
-    Tuple,
-    Dict,
-    List,
-    Optional,
-)
+from typing import Dict, List, Optional, Sequence, Tuple
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
@@ -29,6 +23,7 @@ from google.cloud.aiplatform.compat.types import (
     feature as gca_feature,
     feature_group as gca_feature_group,
     io as gca_io,
+    feature_monitor_v1beta1 as gca_feature_monitor,
 )
 from vertexai.resources.preview.feature_store.utils import (
     FeatureGroupBigQuerySource,
@@ -425,6 +420,157 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
         )
         return FeatureMonitor(
             f"{self.resource_name}/featureMonitors/{feature_monitor_id}",
+            credentials=credentials,
+        )
+
+    def create_feature_monitor(
+        self,
+        name: str,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        schedule_config: Optional[str] = None,
+        feature_selection_configs: Optional[List[Tuple[str, float]]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        create_request_timeout: Optional[float] = None,
+    ) -> FeatureMonitor:
+        """Creates a new feature monitor.
+
+        Args:
+            name: The name of the feature monitor.
+            description: Description of the feature monitor.
+            labels:
+                The labels with user-defined metadata to organize your FeatureMonitors.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters,
+                numeric characters, underscores and dashes. International
+                characters are allowed.
+
+                See https://goo.gl/xmQnxf for more information on and examples
+                of labels. No more than 64 user labels can be associated with
+                one FeatureMonitor (System labels are excluded)." System reserved label
+                keys are prefixed with "aiplatform.googleapis.com/" and are
+                immutable.
+            schedule_config:
+                Configures when data is to be monitored for this
+                FeatureMonitor. At the end of the scheduled time,
+                the stats and drift are generated for the selected features.
+                Example format: "TZ=America/New_York 0 9 * * *" (monitors
+                daily at 9 AM EST).
+            feature_selection_configs:
+                List of tuples of feature id and monitoring threshold. If unset,
+                all features in the feature group will be monitored, and the
+                default thresholds 0.3 will be used.
+            project:
+                Project to create feature in. If unset, the project set in
+                aiplatform.init will be used.
+            location:
+                Location to create feature in. If not set, location set in
+                aiplatform.init will be used.
+            credentials:
+                Custom credentials to use to create this feature. Overrides
+                credentials set in aiplatform.init.
+            request_metadata:
+                Strings which should be sent along with the request as metadata.
+            create_request_timeout:
+                The timeout for the create request in seconds.
+
+        Returns:
+            FeatureMonitor - the FeatureMonitor resource object.
+        """
+
+        gapic_feature_monitor = gca_feature_monitor.FeatureMonitor()
+
+        if description:
+            gapic_feature_monitor.description = description
+
+        if labels:
+            utils.validate_labels(labels)
+            gapic_feature_monitor.labels = labels
+
+        if request_metadata is None:
+            request_metadata = ()
+
+        if schedule_config:
+            gapic_feature_monitor.schedule_config = gca_feature_monitor.ScheduleConfig(
+                cron=schedule_config
+            )
+
+        if feature_selection_configs is None:
+            raise ValueError(
+                "Please specify feature_configs: features to be monitored and"
+                " their thresholds."
+            )
+
+        if feature_selection_configs is not None:
+            gapic_feature_monitor.feature_selection_config.feature_configs = [
+                gca_feature_monitor.FeatureSelectionConfig.FeatureConfig(
+                    feature_id=feature_id,
+                    drift_threshold=threshold if threshold else 0.3,
+                )
+                for feature_id, threshold in feature_selection_configs
+            ]
+
+        api_client = self.__class__._instantiate_client(
+            location=location, credentials=credentials
+        )
+
+        create_feature_monitor_lro = api_client.select_version(
+            "v1beta1"
+        ).create_feature_monitor(
+            parent=self.resource_name,
+            feature_monitor=gapic_feature_monitor,
+            feature_monitor_id=name,
+            metadata=request_metadata,
+            timeout=create_request_timeout,
+        )
+
+        _LOGGER.log_create_with_lro(FeatureMonitor, create_feature_monitor_lro)
+
+        created_feature_monitor = create_feature_monitor_lro.result()
+
+        _LOGGER.log_create_complete(
+            FeatureMonitor, created_feature_monitor, "feature_monitor"
+        )
+
+        feature_monitor_obj = FeatureMonitor(
+            name=created_feature_monitor.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        return feature_monitor_obj
+
+    def list_feature_monitors(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[FeatureMonitor]:
+        """Lists features monitors under this feature group.
+
+        Args:
+            project:
+                Project to list feature monitors in. If unset, the project set in
+                aiplatform.init will be used.
+            location:
+                Location to list feature monitors in. If not set, location set in
+                aiplatform.init will be used.
+            credentials:
+                Custom credentials to use to list feature monitors. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List of feature monitors under this feature group.
+        """
+
+        return FeatureMonitor.list(
+            parent=self.resource_name,
+            project=project,
+            location=location,
             credentials=credentials,
         )
 

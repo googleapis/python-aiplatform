@@ -110,8 +110,11 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
         Dict of custom properties with keys mapped to column names
     """
     CLOUD_UI_URL = "https://console.cloud.google.com"
-    if not url.startswith(CLOUD_UI_URL):
-        raise ValueError(f"Only urls starting with {CLOUD_UI_URL} are allowed.")
+    CLOUD_DOCS_URL = "https://cloud.google.com"
+    if not (url.startswith(CLOUD_UI_URL) or url.startswith(CLOUD_DOCS_URL)):
+        raise ValueError(
+            f"Only urls starting with {CLOUD_UI_URL} or {CLOUD_DOCS_URL} are allowed."
+        )
 
     button_id = f"view-vertex-resource-{str(uuid4())}"
 
@@ -252,3 +255,14 @@ def display_model_tuning_button(tuning_job: "sft.SupervisedTuningJob") -> None:
         + f"?project={project}"
     )
     display_link("View Tuning Job", uri, "tune")
+
+
+def display_browse_prebuilt_metrics_button() -> None:
+    """Function to generate a link to the Gen AI Evaluation pre-built metrics page."""
+    if not is_ipython_available():
+        return
+
+    uri = (
+        "https://cloud.google.com/vertex-ai/generative-ai/docs/models/metrics-templates"
+    )
+    display_link("Browse pre-built metrics", uri, "list")

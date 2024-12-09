@@ -1,3 +1,4 @@
 langchain
 langchain-core
 langchain-google-vertexai
+pydantic<2.10

@@ -108,6 +108,24 @@ class PscIConfig:
 
 
 @dataclasses.dataclass
+class NfsMount:
+    """NFS mount.
+
+    Attributes:
+        server: Required. IP address of the NFS server.
+        path: Required. Source path exported from NFS server. Has to start
+            with '/', and combined with the ip address, it indicates the
+            source mount path in the form of ``server:path``.
+        mount_point: Required. Destination mount path. The NFS will be mounted
+            for the user under /mnt/nfs/<mount_point>.
+    """
+
+    server: str = None
+    path: str = None
+    mount_point: str = None
+
+
+@dataclasses.dataclass
 class Cluster:
     """Ray cluster (output only).
 

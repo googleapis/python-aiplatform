@@ -41,7 +41,7 @@ class ReasoningEngineSpec(proto.Message):
             ReasoningEngine.
         class_methods (MutableSequence[google.protobuf.struct_pb2.Struct]):
             Optional. Declarations for object class
-            methods.
+            methods in OpenAPI specification format.
     """
 
     class PackageSpec(proto.Message):

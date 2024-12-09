@@ -86,3 +86,39 @@ def test_vector_search_deploy_autoscaling_index_sample(
         min_replica_count=constants.MIN_REPLICA_COUNT,
         max_replica_count=constants.MAX_REPLICA_COUNT,
     )
+
+
+def test_vector_search_deploy_psc_automation_index_sample(
+    mock_sdk_init,
+    mock_index_init,
+    mock_index_endpoint_init,
+    mock_index_endpoint_deploy_index,
+    mock_index,
+):
+    vector_search_deploy_index_sample.vector_search_deploy_psc_automation_index(
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        index_name=constants.VECTOR_SEARCH_INDEX,
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT,
+        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+        psc_automation_configs=constants.VECTOR_SEARCH_PSC_AUTOMATION_CONFIGS,
+    )
+
+    # Check client initialization
+    mock_sdk_init.assert_called_with(
+        project=constants.PROJECT, location=constants.LOCATION
+    )
+
+    # Check index initialization with right index name
+    mock_index_init.assert_called_with(index_name=constants.VECTOR_SEARCH_INDEX)
+
+    # Check index endpoint initialization with right index endpoint name
+    mock_index_endpoint_init.assert_called_with(
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT
+    )
+    # Check index deployment
+    mock_index_endpoint_deploy_index.assert_called_with(
+        index=mock_index,
+        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+        psc_automation_configs=constants.VECTOR_SEARCH_PSC_AUTOMATION_CONFIGS,
+    )

@@ -18,6 +18,7 @@
 import abc
 import enum
 from dataclasses import dataclass
+from google.protobuf.struct_pb2 import Value
 from typing import Any, Dict, Optional
 
 
@@ -34,6 +35,10 @@ class DistanceMeasureType(enum.Enum):
     # Cosine Distance. Defined as 1 - cosine similarity.
     COSINE_DISTANCE = "COSINE_DISTANCE"
 
+    def to_value(self) -> str:
+        """Returns the value of the distance measure type."""
+        return Value(string_value=self.name)
+
 
 class FeatureNormType(enum.Enum):
     """Type of normalization to be carried out on each vector."""
@@ -42,6 +47,10 @@ class FeatureNormType(enum.Enum):
     UNIT_L2_NORM = "UNIT_L2_NORM"
     # No normalization type is specified.
     NONE = "NONE"
+
+    def to_value(self) -> str:
+        """Returns the value of the feature norm type."""
+        return Value(string_value=self.name)
 
 
 class AlgorithmConfig(abc.ABC):

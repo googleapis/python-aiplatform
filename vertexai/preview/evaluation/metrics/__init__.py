@@ -16,16 +16,19 @@
 #
 """Evaluation Metrics Module."""
 
-from vertexai.evaluation.metrics import _base
-from vertexai.evaluation.metrics import _rouge
-from vertexai.evaluation.metrics import (
+from vertexai.preview.evaluation.metrics import _base
+from vertexai.preview.evaluation.metrics import _rouge
+from vertexai.preview.evaluation.metrics import (
+    _trajectory_single_tool_use,
+)
+from vertexai.preview.evaluation.metrics import (
     metric_prompt_template,
 )
-from vertexai.evaluation.metrics import (
+from vertexai.preview.evaluation.metrics import (
     metric_prompt_template_examples,
 )
-from vertexai.evaluation.metrics import pairwise_metric
-from vertexai.evaluation.metrics import pointwise_metric
+from vertexai.preview.evaluation.metrics import pairwise_metric
+from vertexai.preview.evaluation.metrics import pointwise_metric
 
 
 PairwiseMetric = pairwise_metric.PairwiseMetric
@@ -37,6 +40,7 @@ MetricPromptTemplateExamples = (
     metric_prompt_template_examples.MetricPromptTemplateExamples
 )
 Rouge = _rouge.Rouge
+TrajectorySingleToolUse = _trajectory_single_tool_use.TrajectorySingleToolUse
 
 
 __all__ = [
@@ -47,4 +51,5 @@ __all__ = [
     "PointwiseMetricPromptTemplate",
     "MetricPromptTemplateExamples",
     "Rouge",
+    "TrajectorySingleToolUse",
 ]

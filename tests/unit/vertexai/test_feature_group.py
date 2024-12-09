@@ -24,6 +24,9 @@ from google.auth import credentials as auth_credentials
 from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
+    FeatureRegistryServiceClient,
+)
 from vertexai.resources.preview.feature_store import (
     feature_group,
 )
@@ -75,8 +78,25 @@ from feature_store_constants import (
     _TEST_FG1_F2_POINT_OF_CONTACT,
     _TEST_FG1_F2_VERSION_COLUMN_NAME,
     _TEST_FG1_FEATURE_LIST,
+    _TEST_FG1_FM1,
+    _TEST_FG1_FM1_ID,
+    _TEST_FG1_FM1_PATH,
+    _TEST_FG1_FM1_DESCRIPTION,
+    _TEST_FG1_FM1_LABELS,
+    _TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
+    _TEST_FG1_FM1_SCHEDULE_CONFIG,
+    _TEST_FG1_FM2_ID,
+    _TEST_FG1_FM2_PATH,
+    _TEST_FG1_FM2_DESCRIPTION,
+    _TEST_FG1_FM2_LABELS,
+    _TEST_FG1_FM2_FEATURE_SELECTION_CONFIGS,
+    _TEST_FG1_FM2_SCHEDULE_CONFIG,
+    _TEST_FG1_FM_LIST,
 )
 from test_feature import feature_eq
+from test_feature_monitor import (
+    feature_monitor_eq,
+)
 
 
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
@@ -138,6 +158,18 @@ def create_feature_mock():
 
 
 @pytest.fixture
+def create_feature_monitor_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "create_feature_monitor",
+    ) as create_feature_monitor_mock:
+        create_feature_monitor_lro_mock = mock.Mock(ga_operation.Operation)
+        create_feature_monitor_lro_mock.result.return_value = _TEST_FG1_FM1
+        create_feature_monitor_mock.return_value = create_feature_monitor_lro_mock
+        yield create_feature_monitor_mock
+
+
+@pytest.fixture
 def create_feature_with_version_column_mock():
     with patch.object(
         feature_registry_service_client.FeatureRegistryServiceClient,
@@ -157,6 +189,16 @@ def list_features_mock():
     ) as list_features_mock:
         list_features_mock.return_value = _TEST_FG1_FEATURE_LIST
         yield list_features_mock
+
+
+@pytest.fixture
+def list_feature_monitors_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "list_feature_monitors",
+    ) as list_feature_monitors_mock:
+        list_feature_monitors_mock.return_value = _TEST_FG1_FM_LIST
+        yield list_feature_monitors_mock
 
 
 @pytest.fixture()
@@ -826,4 +868,118 @@ def test_list_features(get_fg_mock, list_features_mock):
         labels=_TEST_FG1_F2_LABELS,
         point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
         version_column_name=_TEST_FG1_F2_VERSION_COLUMN_NAME,
+    )
+
+
+@pytest.mark.parametrize("create_request_timeout", [None, 1.0])
+def test_create_feature_monitor(
+    get_fg_mock,
+    get_feature_monitor_mock,
+    create_feature_monitor_mock,
+    fg_logger_mock,
+    create_request_timeout,
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    fg = FeatureGroup(_TEST_FG1_ID)
+    feature_monitor = fg.create_feature_monitor(
+        _TEST_FG1_FM1_ID,
+        description=_TEST_FG1_FM1_DESCRIPTION,
+        labels=_TEST_FG1_FM1_LABELS,
+        schedule_config=_TEST_FG1_FM1_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
+        create_request_timeout=create_request_timeout,
+    )
+
+    expected_feature_monitor = types.feature_monitor.FeatureMonitor(
+        description=_TEST_FG1_FM1_DESCRIPTION,
+        labels=_TEST_FG1_FM1_LABELS,
+        schedule_config=types.feature_monitor.ScheduleConfig(
+            cron=_TEST_FG1_FM1_SCHEDULE_CONFIG
+        ),
+        feature_selection_config=types.feature_monitor.FeatureSelectionConfig(
+            feature_configs=[
+                types.feature_monitor.FeatureSelectionConfig.FeatureConfig(
+                    feature_id="my_fg1_f1", drift_threshold=0.3
+                ),
+                types.feature_monitor.FeatureSelectionConfig.FeatureConfig(
+                    feature_id="my_fg1_f2", drift_threshold=0.4
+                ),
+            ]
+        ),
+    )
+    create_feature_monitor_mock.assert_called_once_with(
+        parent=_TEST_FG1_PATH,
+        feature_monitor_id=_TEST_FG1_FM1_ID,
+        feature_monitor=expected_feature_monitor,
+        metadata=(),
+        timeout=create_request_timeout,
+    )
+
+    feature_monitor_eq(
+        feature_monitor,
+        name=_TEST_FG1_FM1_ID,
+        resource_name=_TEST_FG1_FM1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FM1_DESCRIPTION,
+        labels=_TEST_FG1_FM1_LABELS,
+        schedule_config=_TEST_FG1_FM1_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
+    )
+
+    fg_logger_mock.assert_has_calls(
+        [
+            call("Creating FeatureMonitor"),
+            call(
+                f"Create FeatureMonitor backing LRO:"
+                f" {create_feature_monitor_mock.return_value.operation.name}"
+            ),
+            call(
+                "FeatureMonitor created. Resource name:"
+                " projects/test-project/locations/us-central1/featureGroups/"
+                "my_fg1/featureMonitors/my_fg1_fm1"
+            ),
+            call("To use this FeatureMonitor in another session:"),
+            call(
+                "feature_monitor = aiplatform.FeatureMonitor("
+                "'projects/test-project/locations/us-central1/featureGroups/"
+                "my_fg1/featureMonitors/my_fg1_fm1')"
+            ),
+        ]
+    )
+
+
+def test_list_feature_monitors(
+    get_fg_mock, get_feature_monitor_mock, list_feature_monitors_mock
+):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    feature_monitors = FeatureGroup(_TEST_FG1_ID).list_feature_monitors()
+
+    list_feature_monitors_mock.assert_called_once_with(
+        request={"parent": _TEST_FG1_PATH}
+    )
+    assert len(feature_monitors) == len(_TEST_FG1_FM_LIST)
+    feature_monitor_eq(
+        feature_monitors[0],
+        name=_TEST_FG1_FM1_ID,
+        resource_name=_TEST_FG1_FM1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FM1_DESCRIPTION,
+        labels=_TEST_FG1_FM1_LABELS,
+        schedule_config=_TEST_FG1_FM1_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM1_FEATURE_SELECTION_CONFIGS,
+    )
+    feature_monitor_eq(
+        feature_monitors[1],
+        name=_TEST_FG1_FM2_ID,
+        resource_name=_TEST_FG1_FM2_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_FM2_DESCRIPTION,
+        labels=_TEST_FG1_FM2_LABELS,
+        schedule_config=_TEST_FG1_FM2_SCHEDULE_CONFIG,
+        feature_selection_configs=_TEST_FG1_FM2_FEATURE_SELECTION_CONFIGS,
     )

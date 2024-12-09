@@ -33,6 +33,8 @@ __protobuf__ = proto.module(
         "ListEndpointsRequest",
         "ListEndpointsResponse",
         "UpdateEndpointRequest",
+        "UpdateEndpointLongRunningRequest",
+        "UpdateEndpointOperationMetadata",
         "DeleteEndpointRequest",
         "DeployModelRequest",
         "DeployModelResponse",
@@ -259,6 +261,41 @@ class UpdateEndpointRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
+    )
+
+
+class UpdateEndpointLongRunningRequest(proto.Message):
+    r"""Request message for
+    [EndpointService.UpdateEndpointLongRunning][google.cloud.aiplatform.v1.EndpointService.UpdateEndpointLongRunning].
+
+    Attributes:
+        endpoint (google.cloud.aiplatform_v1.types.Endpoint):
+            Required. The Endpoint which replaces the resource on the
+            server. Currently we only support updating the
+            ``client_connection_config`` field, all the other fields'
+            update will be blocked.
+    """
+
+    endpoint: gca_endpoint.Endpoint = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_endpoint.Endpoint,
+    )
+
+
+class UpdateEndpointOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [EndpointService.UpdateEndpointLongRunning][google.cloud.aiplatform.v1.EndpointService.UpdateEndpointLongRunning].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

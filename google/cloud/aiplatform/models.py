@@ -783,6 +783,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         request_response_logging_sampling_rate: Optional[float] = None,
         request_response_logging_bq_destination_table: Optional[str] = None,
         dedicated_endpoint_enabled=False,
+        inference_timeout: Optional[int] = None,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -854,6 +855,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. If enabled, a dedicated dns will be created and your
                 traffic will be fully isolated from other customers' traffic and
                 latency will be reduced.
+            inference_timeout (int):
+                Optional. It defines the prediction timeout, in seconds, for online predictions using cloud-based endpoints. This applies to either PSC endpoints, when private_service_connect_config is set, or dedicated endpoints, when dedicated_endpoint_enabled is true.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -882,6 +885,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     ),
                 )
             )
+
+        client_connection_config = None
+        if (
+            inference_timeout is not None
+            and inference_timeout > 0
+            and dedicated_endpoint_enabled
+        ):
+            client_connection_config = gca_endpoint_compat.ClientConnectionConfig(
+                inference_timeout=duration_pb2.Duration(seconds=inference_timeout)
+            )
+
         return cls._create(
             api_client=api_client,
             display_name=display_name,
@@ -899,6 +913,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             endpoint_id=endpoint_id,
             predict_request_response_logging_config=predict_request_response_logging_config,
             dedicated_endpoint_enabled=dedicated_endpoint_enabled,
+            client_connection_config=client_connection_config,
         )
 
     @classmethod
@@ -925,6 +940,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             gca_service_networking.PrivateServiceConnectConfig
         ] = None,
         dedicated_endpoint_enabled=False,
+        client_connection_config: Optional[
+            gca_endpoint_compat.ClientConnectionConfig
+        ] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -995,6 +1013,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. If enabled, a dedicated dns will be created and your
                 traffic will be fully isolated from other customers' traffic and
                 latency will be reduced.
+            client_connection_config (aiplatform.endpoint.ClientConnectionConfig):
+                Optional. The inference timeout which is applied on cloud-based (PSC, or dedicated) endpoints for online prediction.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -1014,6 +1034,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             predict_request_response_logging_config=predict_request_response_logging_config,
             private_service_connect_config=private_service_connect_config,
             dedicated_endpoint_enabled=dedicated_endpoint_enabled,
+            client_connection_config=client_connection_config,
         )
 
         operation_future = api_client.create_endpoint(
@@ -1291,6 +1312,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1403,6 +1425,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -1447,6 +1472,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
     @base.optional_sync()
@@ -1477,6 +1503,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1583,6 +1610,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1617,6 +1647,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1654,6 +1685,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         disable_container_logging: bool = False,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1767,6 +1799,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 If True, model will be deployed using faster deployment path.
                 Useful for quick experiments. Not for production workloads. Only
                 available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1787,6 +1822,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 service_account=service_account,
                 disable_container_logging=disable_container_logging,
             )
+
+            if system_labels:
+                deployed_model.system_labels = system_labels
 
             supports_shared_resources = (
                 gca_model_compat.Model.DeploymentResourcesType.SHARED_RESOURCES
@@ -1846,6 +1884,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 enable_access_logging=enable_access_logging,
                 disable_container_logging=disable_container_logging,
             )
+
+            if system_labels:
+                deployed_model.system_labels = system_labels
 
             supports_automatic_resources = (
                 gca_model_compat.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
@@ -3233,6 +3274,7 @@ class PrivateEndpoint(Endpoint):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
         private_service_connect_config: Optional[PrivateServiceConnectConfig] = None,
+        inference_timeout: Optional[int] = None,
     ) -> "PrivateEndpoint":
         """Creates a new PrivateEndpoint.
 
@@ -3318,6 +3360,8 @@ class PrivateEndpoint(Endpoint):
             private_service_connect_config (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig):
                 [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect) configuration for the endpoint.
                 Cannot be set when network is specified.
+            inference_timeout (int):
+                Optional. It defines the prediction timeout, in seconds, for online predictions using cloud-based endpoints. This applies to either PSC endpoints, when private_service_connect_config is set, or dedicated endpoints, when dedicated_endpoint_enabled is true.
 
         Returns:
             endpoint (aiplatform.PrivateEndpoint):
@@ -3354,6 +3398,12 @@ class PrivateEndpoint(Endpoint):
                 private_service_connect_config._gapic_private_service_connect_config
             )
 
+        client_connection_config = None
+        if private_service_connect_config and inference_timeout:
+            client_connection_config = gca_endpoint_compat.ClientConnectionConfig(
+                inference_timeout=duration_pb2.Duration(seconds=inference_timeout)
+            )
+
         return cls._create(
             api_client=api_client,
             display_name=display_name,
@@ -3368,6 +3418,7 @@ class PrivateEndpoint(Endpoint):
             network=network,
             sync=sync,
             private_service_connect_config=config,
+            client_connection_config=client_connection_config,
         )
 
     @classmethod
@@ -3911,6 +3962,7 @@ class PrivateEndpoint(Endpoint):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -4026,6 +4078,9 @@ class PrivateEndpoint(Endpoint):
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
         """
 
         if self.network:
@@ -4070,6 +4125,7 @@ class PrivateEndpoint(Endpoint):
             sync=sync,
             spot=spot,
             disable_container_logging=disable_container_logging,
+            system_labels=system_labels,
         )
 
     def update(
@@ -4663,6 +4719,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         serving_container_health_probe_exec: Optional[Sequence[str]] = None,
         serving_container_health_probe_period_seconds: Optional[int] = None,
         serving_container_health_probe_timeout_seconds: Optional[int] = None,
+        model_garden_source_model_name: Optional[str] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -4875,6 +4932,10 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             serving_container_health_probe_timeout_seconds (int):
                 Optional. Number of seconds after which the health probe times
                 out. Defaults to 1 second. Minimum value is 1.
+            model_garden_source_model_name:
+                Optional. The model garden source model resource name if the
+                model is from Vertex Model Garden.
+
 
         Returns:
             model (aiplatform.Model):
@@ -5003,6 +5064,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             version_aliases=version_aliases, is_default_version=is_default_version
         )
 
+        base_model_source = None
+        if model_garden_source_model_name:
+            base_model_source = gca_model_compat.Model.BaseModelSource(
+                model_garden_source=gca_model_compat.ModelGardenSource(
+                    public_model_name=model_garden_source_model_name
+                )
+            )
+
         managed_model = gca_model_compat.Model(
             display_name=display_name,
             description=description,
@@ -5012,6 +5081,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             predict_schemata=model_predict_schemata,
             labels=labels,
             encryption_spec=encryption_spec,
+            base_model_source=base_model_source,
         )
 
         if artifact_uri and not artifact_uri.startswith("gs://"):
@@ -5119,6 +5189,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5253,6 +5324,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
               If True, model will be deployed using faster deployment path.
               Useful for quick experiments. Not for production workloads. Only
               available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5322,7 +5396,15 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             private_service_connect_config=private_service_connect_config,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
+
+    def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
+        """Check if dedicated endpoint should be enabled for this endpoint.
+
+        Returns True if endpoint should be a dedicated endpoint.
+        """
+        return fast_tryout_enabled
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
     def _deploy(
@@ -5357,6 +5439,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         ] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
+        system_labels: Optional[Dict[str, str]] = None,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5484,6 +5567,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 If True, model will be deployed using faster deployment path.
                 Useful for quick experiments. Not for production workloads. Only
                 available for most popular models with certain machine types.
+            system_labels (Dict[str, str]):
+                Optional. System labels to apply to Model Garden deployments.
+                System labels are managed by Google for internal use only.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5500,6 +5586,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     location=self.location,
                     credentials=self.credentials,
                     encryption_spec_key_name=encryption_spec_key_name,
+                    dedicated_endpoint_enabled=self._should_enable_dedicated_endpoint(
+                        fast_tryout_enabled
+                    ),
                 )
             else:
                 endpoint = PrivateEndpoint.create(
@@ -5543,6 +5632,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             disable_container_logging=disable_container_logging,
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
+            system_labels=system_labels,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

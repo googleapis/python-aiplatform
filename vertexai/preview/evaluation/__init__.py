@@ -16,10 +16,10 @@
 #
 """Vertex Gen AI Evaluation Service Module."""
 
-from vertexai.evaluation import _base
-from vertexai.evaluation import eval_task
-from vertexai.evaluation import metrics
-from vertexai.evaluation import prompt_template
+from vertexai.preview.evaluation import _base
+from vertexai.preview.evaluation import eval_task
+from vertexai.preview.evaluation import metrics
+from vertexai.preview.evaluation import prompt_template
 
 
 EvalResult = _base.EvalResult

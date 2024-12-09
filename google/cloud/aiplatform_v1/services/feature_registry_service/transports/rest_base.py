@@ -1271,6 +1271,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -1629,6 +1637,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2022,6 +2038,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2434,6 +2458,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2796,6 +2828,14 @@ class _BaseFeatureRegistryServiceRestTransport(FeatureRegistryServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

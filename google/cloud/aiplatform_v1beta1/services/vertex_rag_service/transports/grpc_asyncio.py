@@ -276,11 +276,84 @@ class VertexRagServiceGrpcAsyncIOTransport(VertexRagServiceTransport):
             )
         return self._stubs["retrieve_contexts"]
 
+    @property
+    def augment_prompt(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AugmentPromptRequest],
+        Awaitable[vertex_rag_service.AugmentPromptResponse],
+    ]:
+        r"""Return a callable for the augment prompt method over gRPC.
+
+        Given an input prompt, it returns augmented prompt
+        from vertex rag store  to guide LLM towards generating
+        grounded responses.
+
+        Returns:
+            Callable[[~.AugmentPromptRequest],
+                    Awaitable[~.AugmentPromptResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "augment_prompt" not in self._stubs:
+            self._stubs["augment_prompt"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagService/AugmentPrompt",
+                request_serializer=vertex_rag_service.AugmentPromptRequest.serialize,
+                response_deserializer=vertex_rag_service.AugmentPromptResponse.deserialize,
+            )
+        return self._stubs["augment_prompt"]
+
+    @property
+    def corroborate_content(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.CorroborateContentRequest],
+        Awaitable[vertex_rag_service.CorroborateContentResponse],
+    ]:
+        r"""Return a callable for the corroborate content method over gRPC.
+
+        Given an input text, it returns a score that
+        evaluates the factuality of the text. It also extracts
+        and returns claims from the text and provides supporting
+        facts.
+
+        Returns:
+            Callable[[~.CorroborateContentRequest],
+                    Awaitable[~.CorroborateContentResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "corroborate_content" not in self._stubs:
+            self._stubs["corroborate_content"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagService/CorroborateContent",
+                request_serializer=vertex_rag_service.CorroborateContentRequest.serialize,
+                response_deserializer=vertex_rag_service.CorroborateContentResponse.deserialize,
+            )
+        return self._stubs["corroborate_content"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
             self.retrieve_contexts: self._wrap_method(
                 self.retrieve_contexts,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.augment_prompt: self._wrap_method(
+                self.augment_prompt,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.corroborate_content: self._wrap_method(
+                self.corroborate_content,
                 default_timeout=None,
                 client_info=client_info,
             ),

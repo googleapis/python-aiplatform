@@ -310,6 +310,7 @@ from .types.evaluation_service import SummarizationVerbosityInput
 from .types.evaluation_service import SummarizationVerbosityInstance
 from .types.evaluation_service import SummarizationVerbosityResult
 from .types.evaluation_service import SummarizationVerbositySpec
+from .types.evaluation_service import ToolCall
 from .types.evaluation_service import ToolCallValidInput
 from .types.evaluation_service import ToolCallValidInstance
 from .types.evaluation_service import ToolCallValidMetricValue
@@ -330,6 +331,37 @@ from .types.evaluation_service import ToolParameterKVMatchInstance
 from .types.evaluation_service import ToolParameterKVMatchMetricValue
 from .types.evaluation_service import ToolParameterKVMatchResults
 from .types.evaluation_service import ToolParameterKVMatchSpec
+from .types.evaluation_service import Trajectory
+from .types.evaluation_service import TrajectoryAnyOrderMatchInput
+from .types.evaluation_service import TrajectoryAnyOrderMatchInstance
+from .types.evaluation_service import TrajectoryAnyOrderMatchMetricValue
+from .types.evaluation_service import TrajectoryAnyOrderMatchResults
+from .types.evaluation_service import TrajectoryAnyOrderMatchSpec
+from .types.evaluation_service import TrajectoryExactMatchInput
+from .types.evaluation_service import TrajectoryExactMatchInstance
+from .types.evaluation_service import TrajectoryExactMatchMetricValue
+from .types.evaluation_service import TrajectoryExactMatchResults
+from .types.evaluation_service import TrajectoryExactMatchSpec
+from .types.evaluation_service import TrajectoryInOrderMatchInput
+from .types.evaluation_service import TrajectoryInOrderMatchInstance
+from .types.evaluation_service import TrajectoryInOrderMatchMetricValue
+from .types.evaluation_service import TrajectoryInOrderMatchResults
+from .types.evaluation_service import TrajectoryInOrderMatchSpec
+from .types.evaluation_service import TrajectoryPrecisionInput
+from .types.evaluation_service import TrajectoryPrecisionInstance
+from .types.evaluation_service import TrajectoryPrecisionMetricValue
+from .types.evaluation_service import TrajectoryPrecisionResults
+from .types.evaluation_service import TrajectoryPrecisionSpec
+from .types.evaluation_service import TrajectoryRecallInput
+from .types.evaluation_service import TrajectoryRecallInstance
+from .types.evaluation_service import TrajectoryRecallMetricValue
+from .types.evaluation_service import TrajectoryRecallResults
+from .types.evaluation_service import TrajectoryRecallSpec
+from .types.evaluation_service import TrajectorySingleToolUseInput
+from .types.evaluation_service import TrajectorySingleToolUseInstance
+from .types.evaluation_service import TrajectorySingleToolUseMetricValue
+from .types.evaluation_service import TrajectorySingleToolUseResults
+from .types.evaluation_service import TrajectorySingleToolUseSpec
 from .types.evaluation_service import PairwiseChoice
 from .types.event import Event
 from .types.execution import Execution
@@ -900,6 +932,7 @@ from .types.reasoning_engine import ReasoningEngine
 from .types.reasoning_engine import ReasoningEngineSpec
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
+from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
 from .types.reasoning_engine_service import CreateReasoningEngineOperationMetadata
 from .types.reasoning_engine_service import CreateReasoningEngineRequest
 from .types.reasoning_engine_service import DeleteReasoningEngineRequest
@@ -1002,6 +1035,7 @@ from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
+from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
 from .types.tool import Tool
 from .types.tool import ToolConfig
@@ -1047,8 +1081,10 @@ from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
 from .types.vertex_rag_data import RagFileParsingConfig
+from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
@@ -1066,6 +1102,12 @@ from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagCorpusRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
+from .types.vertex_rag_service import AugmentPromptRequest
+from .types.vertex_rag_service import AugmentPromptResponse
+from .types.vertex_rag_service import Claim
+from .types.vertex_rag_service import CorroborateContentRequest
+from .types.vertex_rag_service import CorroborateContentResponse
+from .types.vertex_rag_service import Fact
 from .types.vertex_rag_service import RagContexts
 from .types.vertex_rag_service import RagQuery
 from .types.vertex_rag_service import RetrieveContextsRequest
@@ -1146,6 +1188,8 @@ __all__ = (
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
     "Attribution",
+    "AugmentPromptRequest",
+    "AugmentPromptResponse",
     "AuthConfig",
     "AuthType",
     "AutomaticResources",
@@ -1203,6 +1247,7 @@ __all__ = (
     "CheckTrialEarlyStoppingStateResponse",
     "Citation",
     "CitationMetadata",
+    "Claim",
     "ClientConnectionConfig",
     "CodeExecutionResult",
     "CoherenceInput",
@@ -1221,6 +1266,8 @@ __all__ = (
     "CopyModelRequest",
     "CopyModelResponse",
     "CorpusStatus",
+    "CorroborateContentRequest",
+    "CorroborateContentResponse",
     "CountTokensRequest",
     "CountTokensResponse",
     "CreateArtifactRequest",
@@ -1432,6 +1479,7 @@ __all__ = (
     "ExtensionOperation",
     "ExtensionPrivateServiceConnectConfig",
     "ExtensionRegistryServiceClient",
+    "Fact",
     "FasterDeploymentConfig",
     "Feature",
     "FeatureGroup",
@@ -1867,7 +1915,9 @@ __all__ = (
     "RagFile",
     "RagFileChunkingConfig",
     "RagFileParsingConfig",
+    "RagFileTransformationConfig",
     "RagQuery",
+    "RagRetrievalConfig",
     "RagVectorDbConfig",
     "RawPredictRequest",
     "RayLogsSpec",
@@ -1969,6 +2019,7 @@ __all__ = (
     "StreamDirectPredictResponse",
     "StreamDirectRawPredictRequest",
     "StreamDirectRawPredictResponse",
+    "StreamQueryReasoningEngineRequest",
     "StreamRawPredictRequest",
     "StreamingFetchFeatureValuesRequest",
     "StreamingFetchFeatureValuesResponse",
@@ -2020,6 +2071,7 @@ __all__ = (
     "TimestampSplit",
     "TokensInfo",
     "Tool",
+    "ToolCall",
     "ToolCallValidInput",
     "ToolCallValidInstance",
     "ToolCallValidMetricValue",
@@ -2044,6 +2096,37 @@ __all__ = (
     "ToolUseExample",
     "TrainingConfig",
     "TrainingPipeline",
+    "Trajectory",
+    "TrajectoryAnyOrderMatchInput",
+    "TrajectoryAnyOrderMatchInstance",
+    "TrajectoryAnyOrderMatchMetricValue",
+    "TrajectoryAnyOrderMatchResults",
+    "TrajectoryAnyOrderMatchSpec",
+    "TrajectoryExactMatchInput",
+    "TrajectoryExactMatchInstance",
+    "TrajectoryExactMatchMetricValue",
+    "TrajectoryExactMatchResults",
+    "TrajectoryExactMatchSpec",
+    "TrajectoryInOrderMatchInput",
+    "TrajectoryInOrderMatchInstance",
+    "TrajectoryInOrderMatchMetricValue",
+    "TrajectoryInOrderMatchResults",
+    "TrajectoryInOrderMatchSpec",
+    "TrajectoryPrecisionInput",
+    "TrajectoryPrecisionInstance",
+    "TrajectoryPrecisionMetricValue",
+    "TrajectoryPrecisionResults",
+    "TrajectoryPrecisionSpec",
+    "TrajectoryRecallInput",
+    "TrajectoryRecallInstance",
+    "TrajectoryRecallMetricValue",
+    "TrajectoryRecallResults",
+    "TrajectoryRecallSpec",
+    "TrajectorySingleToolUseInput",
+    "TrajectorySingleToolUseInstance",
+    "TrajectorySingleToolUseMetricValue",
+    "TrajectorySingleToolUseResults",
+    "TrajectorySingleToolUseSpec",
     "Trial",
     "TrialContext",
     "TunedModel",
@@ -2121,6 +2204,7 @@ __all__ = (
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexAiSearchConfig",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",

@@ -21,6 +21,7 @@ from importlib import reload
 import json
 import requests
 from unittest import mock
+from google.protobuf import duration_pb2
 
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
@@ -267,6 +268,11 @@ _TEST_REQUEST_RESPONSE_LOGGING_CONFIG = (
             output_uri=_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST
         ),
     )
+)
+
+_TEST_INFERENCE_TIMEOUT = 100
+_TEST_CLIENT_CONNECTION_CONFIG = gca_endpoint.ClientConnectionConfig(
+    inference_timeout=duration_pb2.Duration(seconds=_TEST_INFERENCE_TIMEOUT)
 )
 
 """
@@ -1258,6 +1264,34 @@ class TestEndpoint:
             endpoint_id=None,
         )
 
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dedicated_endpoint_with_timeout(
+        self, create_dedicated_endpoint_mock, sync
+    ):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            dedicated_endpoint_enabled=True,
+            sync=sync,
+            inference_timeout=_TEST_INFERENCE_TIMEOUT,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            dedicated_endpoint_enabled=True,
+            client_connection_config=_TEST_CLIENT_CONNECTION_CONFIG,
+        )
+        create_dedicated_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
     @pytest.mark.usefixtures("get_empty_endpoint_mock")
     def test_accessing_properties_with_no_resource_raises(
         self,
@@ -2152,6 +2186,98 @@ class TestEndpoint:
             faster_deployment_config=gca_endpoint.FasterDeploymentConfig(
                 fast_tryout_enabled=True
             ),
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_with_system_labels(self, preview_deploy_model_mock, sync):
+        test_endpoint = preview_models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = preview_models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES,
+        )
+
+        test_endpoint.deploy(
+            model=test_model,
+            sync=sync,
+            deploy_request_timeout=None,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            system_labels=_TEST_LABELS,
+        )
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
+            enable_container_logging=True,
+            system_labels=_TEST_LABELS,
+        )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_system_labels(self, deploy_model_mock, sync):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES,
+        )
+
+        test_endpoint.deploy(
+            model=test_model,
+            sync=sync,
+            deploy_request_timeout=None,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            system_labels=_TEST_LABELS,
+        )
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            system_labels=_TEST_LABELS,
         )
         deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
@@ -3339,6 +3465,39 @@ class TestPrivateEndpoint:
                 enable_private_service_connect=True,
                 project_allowlist=_TEST_PROJECT_ALLOWLIST,
             ),
+        )
+
+        create_psc_private_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_psc_with_timeout(self, create_psc_private_endpoint_mock, sync):
+        test_endpoint = models.PrivateEndpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            private_service_connect_config=models.PrivateEndpoint.PrivateServiceConnectConfig(
+                project_allowlist=_TEST_PROJECT_ALLOWLIST
+            ),
+            sync=sync,
+            inference_timeout=_TEST_INFERENCE_TIMEOUT,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
+            ),
+            client_connection_config=_TEST_CLIENT_CONNECTION_CONFIG,
         )
 
         create_psc_private_endpoint_mock.assert_called_once_with(

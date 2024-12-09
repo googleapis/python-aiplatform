@@ -107,7 +107,7 @@ class UpdateReasoningEngineRequest(proto.Message):
             Required. The ReasoningEngine which replaces
             the resource on the server.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
-            Required. Mask specifying which fields to
+            Optional. Mask specifying which fields to
             update.
     """
 

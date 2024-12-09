@@ -22,6 +22,7 @@ from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Union
 import proto
 
 from google.cloud.aiplatform import base
+from google.api import httpbody_pb2
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
@@ -42,7 +43,7 @@ _LOGGER = base.Logger(__name__)
 
 def to_proto(
     obj: Union[JsonDict, proto.Message],
-    message: proto.Message = struct_pb2.Struct(),
+    message: Optional[proto.Message] = None,
 ) -> proto.Message:
     """Parses a JSON-like object into a message.
 
@@ -60,7 +61,9 @@ def to_proto(
     Returns:
         proto.Message: The same message passed as argument.
     """
-    if isinstance(obj, proto.Message):
+    if message is None:
+        message = struct_pb2.Struct()
+    if isinstance(obj, (proto.Message, struct_pb2.Struct)):
         return obj
     try:
         json_format.ParseDict(obj, message._pb)
@@ -85,6 +88,34 @@ def to_dict(message: proto.Message) -> JsonDict:
     except AttributeError:
         result: JsonDict = json.loads(json_format.MessageToJson(message))
     return result
+
+
+def to_parsed_json(body: httpbody_pb2.HttpBody) -> Any:
+    """Converts the contents of the httpbody message to JSON format.
+
+    Args:
+        body (httpbody_pb2.HttpBody):
+            Required. The httpbody body to be converted to a JSON.
+
+    Returns:
+        Any: A JSON object.
+    """
+    content_type = getattr(body, "content_type", None)
+    data = getattr(body, "data", None)
+
+    if content_type is None or data is None or "application/json" not in content_type:
+        return body
+
+    try:
+        utf8_data = data.decode("utf-8")
+    except Exception as e:
+        _LOGGER.warning(f"Failed to decode data: {data}. Exception: {e}")
+        return body
+    try:
+        return json.loads(utf8_data)
+    except Exception as e:
+        _LOGGER.warning(f"Failed to parse JSON: {utf8_data}. Exception: {e}")
+        return body  # Return the raw body on error
 
 
 def generate_schema(

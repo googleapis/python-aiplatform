@@ -20,7 +20,7 @@ from google.cloud import aiplatform
 #  [START aiplatform_sdk_vector_search_create_index_sample]
 def vector_search_create_index(
     project: str, location: str, display_name: str, gcs_uri: Optional[str] = None
-) -> None:
+) -> aiplatform.MatchingEngineIndex:
     """Create a vector search index.
 
     Args:
@@ -28,13 +28,17 @@ def vector_search_create_index(
         location (str): Required. The region name
         display_name (str): Required. The index display name
         gcs_uri (str): Optional. The Google Cloud Storage uri for index content
+
+    Returns:
+        The created MatchingEngineIndex.
     """
     # Initialize the Vertex AI client
-    aiplatform.init(project=project, location=location, staging_bucket=gcs_uri)
+    aiplatform.init(project=project, location=location)
 
     # Create Index
     index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
         display_name=display_name,
+        contents_delta_uri=gcs_uri,
         description="Matching Engine Index",
         dimensions=100,
         approximate_neighbors_count=150,
@@ -44,7 +48,7 @@ def vector_search_create_index(
         distance_measure_type=aiplatform.matching_engine.matching_engine_index_config.DistanceMeasureType.DOT_PRODUCT_DISTANCE,
     )
 
-    print(index.name)
+    return index
 
 
 #  [END aiplatform_sdk_vector_search_create_index_sample]
@@ -53,7 +57,7 @@ def vector_search_create_index(
 #  [START aiplatform_sdk_vector_search_create_streaming_index_sample]
 def vector_search_create_streaming_index(
     project: str, location: str, display_name: str, gcs_uri: Optional[str] = None
-) -> None:
+) -> aiplatform.MatchingEngineIndex:
     """Create a vector search index.
 
     Args:
@@ -61,13 +65,17 @@ def vector_search_create_streaming_index(
         location (str): Required. The region name
         display_name (str): Required. The index display name
         gcs_uri (str): Optional. The Google Cloud Storage uri for index content
+
+    Returns:
+        The created MatchingEngineIndex.
     """
     # Initialize the Vertex AI client
-    aiplatform.init(project=project, location=location, staging_bucket=gcs_uri)
+    aiplatform.init(project=project, location=location)
 
     # Create Index
     index = aiplatform.MatchingEngineIndex.create_tree_ah_index(
         display_name=display_name,
+        contents_delta_uri=gcs_uri,
         description="Matching Engine Index",
         dimensions=100,
         approximate_neighbors_count=150,
@@ -77,7 +85,7 @@ def vector_search_create_streaming_index(
         distance_measure_type=aiplatform.matching_engine.matching_engine_index_config.DistanceMeasureType.DOT_PRODUCT_DISTANCE,
     )
 
-    print(index.name)
+    return index
 
 
 #  [END aiplatform_sdk_vector_search_create_streaming_index_sample]

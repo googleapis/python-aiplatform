@@ -1,5 +1,98 @@
 # Changelog
 
+## [1.74.0](https://github.com/googleapis/python-aiplatform/compare/v1.73.0...v1.74.0) (2024-12-04)
+
+
+### Features
+
+* Add browse pre-built metrics button for Ipython environments when listing example metrics for Gen AI Evaluation ([58ba55e](https://github.com/googleapis/python-aiplatform/commit/58ba55e2cf19d9c27e5d766072a982411d78880e))
+* Add compatibility for RagRetrievalConfig in rag_store and rag_retrieval ([c52e3e4](https://github.com/googleapis/python-aiplatform/commit/c52e3e4ea63e43346b439c3eaf6b264c83bf1c25))
+* Add deprecation warnings for use of similarity_top_k, vector_search_alpha, and vector_distance_threshold in retrieval_query, use RagRetrievalConfig instead. ([c52e3e4](https://github.com/googleapis/python-aiplatform/commit/c52e3e4ea63e43346b439c3eaf6b264c83bf1c25))
+* Add FeatureMonitorJob Create,Get,List in Vertex AI SDK ([03eb735](https://github.com/googleapis/python-aiplatform/commit/03eb7352cae92579a53064f0354ab84686229b86))
+* Add List FeatureMonitor function to FeatureGroup in Vertex AI SDK ([21bc83b](https://github.com/googleapis/python-aiplatform/commit/21bc83bed512532be8295fec211987af9635dd7b))
+* Add sdk support to inference timeout on cloud-based endpoints (dedicated or PSC). ([f917269](https://github.com/googleapis/python-aiplatform/commit/f917269b35b6582aecabd7a75610b2225407ae1f))
+* Add support for Document AI Layout Parser as a RAG import option ([565c800](https://github.com/googleapis/python-aiplatform/commit/565c80053e32fa4c71b0560806689906eec7a4aa))
+* Add support for ranking field in rag_retrieval_config for rag_store creation. ([6faa1d0](https://github.com/googleapis/python-aiplatform/commit/6faa1d0b3d55c3096489050d91a604b6fb590ae7))
+* Add vector_similarity_threshold support within RagRetrievalConfig in rag_store and rag_retrieval GA and preview versions ([9402b3d](https://github.com/googleapis/python-aiplatform/commit/9402b3de7623497e33fa4add9a4c0adeb76b75c0))
+* Add Vertex RAG service proto to v1 ([a56e4dd](https://github.com/googleapis/python-aiplatform/commit/a56e4ddc4568a178d2f45e6567e5131de5c6b90d))
+* Adding Vertex AI Search Config for RAG corpuses to SDK ([d3d69d6](https://github.com/googleapis/python-aiplatform/commit/d3d69d6d43470f009abd67dd8b6d88c23f7df25a))
+* Fix file type mismatch in uploading eval results to GCS, supported types: CSV, JSON. ([905c766](https://github.com/googleapis/python-aiplatform/commit/905c7667d130482e7412110e9307d84caa9a252e))
+* GenAI - Grounding - Released `VertexAiSearch` and `Retrieval` to GA ([0537fec](https://github.com/googleapis/python-aiplatform/commit/0537fec6cdde03afa82c93324b04eba3e3464aa6))
+* GenAI - Release the Prompt Management feature to Public Preview ([7432c2c](https://github.com/googleapis/python-aiplatform/commit/7432c2ce2e484432dbee047cc13fcfe1f8f21044))
+* GenAI - Support `FunctionDeclaration.response` schema ([4288fec](https://github.com/googleapis/python-aiplatform/commit/4288fec2b92272286d47b16a6a49bfc1f0103fca))
+* GenAI - Tuning - Added support for BYOSA ([7cbda03](https://github.com/googleapis/python-aiplatform/commit/7cbda0311b538807160040a0927a6c79ed85053e))
+* Refactor rag_store and rag_retrieval to use v1 protos ([dfe6d6c](https://github.com/googleapis/python-aiplatform/commit/dfe6d6c35179e67c91c937960af1febcec921524))
+* Support multi-methods in SDK. ([f02692d](https://github.com/googleapis/python-aiplatform/commit/f02692d211e8ae2b692cbdc41fbf4c4296d6e5a7))
+* Support NFS for Ray cluster creation ([1ca9a05](https://github.com/googleapis/python-aiplatform/commit/1ca9a056209a9caef45b1aa324c38c269e47537a))
+* Support RagFileTransformationConfig in upload_file function in V1 sdk ([88ac48c](https://github.com/googleapis/python-aiplatform/commit/88ac48c5d42b14b97561705524cec9afe63b5bac))
+* Update v1 sdk to use new RagCorpus, RagVectorDbConfig, & RagEmbeddingModelConfig proto ([47a5a6d](https://github.com/googleapis/python-aiplatform/commit/47a5a6d4731dac827e4c43e09f51d8c71b43edaa))
+* Update v1 sdk to use new RagFileTransformationConfig proto ([c23c62d](https://github.com/googleapis/python-aiplatform/commit/c23c62dbd4bbe26fddfcbbbe8b7ded502f40305f))
+* Update v1beta1 sdk for RagFileTransformationConfig and Ranking protos ([ffe3230](https://github.com/googleapis/python-aiplatform/commit/ffe3230dcea908e8eba0c727c5f03bf92f731ff9))
+* Update v1beta1 sdk for RagVectorDbConfig & RagCorpus protos. Backward compatible with older fields. ([216a30f](https://github.com/googleapis/python-aiplatform/commit/216a30ff5a687e270e840a8f564baff3d79d48e1))
+
+
+### Bug Fixes
+
+* `get_default_run` method in Experiment class ([9388fc9](https://github.com/googleapis/python-aiplatform/commit/9388fc91b2f51ef558e6376a74dc7eb2165e1f80))
+* Add MatchingEngineIndexConfig enums to proto value converters ([e6d3df8](https://github.com/googleapis/python-aiplatform/commit/e6d3df88d4361db2c661e6a0d0eb574c7136155b))
+* RAG Fix v1 rag_store compatibility with generative_models Tool by changing back to v1beta1 ([e220312](https://github.com/googleapis/python-aiplatform/commit/e22031269f249b3cc3063366e558c78888148498))
+* Remove redundant progress bar update commands within runnable inference ([598c931](https://github.com/googleapis/python-aiplatform/commit/598c931a147b5679327dd19c06c97ffefa729180))
+* Update upperbounds on pydantic version to &lt; 2.10 to mitigate version comparison checks ([c13b6a8](https://github.com/googleapis/python-aiplatform/commit/c13b6a80a84d060821182df132f2d239a2b6c677))
+
+
+### Documentation
+
+* A comment for field `api_key_config` in message `.google.cloud.aiplatform.v1beta1.JiraSource` is changed ([d7dff72](https://github.com/googleapis/python-aiplatform/commit/d7dff722d445f3befe0029f0135a3fbd1b49f8dd))
+* A comment for field `class_method` in message `.google.cloud.aiplatform.v1beta1.StreamQueryReasoningEngineRequest` is changed (from steam_query to stream_query) ([b7f9492](https://github.com/googleapis/python-aiplatform/commit/b7f94921990954e6254020dfc85d01bb0c5c545d))
+* Updated example usage in docstring for rag_retrieval preview and GA ([a1f8bc2](https://github.com/googleapis/python-aiplatform/commit/a1f8bc2793f65cfc65ea3c8a22a14ff4e6dfcd8d))
+* Updated example usage in docstring for rag_store preview and GA ([a1f8bc2](https://github.com/googleapis/python-aiplatform/commit/a1f8bc2793f65cfc65ea3c8a22a14ff4e6dfcd8d))
+
+## [1.73.0](https://github.com/googleapis/python-aiplatform/compare/v1.72.0...v1.73.0) (2024-11-19)
+
+
+### Features
+
+* Add a `nfs_mounts` to RaySpec in PersistentResource API ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add a v1 UpdateEndpointLongRunning API ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add BatchCreateFeatures rpc to feature_registry_service.proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add BYOSA field to tuning_job ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add BYOSA field to tuning_job ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add COMET and MetricX to the evaluation SDK ([4135810](https://github.com/googleapis/python-aiplatform/commit/4135810abbd3d134a6f0818e65581c74df0241ee))
+* Add Create FeatureMonitor function to FeatureGroup in Vertex AI SDK ([285ec2c](https://github.com/googleapis/python-aiplatform/commit/285ec2cee01a7b135b82e160a1b27ebb9c60d7a9))
+* Add CustomEnvironmentSpec to NotebookExecutionJob ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add CustomEnvironmentSpec to NotebookExecutionJob ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Add default_runtime in Vertex Pipeline SDK preview. ([44587ec](https://github.com/googleapis/python-aiplatform/commit/44587ecc6377cc23adc5fb5a792944a2e15276ed))
+* Add fast_tryout_enabled to FasterDeploymentConfig v1 proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Add FeatureMonitor to FeatureGroup in Vertex AI SDK ([f2233ce](https://github.com/googleapis/python-aiplatform/commit/f2233ceebef523fe7ed9e3a93a3c94a109e8e448))
+* Add PSC automation support to matching engine index endpoint `deploy_index()`, `find_neighbors()`, `match()`, and `read_index_datapoints()`. ([3ab39a4](https://github.com/googleapis/python-aiplatform/commit/3ab39a4536dc72b8a93d30c89bff04f25c724ef5))
+* Add vertex_rag_source to create_feature_view method ([ca61c5a](https://github.com/googleapis/python-aiplatform/commit/ca61c5a4ed5138f01496ee1a80c4f7a221f671d3))
+* Adding fast_tryout_enabled option to Vertex SDK ([fde1b96](https://github.com/googleapis/python-aiplatform/commit/fde1b96db0060cc73dc3174636b16cf30368d61e))
+* Allow setting Vertex Model Garden source model name during model upload ([3af9cc8](https://github.com/googleapis/python-aiplatform/commit/3af9cc8756491dc90fd5b6f4fb960f006d68ca09))
+* Allow user control which class methods to export via `register_operations`. The `class methods` spec will be changed according to user's `register_operations`. ([74077b5](https://github.com/googleapis/python-aiplatform/commit/74077b597527ab220431ebac7ff21f6ab2f7ae85))
+* COMET added to evaluation service proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Expose system_labels field to model deployment APIs in Vertex public preview SDK ([13cede4](https://github.com/googleapis/python-aiplatform/commit/13cede4cff4073225cc374122f80c6f2e85e8f89))
+* Expose system_labels field to model deployment APIs in Vertex Python SDK ([75655af](https://github.com/googleapis/python-aiplatform/commit/75655afd0e3b1affa6558aac97941cdf8642d6f1))
+* GenAI - Grounding - Added grounding dynamic_retrieval config to Vertex SDK ([c39334a](https://github.com/googleapis/python-aiplatform/commit/c39334a63e83d4ab8e4d5cc82b22b9096940fe50))
+* GenAI Evaluation: Release GenAI Evaluation SDK Agent Evaluation features to vertexai.preview module. ([41cd5a8](https://github.com/googleapis/python-aiplatform/commit/41cd5a8a502d7c28a1e68500931fcbc21bbbd243))
+* MetricX added to evaluation service proto ([68fc5f2](https://github.com/googleapis/python-aiplatform/commit/68fc5f28b15fb5ac6b2440848b52376acbf09ecf))
+* Trajectory eval metrics added to evaluation service proto ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Vision Models - Add support for Imagen 3 Capabilities to Vertex SDK ([9a30c31](https://github.com/googleapis/python-aiplatform/commit/9a30c3170a7294077681dfd6a16fc46cf7e71cc6))
+
+
+### Bug Fixes
+
+* GenAI - Fixed GAPIC-renamed keys (keys with trailing underscore) in structures returned by the `to_dict` methods. ([9d00424](https://github.com/googleapis/python-aiplatform/commit/9d004246aaa94d6b61881f4fa1cc25ed1cb97db5))
+* Implementation of proto conversion in reasoning engine utils when message is not specified ([99fafe9](https://github.com/googleapis/python-aiplatform/commit/99fafe9044258895a2ff5d04867516a682a08528))
+* Remove check on serving_container_image_uri when artifact_uri and local_model is given ([ccd89b4](https://github.com/googleapis/python-aiplatform/commit/ccd89b41229516c561aee686497ad5af95c844ed))
+
+
+### Documentation
+
+* Automatic Function calling comment update ([91f85ac](https://github.com/googleapis/python-aiplatform/commit/91f85ac2ff91a95eae4ced37a17ec5fc15cd1d28))
+* Clarity and typo fixes for documentation ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* Fix example rpc naming ([6a22bef](https://github.com/googleapis/python-aiplatform/commit/6a22bef757eb975772def918cba7a416f6fd3f70))
+* GenAI - Grounding - Added sample for grounding with Google Search to the Vertex GenAI SDK README. ([4bf9816](https://github.com/googleapis/python-aiplatform/commit/4bf9816f49c02bcdbf83173b531e3a0b4f9ee04d))
+
 ## [1.72.0](https://github.com/googleapis/python-aiplatform/compare/v1.71.1...v1.72.0) (2024-11-12)
 
 

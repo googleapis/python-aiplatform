@@ -365,11 +365,12 @@ class JiraSource(proto.Message):
             server_uri (str):
                 Required. The Jira server URI.
             api_key_config (google.cloud.aiplatform_v1beta1.types.ApiAuth.ApiKeyConfig):
-                Required. The SecretManager secret version
-                resource name (e.g.
+                Required. The SecretManager secret version resource name
+                (e.g.
                 projects/{project}/secrets/{secret}/versions/{version})
-                storing the Jira API key
-                (https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
+                storing the Jira API key. See `Manage API tokens for your
+                Atlassian
+                account <https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/>`__.
         """
 
         projects: MutableSequence[str] = proto.RepeatedField(

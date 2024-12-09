@@ -126,6 +126,10 @@ class PersistentResource(proto.Message):
             deployed to any IP ranges under the provided VPC network.
 
             Example: ['vertex-ai-ip-range'].
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class State(proto.Enum):
@@ -233,6 +237,14 @@ class PersistentResource(proto.Message):
     reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=15,
+    )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=18,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
 
 
@@ -383,6 +395,9 @@ class RaySpec(proto.Message):
             this field if you need all the resource pools to have the
             same Ray image. Otherwise, use the {@code
             resource_pool_images} field.
+        nfs_mounts (MutableSequence[google.cloud.aiplatform_v1beta1.types.NfsMount]):
+            Optional. Use if you want to mount to any NFS
+            storages.
         resource_pool_images (MutableMapping[str, str]):
             Optional. Required if image_uri isn't set. A map of
             resource_pool_id to prebuild Ray image if user need to use
@@ -406,6 +421,11 @@ class RaySpec(proto.Message):
     image_uri: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    nfs_mounts: MutableSequence[machine_resources.NfsMount] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=11,
+        message=machine_resources.NfsMount,
     )
     resource_pool_images: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
