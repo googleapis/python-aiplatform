@@ -22,6 +22,7 @@ from vertexai.preview.rag import (
     EmbeddingModelConfig,
     Filter,
     HybridSearch,
+    LayoutParserConfig,
     LlmRanker,
     Pinecone,
     RagCorpus,
@@ -40,6 +41,9 @@ from vertexai.preview.rag import (
     VertexAiSearchConfig,
     VertexVectorSearch,
     VertexFeatureStore,
+    RagEmbeddingModelConfig,
+    VertexPredictionEndpoint,
+    RagVectorDbConfig,
 )
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
@@ -56,7 +60,7 @@ from google.cloud.aiplatform_v1beta1 import (
     SlackSource as GapicSlackSource,
     RagContexts,
     RetrieveContextsResponse,
-    RagVectorDbConfig,
+    RagVectorDbConfig as GapicRagVectorDbConfig,
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
@@ -112,8 +116,8 @@ TEST_GAPIC_RAG_CORPUS_WEAVIATE = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        weaviate=RagVectorDbConfig.Weaviate(
+    rag_vector_db_config=GapicRagVectorDbConfig(
+        weaviate=GapicRagVectorDbConfig.Weaviate(
             http_endpoint=TEST_WEAVIATE_HTTP_ENDPOINT,
             collection_name=TEST_WEAVIATE_COLLECTION_NAME,
         ),
@@ -128,8 +132,8 @@ TEST_GAPIC_RAG_CORPUS_VERTEX_FEATURE_STORE = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        vertex_feature_store=RagVectorDbConfig.VertexFeatureStore(
+    rag_vector_db_config=GapicRagVectorDbConfig(
+        vertex_feature_store=GapicRagVectorDbConfig.VertexFeatureStore(
             feature_view_resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME
         ),
     ),
@@ -138,8 +142,8 @@ TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        vertex_vector_search=RagVectorDbConfig.VertexVectorSearch(
+    rag_vector_db_config=GapicRagVectorDbConfig(
+        vertex_vector_search=GapicRagVectorDbConfig.VertexVectorSearch(
             index_endpoint=TEST_VERTEX_VECTOR_SEARCH_INDEX_ENDPOINT,
             index=TEST_VERTEX_VECTOR_SEARCH_INDEX,
         ),
@@ -149,8 +153,8 @@ TEST_GAPIC_RAG_CORPUS_PINECONE = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    rag_vector_db_config=RagVectorDbConfig(
-        pinecone=RagVectorDbConfig.Pinecone(index_name=TEST_PINECONE_INDEX_NAME),
+    rag_vector_db_config=GapicRagVectorDbConfig(
+        pinecone=GapicRagVectorDbConfig.Pinecone(index_name=TEST_PINECONE_INDEX_NAME),
         api_auth=api_auth.ApiAuth(
             api_key_config=api_auth.ApiAuth.ApiKeyConfig(
                 api_key_secret_version=TEST_PINECONE_API_KEY_SECRET_VERSION
@@ -160,6 +164,14 @@ TEST_GAPIC_RAG_CORPUS_PINECONE = GapicRagCorpus(
 )
 TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
     publisher_model="publishers/google/models/textembedding-gecko",
+)
+TEST_RAG_EMBEDDING_MODEL_CONFIG = RagEmbeddingModelConfig(
+    vertex_prediction_endpoint=VertexPredictionEndpoint(
+        publisher_model="publishers/google/models/textembedding-gecko",
+    ),
+)
+TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG = RagVectorDbConfig(
+    rag_embedding_model_config=TEST_RAG_EMBEDDING_MODEL_CONFIG,
 )
 TEST_VERTEX_FEATURE_STORE_CONFIG = VertexFeatureStore(
     resource_name=TEST_VERTEX_FEATURE_STORE_RESOURCE_NAME,
@@ -195,6 +207,62 @@ TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
     vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
 )
 TEST_PAGE_TOKEN = "test-page-token"
+# Backend Config
+TEST_GAPIC_RAG_CORPUS_BACKEND_CONFIG = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+)
+TEST_GAPIC_RAG_CORPUS_BACKEND_CONFIG.vector_db_config.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
+    TEST_PROJECT, TEST_REGION
+)
+TEST_GAPIC_RAG_CORPUS_VERTEX_VECTOR_SEARCH_BACKEND_CONFIG = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db_config=GapicRagVectorDbConfig(
+        vertex_vector_search=GapicRagVectorDbConfig.VertexVectorSearch(
+            index_endpoint=TEST_VERTEX_VECTOR_SEARCH_INDEX_ENDPOINT,
+            index=TEST_VERTEX_VECTOR_SEARCH_INDEX,
+        ),
+    ),
+)
+TEST_GAPIC_RAG_CORPUS_PINECONE_BACKEND_CONFIG = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db_config=GapicRagVectorDbConfig(
+        pinecone=GapicRagVectorDbConfig.Pinecone(index_name=TEST_PINECONE_INDEX_NAME),
+        api_auth=api_auth.ApiAuth(
+            api_key_config=api_auth.ApiAuth.ApiKeyConfig(
+                api_key_secret_version=TEST_PINECONE_API_KEY_SECRET_VERSION
+            ),
+        ),
+    ),
+)
+TEST_RAG_CORPUS_BACKEND = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    backend_config=TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
+)
+TEST_BACKEND_CONFIG_PINECONE_CONFIG = RagVectorDbConfig(
+    vector_db=TEST_PINECONE_CONFIG,
+)
+TEST_RAG_CORPUS_PINECONE_BACKEND = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    backend_config=TEST_BACKEND_CONFIG_PINECONE_CONFIG,
+)
+TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG = RagVectorDbConfig(
+    vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+)
+TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH_BACKEND = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    backend_config=TEST_BACKEND_CONFIG_VERTEX_VECTOR_SEARCH_CONFIG,
+)
 # Vertex AI Search Config
 TEST_VERTEX_AI_SEARCH_ENGINE_SERVING_CONFIG = f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/collections/test-collection/engines/test-engine/servingConfigs/test-serving-config"
 TEST_VERTEX_AI_SEARCH_DATASTORE_SERVING_CONFIG = f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/collections/test-collection/dataStores/test-datastore/servingConfigs/test-serving-config"
@@ -240,8 +308,10 @@ TEST_GCS_PATH = "gs://usr/home/data_dir/"
 TEST_FILE_DISPLAY_NAME = "my-file.txt"
 TEST_FILE_DESCRIPTION = "my file."
 TEST_HEADERS = {"X-Goog-Upload-Protocol": "multipart"}
-TEST_UPLOAD_REQUEST_URI = "https://{}/upload/v1beta1/projects/{}/locations/{}/ragCorpora/{}/ragFiles:upload".format(
-    TEST_API_ENDPOINT, TEST_PROJECT_NUMBER, TEST_REGION, TEST_RAG_CORPUS_ID
+TEST_UPLOAD_REQUEST_URI = (
+    "https://{}/v1beta1/projects/{}/locations/{}/ragCorpora/{}/ragFiles:upload".format(
+        TEST_API_ENDPOINT, TEST_PROJECT_NUMBER, TEST_REGION, TEST_RAG_CORPUS_ID
+    )
 )
 TEST_RAG_FILE_ID = "generate-456"
 TEST_RAG_FILE_RESOURCE_NAME = (
@@ -545,6 +615,16 @@ TEST_SHARE_POINT_SOURCE_NO_FOLDERS = SharePointSources(
     ],
 )
 
+TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG = LayoutParserConfig(
+    processor_name="projects/test-project/locations/us/processors/abc123",
+    max_parsing_requests_per_min=100,
+)
+
+TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG = LayoutParserConfig(
+    processor_name="projects/test-project/locations/us/processors/abc123/processorVersions/pretrained-layout-parser-v0.0-2020-01-0",
+    max_parsing_requests_per_min=100,
+)
+
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     share_point_sources=GapicSharePointSources(
@@ -565,6 +645,38 @@ TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
 TEST_IMPORT_REQUEST_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE,
+)
+
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_PATH = ImportRagFilesConfig(
+    TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER
+)
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_PATH.rag_file_parsing_config = (
+    RagFileParsingConfig(
+        layout_parser=RagFileParsingConfig.LayoutParser(
+            processor_name="projects/test-project/locations/us/processors/abc123",
+            max_parsing_requests_per_min=100,
+        )
+    )
+)
+
+TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_PATH,
+)
+
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH = (
+    ImportRagFilesConfig(TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER)
+)
+TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH.rag_file_parsing_config = RagFileParsingConfig(
+    layout_parser=RagFileParsingConfig.LayoutParser(
+        processor_name="projects/test-project/locations/us/processors/abc123/processorVersions/pretrained-layout-parser-v0.0-2020-01-0",
+        max_parsing_requests_per_min=100,
+    )
+)
+
+TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH,
 )
 
 # Retrieval

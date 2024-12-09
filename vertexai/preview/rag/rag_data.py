@@ -45,10 +45,12 @@ from vertexai.preview.rag.utils import (
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     JiraSource,
+    LayoutParserConfig,
     Pinecone,
     RagCorpus,
     RagFile,
     RagManagedDb,
+    RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
     VertexAiSearchConfig,
@@ -67,6 +69,7 @@ def create_corpus(
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
+    backend_config: Optional[RagVectorDbConfig] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -88,11 +91,15 @@ def create_corpus(
             consist of any UTF-8 characters.
         description: The description of the RagCorpus.
         embedding_model_config: The embedding model config.
+            Note: Deprecated. Use backend_config instead.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
             default database Spanner is used.
+            Note: Deprecated. Use backend_config instead.
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
             Note: embedding_model_config or vector_db cannot be set if
             vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. It can specify a
+            Vector DB and/or the embedding model config.
     Returns:
         RagCorpus.
     Raises:
@@ -113,6 +120,22 @@ def create_corpus(
     if vertex_ai_search_config and embedding_model_config:
         raise ValueError(
             "Only one of vertex_ai_search_config or embedding_model_config can be set."
+        )
+
+    if vertex_ai_search_config and backend_config:
+        raise ValueError(
+            "Only one of vertex_ai_search_config or backend_config can be set."
+        )
+
+    if backend_config and (embedding_model_config or vector_db):
+        raise ValueError(
+            "Only one of backend_config or embedding_model_config and vector_db can be set. embedding_model_config and vector_db are deprecated, use backend_config instead."
+        )
+
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
         )
 
     if vertex_ai_search_config and vector_db:
@@ -156,6 +179,7 @@ def update_corpus(
         ]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
+    backend_config: Optional[RagVectorDbConfig] = None,
 ) -> RagCorpus:
     """Updates a RagCorpus resource.
 
@@ -187,6 +211,8 @@ def update_corpus(
           If not provided, the Vertex AI Search config will not be updated.
           Note: embedding_model_config or vector_db cannot be set if
           vertex_ai_search_config is specified.
+        backend_config: The backend config of the RagCorpus. Specifies a Vector
+          DB and/or the embedding model config.
 
     Returns:
         RagCorpus.
@@ -208,6 +234,12 @@ def update_corpus(
 
     if vertex_ai_search_config and vector_db:
         raise ValueError("Only one of vertex_ai_search_config or vector_db can be set.")
+
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
+        )
 
     if vertex_ai_search_config:
         _gapic_utils.set_vertex_ai_search_config(
@@ -377,9 +409,14 @@ def upload_file(
     if display_name is None:
         display_name = "vertex-" + utils.timestamped_unique_name()
     headers = {"X-Goog-Upload-Protocol": "multipart"}
-    upload_request_uri = "https://{}-{}/upload/v1beta1/{}/ragFiles:upload".format(
-        location,
-        aiplatform.constants.base.API_BASE_PATH,
+    if not initializer.global_config.api_endpoint:
+        request_endpoint = "{}-{}".format(
+            location, aiplatform.constants.base.API_BASE_PATH
+        )
+    else:
+        request_endpoint = initializer.global_config.api_endpoint
+    upload_request_uri = "https://{}/v1beta1/{}/ragFiles:upload".format(
+        request_endpoint,
         corpus_name,
     )
     js_rag_file = {"rag_file": {"display_name": display_name}}
@@ -416,7 +453,9 @@ def upload_file(
         raise RuntimeError("Failed in uploading the RagFile due to: ", e) from e
 
     if response.status_code == 404:
-        raise ValueError("RagCorpus '%s' is not found.", corpus_name)
+        raise ValueError(
+            "RagCorpus '%s' is not found: %s", corpus_name, upload_request_uri
+        )
     if response.json().get("error"):
         raise RuntimeError(
             "Failed in indexing the RagFile due to: ", response.json().get("error")
@@ -435,6 +474,7 @@ def import_files(
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -550,6 +590,9 @@ def import_files(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None,`use_advanced_pdf_parsing` must be False.
     Returns:
         ImportRagFilesResponse.
     """
@@ -557,6 +600,11 @@ def import_files(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and layout_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -568,6 +616,7 @@ def import_files(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -588,6 +637,7 @@ async def import_files_async(
     max_embedding_requests_per_min: int = 1000,
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -703,6 +753,9 @@ async def import_files_async(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
+            If not None,`use_advanced_pdf_parsing` must be False.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -710,6 +763,11 @@ async def import_files_async(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if use_advanced_pdf_parsing and layout_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or layout_parser may be "
+            "passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -721,6 +779,7 @@ async def import_files_async(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:

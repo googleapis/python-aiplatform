@@ -421,3 +421,4 @@ VECTOR_SEARCH_PSC_AUTOMATION_CONFIGS = [
     ("test-project", "network1"),
     ("test-project2", "network2"),
 ]
+VECTOR_SEARCH_PSC_MANUAL_IP_ADDRESS = "1.2.3.4"
