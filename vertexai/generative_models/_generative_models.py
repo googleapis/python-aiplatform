@@ -117,6 +117,51 @@ SafetySettingsType = Union[
     ],
 ]
 
+try:
+    # For Pydantic to resolve the forward references inside these aliases.
+    from typing_extensions import TypeAliasType
+
+    PartsType = TypeAliasType(
+        "PartsType",
+        Union[
+            str,
+            "Image",
+            "Part",
+            List[Union[str, "Image", "Part"]],
+        ],
+    )
+    ContentsType = TypeAliasType(
+        "ContentsType",
+        Union[
+            List["Content"],
+            List[ContentDict],
+            str,
+            "Image",
+            "Part",
+            List[Union[str, "Image", "Part"]],
+        ],
+    )
+    GenerationConfigType = TypeAliasType(
+        "GenerationConfigType",
+        Union[
+            "GenerationConfig",
+            GenerationConfigDict,
+        ],
+    )
+    SafetySettingsType = TypeAliasType(
+        "SafetySettingsType",
+        Union[
+            List["SafetySetting"],
+            Dict[
+                gapic_content_types.HarmCategory,
+                gapic_content_types.SafetySetting.HarmBlockThreshold,
+            ],
+        ],
+    )
+except ImportError:
+    # Use existing definitions if typing_extensions is not available.
+    pass
+
 
 def _reconcile_model_name(model_name: str, project: str, location: str) -> str:
     """Returns a model name that's one of the following:
