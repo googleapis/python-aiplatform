@@ -84,10 +84,8 @@ def create_feature_monitor_job_mock():
         FeatureRegistryServiceClient,
         "create_feature_monitor_job",
     ) as create_feature_monitor_job_mock:
-        create_feature_monitor_job_lro_mock = mock.Mock(ga_operation.Operation)
-        create_feature_monitor_job_lro_mock.result.return_value = _TEST_FG1_FMJ1
         create_feature_monitor_job_mock.return_value = (
-            create_feature_monitor_job_lro_mock
+            _TEST_FG1_FMJ1
         )
         yield create_feature_monitor_job_mock
 
@@ -297,27 +295,6 @@ def test_create_feature_monitor_job(
         location=_TEST_LOCATION,
         description=_TEST_FG1_FMJ1_DESCRIPTION,
         labels=_TEST_FG1_FMJ1_LABELS,
-    )
-
-    fm_logger_mock.assert_has_calls(
-        [
-            call("Creating FeatureMonitorJob"),
-            call(
-                f"Create FeatureMonitorJob backing LRO:"
-                f" {create_feature_monitor_job_mock.return_value.operation.name}"
-            ),
-            call(
-                "FeatureMonitorJob created. Resource name:"
-                " projects/test-project/locations/us-central1/featureGroups/"
-                "my_fg1/featureMonitors/my_fg1_fm1/featureMonitorJobs/1234567890"
-            ),
-            call("To use this FeatureMonitorJob in another session:"),
-            call(
-                "feature_monitor_job = aiplatform.FeatureMonitorJob("
-                "'projects/test-project/locations/us-central1/featureGroups/"
-                "my_fg1/featureMonitors/my_fg1_fm1/featureMonitorJobs/1234567890')"
-            ),
-        ]
     )
 
 
