@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.75.0](https://github.com/googleapis/python-aiplatform/compare/v1.74.0...v1.75.0) (2024-12-10)
+
+
+### Features
+
+* Support streaming in the Reasoning Engine Python client. ([a604a2e](https://github.com/googleapis/python-aiplatform/commit/a604a2e5d037836691c30625dc57311baefc74d3))
+
+
+### Bug Fixes
+
+* RAG - Fix the uri used for upload_file ([05f27b6](https://github.com/googleapis/python-aiplatform/commit/05f27b60e142433889824f3bbd6caa93ec56083b))
+* Rag - fix upload file environment mismatch ([b9fecea](https://github.com/googleapis/python-aiplatform/commit/b9fecea66c95abf1ecc8dce4e72374daa7220ec3))
+
 ## [1.74.0](https://github.com/googleapis/python-aiplatform/compare/v1.73.0...v1.74.0) (2024-12-04)
 
 
