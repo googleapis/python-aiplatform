@@ -6324,6 +6324,7 @@ def test_get_notebook_execution_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             schedule_resource_name="schedule_resource_name_value",
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name="kernel_name_value",
             notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
             gcs_output_uri="gcs_output_uri_value",
             execution_user="execution_user_value",
@@ -6342,6 +6343,7 @@ def test_get_notebook_execution_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 def test_get_notebook_execution_job_non_empty_request_with_auto_populated_field():
@@ -6481,6 +6483,7 @@ async def test_get_notebook_execution_job_async(
                 display_name="display_name_value",
                 schedule_resource_name="schedule_resource_name_value",
                 job_state=job_state.JobState.JOB_STATE_QUEUED,
+                kernel_name="kernel_name_value",
             )
         )
         response = await client.get_notebook_execution_job(request)
@@ -6497,6 +6500,7 @@ async def test_get_notebook_execution_job_async(
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 @pytest.mark.asyncio
@@ -11730,6 +11734,7 @@ async def test_get_notebook_execution_job_empty_call_grpc_asyncio():
                 display_name="display_name_value",
                 schedule_resource_name="schedule_resource_name_value",
                 job_state=job_state.JobState.JOB_STATE_QUEUED,
+                kernel_name="kernel_name_value",
             )
         )
         await client.get_notebook_execution_job(request=None)
@@ -13622,6 +13627,7 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
         "gcs_output_uri": "gcs_output_uri_value",
         "execution_user": "execution_user_value",
         "service_account": "service_account_value",
+        "workbench_runtime": {},
         "name": "name_value",
         "display_name": "display_name_value",
         "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -13640,6 +13646,7 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "labels": {},
+        "kernel_name": "kernel_name_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -13842,6 +13849,7 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
             display_name="display_name_value",
             schedule_resource_name="schedule_resource_name_value",
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name="kernel_name_value",
             notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
             gcs_output_uri="gcs_output_uri_value",
             execution_user="execution_user_value",
@@ -13864,6 +13872,7 @@ def test_get_notebook_execution_job_rest_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -17189,6 +17198,7 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
         "gcs_output_uri": "gcs_output_uri_value",
         "execution_user": "execution_user_value",
         "service_account": "service_account_value",
+        "workbench_runtime": {},
         "name": "name_value",
         "display_name": "display_name_value",
         "execution_timeout": {"seconds": 751, "nanos": 543},
@@ -17207,6 +17217,7 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "labels": {},
+        "kernel_name": "kernel_name_value",
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -17429,6 +17440,7 @@ async def test_get_notebook_execution_job_rest_asyncio_call_success(request_type
             display_name="display_name_value",
             schedule_resource_name="schedule_resource_name_value",
             job_state=job_state.JobState.JOB_STATE_QUEUED,
+            kernel_name="kernel_name_value",
             notebook_runtime_template_resource_name="notebook_runtime_template_resource_name_value",
             gcs_output_uri="gcs_output_uri_value",
             execution_user="execution_user_value",
@@ -17453,6 +17465,7 @@ async def test_get_notebook_execution_job_rest_asyncio_call_success(request_type
     assert response.display_name == "display_name_value"
     assert response.schedule_resource_name == "schedule_resource_name_value"
     assert response.job_state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.kernel_name == "kernel_name_value"
 
 
 @pytest.mark.asyncio

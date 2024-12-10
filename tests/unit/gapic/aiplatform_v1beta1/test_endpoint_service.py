@@ -6942,6 +6942,7 @@ def test_create_endpoint_rest_call_success(request_type):
                     },
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
+                    "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
@@ -7016,6 +7017,11 @@ def test_create_endpoint_rest_call_success(request_type):
                     "service_attachment": "service_attachment_value",
                 },
                 "faster_deployment_config": {"fast_tryout_enabled": True},
+                "status": {
+                    "message": "message_value",
+                    "last_update_time": {},
+                    "available_replica_count": 2408,
+                },
                 "system_labels": {},
             }
         ],
@@ -7519,6 +7525,7 @@ def test_update_endpoint_rest_call_success(request_type):
                     },
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
+                    "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
@@ -7593,6 +7600,11 @@ def test_update_endpoint_rest_call_success(request_type):
                     "service_attachment": "service_attachment_value",
                 },
                 "faster_deployment_config": {"fast_tryout_enabled": True},
+                "status": {
+                    "message": "message_value",
+                    "last_update_time": {},
+                    "available_replica_count": 2408,
+                },
                 "system_labels": {},
             }
         ],
@@ -9268,6 +9280,7 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     },
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
+                    "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
@@ -9342,6 +9355,11 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "service_attachment": "service_attachment_value",
                 },
                 "faster_deployment_config": {"fast_tryout_enabled": True},
+                "status": {
+                    "message": "message_value",
+                    "last_update_time": {},
+                    "available_replica_count": 2408,
+                },
                 "system_labels": {},
             }
         ],
@@ -9893,6 +9911,7 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     },
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
+                    "required_replica_count": 2344,
                     "autoscaling_metric_specs": [
                         {"metric_name": "metric_name_value", "target": 647}
                     ],
@@ -9967,6 +9986,11 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "service_attachment": "service_attachment_value",
                 },
                 "faster_deployment_config": {"fast_tryout_enabled": True},
+                "status": {
+                    "message": "message_value",
+                    "last_update_time": {},
+                    "available_replica_count": 2408,
+                },
                 "system_labels": {},
             }
         ],
