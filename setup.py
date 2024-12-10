@@ -131,7 +131,7 @@ ray_testing_extra_require = ray_extra_require + [
     # ray train extras required for prediction tests
     "ray[train]",
     # Framework version constraints copied from testing_extra_require
-    "scikit-learn",
+    "scikit-learn<1.6.0",
     "tensorflow",
     "torch >= 2.0.0, < 2.1.0",
     "xgboost",
@@ -204,7 +204,8 @@ testing_extra_require = (
         "kfp >= 2.6.0, < 3.0.0",
         "pytest-asyncio",
         "pytest-xdist",
-        "scikit-learn",
+        "scikit-learn<1.6.0; python_version<='3.10'",
+        "scikit-learn; python_version>'3.10'",
         # Lazy import requires > 2.12.0
         "tensorflow == 2.13.0; python_version<='3.11'",
         "tensorflow == 2.16.1; python_version>'3.11'",

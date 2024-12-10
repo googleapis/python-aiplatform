@@ -17,10 +17,8 @@
 
 import re
 from typing import Dict, List, Tuple
-from unittest import mock
-from unittest.mock import call, patch
+from unittest.mock import patch
 
-from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 
@@ -84,9 +82,7 @@ def create_feature_monitor_job_mock():
         FeatureRegistryServiceClient,
         "create_feature_monitor_job",
     ) as create_feature_monitor_job_mock:
-        create_feature_monitor_job_mock.return_value = (
-            _TEST_FG1_FMJ1
-        )
+        create_feature_monitor_job_mock.return_value = _TEST_FG1_FMJ1
         yield create_feature_monitor_job_mock
 
 
