@@ -1325,6 +1325,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                     },
                     {
@@ -1538,6 +1542,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1747,6 +1755,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
                     },
                     {
@@ -1961,6 +1973,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
                     },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
                 ],
                 "google.longrunning.Operations.ListOperations": [
                     {
@@ -2158,6 +2174,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -2375,6 +2395,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -2572,6 +2596,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -2784,6 +2812,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                 ],
             }
