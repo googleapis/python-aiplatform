@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
 # limitations under the License.
 #
 
+import logging
+import re
 import google.auth
 import google.auth.transport.requests
-import logging
-import ray
-import re
-from immutabledict import immutabledict
-
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
+from immutabledict import immutabledict
+import ray.python.ray
 
 SUPPORTED_RAY_VERSIONS = immutabledict({"2.9": "2.9.3", "2.33": "2.33.0"})
 SUPPORTED_PY_VERSION = ["3.10"]
