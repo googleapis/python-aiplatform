@@ -1389,6 +1389,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                     },
                     {
@@ -1602,6 +1606,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1811,6 +1819,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
                     },
                     {
@@ -2025,6 +2037,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
                     },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
                 ],
                 "google.longrunning.Operations.ListOperations": [
                     {
@@ -2222,6 +2238,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -2439,6 +2459,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -2636,6 +2660,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -2848,6 +2876,10 @@ class VizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                 ],
             }
