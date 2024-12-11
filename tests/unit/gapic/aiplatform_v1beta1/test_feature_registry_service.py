@@ -1588,6 +1588,8 @@ def test_get_feature_group(request_type, transport: str = "grpc"):
             name="name_value",
             etag="etag_value",
             description="description_value",
+            service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
         )
         response = client.get_feature_group(request)
 
@@ -1602,6 +1604,11 @@ def test_get_feature_group(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
+    assert (
+        response.service_agent_type
+        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
 
 
 def test_get_feature_group_non_empty_request_with_auto_populated_field():
@@ -1737,6 +1744,8 @@ async def test_get_feature_group_async(
                 name="name_value",
                 etag="etag_value",
                 description="description_value",
+                service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+                service_account_email="service_account_email_value",
             )
         )
         response = await client.get_feature_group(request)
@@ -1752,6 +1761,11 @@ async def test_get_feature_group_async(
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
+    assert (
+        response.service_agent_type
+        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
 
 
 @pytest.mark.asyncio
@@ -12668,6 +12682,8 @@ async def test_get_feature_group_empty_call_grpc_asyncio():
                 name="name_value",
                 etag="etag_value",
                 description="description_value",
+                service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+                service_account_email="service_account_email_value",
             )
         )
         await client.get_feature_group(request=None)
@@ -13194,6 +13210,8 @@ def test_create_feature_group_rest_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13388,6 +13406,8 @@ def test_get_feature_group_rest_call_success(request_type):
             name="name_value",
             etag="etag_value",
             description="description_value",
+            service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -13406,6 +13426,11 @@ def test_get_feature_group_rest_call_success(request_type):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
+    assert (
+        response.service_agent_type
+        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -13650,6 +13675,8 @@ def test_update_feature_group_rest_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -17075,6 +17102,8 @@ async def test_create_feature_group_rest_asyncio_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -17287,6 +17316,8 @@ async def test_get_feature_group_rest_asyncio_call_success(request_type):
             name="name_value",
             etag="etag_value",
             description="description_value",
+            service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -17307,6 +17338,11 @@ async def test_get_feature_group_rest_asyncio_call_success(request_type):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
+    assert (
+        response.service_agent_type
+        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
 
 
 @pytest.mark.asyncio
@@ -17582,6 +17618,8 @@ async def test_update_feature_group_rest_asyncio_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
