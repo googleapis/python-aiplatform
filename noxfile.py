@@ -52,6 +52,7 @@ DOCFX_DEPENDENCIES = (
 )
 
 UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "asyncmock",
@@ -275,7 +276,7 @@ def unit_ray(session, ray):
     )
 
 
-@nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
+@nox.session(python=UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS)
 def unit_langchain(session):
     # Install all test dependencies, then install this package in-place.
 
