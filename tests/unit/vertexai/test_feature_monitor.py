@@ -16,11 +16,9 @@
 #
 
 import re
-from typing import Dict, List, Tuple
-from unittest import mock
-from unittest.mock import call, patch
+from typing import Dict, List, Optional, Tuple
+from unittest.mock import patch
 
-from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 
@@ -36,6 +34,7 @@ from feature_store_constants import (
     _TEST_FG1_FM1_SCHEDULE_CONFIG,
     _TEST_FG1_FMJ1,
     _TEST_FG1_FMJ1_DESCRIPTION,
+    _TEST_FG1_FMJ1_FEATURE_STATS_AND_ANOMALIES,
     _TEST_FG1_FMJ1_ID,
     _TEST_FG1_FMJ1_LABELS,
     _TEST_FG1_FMJ_LIST,
@@ -84,9 +83,7 @@ def create_feature_monitor_job_mock():
         FeatureRegistryServiceClient,
         "create_feature_monitor_job",
     ) as create_feature_monitor_job_mock:
-        create_feature_monitor_job_mock.return_value = (
-            _TEST_FG1_FMJ1
-        )
+        create_feature_monitor_job_mock.return_value = _TEST_FG1_FMJ1
         yield create_feature_monitor_job_mock
 
 
@@ -131,6 +128,9 @@ def feature_monitor_job_eq(
     location: str,
     description: str,
     labels: Dict[str, str],
+    feature_stats_and_anomalies: Optional[
+        List[types.feature_monitor.FeatureStatsAndAnomaly]
+    ] = None,
 ):
     """Check if a Feature Monitor Job has the appropriate values set."""
     assert feature_monitor_job_to_check.resource_name == resource_name
@@ -138,6 +138,11 @@ def feature_monitor_job_eq(
     assert feature_monitor_job_to_check.location == location
     assert feature_monitor_job_to_check.description == description
     assert feature_monitor_job_to_check.labels == labels
+    if feature_stats_and_anomalies:
+        assert (
+            feature_monitor_job_to_check.feature_stats_and_anomalies
+            == feature_stats_and_anomalies
+        )
 
 
 def test_init_with_feature_monitor_id_and_no_fg_id_raises_error():
@@ -251,6 +256,7 @@ def test_init_with_feature_monitor_job_path(get_feature_monitor_job_mock):
         location=_TEST_LOCATION,
         description=_TEST_FG1_FMJ1_DESCRIPTION,
         labels=_TEST_FG1_FMJ1_LABELS,
+        feature_stats_and_anomalies=_TEST_FG1_FMJ1_FEATURE_STATS_AND_ANOMALIES,
     )
 
 
@@ -295,6 +301,7 @@ def test_create_feature_monitor_job(
         location=_TEST_LOCATION,
         description=_TEST_FG1_FMJ1_DESCRIPTION,
         labels=_TEST_FG1_FMJ1_LABELS,
+        feature_stats_and_anomalies=_TEST_FG1_FMJ1_FEATURE_STATS_AND_ANOMALIES,
     )
 
 
@@ -324,6 +331,7 @@ def test_get_feature_monitor_job(
         location=_TEST_LOCATION,
         description=_TEST_FG1_FMJ1_DESCRIPTION,
         labels=_TEST_FG1_FMJ1_LABELS,
+        feature_stats_and_anomalies=_TEST_FG1_FMJ1_FEATURE_STATS_AND_ANOMALIES,
     )
 
 

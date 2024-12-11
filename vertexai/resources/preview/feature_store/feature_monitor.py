@@ -189,6 +189,15 @@ class FeatureMonitor(base.VertexAiResourceNounWithFutureManager):
             """The description of the feature monitor."""
             return self._gca_resource.description
 
+        @property
+        def feature_stats_and_anomalies(
+            self,
+        ) -> List[gca_feature_monitor.FeatureStatsAndAnomaly]:
+            """The feature stats and anomaly of the feature monitor job."""
+            if self._gca_resource.job_summary:
+                return self._gca_resource.job_summary.feature_stats_and_anomalies
+            return []
+
     def create_feature_monitor_job(
         self,
         description: Optional[str] = None,

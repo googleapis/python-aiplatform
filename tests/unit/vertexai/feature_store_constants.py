@@ -421,10 +421,33 @@ _TEST_FG1_FMJ1_ID = "1234567890"
 _TEST_FG1_FMJ1_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/featureMonitors/{_TEST_FG1_FM1_ID}/featureMonitorJobs/{_TEST_FG1_FMJ1_ID}"
 _TEST_FG1_FMJ1_DESCRIPTION = "My feature monitor job 1 in feature monitor 1"
 _TEST_FG1_FMJ1_LABELS = {"my_fg1_feature_monitor_job": "fmj1"}
+_TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY = types.feature_monitor.FeatureStatsAndAnomaly(
+    feature_id="my_fg1_f1",
+    distribution_deviation=0.5,
+    drift_detection_threshold=0.4,
+    drift_detected=True,
+    feature_monitor_job_id=_TEST_FG1_FMJ1_ID,
+    feature_monitor_id=_TEST_FG1_FM1_ID,
+)
+_TEST_FG1_F2_FEATURE_STATS_AND_ANOMALY = types.feature_monitor.FeatureStatsAndAnomaly(
+    feature_id="my_fg1_f2",
+    distribution_deviation=0.2,
+    drift_detection_threshold=0.4,
+    drift_detected=False,
+    feature_monitor_job_id=_TEST_FG1_FMJ1_ID,
+    feature_monitor_id=_TEST_FG1_FM1_ID,
+)
+_TEST_FG1_FMJ1_FEATURE_STATS_AND_ANOMALIES = [
+    _TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY,
+    _TEST_FG1_F2_FEATURE_STATS_AND_ANOMALY,
+]
 _TEST_FG1_FMJ1 = types.feature_monitor_job.FeatureMonitorJob(
     name=_TEST_FG1_FMJ1_PATH,
     description=_TEST_FG1_FMJ1_DESCRIPTION,
     labels=_TEST_FG1_FMJ1_LABELS,
+    job_summary=types.feature_monitor_job.FeatureMonitorJob.JobSummary(
+        feature_stats_and_anomalies=_TEST_FG1_FMJ1_FEATURE_STATS_AND_ANOMALIES
+    ),
 )
 _TEST_FG1_FMJ2_ID = "1234567891"
 _TEST_FG1_FMJ2_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG1_ID}/featureMonitors/{_TEST_FG1_FM1_ID}/featureMonitorJobs/{_TEST_FG1_FMJ2_ID}"
