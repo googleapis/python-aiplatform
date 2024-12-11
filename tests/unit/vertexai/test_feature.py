@@ -16,22 +16,28 @@
 #
 
 import re
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from unittest import mock
 from unittest.mock import call, patch
 
 from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform.compat import types
 from google.cloud.aiplatform.compat.services import (
     feature_registry_service_client,
 )
+from google.cloud.aiplatform_v1beta1.services.feature_registry_service import (
+    FeatureRegistryServiceClient,
+)
 from feature_store_constants import (
     _TEST_FG1_F1_DESCRIPTION,
+    _TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY,
     _TEST_FG1_F1_ID,
     _TEST_FG1_F1_LABELS,
     _TEST_FG1_F1_PATH,
     _TEST_FG1_F1_POINT_OF_CONTACT,
+    _TEST_FG1_F1_WITH_STATS,
     _TEST_FG1_F2_DESCRIPTION,
     _TEST_FG1_F2_ID,
     _TEST_FG1_F2_LABELS,
@@ -60,6 +66,16 @@ def delete_feature_mock():
         yield delete_feature_mock
 
 
+@pytest.fixture
+def get_feature_with_stats_and_anomalies_mock():
+    with patch.object(
+        FeatureRegistryServiceClient,
+        "get_feature",
+    ) as get_feature_with_stats_and_anomalies_mock:
+        get_feature_with_stats_and_anomalies_mock.return_value = _TEST_FG1_F1_WITH_STATS
+        yield get_feature_with_stats_and_anomalies_mock
+
+
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
 
 
@@ -73,6 +89,9 @@ def feature_eq(
     labels: Dict[str, str],
     point_of_contact: str,
     version_column_name: Optional[str] = None,
+    feature_stats_and_anomalies: Optional[
+        List[types.feature_monitor.FeatureStatsAndAnomaly]
+    ] = None,
 ):
     """Check if a Feature has the appropriate values set."""
     assert feature_to_check.name == name
@@ -85,6 +104,10 @@ def feature_eq(
 
     if version_column_name:
         assert feature_to_check.version_column_name == version_column_name
+    if feature_stats_and_anomalies:
+        assert (
+            feature_to_check.feature_stats_and_anomalies == feature_stats_and_anomalies
+        )
 
 
 def test_init_with_feature_id_and_no_fg_id_raises_error(get_feature_mock):
@@ -203,6 +226,33 @@ def test_init_with_feature_path_for_explicit_version_column(
         description=_TEST_FG1_F2_DESCRIPTION,
         labels=_TEST_FG1_F2_LABELS,
         point_of_contact=_TEST_FG1_F2_POINT_OF_CONTACT,
+    )
+
+
+def test_init_with_latest_stats_count(get_feature_with_stats_and_anomalies_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    feature = Feature(name=_TEST_FG1_F1_PATH, latest_stats_count=1)
+
+    get_feature_with_stats_and_anomalies_mock.assert_called_once_with(
+        request=types.featurestore_service_v1beta1.GetFeatureRequest(
+            name=_TEST_FG1_F1_PATH,
+            feature_stats_and_anomaly_spec=types.feature_monitor.FeatureStatsAndAnomalySpec(
+                latest_stats_count=1
+            ),
+        )
+    )
+
+    feature_eq(
+        feature,
+        name=_TEST_FG1_F1_ID,
+        resource_name=_TEST_FG1_F1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        description=_TEST_FG1_F1_DESCRIPTION,
+        labels=_TEST_FG1_F1_LABELS,
+        point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+        feature_stats_and_anomalies=[_TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY],
     )
 
 

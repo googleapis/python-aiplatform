@@ -459,3 +459,19 @@ _TEST_FG1_FMJ2 = types.feature_monitor_job.FeatureMonitorJob(
     labels=_TEST_FG1_FMJ2_LABELS,
 )
 _TEST_FG1_FMJ_LIST = [_TEST_FG1_FMJ1, _TEST_FG1_FMJ2]
+
+_TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY = types.feature_monitor.FeatureStatsAndAnomaly(
+    feature_id="my_fg1_f1",
+    distribution_deviation=0.5,
+    drift_detection_threshold=0.4,
+    drift_detected=True,
+    feature_monitor_job_id="1234567890",
+    feature_monitor_id="1234567891",
+)
+_TEST_FG1_F1_WITH_STATS = types.feature_v1beta1.Feature(
+    name=_TEST_FG1_F1_PATH,
+    description=_TEST_FG1_F1_DESCRIPTION,
+    labels=_TEST_FG1_F1_LABELS,
+    point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
+    feature_stats_and_anomaly=[_TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY],
+)
