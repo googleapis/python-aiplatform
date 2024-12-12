@@ -239,6 +239,7 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
     def get_feature(
         self,
         feature_id: str,
+        latest_stats_count: Optional[int] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> Feature:
         """Retrieves an existing managed feature.
@@ -257,6 +258,12 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
         credentials = (
             credentials or self.credentials or initializer.global_config.credentials
         )
+        if latest_stats_count is not None:
+            return Feature(
+                name=f"{self.resource_name}/features/{feature_id}",
+                latest_stats_count=latest_stats_count,
+                credentials=credentials,
+            )
         return Feature(
             f"{self.resource_name}/features/{feature_id}", credentials=credentials
         )

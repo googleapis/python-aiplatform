@@ -16,12 +16,15 @@
 #
 
 import re
-from typing import Optional
+from typing import List, Optional
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
     feature as gca_feature,
+    feature_monitor_v1beta1 as gca_feature_monitor,
+    feature_v1beta1 as gca_feature_v1beta1,
+    featurestore_service_v1beta1 as gca_featurestore_service_v1beta1,
 )
 
 
@@ -44,6 +47,7 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
         feature_group_id: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
+        latest_stats_count: Optional[int] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Retrieves an existing managed feature.
@@ -62,6 +66,9 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
             location:
                 Location to retrieve feature from. If not set, the location set
                 in aiplatform.init will be used.
+            gca_feature_arg:
+                The GCA feature object.
+                Only set when calling from get_feature with latest_stats_count set.
             credentials:
                 Custom credentials to use to retrieve this feature. Overrides
                 credentials set in aiplatform.init.
@@ -102,7 +109,24 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
 
             feature = f"{feature_group_path}/features/{name}"
 
-        self._gca_resource = self._get_gca_resource(resource_name=feature)
+        if latest_stats_count is not None:
+            api_client = self.__class__._instantiate_client(
+                location=location, credentials=credentials
+            )
+
+            feature_obj: gca_feature_v1beta1.Feature = api_client.select_version(
+                "v1beta1"
+            ).get_feature(
+                request=gca_featurestore_service_v1beta1.GetFeatureRequest(
+                    name=f"{feature}",
+                    feature_stats_and_anomaly_spec=gca_feature_monitor.FeatureStatsAndAnomalySpec(
+                        latest_stats_count=latest_stats_count
+                    ),
+                )
+            )
+            self._gca_resource = feature_obj
+        else:
+            self._gca_resource = self._get_gca_resource(resource_name=feature)
 
     @property
     def version_column_name(self) -> str:
@@ -118,3 +142,10 @@ class Feature(base.VertexAiResourceNounWithFutureManager):
     def point_of_contact(self) -> str:
         """The point of contact for the feature."""
         return self._gca_resource.point_of_contact
+
+    @property
+    def feature_stats_and_anomalies(
+        self,
+    ) -> List[gca_feature_monitor.FeatureStatsAndAnomaly]:
+        """The number of latest stats to return. Only present when gca_feature is set."""
+        return self._gca_resource.feature_stats_and_anomaly
