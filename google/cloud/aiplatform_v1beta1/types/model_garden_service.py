@@ -132,9 +132,6 @@ class ListPublisherModelsRequest(proto.Message):
             representing the language in which the publisher
             models' text information should be written in.
             If not set, by default English (en).
-        list_all_versions (bool):
-            Optional. List all publisher model versions
-            if the flag is set to true.
     """
 
     parent: str = proto.Field(
@@ -165,10 +162,6 @@ class ListPublisherModelsRequest(proto.Message):
     language_code: str = proto.Field(
         proto.STRING,
         number=7,
-    )
-    list_all_versions: bool = proto.Field(
-        proto.BOOL,
-        number=8,
     )
 
 

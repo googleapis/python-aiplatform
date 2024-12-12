@@ -59,18 +59,6 @@ from .rest_base import _BaseVertexRagDataServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
-
-import logging
-
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
-
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -187,10 +175,9 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_create_rag_corpus(
         self,
         request: vertex_rag_data_service.CreateRagCorpusRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        vertex_rag_data_service.CreateRagCorpusRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        vertex_rag_data_service.CreateRagCorpusRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for create_rag_corpus
 
@@ -213,10 +200,9 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_delete_rag_corpus(
         self,
         request: vertex_rag_data_service.DeleteRagCorpusRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        vertex_rag_data_service.DeleteRagCorpusRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        vertex_rag_data_service.DeleteRagCorpusRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for delete_rag_corpus
 
@@ -239,11 +225,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_delete_rag_file(
         self,
         request: vertex_rag_data_service.DeleteRagFileRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vertex_rag_data_service.DeleteRagFileRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vertex_rag_data_service.DeleteRagFileRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_rag_file
 
         Override in a subclass to manipulate the request or metadata
@@ -265,11 +248,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_get_rag_corpus(
         self,
         request: vertex_rag_data_service.GetRagCorpusRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vertex_rag_data_service.GetRagCorpusRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vertex_rag_data_service.GetRagCorpusRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_rag_corpus
 
         Override in a subclass to manipulate the request or metadata
@@ -291,11 +271,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_get_rag_file(
         self,
         request: vertex_rag_data_service.GetRagFileRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vertex_rag_data_service.GetRagFileRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vertex_rag_data_service.GetRagFileRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_rag_file
 
         Override in a subclass to manipulate the request or metadata
@@ -317,10 +294,9 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_import_rag_files(
         self,
         request: vertex_rag_data_service.ImportRagFilesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        vertex_rag_data_service.ImportRagFilesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        vertex_rag_data_service.ImportRagFilesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for import_rag_files
 
@@ -343,10 +319,9 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_list_rag_corpora(
         self,
         request: vertex_rag_data_service.ListRagCorporaRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        vertex_rag_data_service.ListRagCorporaRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        vertex_rag_data_service.ListRagCorporaRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for list_rag_corpora
 
@@ -369,11 +344,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_list_rag_files(
         self,
         request: vertex_rag_data_service.ListRagFilesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vertex_rag_data_service.ListRagFilesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vertex_rag_data_service.ListRagFilesRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_rag_files
 
         Override in a subclass to manipulate the request or metadata
@@ -395,10 +367,9 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_update_rag_corpus(
         self,
         request: vertex_rag_data_service.UpdateRagCorpusRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        vertex_rag_data_service.UpdateRagCorpusRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        vertex_rag_data_service.UpdateRagCorpusRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for update_rag_corpus
 
@@ -421,11 +392,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_upload_rag_file(
         self,
         request: vertex_rag_data_service.UploadRagFileRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vertex_rag_data_service.UploadRagFileRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vertex_rag_data_service.UploadRagFileRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for upload_rag_file
 
         Override in a subclass to manipulate the request or metadata
@@ -447,10 +415,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -472,10 +438,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -497,10 +461,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -522,10 +484,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -547,11 +507,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -573,10 +530,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -596,10 +551,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -619,10 +572,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -644,10 +595,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -669,10 +618,8 @@ class AsyncVertexRagDataServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -903,7 +850,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create rag corpus method over HTTP.
 
@@ -914,10 +861,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -930,7 +875,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseCreateRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_rag_corpus(
                 request, metadata
             )
@@ -946,33 +890,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseCreateRagCorpus._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.CreateRagCorpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "CreateRagCorpus",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._CreateRagCorpus._get_response(
@@ -1002,28 +919,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_rag_corpus(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.create_rag_corpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "CreateRagCorpus",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _DeleteRagCorpus(
@@ -1062,7 +957,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete rag corpus method over HTTP.
 
@@ -1073,10 +968,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1089,7 +982,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_rag_corpus(
                 request, metadata
             )
@@ -1101,33 +993,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagCorpus._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.DeleteRagCorpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "DeleteRagCorpus",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._DeleteRagCorpus._get_response(
@@ -1156,28 +1021,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_rag_corpus(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.delete_rag_corpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "DeleteRagCorpus",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _DeleteRagFile(
@@ -1216,7 +1059,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete rag file method over HTTP.
 
@@ -1227,10 +1070,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1243,7 +1084,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteRagFile._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_rag_file(
                 request, metadata
             )
@@ -1255,33 +1095,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteRagFile._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.DeleteRagFile",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "DeleteRagFile",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._DeleteRagFile._get_response(
@@ -1310,28 +1123,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_rag_file(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.delete_rag_file",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "DeleteRagFile",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _GetRagCorpus(
@@ -1370,7 +1161,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vertex_rag_data.RagCorpus:
             r"""Call the get rag corpus method over HTTP.
 
@@ -1381,10 +1172,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vertex_rag_data.RagCorpus:
@@ -1397,7 +1186,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_rag_corpus(
                 request, metadata
             )
@@ -1409,33 +1197,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagCorpus._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.GetRagCorpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetRagCorpus",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._GetRagCorpus._get_response(
@@ -1464,28 +1225,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_rag_corpus(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = vertex_rag_data.RagCorpus.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.get_rag_corpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetRagCorpus",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _GetRagFile(
@@ -1524,7 +1263,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vertex_rag_data.RagFile:
             r"""Call the get rag file method over HTTP.
 
@@ -1535,10 +1274,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vertex_rag_data.RagFile:
@@ -1550,7 +1287,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagFile._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_rag_file(
                 request, metadata
             )
@@ -1562,33 +1298,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseGetRagFile._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.GetRagFile",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetRagFile",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -1619,28 +1328,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_rag_file(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = vertex_rag_data.RagFile.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.get_rag_file",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetRagFile",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ImportRagFiles(
@@ -1680,7 +1367,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the import rag files method over HTTP.
 
@@ -1691,10 +1378,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1707,7 +1392,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseImportRagFiles._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_import_rag_files(
                 request, metadata
             )
@@ -1723,33 +1407,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseImportRagFiles._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.ImportRagFiles",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ImportRagFiles",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._ImportRagFiles._get_response(
@@ -1779,28 +1436,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_import_rag_files(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.import_rag_files",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ImportRagFiles",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListRagCorpora(
@@ -1839,7 +1474,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vertex_rag_data_service.ListRagCorporaResponse:
             r"""Call the list rag corpora method over HTTP.
 
@@ -1850,10 +1485,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vertex_rag_data_service.ListRagCorporaResponse:
@@ -1865,7 +1498,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListRagCorpora._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_rag_corpora(
                 request, metadata
             )
@@ -1877,33 +1509,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseListRagCorpora._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.ListRagCorpora",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListRagCorpora",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._ListRagCorpora._get_response(
@@ -1932,30 +1537,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_rag_corpora(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        vertex_rag_data_service.ListRagCorporaResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.list_rag_corpora",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListRagCorpora",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListRagFiles(
@@ -1994,7 +1575,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vertex_rag_data_service.ListRagFilesResponse:
             r"""Call the list rag files method over HTTP.
 
@@ -2005,10 +1586,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vertex_rag_data_service.ListRagFilesResponse:
@@ -2020,7 +1599,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListRagFiles._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_rag_files(
                 request, metadata
             )
@@ -2032,33 +1610,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseListRagFiles._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.ListRagFiles",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListRagFiles",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._ListRagFiles._get_response(
@@ -2087,30 +1638,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_rag_files(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        vertex_rag_data_service.ListRagFilesResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.list_rag_files",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListRagFiles",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _UpdateRagCorpus(
@@ -2150,7 +1677,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update rag corpus method over HTTP.
 
@@ -2161,10 +1688,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2177,7 +1702,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseUpdateRagCorpus._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_rag_corpus(
                 request, metadata
             )
@@ -2193,33 +1717,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseUpdateRagCorpus._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.UpdateRagCorpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "UpdateRagCorpus",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._UpdateRagCorpus._get_response(
@@ -2249,28 +1746,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_rag_corpus(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.update_rag_corpus",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "UpdateRagCorpus",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _UploadRagFile(
@@ -2310,7 +1785,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vertex_rag_data_service.UploadRagFileResponse:
             r"""Call the upload rag file method over HTTP.
 
@@ -2321,10 +1796,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vertex_rag_data_service.UploadRagFileResponse:
@@ -2336,7 +1809,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_upload_rag_file(
                 request, metadata
             )
@@ -2352,33 +1824,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseUploadRagFile._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.UploadRagFile",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "UploadRagFile",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._UploadRagFile._get_response(
@@ -2408,30 +1853,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_upload_rag_file(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        vertex_rag_data_service.UploadRagFileResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.upload_rag_file",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "UploadRagFile",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     @property
@@ -4432,7 +3853,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -4443,10 +3864,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -4455,7 +3874,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -4467,33 +3885,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4522,27 +3913,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4585,7 +3955,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -4596,10 +3966,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -4608,7 +3976,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -4620,33 +3987,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._ListLocations._get_response(
@@ -4673,27 +4013,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4736,7 +4055,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -4747,10 +4066,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -4759,7 +4076,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -4771,33 +4087,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._GetIamPolicy._get_response(
@@ -4824,27 +4113,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4888,7 +4156,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -4899,10 +4167,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -4911,7 +4177,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -4927,33 +4192,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._SetIamPolicy._get_response(
@@ -4981,27 +4219,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5044,7 +4261,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -5055,10 +4272,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -5067,7 +4282,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -5079,33 +4293,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._TestIamPermissions._get_response(
@@ -5132,27 +4319,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5195,7 +4361,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -5206,16 +4372,13 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -5227,33 +4390,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._CancelOperation._get_response(
@@ -5318,7 +4454,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -5329,16 +4465,13 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -5350,33 +4483,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._DeleteOperation._get_response(
@@ -5441,7 +4547,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -5452,10 +4558,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -5464,7 +4568,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -5476,33 +4579,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._GetOperation._get_response(
@@ -5529,27 +4605,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5592,7 +4647,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -5603,10 +4658,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -5615,7 +4668,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -5627,33 +4679,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._ListOperations._get_response(
@@ -5680,27 +4705,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5743,7 +4747,7 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -5754,10 +4758,8 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -5766,7 +4768,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             http_options = (
                 _BaseVertexRagDataServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -5778,33 +4779,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             query_params = _BaseVertexRagDataServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VertexRagDataServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVertexRagDataServiceRestTransport._WaitOperation._get_response(
@@ -5831,27 +4805,6 @@ class AsyncVertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransp
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VertexRagDataServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VertexRagDataService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

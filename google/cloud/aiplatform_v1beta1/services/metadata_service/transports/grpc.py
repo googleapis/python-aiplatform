@@ -13,9 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import json
-import logging as std_logging
-import pickle
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -25,11 +22,8 @@ from google.api_core import gapic_v1
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.protobuf.json_format import MessageToJson
-import google.protobuf.message
 
 import grpc  # type: ignore
-import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
@@ -47,81 +41,6 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from .base import MetadataServiceTransport, DEFAULT_CLIENT_INFO
-
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = std_logging.getLogger(__name__)
-
-
-class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO COVER
-    def intercept_unary_unary(self, continuation, client_call_details, request):
-        logging_enabled = CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-            std_logging.DEBUG
-        )
-        if logging_enabled:  # pragma: NO COVER
-            request_metadata = client_call_details.metadata
-            if isinstance(request, proto.Message):
-                request_payload = type(request).to_json(request)
-            elif isinstance(request, google.protobuf.message.Message):
-                request_payload = MessageToJson(request)
-            else:
-                request_payload = f"{type(request).__name__}: {pickle.dumps(request)}"
-
-            request_metadata = {
-                key: value.decode("utf-8") if isinstance(value, bytes) else value
-                for key, value in request_metadata
-            }
-            grpc_request = {
-                "payload": request_payload,
-                "requestMethod": "grpc",
-                "metadata": dict(request_metadata),
-            }
-            _LOGGER.debug(
-                f"Sending request for {client_call_details.method}",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1beta1.MetadataService",
-                    "rpcName": client_call_details.method,
-                    "request": grpc_request,
-                    "metadata": grpc_request["metadata"],
-                },
-            )
-
-        response = continuation(client_call_details, request)
-        if logging_enabled:  # pragma: NO COVER
-            response_metadata = response.trailing_metadata()
-            # Convert gRPC metadata `<class 'grpc.aio._metadata.Metadata'>` to list of tuples
-            metadata = (
-                dict([(k, str(v)) for k, v in response_metadata])
-                if response_metadata
-                else None
-            )
-            result = response.result()
-            if isinstance(result, proto.Message):
-                response_payload = type(result).to_json(result)
-            elif isinstance(result, google.protobuf.message.Message):
-                response_payload = MessageToJson(result)
-            else:
-                response_payload = f"{type(result).__name__}: {pickle.dumps(result)}"
-            grpc_response = {
-                "payload": response_payload,
-                "metadata": metadata,
-                "status": "OK",
-            }
-            _LOGGER.debug(
-                f"Received response for {client_call_details.method}.",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1beta1.MetadataService",
-                    "rpcName": client_call_details.method,
-                    "response": grpc_response,
-                    "metadata": grpc_response["metadata"],
-                },
-            )
-        return response
 
 
 class MetadataServiceGrpcTransport(MetadataServiceTransport):
@@ -277,12 +196,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
                 ],
             )
 
-        self._interceptor = _LoggingClientInterceptor()
-        self._logged_channel = grpc.intercept_channel(
-            self._grpc_channel, self._interceptor
-        )
-
-        # Wrap messages. This must be done after self._logged_channel exists
+        # Wrap messages. This must be done after self._grpc_channel exists
         self._prep_wrapped_messages(client_info)
 
     @classmethod
@@ -346,9 +260,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         """
         # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsClient(
-                self._logged_channel
-            )
+            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
         # Return the client from cache.
         return self._operations_client
@@ -375,7 +287,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_metadata_store" not in self._stubs:
-            self._stubs["create_metadata_store"] = self._logged_channel.unary_unary(
+            self._stubs["create_metadata_store"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/CreateMetadataStore",
                 request_serializer=metadata_service.CreateMetadataStoreRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -403,7 +315,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_metadata_store" not in self._stubs:
-            self._stubs["get_metadata_store"] = self._logged_channel.unary_unary(
+            self._stubs["get_metadata_store"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/GetMetadataStore",
                 request_serializer=metadata_service.GetMetadataStoreRequest.serialize,
                 response_deserializer=metadata_store.MetadataStore.deserialize,
@@ -432,7 +344,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_metadata_stores" not in self._stubs:
-            self._stubs["list_metadata_stores"] = self._logged_channel.unary_unary(
+            self._stubs["list_metadata_stores"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/ListMetadataStores",
                 request_serializer=metadata_service.ListMetadataStoresRequest.serialize,
                 response_deserializer=metadata_service.ListMetadataStoresResponse.deserialize,
@@ -461,7 +373,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_metadata_store" not in self._stubs:
-            self._stubs["delete_metadata_store"] = self._logged_channel.unary_unary(
+            self._stubs["delete_metadata_store"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteMetadataStore",
                 request_serializer=metadata_service.DeleteMetadataStoreRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -487,7 +399,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_artifact" not in self._stubs:
-            self._stubs["create_artifact"] = self._logged_channel.unary_unary(
+            self._stubs["create_artifact"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/CreateArtifact",
                 request_serializer=metadata_service.CreateArtifactRequest.serialize,
                 response_deserializer=gca_artifact.Artifact.deserialize,
@@ -513,7 +425,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_artifact" not in self._stubs:
-            self._stubs["get_artifact"] = self._logged_channel.unary_unary(
+            self._stubs["get_artifact"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/GetArtifact",
                 request_serializer=metadata_service.GetArtifactRequest.serialize,
                 response_deserializer=artifact.Artifact.deserialize,
@@ -541,7 +453,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_artifacts" not in self._stubs:
-            self._stubs["list_artifacts"] = self._logged_channel.unary_unary(
+            self._stubs["list_artifacts"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/ListArtifacts",
                 request_serializer=metadata_service.ListArtifactsRequest.serialize,
                 response_deserializer=metadata_service.ListArtifactsResponse.deserialize,
@@ -567,7 +479,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_artifact" not in self._stubs:
-            self._stubs["update_artifact"] = self._logged_channel.unary_unary(
+            self._stubs["update_artifact"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/UpdateArtifact",
                 request_serializer=metadata_service.UpdateArtifactRequest.serialize,
                 response_deserializer=gca_artifact.Artifact.deserialize,
@@ -593,7 +505,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_artifact" not in self._stubs:
-            self._stubs["delete_artifact"] = self._logged_channel.unary_unary(
+            self._stubs["delete_artifact"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteArtifact",
                 request_serializer=metadata_service.DeleteArtifactRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -619,7 +531,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "purge_artifacts" not in self._stubs:
-            self._stubs["purge_artifacts"] = self._logged_channel.unary_unary(
+            self._stubs["purge_artifacts"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/PurgeArtifacts",
                 request_serializer=metadata_service.PurgeArtifactsRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -645,7 +557,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_context" not in self._stubs:
-            self._stubs["create_context"] = self._logged_channel.unary_unary(
+            self._stubs["create_context"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/CreateContext",
                 request_serializer=metadata_service.CreateContextRequest.serialize,
                 response_deserializer=gca_context.Context.deserialize,
@@ -671,7 +583,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_context" not in self._stubs:
-            self._stubs["get_context"] = self._logged_channel.unary_unary(
+            self._stubs["get_context"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/GetContext",
                 request_serializer=metadata_service.GetContextRequest.serialize,
                 response_deserializer=context.Context.deserialize,
@@ -699,7 +611,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_contexts" not in self._stubs:
-            self._stubs["list_contexts"] = self._logged_channel.unary_unary(
+            self._stubs["list_contexts"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/ListContexts",
                 request_serializer=metadata_service.ListContextsRequest.serialize,
                 response_deserializer=metadata_service.ListContextsResponse.deserialize,
@@ -725,7 +637,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_context" not in self._stubs:
-            self._stubs["update_context"] = self._logged_channel.unary_unary(
+            self._stubs["update_context"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/UpdateContext",
                 request_serializer=metadata_service.UpdateContextRequest.serialize,
                 response_deserializer=gca_context.Context.deserialize,
@@ -751,7 +663,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_context" not in self._stubs:
-            self._stubs["delete_context"] = self._logged_channel.unary_unary(
+            self._stubs["delete_context"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteContext",
                 request_serializer=metadata_service.DeleteContextRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -777,7 +689,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "purge_contexts" not in self._stubs:
-            self._stubs["purge_contexts"] = self._logged_channel.unary_unary(
+            self._stubs["purge_contexts"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/PurgeContexts",
                 request_serializer=metadata_service.PurgeContextsRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -811,7 +723,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         if "add_context_artifacts_and_executions" not in self._stubs:
             self._stubs[
                 "add_context_artifacts_and_executions"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/AddContextArtifactsAndExecutions",
                 request_serializer=metadata_service.AddContextArtifactsAndExecutionsRequest.serialize,
                 response_deserializer=metadata_service.AddContextArtifactsAndExecutionsResponse.deserialize,
@@ -844,7 +756,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "add_context_children" not in self._stubs:
-            self._stubs["add_context_children"] = self._logged_channel.unary_unary(
+            self._stubs["add_context_children"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/AddContextChildren",
                 request_serializer=metadata_service.AddContextChildrenRequest.serialize,
                 response_deserializer=metadata_service.AddContextChildrenResponse.deserialize,
@@ -875,7 +787,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "remove_context_children" not in self._stubs:
-            self._stubs["remove_context_children"] = self._logged_channel.unary_unary(
+            self._stubs["remove_context_children"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/RemoveContextChildren",
                 request_serializer=metadata_service.RemoveContextChildrenRequest.serialize,
                 response_deserializer=metadata_service.RemoveContextChildrenResponse.deserialize,
@@ -908,7 +820,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         if "query_context_lineage_subgraph" not in self._stubs:
             self._stubs[
                 "query_context_lineage_subgraph"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/QueryContextLineageSubgraph",
                 request_serializer=metadata_service.QueryContextLineageSubgraphRequest.serialize,
                 response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
@@ -934,7 +846,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_execution" not in self._stubs:
-            self._stubs["create_execution"] = self._logged_channel.unary_unary(
+            self._stubs["create_execution"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/CreateExecution",
                 request_serializer=metadata_service.CreateExecutionRequest.serialize,
                 response_deserializer=gca_execution.Execution.deserialize,
@@ -960,7 +872,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_execution" not in self._stubs:
-            self._stubs["get_execution"] = self._logged_channel.unary_unary(
+            self._stubs["get_execution"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/GetExecution",
                 request_serializer=metadata_service.GetExecutionRequest.serialize,
                 response_deserializer=execution.Execution.deserialize,
@@ -989,7 +901,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_executions" not in self._stubs:
-            self._stubs["list_executions"] = self._logged_channel.unary_unary(
+            self._stubs["list_executions"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/ListExecutions",
                 request_serializer=metadata_service.ListExecutionsRequest.serialize,
                 response_deserializer=metadata_service.ListExecutionsResponse.deserialize,
@@ -1015,7 +927,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_execution" not in self._stubs:
-            self._stubs["update_execution"] = self._logged_channel.unary_unary(
+            self._stubs["update_execution"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/UpdateExecution",
                 request_serializer=metadata_service.UpdateExecutionRequest.serialize,
                 response_deserializer=gca_execution.Execution.deserialize,
@@ -1041,7 +953,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_execution" not in self._stubs:
-            self._stubs["delete_execution"] = self._logged_channel.unary_unary(
+            self._stubs["delete_execution"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteExecution",
                 request_serializer=metadata_service.DeleteExecutionRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1067,7 +979,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "purge_executions" not in self._stubs:
-            self._stubs["purge_executions"] = self._logged_channel.unary_unary(
+            self._stubs["purge_executions"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/PurgeExecutions",
                 request_serializer=metadata_service.PurgeExecutionsRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1100,7 +1012,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "add_execution_events" not in self._stubs:
-            self._stubs["add_execution_events"] = self._logged_channel.unary_unary(
+            self._stubs["add_execution_events"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/AddExecutionEvents",
                 request_serializer=metadata_service.AddExecutionEventsRequest.serialize,
                 response_deserializer=metadata_service.AddExecutionEventsResponse.deserialize,
@@ -1134,7 +1046,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         if "query_execution_inputs_and_outputs" not in self._stubs:
             self._stubs[
                 "query_execution_inputs_and_outputs"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/QueryExecutionInputsAndOutputs",
                 request_serializer=metadata_service.QueryExecutionInputsAndOutputsRequest.serialize,
                 response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
@@ -1163,7 +1075,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_metadata_schema" not in self._stubs:
-            self._stubs["create_metadata_schema"] = self._logged_channel.unary_unary(
+            self._stubs["create_metadata_schema"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/CreateMetadataSchema",
                 request_serializer=metadata_service.CreateMetadataSchemaRequest.serialize,
                 response_deserializer=gca_metadata_schema.MetadataSchema.deserialize,
@@ -1191,7 +1103,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_metadata_schema" not in self._stubs:
-            self._stubs["get_metadata_schema"] = self._logged_channel.unary_unary(
+            self._stubs["get_metadata_schema"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/GetMetadataSchema",
                 request_serializer=metadata_service.GetMetadataSchemaRequest.serialize,
                 response_deserializer=metadata_schema.MetadataSchema.deserialize,
@@ -1220,7 +1132,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_metadata_schemas" not in self._stubs:
-            self._stubs["list_metadata_schemas"] = self._logged_channel.unary_unary(
+            self._stubs["list_metadata_schemas"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/ListMetadataSchemas",
                 request_serializer=metadata_service.ListMetadataSchemasRequest.serialize,
                 response_deserializer=metadata_service.ListMetadataSchemasResponse.deserialize,
@@ -1254,7 +1166,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         if "query_artifact_lineage_subgraph" not in self._stubs:
             self._stubs[
                 "query_artifact_lineage_subgraph"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MetadataService/QueryArtifactLineageSubgraph",
                 request_serializer=metadata_service.QueryArtifactLineageSubgraphRequest.serialize,
                 response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
@@ -1262,7 +1174,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         return self._stubs["query_artifact_lineage_subgraph"]
 
     def close(self):
-        self._logged_channel.close()
+        self.grpc_channel.close()
 
     @property
     def delete_operation(
@@ -1274,7 +1186,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_operation" not in self._stubs:
-            self._stubs["delete_operation"] = self._logged_channel.unary_unary(
+            self._stubs["delete_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/DeleteOperation",
                 request_serializer=operations_pb2.DeleteOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -1291,7 +1203,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_operation" not in self._stubs:
-            self._stubs["cancel_operation"] = self._logged_channel.unary_unary(
+            self._stubs["cancel_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/CancelOperation",
                 request_serializer=operations_pb2.CancelOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -1308,7 +1220,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "wait_operation" not in self._stubs:
-            self._stubs["wait_operation"] = self._logged_channel.unary_unary(
+            self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -1325,7 +1237,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_operation" not in self._stubs:
-            self._stubs["get_operation"] = self._logged_channel.unary_unary(
+            self._stubs["get_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/GetOperation",
                 request_serializer=operations_pb2.GetOperationRequest.SerializeToString,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1344,7 +1256,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_operations" not in self._stubs:
-            self._stubs["list_operations"] = self._logged_channel.unary_unary(
+            self._stubs["list_operations"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/ListOperations",
                 request_serializer=operations_pb2.ListOperationsRequest.SerializeToString,
                 response_deserializer=operations_pb2.ListOperationsResponse.FromString,
@@ -1363,7 +1275,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_locations" not in self._stubs:
-            self._stubs["list_locations"] = self._logged_channel.unary_unary(
+            self._stubs["list_locations"] = self.grpc_channel.unary_unary(
                 "/google.cloud.location.Locations/ListLocations",
                 request_serializer=locations_pb2.ListLocationsRequest.SerializeToString,
                 response_deserializer=locations_pb2.ListLocationsResponse.FromString,
@@ -1380,7 +1292,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_location" not in self._stubs:
-            self._stubs["get_location"] = self._logged_channel.unary_unary(
+            self._stubs["get_location"] = self.grpc_channel.unary_unary(
                 "/google.cloud.location.Locations/GetLocation",
                 request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
                 response_deserializer=locations_pb2.Location.FromString,
@@ -1405,7 +1317,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "set_iam_policy" not in self._stubs:
-            self._stubs["set_iam_policy"] = self._logged_channel.unary_unary(
+            self._stubs["set_iam_policy"] = self.grpc_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/SetIamPolicy",
                 request_serializer=iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1431,7 +1343,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_iam_policy" not in self._stubs:
-            self._stubs["get_iam_policy"] = self._logged_channel.unary_unary(
+            self._stubs["get_iam_policy"] = self.grpc_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/GetIamPolicy",
                 request_serializer=iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1460,7 +1372,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "test_iam_permissions" not in self._stubs:
-            self._stubs["test_iam_permissions"] = self._logged_channel.unary_unary(
+            self._stubs["test_iam_permissions"] = self.grpc_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/TestIamPermissions",
                 request_serializer=iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
                 response_deserializer=iam_policy_pb2.TestIamPermissionsResponse.FromString,

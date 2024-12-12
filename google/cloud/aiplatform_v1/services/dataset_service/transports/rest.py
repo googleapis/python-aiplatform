@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
-import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
+import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -53,14 +52,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -245,10 +236,8 @@ class DatasetServiceRestInterceptor:
     def pre_create_dataset(
         self,
         request: dataset_service.CreateDatasetRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.CreateDatasetRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.CreateDatasetRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_dataset
 
         Override in a subclass to manipulate the request or metadata
@@ -270,11 +259,8 @@ class DatasetServiceRestInterceptor:
     def pre_create_dataset_version(
         self,
         request: dataset_service.CreateDatasetVersionRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.CreateDatasetVersionRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.CreateDatasetVersionRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_dataset_version
 
         Override in a subclass to manipulate the request or metadata
@@ -296,10 +282,8 @@ class DatasetServiceRestInterceptor:
     def pre_delete_dataset(
         self,
         request: dataset_service.DeleteDatasetRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.DeleteDatasetRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.DeleteDatasetRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_dataset
 
         Override in a subclass to manipulate the request or metadata
@@ -321,11 +305,8 @@ class DatasetServiceRestInterceptor:
     def pre_delete_dataset_version(
         self,
         request: dataset_service.DeleteDatasetVersionRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.DeleteDatasetVersionRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.DeleteDatasetVersionRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_dataset_version
 
         Override in a subclass to manipulate the request or metadata
@@ -347,10 +328,8 @@ class DatasetServiceRestInterceptor:
     def pre_delete_saved_query(
         self,
         request: dataset_service.DeleteSavedQueryRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.DeleteSavedQueryRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.DeleteSavedQueryRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_saved_query
 
         Override in a subclass to manipulate the request or metadata
@@ -372,10 +351,8 @@ class DatasetServiceRestInterceptor:
     def pre_export_data(
         self,
         request: dataset_service.ExportDataRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.ExportDataRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.ExportDataRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for export_data
 
         Override in a subclass to manipulate the request or metadata
@@ -397,11 +374,8 @@ class DatasetServiceRestInterceptor:
     def pre_get_annotation_spec(
         self,
         request: dataset_service.GetAnnotationSpecRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.GetAnnotationSpecRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.GetAnnotationSpecRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_annotation_spec
 
         Override in a subclass to manipulate the request or metadata
@@ -423,10 +397,8 @@ class DatasetServiceRestInterceptor:
     def pre_get_dataset(
         self,
         request: dataset_service.GetDatasetRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.GetDatasetRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.GetDatasetRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_dataset
 
         Override in a subclass to manipulate the request or metadata
@@ -446,11 +418,8 @@ class DatasetServiceRestInterceptor:
     def pre_get_dataset_version(
         self,
         request: dataset_service.GetDatasetVersionRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.GetDatasetVersionRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.GetDatasetVersionRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_dataset_version
 
         Override in a subclass to manipulate the request or metadata
@@ -472,10 +441,8 @@ class DatasetServiceRestInterceptor:
     def pre_import_data(
         self,
         request: dataset_service.ImportDataRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.ImportDataRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.ImportDataRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for import_data
 
         Override in a subclass to manipulate the request or metadata
@@ -497,10 +464,8 @@ class DatasetServiceRestInterceptor:
     def pre_list_annotations(
         self,
         request: dataset_service.ListAnnotationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.ListAnnotationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.ListAnnotationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_annotations
 
         Override in a subclass to manipulate the request or metadata
@@ -522,10 +487,8 @@ class DatasetServiceRestInterceptor:
     def pre_list_data_items(
         self,
         request: dataset_service.ListDataItemsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.ListDataItemsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.ListDataItemsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_data_items
 
         Override in a subclass to manipulate the request or metadata
@@ -547,10 +510,8 @@ class DatasetServiceRestInterceptor:
     def pre_list_datasets(
         self,
         request: dataset_service.ListDatasetsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.ListDatasetsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.ListDatasetsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_datasets
 
         Override in a subclass to manipulate the request or metadata
@@ -572,11 +533,8 @@ class DatasetServiceRestInterceptor:
     def pre_list_dataset_versions(
         self,
         request: dataset_service.ListDatasetVersionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.ListDatasetVersionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.ListDatasetVersionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_dataset_versions
 
         Override in a subclass to manipulate the request or metadata
@@ -598,10 +556,8 @@ class DatasetServiceRestInterceptor:
     def pre_list_saved_queries(
         self,
         request: dataset_service.ListSavedQueriesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.ListSavedQueriesRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.ListSavedQueriesRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_saved_queries
 
         Override in a subclass to manipulate the request or metadata
@@ -623,11 +579,8 @@ class DatasetServiceRestInterceptor:
     def pre_restore_dataset_version(
         self,
         request: dataset_service.RestoreDatasetVersionRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.RestoreDatasetVersionRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.RestoreDatasetVersionRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for restore_dataset_version
 
         Override in a subclass to manipulate the request or metadata
@@ -649,10 +602,8 @@ class DatasetServiceRestInterceptor:
     def pre_search_data_items(
         self,
         request: dataset_service.SearchDataItemsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.SearchDataItemsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.SearchDataItemsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for search_data_items
 
         Override in a subclass to manipulate the request or metadata
@@ -674,10 +625,8 @@ class DatasetServiceRestInterceptor:
     def pre_update_dataset(
         self,
         request: dataset_service.UpdateDatasetRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.UpdateDatasetRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.UpdateDatasetRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for update_dataset
 
         Override in a subclass to manipulate the request or metadata
@@ -697,11 +646,8 @@ class DatasetServiceRestInterceptor:
     def pre_update_dataset_version(
         self,
         request: dataset_service.UpdateDatasetVersionRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        dataset_service.UpdateDatasetVersionRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[dataset_service.UpdateDatasetVersionRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for update_dataset_version
 
         Override in a subclass to manipulate the request or metadata
@@ -723,10 +669,8 @@ class DatasetServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -748,10 +692,8 @@ class DatasetServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -773,10 +715,8 @@ class DatasetServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -796,10 +736,8 @@ class DatasetServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -819,11 +757,8 @@ class DatasetServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -845,10 +780,8 @@ class DatasetServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -868,10 +801,8 @@ class DatasetServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -891,10 +822,8 @@ class DatasetServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -916,10 +845,8 @@ class DatasetServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -941,10 +868,8 @@ class DatasetServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -2966,7 +2891,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create dataset method over HTTP.
 
@@ -2977,10 +2902,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2993,7 +2916,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseCreateDataset._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_dataset(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseCreateDataset._get_transcoded_request(
                 http_options, request
@@ -3007,33 +2929,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseCreateDataset._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.CreateDataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "CreateDataset",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._CreateDataset._get_response(
@@ -3054,29 +2949,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_dataset(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.create_dataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "CreateDataset",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateDatasetVersion(
@@ -3116,7 +2989,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create dataset version method over HTTP.
 
@@ -3127,10 +3000,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3143,7 +3014,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseCreateDatasetVersion._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_dataset_version(
                 request, metadata
             )
@@ -3159,33 +3029,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseCreateDatasetVersion._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.CreateDatasetVersion",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "CreateDatasetVersion",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._CreateDatasetVersion._get_response(
@@ -3206,29 +3049,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_dataset_version(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.create_dataset_version",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "CreateDatasetVersion",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteDataset(
@@ -3266,7 +3087,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete dataset method over HTTP.
 
@@ -3277,10 +3098,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3293,7 +3112,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteDataset._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_dataset(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseDeleteDataset._get_transcoded_request(
                 http_options, request
@@ -3303,33 +3121,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseDeleteDataset._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.DeleteDataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "DeleteDataset",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._DeleteDataset._get_response(
@@ -3349,29 +3140,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_dataset(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.delete_dataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "DeleteDataset",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteDatasetVersion(
@@ -3410,7 +3179,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete dataset version method over HTTP.
 
@@ -3421,10 +3190,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3437,7 +3204,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteDatasetVersion._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_dataset_version(
                 request, metadata
             )
@@ -3449,33 +3215,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseDeleteDatasetVersion._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.DeleteDatasetVersion",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "DeleteDatasetVersion",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._DeleteDatasetVersion._get_response(
@@ -3495,29 +3234,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_dataset_version(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.delete_dataset_version",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "DeleteDatasetVersion",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteSavedQuery(
@@ -3555,7 +3272,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete saved query method over HTTP.
 
@@ -3566,10 +3283,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3582,7 +3297,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteSavedQuery._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_saved_query(
                 request, metadata
             )
@@ -3594,33 +3308,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseDeleteSavedQuery._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.DeleteSavedQuery",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "DeleteSavedQuery",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._DeleteSavedQuery._get_response(
@@ -3640,29 +3327,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_saved_query(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.delete_saved_query",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "DeleteSavedQuery",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ExportData(
@@ -3701,7 +3366,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the export data method over HTTP.
 
@@ -3712,10 +3377,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3728,7 +3391,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseExportData._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_export_data(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseExportData._get_transcoded_request(
                 http_options, request
@@ -3746,33 +3408,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ExportData",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ExportData",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ExportData._get_response(
@@ -3793,29 +3428,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_export_data(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.export_data",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ExportData",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetAnnotationSpec(
@@ -3853,7 +3466,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> annotation_spec.AnnotationSpec:
             r"""Call the get annotation spec method over HTTP.
 
@@ -3864,10 +3477,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.annotation_spec.AnnotationSpec:
@@ -3879,7 +3490,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetAnnotationSpec._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_annotation_spec(
                 request, metadata
             )
@@ -3891,33 +3501,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseGetAnnotationSpec._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.GetAnnotationSpec",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetAnnotationSpec",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._GetAnnotationSpec._get_response(
@@ -3939,29 +3522,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = annotation_spec.AnnotationSpec.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_annotation_spec(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = annotation_spec.AnnotationSpec.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.get_annotation_spec",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetAnnotationSpec",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetDataset(
@@ -3999,7 +3560,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset.Dataset:
             r"""Call the get dataset method over HTTP.
 
@@ -4011,10 +3572,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset.Dataset:
@@ -4026,7 +3585,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetDataset._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_dataset(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseGetDataset._get_transcoded_request(
                 http_options, request
@@ -4038,33 +3596,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.GetDataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetDataset",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._GetDataset._get_response(
@@ -4086,29 +3617,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset.Dataset.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_dataset(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = dataset.Dataset.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.get_dataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetDataset",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetDatasetVersion(
@@ -4146,7 +3655,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset_version.DatasetVersion:
             r"""Call the get dataset version method over HTTP.
 
@@ -4158,10 +3667,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset_version.DatasetVersion:
@@ -4171,7 +3678,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetDatasetVersion._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_dataset_version(
                 request, metadata
             )
@@ -4183,33 +3689,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseGetDatasetVersion._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.GetDatasetVersion",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetDatasetVersion",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._GetDatasetVersion._get_response(
@@ -4231,29 +3710,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset_version.DatasetVersion.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_dataset_version(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = dataset_version.DatasetVersion.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.get_dataset_version",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetDatasetVersion",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ImportData(
@@ -4292,7 +3749,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the import data method over HTTP.
 
@@ -4303,10 +3760,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4319,7 +3774,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseImportData._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_import_data(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseImportData._get_transcoded_request(
                 http_options, request
@@ -4337,33 +3791,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ImportData",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ImportData",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ImportData._get_response(
@@ -4384,29 +3811,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_import_data(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.import_data",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ImportData",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListAnnotations(
@@ -4444,7 +3849,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset_service.ListAnnotationsResponse:
             r"""Call the list annotations method over HTTP.
 
@@ -4455,10 +3860,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset_service.ListAnnotationsResponse:
@@ -4470,7 +3873,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListAnnotations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_annotations(
                 request, metadata
             )
@@ -4482,33 +3884,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseListAnnotations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ListAnnotations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListAnnotations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ListAnnotations._get_response(
@@ -4530,31 +3905,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset_service.ListAnnotationsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_annotations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = dataset_service.ListAnnotationsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.list_annotations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListAnnotations",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListDataItems(
@@ -4592,7 +3943,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset_service.ListDataItemsResponse:
             r"""Call the list data items method over HTTP.
 
@@ -4603,10 +3954,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset_service.ListDataItemsResponse:
@@ -4618,7 +3967,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListDataItems._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_data_items(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseListDataItems._get_transcoded_request(
                 http_options, request
@@ -4628,33 +3976,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseListDataItems._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ListDataItems",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListDataItems",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ListDataItems._get_response(
@@ -4676,31 +3997,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset_service.ListDataItemsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_data_items(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = dataset_service.ListDataItemsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.list_data_items",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListDataItems",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListDatasets(
@@ -4738,7 +4035,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset_service.ListDatasetsResponse:
             r"""Call the list datasets method over HTTP.
 
@@ -4749,10 +4046,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset_service.ListDatasetsResponse:
@@ -4764,7 +4059,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListDatasets._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_datasets(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseListDatasets._get_transcoded_request(
                 http_options, request
@@ -4774,33 +4068,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseListDatasets._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ListDatasets",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListDatasets",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ListDatasets._get_response(
@@ -4822,31 +4089,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset_service.ListDatasetsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_datasets(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = dataset_service.ListDatasetsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.list_datasets",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListDatasets",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListDatasetVersions(
@@ -4885,7 +4128,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset_service.ListDatasetVersionsResponse:
             r"""Call the list dataset versions method over HTTP.
 
@@ -4896,10 +4139,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset_service.ListDatasetVersionsResponse:
@@ -4911,7 +4152,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListDatasetVersions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_dataset_versions(
                 request, metadata
             )
@@ -4923,33 +4163,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseListDatasetVersions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ListDatasetVersions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListDatasetVersions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ListDatasetVersions._get_response(
@@ -4971,31 +4184,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset_service.ListDatasetVersionsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_dataset_versions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        dataset_service.ListDatasetVersionsResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.list_dataset_versions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListDatasetVersions",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListSavedQueries(
@@ -5033,7 +4222,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset_service.ListSavedQueriesResponse:
             r"""Call the list saved queries method over HTTP.
 
@@ -5044,10 +4233,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset_service.ListSavedQueriesResponse:
@@ -5059,7 +4246,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListSavedQueries._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_saved_queries(
                 request, metadata
             )
@@ -5071,33 +4257,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseListSavedQueries._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ListSavedQueries",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListSavedQueries",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ListSavedQueries._get_response(
@@ -5119,31 +4278,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset_service.ListSavedQueriesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_saved_queries(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = dataset_service.ListSavedQueriesResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.list_saved_queries",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListSavedQueries",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _RestoreDatasetVersion(
@@ -5182,7 +4317,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the restore dataset version method over HTTP.
 
@@ -5193,10 +4328,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5209,7 +4342,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseRestoreDatasetVersion._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_restore_dataset_version(
                 request, metadata
             )
@@ -5221,33 +4353,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseRestoreDatasetVersion._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.RestoreDatasetVersion",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "RestoreDatasetVersion",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._RestoreDatasetVersion._get_response(
@@ -5267,29 +4372,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_restore_dataset_version(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.restore_dataset_version",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "RestoreDatasetVersion",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _SearchDataItems(
@@ -5327,7 +4410,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> dataset_service.SearchDataItemsResponse:
             r"""Call the search data items method over HTTP.
 
@@ -5338,10 +4421,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.dataset_service.SearchDataItemsResponse:
@@ -5353,7 +4434,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseSearchDataItems._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_search_data_items(
                 request, metadata
             )
@@ -5365,33 +4445,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseSearchDataItems._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.SearchDataItems",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "SearchDataItems",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._SearchDataItems._get_response(
@@ -5413,31 +4466,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = dataset_service.SearchDataItemsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_search_data_items(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = dataset_service.SearchDataItemsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.search_data_items",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "SearchDataItems",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateDataset(
@@ -5476,7 +4505,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_dataset.Dataset:
             r"""Call the update dataset method over HTTP.
 
@@ -5487,10 +4516,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_dataset.Dataset:
@@ -5502,7 +4529,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseUpdateDataset._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_dataset(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseUpdateDataset._get_transcoded_request(
                 http_options, request
@@ -5516,33 +4542,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseUpdateDataset._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.UpdateDataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "UpdateDataset",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._UpdateDataset._get_response(
@@ -5565,29 +4564,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = gca_dataset.Dataset.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_dataset(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_dataset.Dataset.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.update_dataset",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "UpdateDataset",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateDatasetVersion(
@@ -5627,7 +4604,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_dataset_version.DatasetVersion:
             r"""Call the update dataset version method over HTTP.
 
@@ -5638,10 +4615,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_dataset_version.DatasetVersion:
@@ -5651,7 +4626,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseUpdateDatasetVersion._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_dataset_version(
                 request, metadata
             )
@@ -5667,33 +4641,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseUpdateDatasetVersion._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.UpdateDatasetVersion",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "UpdateDatasetVersion",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._UpdateDatasetVersion._get_response(
@@ -5716,31 +4663,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             pb_resp = gca_dataset_version.DatasetVersion.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_dataset_version(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_dataset_version.DatasetVersion.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceClient.update_dataset_version",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "UpdateDatasetVersion",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     @property
@@ -5963,7 +4886,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -5974,10 +4897,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -5986,7 +4907,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseGetLocation._get_transcoded_request(
                 http_options, request
@@ -5996,33 +4916,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._GetLocation._get_response(
@@ -6043,27 +4936,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6105,7 +4977,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -6116,10 +4988,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -6128,7 +4998,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -6138,33 +5007,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ListLocations._get_response(
@@ -6185,27 +5027,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6247,7 +5068,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -6258,10 +5079,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -6270,7 +5089,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -6280,33 +5098,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._GetIamPolicy._get_response(
@@ -6327,27 +5118,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6390,7 +5160,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -6401,10 +5171,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -6413,7 +5181,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -6427,33 +5194,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._SetIamPolicy._get_response(
@@ -6475,27 +5215,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6537,7 +5256,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -6548,10 +5267,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -6560,7 +5277,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -6572,33 +5288,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._TestIamPermissions._get_response(
@@ -6619,27 +5308,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6681,7 +5349,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -6692,16 +5360,13 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -6713,33 +5378,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._CancelOperation._get_response(
@@ -6797,7 +5435,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -6808,16 +5446,13 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -6829,33 +5464,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._DeleteOperation._get_response(
@@ -6913,7 +5521,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -6924,10 +5532,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -6936,7 +5542,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -6946,33 +5551,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._GetOperation._get_response(
@@ -6993,27 +5571,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -7055,7 +5612,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -7066,10 +5623,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -7078,7 +5633,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -7088,33 +5642,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._ListOperations._get_response(
@@ -7135,27 +5662,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -7197,7 +5703,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -7208,10 +5714,8 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -7220,7 +5724,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             http_options = (
                 _BaseDatasetServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseDatasetServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -7230,33 +5733,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             query_params = _BaseDatasetServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.DatasetServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = DatasetServiceRestTransport._WaitOperation._get_response(
@@ -7277,27 +5753,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.DatasetServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.DatasetService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

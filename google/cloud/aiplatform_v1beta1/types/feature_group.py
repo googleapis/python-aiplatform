@@ -76,43 +76,7 @@ class FeatureGroup(proto.Message):
             "aiplatform.googleapis.com/" and are immutable.
         description (str):
             Optional. Description of the FeatureGroup.
-        service_agent_type (google.cloud.aiplatform_v1beta1.types.FeatureGroup.ServiceAgentType):
-            Optional. Service agent type used during jobs under a
-            FeatureGroup. By default, the Vertex AI Service Agent is
-            used. When using an IAM Policy to isolate this FeatureGroup
-            within a project, a separate service account should be
-            provisioned by setting this field to
-            ``SERVICE_AGENT_TYPE_FEATURE_GROUP``. This will generate a
-            separate service account to access the BigQuery source
-            table.
-        service_account_email (str):
-            Output only. A Service Account unique to this
-            FeatureGroup. The role bigquery.dataViewer
-            should be granted to this service account to
-            allow Vertex AI Feature Store to access source
-            data while running jobs under this FeatureGroup.
     """
-
-    class ServiceAgentType(proto.Enum):
-        r"""Service agent type used during jobs under a FeatureGroup.
-
-        Values:
-            SERVICE_AGENT_TYPE_UNSPECIFIED (0):
-                By default, the project-level Vertex AI
-                Service Agent is enabled.
-            SERVICE_AGENT_TYPE_PROJECT (1):
-                Specifies the project-level Vertex AI Service
-                Agent
-                (https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents).
-            SERVICE_AGENT_TYPE_FEATURE_GROUP (2):
-                Enable a FeatureGroup service account to be created by
-                Vertex AI and output in the field ``service_account_email``.
-                This service account will be used to read from the source
-                BigQuery table during jobs under a FeatureGroup.
-        """
-        SERVICE_AGENT_TYPE_UNSPECIFIED = 0
-        SERVICE_AGENT_TYPE_PROJECT = 1
-        SERVICE_AGENT_TYPE_FEATURE_GROUP = 2
 
     class BigQuery(proto.Message):
         r"""Input source type for BigQuery Tables and Views.
@@ -219,15 +183,6 @@ class FeatureGroup(proto.Message):
     description: str = proto.Field(
         proto.STRING,
         number=6,
-    )
-    service_agent_type: ServiceAgentType = proto.Field(
-        proto.ENUM,
-        number=8,
-        enum=ServiceAgentType,
-    )
-    service_account_email: str = proto.Field(
-        proto.STRING,
-        number=9,
     )
 
 

@@ -57,18 +57,6 @@ from .rest_base import _BaseModelGardenServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
-
-import logging
-
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
-
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -113,10 +101,9 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_get_publisher_model(
         self,
         request: model_garden_service.GetPublisherModelRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        model_garden_service.GetPublisherModelRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        model_garden_service.GetPublisherModelRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for get_publisher_model
 
@@ -139,10 +126,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -164,10 +149,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -189,10 +172,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -214,10 +195,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -239,11 +218,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -265,10 +241,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -288,10 +262,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -311,10 +283,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -336,10 +306,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -361,10 +329,8 @@ class AsyncModelGardenServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -546,7 +512,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> publisher_model.PublisherModel:
             r"""Call the get publisher model method over HTTP.
 
@@ -557,10 +523,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.publisher_model.PublisherModel:
@@ -570,7 +534,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetPublisherModel._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_publisher_model(
                 request, metadata
             )
@@ -582,33 +545,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseGetPublisherModel._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.GetPublisherModel",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetPublisherModel",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncModelGardenServiceRestTransport._GetPublisherModel._get_response(
@@ -637,28 +573,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_publisher_model(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = publisher_model.PublisherModel.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.get_publisher_model",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetPublisherModel",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     @property
@@ -709,7 +623,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -720,10 +634,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -732,7 +644,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -744,33 +655,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -799,27 +683,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -862,7 +725,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -873,10 +736,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -885,7 +746,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -897,33 +757,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -952,27 +785,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -1015,7 +827,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -1026,10 +838,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -1038,7 +848,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -1050,33 +859,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -1105,27 +887,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -1169,7 +930,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -1180,10 +941,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -1192,7 +951,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -1208,33 +966,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -1264,27 +995,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -1327,7 +1037,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -1338,10 +1048,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -1350,7 +1058,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -1362,33 +1069,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncModelGardenServiceRestTransport._TestIamPermissions._get_response(
@@ -1415,27 +1095,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -1478,7 +1137,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -1489,16 +1148,13 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -1510,33 +1166,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncModelGardenServiceRestTransport._CancelOperation._get_response(
@@ -1601,7 +1230,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -1612,16 +1241,13 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -1633,33 +1259,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncModelGardenServiceRestTransport._DeleteOperation._get_response(
@@ -1724,7 +1323,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -1735,10 +1334,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -1747,7 +1344,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -1759,33 +1355,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -1814,27 +1383,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -1877,7 +1425,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -1888,10 +1436,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -1900,7 +1446,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -1912,33 +1457,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncModelGardenServiceRestTransport._ListOperations._get_response(
@@ -1965,27 +1483,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -2028,7 +1525,7 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -2039,10 +1536,8 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -2051,7 +1546,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             http_options = (
                 _BaseModelGardenServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -2063,33 +1557,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             query_params = _BaseModelGardenServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.ModelGardenServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -2118,27 +1585,6 @@ class AsyncModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport)
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.ModelGardenServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.ModelGardenService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

@@ -63,18 +63,6 @@ from .rest_base import _BaseFeaturestoreServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
-
-import logging
-
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
-
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -279,10 +267,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_batch_create_features(
         self,
         request: featurestore_service.BatchCreateFeaturesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.BatchCreateFeaturesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.BatchCreateFeaturesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for batch_create_features
 
@@ -305,10 +292,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_batch_read_feature_values(
         self,
         request: featurestore_service.BatchReadFeatureValuesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.BatchReadFeatureValuesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.BatchReadFeatureValuesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for batch_read_feature_values
 
@@ -331,11 +317,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_create_entity_type(
         self,
         request: featurestore_service.CreateEntityTypeRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.CreateEntityTypeRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.CreateEntityTypeRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_entity_type
 
         Override in a subclass to manipulate the request or metadata
@@ -357,11 +340,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_create_feature(
         self,
         request: featurestore_service.CreateFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.CreateFeatureRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.CreateFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -383,10 +363,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_create_featurestore(
         self,
         request: featurestore_service.CreateFeaturestoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.CreateFeaturestoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.CreateFeaturestoreRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for create_featurestore
 
@@ -409,11 +388,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_delete_entity_type(
         self,
         request: featurestore_service.DeleteEntityTypeRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.DeleteEntityTypeRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.DeleteEntityTypeRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_entity_type
 
         Override in a subclass to manipulate the request or metadata
@@ -435,11 +411,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_delete_feature(
         self,
         request: featurestore_service.DeleteFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.DeleteFeatureRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.DeleteFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -461,10 +434,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_delete_featurestore(
         self,
         request: featurestore_service.DeleteFeaturestoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.DeleteFeaturestoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.DeleteFeaturestoreRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for delete_featurestore
 
@@ -487,10 +459,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_delete_feature_values(
         self,
         request: featurestore_service.DeleteFeatureValuesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.DeleteFeatureValuesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.DeleteFeatureValuesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for delete_feature_values
 
@@ -513,10 +484,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_export_feature_values(
         self,
         request: featurestore_service.ExportFeatureValuesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.ExportFeatureValuesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.ExportFeatureValuesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for export_feature_values
 
@@ -539,11 +509,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_get_entity_type(
         self,
         request: featurestore_service.GetEntityTypeRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.GetEntityTypeRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.GetEntityTypeRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_entity_type
 
         Override in a subclass to manipulate the request or metadata
@@ -565,10 +532,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_get_feature(
         self,
         request: featurestore_service.GetFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.GetFeatureRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.GetFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -588,11 +553,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_get_featurestore(
         self,
         request: featurestore_service.GetFeaturestoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.GetFeaturestoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.GetFeaturestoreRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_featurestore
 
         Override in a subclass to manipulate the request or metadata
@@ -614,10 +576,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_import_feature_values(
         self,
         request: featurestore_service.ImportFeatureValuesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.ImportFeatureValuesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.ImportFeatureValuesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for import_feature_values
 
@@ -640,11 +601,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_list_entity_types(
         self,
         request: featurestore_service.ListEntityTypesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.ListEntityTypesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.ListEntityTypesRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_entity_types
 
         Override in a subclass to manipulate the request or metadata
@@ -666,11 +624,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_list_features(
         self,
         request: featurestore_service.ListFeaturesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.ListFeaturesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.ListFeaturesRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_features
 
         Override in a subclass to manipulate the request or metadata
@@ -692,10 +647,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_list_featurestores(
         self,
         request: featurestore_service.ListFeaturestoresRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.ListFeaturestoresRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.ListFeaturestoresRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for list_featurestores
 
@@ -718,11 +672,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_search_features(
         self,
         request: featurestore_service.SearchFeaturesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.SearchFeaturesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.SearchFeaturesRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for search_features
 
         Override in a subclass to manipulate the request or metadata
@@ -744,11 +695,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_update_entity_type(
         self,
         request: featurestore_service.UpdateEntityTypeRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.UpdateEntityTypeRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.UpdateEntityTypeRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for update_entity_type
 
         Override in a subclass to manipulate the request or metadata
@@ -770,11 +718,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_update_feature(
         self,
         request: featurestore_service.UpdateFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.UpdateFeatureRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.UpdateFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for update_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -796,10 +741,9 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_update_featurestore(
         self,
         request: featurestore_service.UpdateFeaturestoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.UpdateFeaturestoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.UpdateFeaturestoreRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for update_featurestore
 
@@ -822,10 +766,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -847,10 +789,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -872,10 +812,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -897,10 +835,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -922,11 +858,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -948,10 +881,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -971,10 +902,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -994,10 +923,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1019,10 +946,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -1044,10 +969,8 @@ class AsyncFeaturestoreServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1334,7 +1257,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the batch create features method over HTTP.
 
@@ -1347,10 +1270,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1363,7 +1284,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseBatchCreateFeatures._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_batch_create_features(
                 request, metadata
             )
@@ -1379,33 +1299,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseBatchCreateFeatures._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.BatchCreateFeatures",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "BatchCreateFeatures",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._BatchCreateFeatures._get_response(
@@ -1435,28 +1328,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_create_features(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.batch_create_features",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "BatchCreateFeatures",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _BatchReadFeatureValues(
@@ -1496,7 +1367,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the batch read feature values method over HTTP.
 
@@ -1507,10 +1378,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1523,7 +1392,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseBatchReadFeatureValues._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_batch_read_feature_values(
                 request, metadata
             )
@@ -1539,33 +1407,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseBatchReadFeatureValues._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.BatchReadFeatureValues",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "BatchReadFeatureValues",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._BatchReadFeatureValues._get_response(
@@ -1595,28 +1436,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_read_feature_values(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.batch_read_feature_values",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "BatchReadFeatureValues",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _CreateEntityType(
@@ -1656,7 +1475,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create entity type method over HTTP.
 
@@ -1667,10 +1486,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1683,7 +1500,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseCreateEntityType._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_entity_type(
                 request, metadata
             )
@@ -1699,33 +1515,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseCreateEntityType._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.CreateEntityType",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "CreateEntityType",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._CreateEntityType._get_response(
@@ -1755,28 +1544,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_entity_type(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.create_entity_type",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "CreateEntityType",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _CreateFeature(
@@ -1816,7 +1583,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create feature method over HTTP.
 
@@ -1829,10 +1596,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1845,7 +1610,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseCreateFeature._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_feature(
                 request, metadata
             )
@@ -1861,33 +1625,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseCreateFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.CreateFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "CreateFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._CreateFeature._get_response(
@@ -1917,28 +1654,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.create_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "CreateFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _CreateFeaturestore(
@@ -1978,7 +1693,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create featurestore method over HTTP.
 
@@ -1989,10 +1704,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2005,7 +1718,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseCreateFeaturestore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_featurestore(
                 request, metadata
             )
@@ -2021,33 +1733,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseCreateFeaturestore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.CreateFeaturestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "CreateFeaturestore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._CreateFeaturestore._get_response(
@@ -2077,28 +1762,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_featurestore(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.create_featurestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "CreateFeaturestore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _DeleteEntityType(
@@ -2137,7 +1800,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete entity type method over HTTP.
 
@@ -2148,10 +1811,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2164,7 +1825,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseDeleteEntityType._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_entity_type(
                 request, metadata
             )
@@ -2176,33 +1836,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteEntityType._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.DeleteEntityType",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteEntityType",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._DeleteEntityType._get_response(
@@ -2231,28 +1864,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_entity_type(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.delete_entity_type",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteEntityType",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _DeleteFeature(
@@ -2291,7 +1902,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete feature method over HTTP.
 
@@ -2304,10 +1915,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2320,7 +1929,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseDeleteFeature._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_feature(
                 request, metadata
             )
@@ -2332,33 +1940,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.DeleteFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._DeleteFeature._get_response(
@@ -2387,28 +1968,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.delete_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _DeleteFeaturestore(
@@ -2447,7 +2006,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete featurestore method over HTTP.
 
@@ -2458,10 +2017,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2474,7 +2031,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseDeleteFeaturestore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_featurestore(
                 request, metadata
             )
@@ -2486,33 +2042,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeaturestore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.DeleteFeaturestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteFeaturestore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._DeleteFeaturestore._get_response(
@@ -2541,28 +2070,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_featurestore(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.delete_featurestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteFeaturestore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _DeleteFeatureValues(
@@ -2602,7 +2109,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete feature values method over HTTP.
 
@@ -2613,10 +2120,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2629,7 +2134,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseDeleteFeatureValues._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_feature_values(
                 request, metadata
             )
@@ -2645,33 +2149,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteFeatureValues._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.DeleteFeatureValues",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteFeatureValues",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._DeleteFeatureValues._get_response(
@@ -2701,28 +2178,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_feature_values(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.delete_feature_values",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteFeatureValues",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ExportFeatureValues(
@@ -2762,7 +2217,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the export feature values method over HTTP.
 
@@ -2773,10 +2228,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2789,7 +2242,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseExportFeatureValues._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_export_feature_values(
                 request, metadata
             )
@@ -2805,33 +2257,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseExportFeatureValues._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.ExportFeatureValues",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ExportFeatureValues",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._ExportFeatureValues._get_response(
@@ -2861,28 +2286,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_export_feature_values(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.export_feature_values",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ExportFeatureValues",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _GetEntityType(
@@ -2921,7 +2324,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> entity_type.EntityType:
             r"""Call the get entity type method over HTTP.
 
@@ -2932,10 +2335,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.entity_type.EntityType:
@@ -2951,7 +2352,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseGetEntityType._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_entity_type(
                 request, metadata
             )
@@ -2963,33 +2363,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseGetEntityType._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.GetEntityType",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetEntityType",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._GetEntityType._get_response(
@@ -3018,28 +2391,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_entity_type(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = entity_type.EntityType.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.get_entity_type",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetEntityType",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _GetFeature(
@@ -3078,7 +2429,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature.Feature:
             r"""Call the get feature method over HTTP.
 
@@ -3091,10 +2442,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature.Feature:
@@ -3107,7 +2456,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseGetFeature._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_feature(
                 request, metadata
             )
@@ -3119,33 +2467,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseGetFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.GetFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3176,28 +2497,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature.Feature.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.get_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _GetFeaturestore(
@@ -3236,7 +2535,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> featurestore.Featurestore:
             r"""Call the get featurestore method over HTTP.
 
@@ -3247,10 +2546,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.featurestore.Featurestore:
@@ -3265,7 +2562,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseGetFeaturestore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_featurestore(
                 request, metadata
             )
@@ -3277,33 +2573,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseGetFeaturestore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.GetFeaturestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetFeaturestore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._GetFeaturestore._get_response(
@@ -3332,28 +2601,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_featurestore(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = featurestore.Featurestore.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.get_featurestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetFeaturestore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ImportFeatureValues(
@@ -3393,7 +2640,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the import feature values method over HTTP.
 
@@ -3404,10 +2651,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3420,7 +2665,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseImportFeatureValues._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_import_feature_values(
                 request, metadata
             )
@@ -3436,33 +2680,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseImportFeatureValues._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.ImportFeatureValues",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ImportFeatureValues",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._ImportFeatureValues._get_response(
@@ -3492,28 +2709,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_import_feature_values(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.import_feature_values",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ImportFeatureValues",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListEntityTypes(
@@ -3552,7 +2747,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> featurestore_service.ListEntityTypesResponse:
             r"""Call the list entity types method over HTTP.
 
@@ -3563,10 +2758,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.featurestore_service.ListEntityTypesResponse:
@@ -3578,7 +2771,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseListEntityTypes._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_entity_types(
                 request, metadata
             )
@@ -3590,33 +2782,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseListEntityTypes._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.ListEntityTypes",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListEntityTypes",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._ListEntityTypes._get_response(
@@ -3645,30 +2810,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_entity_types(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        featurestore_service.ListEntityTypesResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.list_entity_types",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListEntityTypes",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListFeatures(
@@ -3707,7 +2848,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> featurestore_service.ListFeaturesResponse:
             r"""Call the list features method over HTTP.
 
@@ -3720,10 +2861,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.featurestore_service.ListFeaturesResponse:
@@ -3737,7 +2876,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseListFeatures._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_features(
                 request, metadata
             )
@@ -3749,33 +2887,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseListFeatures._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.ListFeatures",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListFeatures",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3806,30 +2917,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_features(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        featurestore_service.ListFeaturesResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.list_features",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListFeatures",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListFeaturestores(
@@ -3868,7 +2955,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> featurestore_service.ListFeaturestoresResponse:
             r"""Call the list featurestores method over HTTP.
 
@@ -3879,10 +2966,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.featurestore_service.ListFeaturestoresResponse:
@@ -3894,7 +2979,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseListFeaturestores._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_featurestores(
                 request, metadata
             )
@@ -3906,33 +2990,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseListFeaturestores._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.ListFeaturestores",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListFeaturestores",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._ListFeaturestores._get_response(
@@ -3961,30 +3018,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_featurestores(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        featurestore_service.ListFeaturestoresResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.list_featurestores",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListFeaturestores",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _SearchFeatures(
@@ -4023,7 +3056,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> featurestore_service.SearchFeaturesResponse:
             r"""Call the search features method over HTTP.
 
@@ -4034,10 +3067,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.featurestore_service.SearchFeaturesResponse:
@@ -4049,7 +3080,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseSearchFeatures._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_search_features(
                 request, metadata
             )
@@ -4061,33 +3091,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseSearchFeatures._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.SearchFeatures",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "SearchFeatures",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._SearchFeatures._get_response(
@@ -4116,30 +3119,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_search_features(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        featurestore_service.SearchFeaturesResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.search_features",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "SearchFeatures",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _UpdateEntityType(
@@ -4179,7 +3158,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_entity_type.EntityType:
             r"""Call the update entity type method over HTTP.
 
@@ -4190,10 +3169,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_entity_type.EntityType:
@@ -4209,7 +3186,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseUpdateEntityType._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_entity_type(
                 request, metadata
             )
@@ -4225,33 +3201,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseUpdateEntityType._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.UpdateEntityType",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "UpdateEntityType",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._UpdateEntityType._get_response(
@@ -4281,28 +3230,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_entity_type(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_entity_type.EntityType.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.update_entity_type",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "UpdateEntityType",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _UpdateFeature(
@@ -4342,7 +3269,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_feature.Feature:
             r"""Call the update feature method over HTTP.
 
@@ -4355,10 +3282,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_feature.Feature:
@@ -4371,7 +3296,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseUpdateFeature._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_feature(
                 request, metadata
             )
@@ -4387,33 +3311,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.UpdateFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "UpdateFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._UpdateFeature._get_response(
@@ -4443,28 +3340,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_feature.Feature.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.update_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "UpdateFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _UpdateFeaturestore(
@@ -4504,7 +3379,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update featurestore method over HTTP.
 
@@ -4515,10 +3390,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4531,7 +3404,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseUpdateFeaturestore._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_update_featurestore(
                 request, metadata
             )
@@ -4547,33 +3419,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseUpdateFeaturestore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.UpdateFeaturestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "UpdateFeaturestore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._UpdateFeaturestore._get_response(
@@ -4603,28 +3448,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_featurestore(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.update_featurestore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "UpdateFeaturestore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     @property
@@ -5202,10 +4025,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     },
                     {
                         "method": "delete",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                     },
                     {
@@ -5419,10 +4238,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -5632,10 +4447,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     },
                     {
                         "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
                     },
                     {
@@ -5850,10 +4661,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
                 ],
                 "google.longrunning.Operations.ListOperations": [
                     {
@@ -6051,10 +4858,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -6272,10 +5075,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
-                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -6473,10 +5272,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -6689,10 +5484,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                 ],
             }
@@ -6918,7 +5709,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -6929,10 +5720,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -6941,7 +5730,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -6953,33 +5741,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -7008,27 +5769,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -7071,7 +5811,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -7082,10 +5822,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -7094,7 +5832,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -7106,33 +5843,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._ListLocations._get_response(
@@ -7159,27 +5869,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -7223,7 +5912,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -7234,10 +5923,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -7246,7 +5933,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -7262,33 +5948,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -7318,27 +5977,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -7382,7 +6020,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -7393,10 +6031,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -7405,7 +6041,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -7421,33 +6056,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -7477,27 +6085,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -7541,7 +6128,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -7552,10 +6139,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -7564,7 +6149,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -7580,33 +6164,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._TestIamPermissions._get_response(
@@ -7634,27 +6191,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -7697,7 +6233,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -7708,16 +6244,13 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -7729,33 +6262,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._CancelOperation._get_response(
@@ -7820,7 +6326,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -7831,16 +6337,13 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -7852,33 +6355,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._DeleteOperation._get_response(
@@ -7943,7 +6419,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -7954,10 +6430,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -7966,7 +6440,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -7978,33 +6451,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -8033,27 +6479,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -8096,7 +6521,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -8107,10 +6532,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -8119,7 +6542,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -8131,33 +6553,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._ListOperations._get_response(
@@ -8184,27 +6579,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -8247,7 +6621,7 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -8258,10 +6632,8 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -8270,7 +6642,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             http_options = (
                 _BaseFeaturestoreServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -8282,33 +6653,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             query_params = _BaseFeaturestoreServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.FeaturestoreServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncFeaturestoreServiceRestTransport._WaitOperation._get_response(
@@ -8335,27 +6679,6 @@ class AsyncFeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTranspor
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.FeaturestoreServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.FeaturestoreService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

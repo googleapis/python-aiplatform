@@ -2119,10 +2119,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 },
                 {
                     "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                 },
                 {
@@ -2336,10 +2332,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2568,10 +2560,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 },
                 {
                     "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
                 },
                 {
@@ -2785,10 +2773,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                 },
             ]
             return http_options
@@ -3009,10 +2993,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 },
                 {
                     "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
-                },
-                {
-                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
                 },
                 {
@@ -3226,10 +3206,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
                 },
             ]
             return http_options
@@ -3450,10 +3426,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 },
                 {
                     "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
                 },
                 {
@@ -3663,10 +3635,6 @@ class _BaseFeaturestoreServiceRestTransport(FeaturestoreServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
             ]
             return http_options

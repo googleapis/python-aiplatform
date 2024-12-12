@@ -13,9 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import json
-import logging as std_logging
-import pickle
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -25,11 +22,8 @@ from google.api_core import gapic_v1
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.protobuf.json_format import MessageToJson
-import google.protobuf.message
 
 import grpc  # type: ignore
-import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import batch_prediction_job
 from google.cloud.aiplatform_v1.types import (
@@ -56,81 +50,6 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from .base import JobServiceTransport, DEFAULT_CLIENT_INFO
-
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = std_logging.getLogger(__name__)
-
-
-class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO COVER
-    def intercept_unary_unary(self, continuation, client_call_details, request):
-        logging_enabled = CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-            std_logging.DEBUG
-        )
-        if logging_enabled:  # pragma: NO COVER
-            request_metadata = client_call_details.metadata
-            if isinstance(request, proto.Message):
-                request_payload = type(request).to_json(request)
-            elif isinstance(request, google.protobuf.message.Message):
-                request_payload = MessageToJson(request)
-            else:
-                request_payload = f"{type(request).__name__}: {pickle.dumps(request)}"
-
-            request_metadata = {
-                key: value.decode("utf-8") if isinstance(value, bytes) else value
-                for key, value in request_metadata
-            }
-            grpc_request = {
-                "payload": request_payload,
-                "requestMethod": "grpc",
-                "metadata": dict(request_metadata),
-            }
-            _LOGGER.debug(
-                f"Sending request for {client_call_details.method}",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1.JobService",
-                    "rpcName": client_call_details.method,
-                    "request": grpc_request,
-                    "metadata": grpc_request["metadata"],
-                },
-            )
-
-        response = continuation(client_call_details, request)
-        if logging_enabled:  # pragma: NO COVER
-            response_metadata = response.trailing_metadata()
-            # Convert gRPC metadata `<class 'grpc.aio._metadata.Metadata'>` to list of tuples
-            metadata = (
-                dict([(k, str(v)) for k, v in response_metadata])
-                if response_metadata
-                else None
-            )
-            result = response.result()
-            if isinstance(result, proto.Message):
-                response_payload = type(result).to_json(result)
-            elif isinstance(result, google.protobuf.message.Message):
-                response_payload = MessageToJson(result)
-            else:
-                response_payload = f"{type(result).__name__}: {pickle.dumps(result)}"
-            grpc_response = {
-                "payload": response_payload,
-                "metadata": metadata,
-                "status": "OK",
-            }
-            _LOGGER.debug(
-                f"Received response for {client_call_details.method}.",
-                extra={
-                    "serviceName": "google.cloud.aiplatform.v1.JobService",
-                    "rpcName": client_call_details.method,
-                    "response": grpc_response,
-                    "metadata": grpc_response["metadata"],
-                },
-            )
-        return response
 
 
 class JobServiceGrpcTransport(JobServiceTransport):
@@ -286,12 +205,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
                 ],
             )
 
-        self._interceptor = _LoggingClientInterceptor()
-        self._logged_channel = grpc.intercept_channel(
-            self._grpc_channel, self._interceptor
-        )
-
-        # Wrap messages. This must be done after self._logged_channel exists
+        # Wrap messages. This must be done after self._grpc_channel exists
         self._prep_wrapped_messages(client_info)
 
     @classmethod
@@ -355,9 +269,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         """
         # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsClient(
-                self._logged_channel
-            )
+            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
         # Return the client from cache.
         return self._operations_client
@@ -382,7 +294,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_custom_job" not in self._stubs:
-            self._stubs["create_custom_job"] = self._logged_channel.unary_unary(
+            self._stubs["create_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CreateCustomJob",
                 request_serializer=job_service.CreateCustomJobRequest.serialize,
                 response_deserializer=gca_custom_job.CustomJob.deserialize,
@@ -408,7 +320,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_custom_job" not in self._stubs:
-            self._stubs["get_custom_job"] = self._logged_channel.unary_unary(
+            self._stubs["get_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/GetCustomJob",
                 request_serializer=job_service.GetCustomJobRequest.serialize,
                 response_deserializer=custom_job.CustomJob.deserialize,
@@ -436,7 +348,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_custom_jobs" not in self._stubs:
-            self._stubs["list_custom_jobs"] = self._logged_channel.unary_unary(
+            self._stubs["list_custom_jobs"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ListCustomJobs",
                 request_serializer=job_service.ListCustomJobsRequest.serialize,
                 response_deserializer=job_service.ListCustomJobsResponse.deserialize,
@@ -462,7 +374,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_custom_job" not in self._stubs:
-            self._stubs["delete_custom_job"] = self._logged_channel.unary_unary(
+            self._stubs["delete_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteCustomJob",
                 request_serializer=job_service.DeleteCustomJobRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -500,7 +412,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_custom_job" not in self._stubs:
-            self._stubs["cancel_custom_job"] = self._logged_channel.unary_unary(
+            self._stubs["cancel_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelCustomJob",
                 request_serializer=job_service.CancelCustomJobRequest.serialize,
                 response_deserializer=empty_pb2.Empty.FromString,
@@ -529,7 +441,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_data_labeling_job" not in self._stubs:
-            self._stubs["create_data_labeling_job"] = self._logged_channel.unary_unary(
+            self._stubs["create_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CreateDataLabelingJob",
                 request_serializer=job_service.CreateDataLabelingJobRequest.serialize,
                 response_deserializer=gca_data_labeling_job.DataLabelingJob.deserialize,
@@ -557,7 +469,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_data_labeling_job" not in self._stubs:
-            self._stubs["get_data_labeling_job"] = self._logged_channel.unary_unary(
+            self._stubs["get_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/GetDataLabelingJob",
                 request_serializer=job_service.GetDataLabelingJobRequest.serialize,
                 response_deserializer=data_labeling_job.DataLabelingJob.deserialize,
@@ -586,7 +498,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_data_labeling_jobs" not in self._stubs:
-            self._stubs["list_data_labeling_jobs"] = self._logged_channel.unary_unary(
+            self._stubs["list_data_labeling_jobs"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ListDataLabelingJobs",
                 request_serializer=job_service.ListDataLabelingJobsRequest.serialize,
                 response_deserializer=job_service.ListDataLabelingJobsResponse.deserialize,
@@ -612,7 +524,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_data_labeling_job" not in self._stubs:
-            self._stubs["delete_data_labeling_job"] = self._logged_channel.unary_unary(
+            self._stubs["delete_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteDataLabelingJob",
                 request_serializer=job_service.DeleteDataLabelingJobRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -639,7 +551,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_data_labeling_job" not in self._stubs:
-            self._stubs["cancel_data_labeling_job"] = self._logged_channel.unary_unary(
+            self._stubs["cancel_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelDataLabelingJob",
                 request_serializer=job_service.CancelDataLabelingJobRequest.serialize,
                 response_deserializer=empty_pb2.Empty.FromString,
@@ -671,7 +583,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "create_hyperparameter_tuning_job" not in self._stubs:
             self._stubs[
                 "create_hyperparameter_tuning_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CreateHyperparameterTuningJob",
                 request_serializer=job_service.CreateHyperparameterTuningJobRequest.serialize,
                 response_deserializer=gca_hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
@@ -702,7 +614,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "get_hyperparameter_tuning_job" not in self._stubs:
             self._stubs[
                 "get_hyperparameter_tuning_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/GetHyperparameterTuningJob",
                 request_serializer=job_service.GetHyperparameterTuningJobRequest.serialize,
                 response_deserializer=hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
@@ -734,7 +646,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "list_hyperparameter_tuning_jobs" not in self._stubs:
             self._stubs[
                 "list_hyperparameter_tuning_jobs"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ListHyperparameterTuningJobs",
                 request_serializer=job_service.ListHyperparameterTuningJobsRequest.serialize,
                 response_deserializer=job_service.ListHyperparameterTuningJobsResponse.deserialize,
@@ -765,7 +677,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "delete_hyperparameter_tuning_job" not in self._stubs:
             self._stubs[
                 "delete_hyperparameter_tuning_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteHyperparameterTuningJob",
                 request_serializer=job_service.DeleteHyperparameterTuningJobRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -807,7 +719,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "cancel_hyperparameter_tuning_job" not in self._stubs:
             self._stubs[
                 "cancel_hyperparameter_tuning_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelHyperparameterTuningJob",
                 request_serializer=job_service.CancelHyperparameterTuningJobRequest.serialize,
                 response_deserializer=empty_pb2.Empty.FromString,
@@ -833,7 +745,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_nas_job" not in self._stubs:
-            self._stubs["create_nas_job"] = self._logged_channel.unary_unary(
+            self._stubs["create_nas_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CreateNasJob",
                 request_serializer=job_service.CreateNasJobRequest.serialize,
                 response_deserializer=gca_nas_job.NasJob.deserialize,
@@ -857,7 +769,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_nas_job" not in self._stubs:
-            self._stubs["get_nas_job"] = self._logged_channel.unary_unary(
+            self._stubs["get_nas_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/GetNasJob",
                 request_serializer=job_service.GetNasJobRequest.serialize,
                 response_deserializer=nas_job.NasJob.deserialize,
@@ -883,7 +795,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_nas_jobs" not in self._stubs:
-            self._stubs["list_nas_jobs"] = self._logged_channel.unary_unary(
+            self._stubs["list_nas_jobs"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ListNasJobs",
                 request_serializer=job_service.ListNasJobsRequest.serialize,
                 response_deserializer=job_service.ListNasJobsResponse.deserialize,
@@ -909,7 +821,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_nas_job" not in self._stubs:
-            self._stubs["delete_nas_job"] = self._logged_channel.unary_unary(
+            self._stubs["delete_nas_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteNasJob",
                 request_serializer=job_service.DeleteNasJobRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -947,7 +859,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_nas_job" not in self._stubs:
-            self._stubs["cancel_nas_job"] = self._logged_channel.unary_unary(
+            self._stubs["cancel_nas_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelNasJob",
                 request_serializer=job_service.CancelNasJobRequest.serialize,
                 response_deserializer=empty_pb2.Empty.FromString,
@@ -973,7 +885,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_nas_trial_detail" not in self._stubs:
-            self._stubs["get_nas_trial_detail"] = self._logged_channel.unary_unary(
+            self._stubs["get_nas_trial_detail"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/GetNasTrialDetail",
                 request_serializer=job_service.GetNasTrialDetailRequest.serialize,
                 response_deserializer=nas_job.NasTrialDetail.deserialize,
@@ -1002,7 +914,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_nas_trial_details" not in self._stubs:
-            self._stubs["list_nas_trial_details"] = self._logged_channel.unary_unary(
+            self._stubs["list_nas_trial_details"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ListNasTrialDetails",
                 request_serializer=job_service.ListNasTrialDetailsRequest.serialize,
                 response_deserializer=job_service.ListNasTrialDetailsResponse.deserialize,
@@ -1032,9 +944,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_batch_prediction_job" not in self._stubs:
-            self._stubs[
-                "create_batch_prediction_job"
-            ] = self._logged_channel.unary_unary(
+            self._stubs["create_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CreateBatchPredictionJob",
                 request_serializer=job_service.CreateBatchPredictionJobRequest.serialize,
                 response_deserializer=gca_batch_prediction_job.BatchPredictionJob.deserialize,
@@ -1063,7 +973,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_batch_prediction_job" not in self._stubs:
-            self._stubs["get_batch_prediction_job"] = self._logged_channel.unary_unary(
+            self._stubs["get_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/GetBatchPredictionJob",
                 request_serializer=job_service.GetBatchPredictionJobRequest.serialize,
                 response_deserializer=batch_prediction_job.BatchPredictionJob.deserialize,
@@ -1092,9 +1002,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_batch_prediction_jobs" not in self._stubs:
-            self._stubs[
-                "list_batch_prediction_jobs"
-            ] = self._logged_channel.unary_unary(
+            self._stubs["list_batch_prediction_jobs"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ListBatchPredictionJobs",
                 request_serializer=job_service.ListBatchPredictionJobsRequest.serialize,
                 response_deserializer=job_service.ListBatchPredictionJobsResponse.deserialize,
@@ -1123,9 +1031,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_batch_prediction_job" not in self._stubs:
-            self._stubs[
-                "delete_batch_prediction_job"
-            ] = self._logged_channel.unary_unary(
+            self._stubs["delete_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteBatchPredictionJob",
                 request_serializer=job_service.DeleteBatchPredictionJobRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1162,9 +1068,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_batch_prediction_job" not in self._stubs:
-            self._stubs[
-                "cancel_batch_prediction_job"
-            ] = self._logged_channel.unary_unary(
+            self._stubs["cancel_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelBatchPredictionJob",
                 request_serializer=job_service.CancelBatchPredictionJobRequest.serialize,
                 response_deserializer=empty_pb2.Empty.FromString,
@@ -1197,7 +1101,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "create_model_deployment_monitoring_job" not in self._stubs:
             self._stubs[
                 "create_model_deployment_monitoring_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CreateModelDeploymentMonitoringJob",
                 request_serializer=job_service.CreateModelDeploymentMonitoringJobRequest.serialize,
                 response_deserializer=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
@@ -1230,7 +1134,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "search_model_deployment_monitoring_stats_anomalies" not in self._stubs:
             self._stubs[
                 "search_model_deployment_monitoring_stats_anomalies"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/SearchModelDeploymentMonitoringStatsAnomalies",
                 request_serializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.serialize,
                 response_deserializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.deserialize,
@@ -1262,7 +1166,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "get_model_deployment_monitoring_job" not in self._stubs:
             self._stubs[
                 "get_model_deployment_monitoring_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/GetModelDeploymentMonitoringJob",
                 request_serializer=job_service.GetModelDeploymentMonitoringJobRequest.serialize,
                 response_deserializer=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
@@ -1294,7 +1198,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "list_model_deployment_monitoring_jobs" not in self._stubs:
             self._stubs[
                 "list_model_deployment_monitoring_jobs"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ListModelDeploymentMonitoringJobs",
                 request_serializer=job_service.ListModelDeploymentMonitoringJobsRequest.serialize,
                 response_deserializer=job_service.ListModelDeploymentMonitoringJobsResponse.deserialize,
@@ -1326,7 +1230,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "update_model_deployment_monitoring_job" not in self._stubs:
             self._stubs[
                 "update_model_deployment_monitoring_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/UpdateModelDeploymentMonitoringJob",
                 request_serializer=job_service.UpdateModelDeploymentMonitoringJobRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1358,7 +1262,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "delete_model_deployment_monitoring_job" not in self._stubs:
             self._stubs[
                 "delete_model_deployment_monitoring_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteModelDeploymentMonitoringJob",
                 request_serializer=job_service.DeleteModelDeploymentMonitoringJobRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1392,7 +1296,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "pause_model_deployment_monitoring_job" not in self._stubs:
             self._stubs[
                 "pause_model_deployment_monitoring_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/PauseModelDeploymentMonitoringJob",
                 request_serializer=job_service.PauseModelDeploymentMonitoringJobRequest.serialize,
                 response_deserializer=empty_pb2.Empty.FromString,
@@ -1425,7 +1329,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         if "resume_model_deployment_monitoring_job" not in self._stubs:
             self._stubs[
                 "resume_model_deployment_monitoring_job"
-            ] = self._logged_channel.unary_unary(
+            ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/ResumeModelDeploymentMonitoringJob",
                 request_serializer=job_service.ResumeModelDeploymentMonitoringJobRequest.serialize,
                 response_deserializer=empty_pb2.Empty.FromString,
@@ -1433,7 +1337,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         return self._stubs["resume_model_deployment_monitoring_job"]
 
     def close(self):
-        self._logged_channel.close()
+        self.grpc_channel.close()
 
     @property
     def delete_operation(
@@ -1445,7 +1349,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_operation" not in self._stubs:
-            self._stubs["delete_operation"] = self._logged_channel.unary_unary(
+            self._stubs["delete_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/DeleteOperation",
                 request_serializer=operations_pb2.DeleteOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -1462,7 +1366,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_operation" not in self._stubs:
-            self._stubs["cancel_operation"] = self._logged_channel.unary_unary(
+            self._stubs["cancel_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/CancelOperation",
                 request_serializer=operations_pb2.CancelOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -1479,7 +1383,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "wait_operation" not in self._stubs:
-            self._stubs["wait_operation"] = self._logged_channel.unary_unary(
+            self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -1496,7 +1400,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_operation" not in self._stubs:
-            self._stubs["get_operation"] = self._logged_channel.unary_unary(
+            self._stubs["get_operation"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/GetOperation",
                 request_serializer=operations_pb2.GetOperationRequest.SerializeToString,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1515,7 +1419,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_operations" not in self._stubs:
-            self._stubs["list_operations"] = self._logged_channel.unary_unary(
+            self._stubs["list_operations"] = self.grpc_channel.unary_unary(
                 "/google.longrunning.Operations/ListOperations",
                 request_serializer=operations_pb2.ListOperationsRequest.SerializeToString,
                 response_deserializer=operations_pb2.ListOperationsResponse.FromString,
@@ -1534,7 +1438,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_locations" not in self._stubs:
-            self._stubs["list_locations"] = self._logged_channel.unary_unary(
+            self._stubs["list_locations"] = self.grpc_channel.unary_unary(
                 "/google.cloud.location.Locations/ListLocations",
                 request_serializer=locations_pb2.ListLocationsRequest.SerializeToString,
                 response_deserializer=locations_pb2.ListLocationsResponse.FromString,
@@ -1551,7 +1455,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_location" not in self._stubs:
-            self._stubs["get_location"] = self._logged_channel.unary_unary(
+            self._stubs["get_location"] = self.grpc_channel.unary_unary(
                 "/google.cloud.location.Locations/GetLocation",
                 request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
                 response_deserializer=locations_pb2.Location.FromString,
@@ -1576,7 +1480,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "set_iam_policy" not in self._stubs:
-            self._stubs["set_iam_policy"] = self._logged_channel.unary_unary(
+            self._stubs["set_iam_policy"] = self.grpc_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/SetIamPolicy",
                 request_serializer=iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1602,7 +1506,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_iam_policy" not in self._stubs:
-            self._stubs["get_iam_policy"] = self._logged_channel.unary_unary(
+            self._stubs["get_iam_policy"] = self.grpc_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/GetIamPolicy",
                 request_serializer=iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1631,7 +1535,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "test_iam_permissions" not in self._stubs:
-            self._stubs["test_iam_permissions"] = self._logged_channel.unary_unary(
+            self._stubs["test_iam_permissions"] = self.grpc_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/TestIamPermissions",
                 request_serializer=iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
                 response_deserializer=iam_policy_pb2.TestIamPermissionsResponse.FromString,

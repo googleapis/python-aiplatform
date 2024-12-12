@@ -86,11 +86,6 @@ class NotebookExecutionJob(proto.Message):
             The service account to run the execution as.
 
             This field is a member of `oneof`_ ``execution_identity``.
-        workbench_runtime (google.cloud.aiplatform_v1.types.NotebookExecutionJob.WorkbenchRuntime):
-            The Workbench runtime configuration to use
-            for the notebook execution.
-
-            This field is a member of `oneof`_ ``runtime_environment``.
         name (str):
             Output only. The resource name of this NotebookExecutionJob.
             Format:
@@ -133,14 +128,11 @@ class NotebookExecutionJob(proto.Message):
             and examples of labels. System reserved label
             keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
-        kernel_name (str):
-            The name of the kernel to use during notebook
-            execution. If unset, the default kernel is used.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Customer-managed encryption key spec for the notebook
             execution job. This field is auto-populated if the
-            [NotebookRuntimeTemplate][google.cloud.aiplatform.v1.NotebookRuntimeTemplate]
-            has an encryption spec.
+            [NotebookService.NotebookRuntimeTemplate][] has an
+            encryption spec.
     """
 
     class DataformRepositorySource(proto.Message):
@@ -232,9 +224,6 @@ class NotebookExecutionJob(proto.Message):
             message=gca_network_spec.NetworkSpec,
         )
 
-    class WorkbenchRuntime(proto.Message):
-        r"""Configuration for a Workbench Instances-based environment."""
-
     dataform_repository_source: DataformRepositorySource = proto.Field(
         proto.MESSAGE,
         number=3,
@@ -279,12 +268,6 @@ class NotebookExecutionJob(proto.Message):
         number=18,
         oneof="execution_identity",
     )
-    workbench_runtime: WorkbenchRuntime = proto.Field(
-        proto.MESSAGE,
-        number=23,
-        oneof="runtime_environment",
-        message=WorkbenchRuntime,
-    )
     name: str = proto.Field(
         proto.STRING,
         number=1,
@@ -326,10 +309,6 @@ class NotebookExecutionJob(proto.Message):
         proto.STRING,
         proto.STRING,
         number=19,
-    )
-    kernel_name: str = proto.Field(
-        proto.STRING,
-        number=20,
     )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,

@@ -61,18 +61,6 @@ from .rest_base import _BaseVizierServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
-
-import logging
-
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
-
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -221,11 +209,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_add_trial_measurement(
         self,
         request: vizier_service.AddTrialMeasurementRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.AddTrialMeasurementRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.AddTrialMeasurementRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for add_trial_measurement
 
         Override in a subclass to manipulate the request or metadata
@@ -245,10 +230,9 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_check_trial_early_stopping_state(
         self,
         request: vizier_service.CheckTrialEarlyStoppingStateRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        vizier_service.CheckTrialEarlyStoppingStateRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        vizier_service.CheckTrialEarlyStoppingStateRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for check_trial_early_stopping_state
 
@@ -271,10 +255,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_complete_trial(
         self,
         request: vizier_service.CompleteTrialRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.CompleteTrialRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.CompleteTrialRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for complete_trial
 
         Override in a subclass to manipulate the request or metadata
@@ -294,10 +276,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_create_study(
         self,
         request: vizier_service.CreateStudyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.CreateStudyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.CreateStudyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_study
 
         Override in a subclass to manipulate the request or metadata
@@ -317,10 +297,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_create_trial(
         self,
         request: vizier_service.CreateTrialRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.CreateTrialRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.CreateTrialRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_trial
 
         Override in a subclass to manipulate the request or metadata
@@ -340,10 +318,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_delete_study(
         self,
         request: vizier_service.DeleteStudyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.DeleteStudyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.DeleteStudyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_study
 
         Override in a subclass to manipulate the request or metadata
@@ -354,10 +330,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_delete_trial(
         self,
         request: vizier_service.DeleteTrialRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.DeleteTrialRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.DeleteTrialRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_trial
 
         Override in a subclass to manipulate the request or metadata
@@ -368,8 +342,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_get_study(
         self,
         request: vizier_service.GetStudyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[vizier_service.GetStudyRequest, Sequence[Tuple[str, Union[str, bytes]]]]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.GetStudyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_study
 
         Override in a subclass to manipulate the request or metadata
@@ -389,8 +363,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_get_trial(
         self,
         request: vizier_service.GetTrialRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[vizier_service.GetTrialRequest, Sequence[Tuple[str, Union[str, bytes]]]]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.GetTrialRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_trial
 
         Override in a subclass to manipulate the request or metadata
@@ -410,10 +384,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_list_optimal_trials(
         self,
         request: vizier_service.ListOptimalTrialsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.ListOptimalTrialsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.ListOptimalTrialsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_optimal_trials
 
         Override in a subclass to manipulate the request or metadata
@@ -435,10 +407,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_list_studies(
         self,
         request: vizier_service.ListStudiesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.ListStudiesRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.ListStudiesRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_studies
 
         Override in a subclass to manipulate the request or metadata
@@ -460,10 +430,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_list_trials(
         self,
         request: vizier_service.ListTrialsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.ListTrialsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.ListTrialsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_trials
 
         Override in a subclass to manipulate the request or metadata
@@ -485,10 +453,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_lookup_study(
         self,
         request: vizier_service.LookupStudyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.LookupStudyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.LookupStudyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for lookup_study
 
         Override in a subclass to manipulate the request or metadata
@@ -508,10 +474,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_stop_trial(
         self,
         request: vizier_service.StopTrialRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.StopTrialRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.StopTrialRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for stop_trial
 
         Override in a subclass to manipulate the request or metadata
@@ -531,10 +495,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_suggest_trials(
         self,
         request: vizier_service.SuggestTrialsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        vizier_service.SuggestTrialsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[vizier_service.SuggestTrialsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for suggest_trials
 
         Override in a subclass to manipulate the request or metadata
@@ -556,10 +518,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -581,10 +541,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -606,10 +564,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -631,10 +587,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -656,11 +610,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -682,10 +633,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -705,10 +654,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -728,10 +675,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -753,10 +698,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -778,10 +721,8 @@ class AsyncVizierServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1041,7 +982,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> study.Trial:
             r"""Call the add trial measurement method over HTTP.
 
@@ -1052,10 +993,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.study.Trial:
@@ -1070,7 +1009,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseAddTrialMeasurement._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_add_trial_measurement(
                 request, metadata
             )
@@ -1086,33 +1024,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseAddTrialMeasurement._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.AddTrialMeasurement",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "AddTrialMeasurement",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._AddTrialMeasurement._get_response(
@@ -1142,28 +1053,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_add_trial_measurement(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = study.Trial.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.add_trial_measurement",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "AddTrialMeasurement",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _CheckTrialEarlyStoppingState(
@@ -1203,7 +1092,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the check trial early
             stopping state method over HTTP.
@@ -1215,10 +1104,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -1231,7 +1118,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -1250,33 +1136,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseCheckTrialEarlyStoppingState._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.CheckTrialEarlyStoppingState",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CheckTrialEarlyStoppingState",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._CheckTrialEarlyStoppingState._get_response(
@@ -1306,28 +1165,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_check_trial_early_stopping_state(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.check_trial_early_stopping_state",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CheckTrialEarlyStoppingState",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _CompleteTrial(
@@ -1366,7 +1203,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> study.Trial:
             r"""Call the complete trial method over HTTP.
 
@@ -1377,10 +1214,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.study.Trial:
@@ -1395,7 +1230,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCompleteTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_complete_trial(
                 request, metadata
             )
@@ -1411,33 +1245,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseCompleteTrial._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.CompleteTrial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CompleteTrial",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -1469,28 +1276,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_complete_trial(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = study.Trial.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.complete_trial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CompleteTrial",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _CreateStudy(
@@ -1529,7 +1314,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_study.Study:
             r"""Call the create study method over HTTP.
 
@@ -1540,10 +1325,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_study.Study:
@@ -1553,7 +1336,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCreateStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_study(
                 request, metadata
             )
@@ -1573,33 +1355,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.CreateStudy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CreateStudy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._CreateStudy._get_response(
@@ -1629,28 +1384,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_study(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_study.Study.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.create_study",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CreateStudy",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _CreateTrial(
@@ -1689,7 +1422,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> study.Trial:
             r"""Call the create trial method over HTTP.
 
@@ -1700,10 +1433,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.study.Trial:
@@ -1718,7 +1449,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCreateTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_create_trial(
                 request, metadata
             )
@@ -1738,33 +1468,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.CreateTrial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CreateTrial",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._CreateTrial._get_response(
@@ -1794,28 +1497,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_trial(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = study.Trial.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.create_trial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CreateTrial",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _DeleteStudy(
@@ -1853,7 +1534,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the delete study method over HTTP.
 
@@ -1864,16 +1545,13 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseVizierServiceRestTransport._BaseDeleteStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_study(
                 request, metadata
             )
@@ -1887,33 +1565,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.DeleteStudy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "DeleteStudy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._DeleteStudy._get_response(
@@ -1971,7 +1622,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the delete trial method over HTTP.
 
@@ -1982,16 +1633,13 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseVizierServiceRestTransport._BaseDeleteTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_trial(
                 request, metadata
             )
@@ -2005,33 +1653,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.DeleteTrial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "DeleteTrial",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._DeleteTrial._get_response(
@@ -2089,7 +1710,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> study.Study:
             r"""Call the get study method over HTTP.
 
@@ -2100,10 +1721,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.study.Study:
@@ -2113,7 +1732,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_study(request, metadata)
             transcoded_request = (
                 _BaseVizierServiceRestTransport._BaseGetStudy._get_transcoded_request(
@@ -2127,33 +1745,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.GetStudy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetStudy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._GetStudy._get_response(
@@ -2182,28 +1773,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_study(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = study.Study.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.get_study",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetStudy",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _GetTrial(
@@ -2241,7 +1810,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> study.Trial:
             r"""Call the get trial method over HTTP.
 
@@ -2252,10 +1821,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.study.Trial:
@@ -2270,7 +1837,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_trial(request, metadata)
             transcoded_request = (
                 _BaseVizierServiceRestTransport._BaseGetTrial._get_transcoded_request(
@@ -2284,33 +1850,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.GetTrial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetTrial",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._GetTrial._get_response(
@@ -2339,28 +1878,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_trial(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = study.Trial.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.get_trial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetTrial",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListOptimalTrials(
@@ -2400,7 +1917,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vizier_service.ListOptimalTrialsResponse:
             r"""Call the list optimal trials method over HTTP.
 
@@ -2411,10 +1928,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vizier_service.ListOptimalTrialsResponse:
@@ -2426,7 +1941,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListOptimalTrials._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_optimal_trials(
                 request, metadata
             )
@@ -2442,33 +1956,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseListOptimalTrials._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.ListOptimalTrials",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListOptimalTrials",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -2500,30 +1987,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_optimal_trials(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = vizier_service.ListOptimalTrialsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.list_optimal_trials",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListOptimalTrials",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListStudies(
@@ -2561,7 +2024,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vizier_service.ListStudiesResponse:
             r"""Call the list studies method over HTTP.
 
@@ -2572,10 +2035,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vizier_service.ListStudiesResponse:
@@ -2587,7 +2048,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListStudies._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_studies(
                 request, metadata
             )
@@ -2601,33 +2061,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.ListStudies",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListStudies",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._ListStudies._get_response(
@@ -2656,30 +2089,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_studies(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = vizier_service.ListStudiesResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.list_studies",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListStudies",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _ListTrials(
@@ -2717,7 +2126,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> vizier_service.ListTrialsResponse:
             r"""Call the list trials method over HTTP.
 
@@ -2728,10 +2137,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.vizier_service.ListTrialsResponse:
@@ -2743,7 +2150,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListTrials._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_trials(
                 request, metadata
             )
@@ -2759,33 +2165,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.ListTrials",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListTrials",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._ListTrials._get_response(
@@ -2814,30 +2193,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_trials(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = vizier_service.ListTrialsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.list_trials",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListTrials",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _LookupStudy(
@@ -2876,7 +2231,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> study.Study:
             r"""Call the lookup study method over HTTP.
 
@@ -2887,10 +2242,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.study.Study:
@@ -2900,7 +2253,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseLookupStudy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_lookup_study(
                 request, metadata
             )
@@ -2920,33 +2272,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.LookupStudy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "LookupStudy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._LookupStudy._get_response(
@@ -2976,28 +2301,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_lookup_study(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = study.Study.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.lookup_study",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "LookupStudy",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _StopTrial(
@@ -3036,7 +2339,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> study.Trial:
             r"""Call the stop trial method over HTTP.
 
@@ -3047,10 +2350,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.study.Trial:
@@ -3065,7 +2366,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseStopTrial._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_stop_trial(
                 request, metadata
             )
@@ -3087,33 +2387,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.StopTrial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "StopTrial",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._StopTrial._get_response(
@@ -3143,28 +2416,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_stop_trial(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = study.Trial.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.stop_trial",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "StopTrial",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     class _SuggestTrials(
@@ -3203,7 +2454,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the suggest trials method over HTTP.
 
@@ -3214,10 +2465,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3230,7 +2479,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseSuggestTrials._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_suggest_trials(
                 request, metadata
             )
@@ -3246,33 +2494,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseSuggestTrials._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.SuggestTrials",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "SuggestTrials",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3304,28 +2525,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_suggest_trials(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": "OK",  # need to obtain this properly
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.suggest_trials",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "SuggestTrials",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
-
             return resp
 
     @property
@@ -5337,7 +4536,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -5348,10 +4547,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -5360,7 +4557,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -5374,33 +4570,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = await AsyncVizierServiceRestTransport._GetLocation._get_response(
@@ -5427,27 +4596,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5489,7 +4637,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -5500,10 +4648,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -5512,7 +4658,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -5524,33 +4669,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5579,27 +4697,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5641,7 +4738,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -5652,10 +4749,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -5664,7 +4759,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -5676,33 +4770,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5731,27 +4798,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5794,7 +4840,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -5805,10 +4851,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -5817,7 +4861,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -5833,33 +4876,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5889,27 +4905,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5952,7 +4947,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -5963,10 +4958,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -5975,7 +4968,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -5987,33 +4979,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6042,27 +5007,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6104,7 +5048,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -6115,16 +5059,13 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseVizierServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -6136,33 +5077,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6228,7 +5142,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -6239,16 +5153,13 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseVizierServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -6260,33 +5171,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6352,7 +5236,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -6363,10 +5247,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -6375,7 +5257,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -6387,33 +5268,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6442,27 +5296,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6504,7 +5337,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -6515,10 +5348,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -6527,7 +5358,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -6539,33 +5369,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6594,27 +5397,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6656,7 +5438,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -6667,10 +5449,8 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -6679,7 +5459,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             http_options = (
                 _BaseVizierServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -6691,33 +5470,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             query_params = _BaseVizierServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.VizierServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6746,27 +5498,6 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.VizierServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.VizierService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

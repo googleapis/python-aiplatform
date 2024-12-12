@@ -3203,7 +3203,6 @@ def test_create_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_cached_content(request)
 
@@ -3260,7 +3259,6 @@ def test_create_cached_content_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_cached_content(**mock_args)
 
@@ -3399,7 +3397,6 @@ def test_get_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_cached_content(request)
 
@@ -3447,7 +3444,6 @@ def test_get_cached_content_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_cached_content(**mock_args)
 
@@ -3582,7 +3578,6 @@ def test_update_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_cached_content(request)
 
@@ -3643,7 +3638,6 @@ def test_update_cached_content_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_cached_content(**mock_args)
 
@@ -3780,7 +3774,6 @@ def test_delete_cached_content_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_cached_content(request)
 
@@ -3826,7 +3819,6 @@ def test_delete_cached_content_rest_flattened():
         json_return_value = ""
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_cached_content(**mock_args)
 
@@ -3971,7 +3963,6 @@ def test_list_cached_contents_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_cached_contents(request)
 
@@ -4025,7 +4016,6 @@ def test_list_cached_contents_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_cached_contents(**mock_args)
 
@@ -4528,7 +4518,6 @@ def test_create_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_cached_content(request)
 
 
@@ -4648,7 +4637,6 @@ def test_create_cached_content_rest_call_success(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
@@ -4763,7 +4751,6 @@ def test_create_cached_content_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -4806,7 +4793,6 @@ def test_create_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -4853,7 +4839,6 @@ def test_get_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_cached_content(request)
 
 
@@ -4891,7 +4876,6 @@ def test_get_cached_content_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -4934,7 +4918,6 @@ def test_get_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = cached_content.CachedContent.to_json(
             cached_content.CachedContent()
         )
@@ -4985,7 +4968,6 @@ def test_update_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_cached_content(request)
 
 
@@ -5109,7 +5091,6 @@ def test_update_cached_content_rest_call_success(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
@@ -5224,7 +5205,6 @@ def test_update_cached_content_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -5267,7 +5247,6 @@ def test_update_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -5314,7 +5293,6 @@ def test_delete_cached_content_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_cached_content(request)
 
 
@@ -5345,7 +5323,6 @@ def test_delete_cached_content_rest_call_success(request_type):
         json_return_value = ""
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -5382,7 +5359,6 @@ def test_delete_cached_content_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = gen_ai_cache_service.DeleteCachedContentRequest()
         metadata = [
@@ -5423,7 +5399,6 @@ def test_list_cached_contents_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_cached_contents(request)
 
 
@@ -5459,7 +5434,6 @@ def test_list_cached_contents_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_cached_contents(request)
 
     # Establish that the response is the type that we expect.
@@ -5500,7 +5474,6 @@ def test_list_cached_contents_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gen_ai_cache_service.ListCachedContentsResponse.to_json(
             gen_ai_cache_service.ListCachedContentsResponse()
         )
@@ -5547,7 +5520,6 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -5578,7 +5550,6 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -5607,7 +5578,6 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -5638,7 +5608,6 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -5670,7 +5639,6 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -5703,7 +5671,6 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -5735,7 +5702,6 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -5768,7 +5734,6 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -5800,7 +5765,6 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -5833,7 +5797,6 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -5864,7 +5827,6 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -5895,7 +5857,6 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -5926,7 +5887,6 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -5957,7 +5917,6 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -5988,7 +5947,6 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -6019,7 +5977,6 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -6050,7 +6007,6 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -6081,7 +6037,6 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -6112,7 +6067,6 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -6143,7 +6097,6 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -6304,7 +6257,6 @@ async def test_create_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_cached_content(request)
 
 
@@ -6429,7 +6381,6 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
@@ -6546,7 +6497,6 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -6594,7 +6544,6 @@ async def test_create_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -6645,7 +6594,6 @@ async def test_get_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_cached_content(request)
 
 
@@ -6690,7 +6638,6 @@ async def test_get_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -6738,7 +6685,6 @@ async def test_get_cached_content_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = cached_content.CachedContent.to_json(
             cached_content.CachedContent()
         )
@@ -6793,7 +6739,6 @@ async def test_update_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_cached_content(request)
 
 
@@ -6922,7 +6867,6 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
@@ -7039,7 +6983,6 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -7087,7 +7030,6 @@ async def test_update_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_cached_content.CachedContent.to_json(
             gca_cached_content.CachedContent()
         )
@@ -7138,7 +7080,6 @@ async def test_delete_cached_content_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_cached_content(request)
 
 
@@ -7176,7 +7117,6 @@ async def test_delete_cached_content_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_cached_content(request)
 
     # Establish that the response is the type that we expect.
@@ -7218,7 +7158,6 @@ async def test_delete_cached_content_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         request = gen_ai_cache_service.DeleteCachedContentRequest()
         metadata = [
@@ -7263,7 +7202,6 @@ async def test_list_cached_contents_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_cached_contents(request)
 
 
@@ -7306,7 +7244,6 @@ async def test_list_cached_contents_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_cached_contents(request)
 
     # Establish that the response is the type that we expect.
@@ -7352,7 +7289,6 @@ async def test_list_cached_contents_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gen_ai_cache_service.ListCachedContentsResponse.to_json(
             gen_ai_cache_service.ListCachedContentsResponse()
         )
@@ -7405,7 +7341,6 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -7443,7 +7378,6 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -7476,7 +7410,6 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -7514,7 +7447,6 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -7550,7 +7482,6 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -7590,7 +7521,6 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -7626,7 +7556,6 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -7666,7 +7595,6 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -7702,7 +7630,6 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -7742,7 +7669,6 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -7777,7 +7703,6 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -7815,7 +7740,6 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -7850,7 +7774,6 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -7888,7 +7811,6 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -7923,7 +7845,6 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -7961,7 +7882,6 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -7996,7 +7916,6 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -8034,7 +7953,6 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -8069,7 +7987,6 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -8107,7 +8024,6 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

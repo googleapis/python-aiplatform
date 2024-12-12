@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
-import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
+import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -49,14 +48,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -129,10 +120,9 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_create_reasoning_engine(
         self,
         request: reasoning_engine_service.CreateReasoningEngineRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        reasoning_engine_service.CreateReasoningEngineRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        reasoning_engine_service.CreateReasoningEngineRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for create_reasoning_engine
 
@@ -155,10 +145,9 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_delete_reasoning_engine(
         self,
         request: reasoning_engine_service.DeleteReasoningEngineRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        reasoning_engine_service.DeleteReasoningEngineRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        reasoning_engine_service.DeleteReasoningEngineRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for delete_reasoning_engine
 
@@ -181,10 +170,9 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_get_reasoning_engine(
         self,
         request: reasoning_engine_service.GetReasoningEngineRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        reasoning_engine_service.GetReasoningEngineRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        reasoning_engine_service.GetReasoningEngineRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for get_reasoning_engine
 
@@ -207,10 +195,9 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_list_reasoning_engines(
         self,
         request: reasoning_engine_service.ListReasoningEnginesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        reasoning_engine_service.ListReasoningEnginesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        reasoning_engine_service.ListReasoningEnginesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for list_reasoning_engines
 
@@ -233,10 +220,9 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_update_reasoning_engine(
         self,
         request: reasoning_engine_service.UpdateReasoningEngineRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        reasoning_engine_service.UpdateReasoningEngineRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        reasoning_engine_service.UpdateReasoningEngineRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for update_reasoning_engine
 
@@ -259,10 +245,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -284,10 +268,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -309,10 +291,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -332,10 +312,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -355,11 +333,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -381,10 +356,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -404,10 +377,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -427,10 +398,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -452,10 +421,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -477,10 +444,8 @@ class ReasoningEngineServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1162,10 +1127,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                     },
                     {
                         "method": "delete",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                     },
                     {
@@ -1379,10 +1340,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1592,10 +1549,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                     },
                     {
                         "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
                     },
                     {
@@ -1810,10 +1763,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
                 ],
                 "google.longrunning.Operations.ListOperations": [
                     {
@@ -2011,10 +1960,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -2232,10 +2177,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
-                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -2433,10 +2374,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -2650,10 +2587,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
                     },
-                    {
-                        "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
-                    },
                 ],
             }
 
@@ -2710,7 +2643,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create reasoning engine method over HTTP.
 
@@ -2721,10 +2654,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2737,7 +2668,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseCreateReasoningEngine._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_reasoning_engine(
                 request, metadata
             )
@@ -2753,33 +2683,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseCreateReasoningEngine._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.CreateReasoningEngine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "CreateReasoningEngine",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._CreateReasoningEngine._get_response(
@@ -2800,29 +2703,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_reasoning_engine(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.create_reasoning_engine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "CreateReasoningEngine",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteReasoningEngine(
@@ -2861,7 +2742,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete reasoning engine method over HTTP.
 
@@ -2872,10 +2753,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2888,7 +2767,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseDeleteReasoningEngine._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_reasoning_engine(
                 request, metadata
             )
@@ -2900,33 +2778,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseDeleteReasoningEngine._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.DeleteReasoningEngine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "DeleteReasoningEngine",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._DeleteReasoningEngine._get_response(
@@ -2946,29 +2797,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_reasoning_engine(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.delete_reasoning_engine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "DeleteReasoningEngine",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetReasoningEngine(
@@ -3007,7 +2836,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> reasoning_engine.ReasoningEngine:
             r"""Call the get reasoning engine method over HTTP.
 
@@ -3018,10 +2847,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.reasoning_engine.ReasoningEngine:
@@ -3035,7 +2862,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseGetReasoningEngine._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_reasoning_engine(
                 request, metadata
             )
@@ -3047,33 +2873,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseGetReasoningEngine._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.GetReasoningEngine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetReasoningEngine",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3097,31 +2896,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             pb_resp = reasoning_engine.ReasoningEngine.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_reasoning_engine(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = reasoning_engine.ReasoningEngine.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.get_reasoning_engine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetReasoningEngine",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListReasoningEngines(
@@ -3160,7 +2935,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> reasoning_engine_service.ListReasoningEnginesResponse:
             r"""Call the list reasoning engines method over HTTP.
 
@@ -3171,10 +2946,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.reasoning_engine_service.ListReasoningEnginesResponse:
@@ -3186,7 +2959,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseListReasoningEngines._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_reasoning_engines(
                 request, metadata
             )
@@ -3198,33 +2970,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseListReasoningEngines._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.ListReasoningEngines",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "ListReasoningEngines",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3248,33 +2993,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             pb_resp = reasoning_engine_service.ListReasoningEnginesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_reasoning_engines(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        reasoning_engine_service.ListReasoningEnginesResponse.to_json(
-                            response
-                        )
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.list_reasoning_engines",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "ListReasoningEngines",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateReasoningEngine(
@@ -3314,7 +3033,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update reasoning engine method over HTTP.
 
@@ -3325,10 +3044,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3341,7 +3058,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseUpdateReasoningEngine._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_reasoning_engine(
                 request, metadata
             )
@@ -3357,33 +3073,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseUpdateReasoningEngine._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.UpdateReasoningEngine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "UpdateReasoningEngine",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._UpdateReasoningEngine._get_response(
@@ -3404,29 +3093,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_reasoning_engine(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.update_reasoning_engine",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "UpdateReasoningEngine",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     @property
@@ -3524,7 +3191,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -3535,10 +3202,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -3547,7 +3212,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = _BaseReasoningEngineServiceRestTransport._BaseGetLocation._get_transcoded_request(
                 http_options, request
@@ -3557,33 +3221,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._GetLocation._get_response(
@@ -3604,27 +3241,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -3667,7 +3283,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -3678,10 +3294,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -3690,7 +3304,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseReasoningEngineServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -3700,33 +3313,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._ListLocations._get_response(
@@ -3747,27 +3333,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -3811,7 +3376,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -3822,10 +3387,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -3834,7 +3397,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseReasoningEngineServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -3848,33 +3410,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._GetIamPolicy._get_response(
@@ -3896,27 +3431,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -3960,7 +3474,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -3971,10 +3485,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -3983,7 +3495,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseReasoningEngineServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -3997,33 +3508,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._SetIamPolicy._get_response(
@@ -4045,27 +3529,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4109,7 +3572,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -4120,10 +3583,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -4132,7 +3593,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -4148,33 +3608,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4198,27 +3631,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4261,7 +3673,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -4272,16 +3684,13 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -4293,33 +3702,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4380,7 +3762,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -4391,16 +3773,13 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -4412,33 +3791,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4499,7 +3851,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -4510,10 +3862,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -4522,7 +3872,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseReasoningEngineServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -4532,33 +3881,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._GetOperation._get_response(
@@ -4579,27 +3901,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4642,7 +3943,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -4653,10 +3954,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -4665,7 +3964,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseReasoningEngineServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -4675,33 +3973,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4724,27 +3995,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4787,7 +4037,7 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -4798,10 +4048,8 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -4810,7 +4058,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             http_options = (
                 _BaseReasoningEngineServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseReasoningEngineServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -4820,33 +4067,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             query_params = _BaseReasoningEngineServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = ReasoningEngineServiceRestTransport._WaitOperation._get_response(
@@ -4867,27 +4087,6 @@ class ReasoningEngineServiceRestTransport(_BaseReasoningEngineServiceRestTranspo
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

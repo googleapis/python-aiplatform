@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
-import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
+import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -51,14 +50,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -179,10 +170,9 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_batch_create_features(
         self,
         request: featurestore_service.BatchCreateFeaturesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        featurestore_service.BatchCreateFeaturesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        featurestore_service.BatchCreateFeaturesRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for batch_create_features
 
@@ -205,11 +195,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_create_feature(
         self,
         request: featurestore_service.CreateFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.CreateFeatureRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.CreateFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -231,10 +218,9 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_create_feature_group(
         self,
         request: feature_registry_service.CreateFeatureGroupRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        feature_registry_service.CreateFeatureGroupRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        feature_registry_service.CreateFeatureGroupRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for create_feature_group
 
@@ -257,11 +243,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_delete_feature(
         self,
         request: featurestore_service.DeleteFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.DeleteFeatureRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.DeleteFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -283,10 +266,9 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_delete_feature_group(
         self,
         request: feature_registry_service.DeleteFeatureGroupRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        feature_registry_service.DeleteFeatureGroupRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        feature_registry_service.DeleteFeatureGroupRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for delete_feature_group
 
@@ -309,10 +291,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_get_feature(
         self,
         request: featurestore_service.GetFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.GetFeatureRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.GetFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -332,10 +312,9 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_get_feature_group(
         self,
         request: feature_registry_service.GetFeatureGroupRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        feature_registry_service.GetFeatureGroupRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        feature_registry_service.GetFeatureGroupRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for get_feature_group
 
@@ -358,10 +337,9 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_list_feature_groups(
         self,
         request: feature_registry_service.ListFeatureGroupsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        feature_registry_service.ListFeatureGroupsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        feature_registry_service.ListFeatureGroupsRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for list_feature_groups
 
@@ -384,11 +362,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_list_features(
         self,
         request: featurestore_service.ListFeaturesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.ListFeaturesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.ListFeaturesRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_features
 
         Override in a subclass to manipulate the request or metadata
@@ -410,11 +385,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_update_feature(
         self,
         request: featurestore_service.UpdateFeatureRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        featurestore_service.UpdateFeatureRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[featurestore_service.UpdateFeatureRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for update_feature
 
         Override in a subclass to manipulate the request or metadata
@@ -436,10 +408,9 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_update_feature_group(
         self,
         request: feature_registry_service.UpdateFeatureGroupRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        feature_registry_service.UpdateFeatureGroupRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        feature_registry_service.UpdateFeatureGroupRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for update_feature_group
 
@@ -462,10 +433,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -487,10 +456,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -512,10 +479,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -535,10 +500,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -558,11 +521,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -584,10 +544,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -607,10 +565,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -630,10 +586,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -655,10 +609,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -680,10 +632,8 @@ class FeatureRegistryServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -2706,7 +2656,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the batch create features method over HTTP.
 
@@ -2719,10 +2669,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2735,7 +2683,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseBatchCreateFeatures._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_batch_create_features(
                 request, metadata
             )
@@ -2751,33 +2698,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseBatchCreateFeatures._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.BatchCreateFeatures",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "BatchCreateFeatures",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -2800,29 +2720,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_batch_create_features(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.batch_create_features",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "BatchCreateFeatures",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateFeature(
@@ -2862,7 +2760,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create feature method over HTTP.
 
@@ -2875,10 +2773,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2891,7 +2787,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseCreateFeature._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_feature(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeature._get_transcoded_request(
                 http_options, request
@@ -2905,33 +2800,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.CreateFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "CreateFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._CreateFeature._get_response(
@@ -2952,29 +2820,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.create_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "CreateFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateFeatureGroup(
@@ -3014,7 +2860,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create feature group method over HTTP.
 
@@ -3025,10 +2871,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3041,7 +2885,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureGroup._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_feature_group(
                 request, metadata
             )
@@ -3057,33 +2900,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseCreateFeatureGroup._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.CreateFeatureGroup",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "CreateFeatureGroup",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3106,29 +2922,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_feature_group(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.create_feature_group",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "CreateFeatureGroup",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteFeature(
@@ -3167,7 +2961,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete feature method over HTTP.
 
@@ -3180,10 +2974,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3196,7 +2988,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeature._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_feature(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeature._get_transcoded_request(
                 http_options, request
@@ -3206,33 +2997,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.DeleteFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "DeleteFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._DeleteFeature._get_response(
@@ -3252,29 +3016,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.delete_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "DeleteFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteFeatureGroup(
@@ -3313,7 +3055,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete feature group method over HTTP.
 
@@ -3324,10 +3066,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3340,7 +3080,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeatureGroup._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_feature_group(
                 request, metadata
             )
@@ -3352,33 +3091,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseDeleteFeatureGroup._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.DeleteFeatureGroup",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "DeleteFeatureGroup",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3400,29 +3112,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_feature_group(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.delete_feature_group",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "DeleteFeatureGroup",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetFeature(
@@ -3461,7 +3151,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature.Feature:
             r"""Call the get feature method over HTTP.
 
@@ -3474,10 +3164,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature.Feature:
@@ -3490,7 +3178,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseGetFeature._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_feature(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseGetFeature._get_transcoded_request(
                 http_options, request
@@ -3500,33 +3187,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseGetFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.GetFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._GetFeature._get_response(
@@ -3548,29 +3208,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             pb_resp = feature.Feature.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature.Feature.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.get_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetFeatureGroup(
@@ -3609,7 +3247,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_group.FeatureGroup:
             r"""Call the get feature group method over HTTP.
 
@@ -3620,10 +3258,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_group.FeatureGroup:
@@ -3633,7 +3269,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureGroup._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_feature_group(
                 request, metadata
             )
@@ -3645,33 +3280,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseGetFeatureGroup._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.GetFeatureGroup",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetFeatureGroup",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3695,29 +3303,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             pb_resp = feature_group.FeatureGroup.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_feature_group(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_group.FeatureGroup.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.get_feature_group",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetFeatureGroup",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListFeatureGroups(
@@ -3756,7 +3342,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_registry_service.ListFeatureGroupsResponse:
             r"""Call the list feature groups method over HTTP.
 
@@ -3767,10 +3353,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_registry_service.ListFeatureGroupsResponse:
@@ -3782,7 +3366,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseListFeatureGroups._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_feature_groups(
                 request, metadata
             )
@@ -3794,33 +3377,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseListFeatureGroups._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.ListFeatureGroups",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListFeatureGroups",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -3844,33 +3400,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             pb_resp = feature_registry_service.ListFeatureGroupsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_feature_groups(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        feature_registry_service.ListFeatureGroupsResponse.to_json(
-                            response
-                        )
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.list_feature_groups",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListFeatureGroups",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListFeatures(
@@ -3909,7 +3439,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> featurestore_service.ListFeaturesResponse:
             r"""Call the list features method over HTTP.
 
@@ -3922,10 +3452,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.featurestore_service.ListFeaturesResponse:
@@ -3939,7 +3467,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseListFeatures._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_features(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseListFeatures._get_transcoded_request(
                 http_options, request
@@ -3949,33 +3476,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseListFeatures._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.ListFeatures",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListFeatures",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._ListFeatures._get_response(
@@ -3997,31 +3497,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             pb_resp = featurestore_service.ListFeaturesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_features(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        featurestore_service.ListFeaturesResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.list_features",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListFeatures",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateFeature(
@@ -4061,7 +3537,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update feature method over HTTP.
 
@@ -4074,10 +3550,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4090,7 +3564,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseUpdateFeature._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_feature(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseUpdateFeature._get_transcoded_request(
                 http_options, request
@@ -4104,33 +3577,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseUpdateFeature._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.UpdateFeature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "UpdateFeature",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._UpdateFeature._get_response(
@@ -4151,29 +3597,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_feature(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.update_feature",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "UpdateFeature",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateFeatureGroup(
@@ -4213,7 +3637,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update feature group method over HTTP.
 
@@ -4224,10 +3648,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4240,7 +3662,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseUpdateFeatureGroup._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_feature_group(
                 request, metadata
             )
@@ -4256,33 +3677,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseUpdateFeatureGroup._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.UpdateFeatureGroup",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "UpdateFeatureGroup",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4305,29 +3699,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_feature_group(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.update_feature_group",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "UpdateFeatureGroup",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     @property
@@ -4480,7 +3852,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -4491,10 +3863,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -4503,7 +3873,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseGetLocation._get_transcoded_request(
                 http_options, request
@@ -4513,33 +3882,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._GetLocation._get_response(
@@ -4560,27 +3902,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4623,7 +3944,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -4634,10 +3955,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -4646,7 +3965,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -4656,33 +3974,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._ListLocations._get_response(
@@ -4703,27 +3994,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4766,7 +4036,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -4777,10 +4047,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -4789,7 +4057,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -4799,33 +4066,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._GetIamPolicy._get_response(
@@ -4846,27 +4086,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -4910,7 +4129,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -4921,10 +4140,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -4933,7 +4150,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -4947,33 +4163,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._SetIamPolicy._get_response(
@@ -4995,27 +4184,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5058,7 +4226,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -5069,10 +4237,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -5081,7 +4247,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -5093,33 +4258,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5142,27 +4280,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5205,7 +4322,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -5216,16 +4333,13 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -5237,33 +4351,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5324,7 +4411,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -5335,16 +4422,13 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -5356,33 +4440,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5443,7 +4500,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -5454,10 +4511,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -5466,7 +4521,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -5476,33 +4530,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._GetOperation._get_response(
@@ -5523,27 +4550,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5586,7 +4592,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -5597,10 +4603,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -5609,7 +4613,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -5619,33 +4622,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5668,27 +4644,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5731,7 +4686,7 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -5742,10 +4697,8 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -5754,7 +4707,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             http_options = (
                 _BaseFeatureRegistryServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseFeatureRegistryServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -5764,33 +4716,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             query_params = _BaseFeatureRegistryServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureRegistryServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureRegistryServiceRestTransport._WaitOperation._get_response(
@@ -5811,27 +4736,6 @@ class FeatureRegistryServiceRestTransport(_BaseFeatureRegistryServiceRestTranspo
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureRegistryServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureRegistryService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

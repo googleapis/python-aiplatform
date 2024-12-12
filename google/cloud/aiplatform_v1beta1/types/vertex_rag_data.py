@@ -796,10 +796,6 @@ class RagFileParsingConfig(proto.Message):
             The Layout Parser to use for RagFiles.
 
             This field is a member of `oneof`_ ``parser``.
-        llm_parser (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig.LlmParser):
-            The LLM Parser to use for RagFiles.
-
-            This field is a member of `oneof`_ ``parser``.
         use_advanced_pdf_parsing (bool):
             Whether to use advanced PDF parsing.
     """
@@ -849,39 +845,6 @@ class RagFileParsingConfig(proto.Message):
             number=2,
         )
 
-    class LlmParser(proto.Message):
-        r"""Specifies the advanced parsing for RagFiles.
-
-        Attributes:
-            model_name (str):
-                The name of a LLM model used for parsing. Format:
-                ``gemini-1.5-pro-002``
-            max_parsing_requests_per_min (int):
-                The maximum number of requests the job is
-                allowed to make to the LLM model per minute.
-                Consult
-                https://cloud.google.com/vertex-ai/generative-ai/docs/quotas
-                and your document size to set an appropriate
-                value here. If unspecified, a default value of
-                5000 QPM would be used.
-            custom_parsing_prompt (str):
-                The prompt to use for parsing. If not
-                specified, a default prompt will be used.
-        """
-
-        model_name: str = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        max_parsing_requests_per_min: int = proto.Field(
-            proto.INT32,
-            number=2,
-        )
-        custom_parsing_prompt: str = proto.Field(
-            proto.STRING,
-            number=3,
-        )
-
     advanced_parser: AdvancedParser = proto.Field(
         proto.MESSAGE,
         number=3,
@@ -893,12 +856,6 @@ class RagFileParsingConfig(proto.Message):
         number=4,
         oneof="parser",
         message=LayoutParser,
-    )
-    llm_parser: LlmParser = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        oneof="parser",
-        message=LlmParser,
     )
     use_advanced_pdf_parsing: bool = proto.Field(
         proto.BOOL,

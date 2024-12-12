@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
-import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
+import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -51,14 +50,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -195,10 +186,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_create_feature_online_store(
         self,
         request: feature_online_store_admin_service.CreateFeatureOnlineStoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.CreateFeatureOnlineStoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for create_feature_online_store
 
@@ -221,10 +212,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_create_feature_view(
         self,
         request: feature_online_store_admin_service.CreateFeatureViewRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.CreateFeatureViewRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for create_feature_view
 
@@ -247,10 +238,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_delete_feature_online_store(
         self,
         request: feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for delete_feature_online_store
 
@@ -273,10 +264,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_delete_feature_view(
         self,
         request: feature_online_store_admin_service.DeleteFeatureViewRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.DeleteFeatureViewRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for delete_feature_view
 
@@ -299,10 +290,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_get_feature_online_store(
         self,
         request: feature_online_store_admin_service.GetFeatureOnlineStoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.GetFeatureOnlineStoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for get_feature_online_store
 
@@ -325,10 +316,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_get_feature_view(
         self,
         request: feature_online_store_admin_service.GetFeatureViewRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.GetFeatureViewRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for get_feature_view
 
@@ -351,10 +342,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_get_feature_view_sync(
         self,
         request: feature_online_store_admin_service.GetFeatureViewSyncRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.GetFeatureViewSyncRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for get_feature_view_sync
 
@@ -377,10 +368,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_list_feature_online_stores(
         self,
         request: feature_online_store_admin_service.ListFeatureOnlineStoresRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.ListFeatureOnlineStoresRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for list_feature_online_stores
 
@@ -404,10 +395,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_list_feature_views(
         self,
         request: feature_online_store_admin_service.ListFeatureViewsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.ListFeatureViewsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for list_feature_views
 
@@ -430,10 +421,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_list_feature_view_syncs(
         self,
         request: feature_online_store_admin_service.ListFeatureViewSyncsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.ListFeatureViewSyncsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for list_feature_view_syncs
 
@@ -456,10 +447,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_sync_feature_view(
         self,
         request: feature_online_store_admin_service.SyncFeatureViewRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.SyncFeatureViewRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for sync_feature_view
 
@@ -482,10 +473,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_update_feature_online_store(
         self,
         request: feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for update_feature_online_store
 
@@ -508,10 +499,10 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_update_feature_view(
         self,
         request: feature_online_store_admin_service.UpdateFeatureViewRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         feature_online_store_admin_service.UpdateFeatureViewRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for update_feature_view
 
@@ -534,10 +525,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -559,10 +548,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -584,10 +571,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -607,10 +592,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -630,11 +613,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -656,10 +636,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -679,10 +657,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -702,10 +678,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -727,10 +701,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -752,10 +724,8 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -2784,7 +2754,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create feature online
             store method over HTTP.
@@ -2796,10 +2766,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -2812,7 +2780,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_feature_online_store(
                 request, metadata
             )
@@ -2828,33 +2795,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureOnlineStore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.CreateFeatureOnlineStore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "CreateFeatureOnlineStore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._CreateFeatureOnlineStore._get_response(
@@ -2875,29 +2815,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_feature_online_store(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.create_feature_online_store",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "CreateFeatureOnlineStore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateFeatureView(
@@ -2937,7 +2855,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create feature view method over HTTP.
 
@@ -2948,10 +2866,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -2964,7 +2880,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureView._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_feature_view(
                 request, metadata
             )
@@ -2980,33 +2895,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCreateFeatureView._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.CreateFeatureView",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "CreateFeatureView",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._CreateFeatureView._get_response(
@@ -3027,29 +2915,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_feature_view(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.create_feature_view",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "CreateFeatureView",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteFeatureOnlineStore(
@@ -3090,7 +2956,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete feature online
             store method over HTTP.
@@ -3102,10 +2968,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -3118,7 +2982,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_feature_online_store(
                 request, metadata
             )
@@ -3130,33 +2993,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureOnlineStore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.DeleteFeatureOnlineStore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "DeleteFeatureOnlineStore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._DeleteFeatureOnlineStore._get_response(
@@ -3176,29 +3012,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_feature_online_store(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.delete_feature_online_store",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "DeleteFeatureOnlineStore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteFeatureView(
@@ -3237,7 +3051,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete feature view method over HTTP.
 
@@ -3248,10 +3062,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3264,7 +3076,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureView._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_feature_view(
                 request, metadata
             )
@@ -3276,33 +3087,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteFeatureView._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.DeleteFeatureView",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "DeleteFeatureView",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._DeleteFeatureView._get_response(
@@ -3322,29 +3106,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_feature_view(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.delete_feature_view",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "DeleteFeatureView",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetFeatureOnlineStore(
@@ -3385,7 +3147,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_online_store.FeatureOnlineStore:
             r"""Call the get feature online store method over HTTP.
 
@@ -3396,10 +3158,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_online_store.FeatureOnlineStore:
@@ -3414,7 +3174,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_feature_online_store(
                 request, metadata
             )
@@ -3426,33 +3185,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureOnlineStore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.GetFeatureOnlineStore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetFeatureOnlineStore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._GetFeatureOnlineStore._get_response(
@@ -3474,31 +3206,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             pb_resp = feature_online_store.FeatureOnlineStore.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_feature_online_store(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_online_store.FeatureOnlineStore.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.get_feature_online_store",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetFeatureOnlineStore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetFeatureView(
@@ -3537,7 +3245,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_view.FeatureView:
             r"""Call the get feature view method over HTTP.
 
@@ -3548,10 +3256,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_view.FeatureView:
@@ -3564,7 +3270,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureView._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_feature_view(
                 request, metadata
             )
@@ -3576,33 +3281,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureView._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.GetFeatureView",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetFeatureView",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._GetFeatureView._get_response(
@@ -3624,29 +3302,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             pb_resp = feature_view.FeatureView.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_feature_view(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_view.FeatureView.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.get_feature_view",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetFeatureView",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetFeatureViewSync(
@@ -3687,7 +3343,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_view_sync.FeatureViewSync:
             r"""Call the get feature view sync method over HTTP.
 
@@ -3698,10 +3354,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_view_sync.FeatureViewSync:
@@ -3715,7 +3369,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureViewSync._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_feature_view_sync(
                 request, metadata
             )
@@ -3727,33 +3380,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetFeatureViewSync._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.GetFeatureViewSync",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetFeatureViewSync",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._GetFeatureViewSync._get_response(
@@ -3775,31 +3401,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             pb_resp = feature_view_sync.FeatureViewSync.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_feature_view_sync(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_view_sync.FeatureViewSync.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.get_feature_view_sync",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetFeatureViewSync",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListFeatureOnlineStores(
@@ -3840,7 +3442,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_online_store_admin_service.ListFeatureOnlineStoresResponse:
             r"""Call the list feature online
             stores method over HTTP.
@@ -3852,10 +3454,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.feature_online_store_admin_service.ListFeatureOnlineStoresResponse:
@@ -3867,7 +3467,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureOnlineStores._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_feature_online_stores(
                 request, metadata
             )
@@ -3879,33 +3478,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureOnlineStores._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.ListFeatureOnlineStores",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListFeatureOnlineStores",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._ListFeatureOnlineStores._get_response(
@@ -3931,31 +3503,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_feature_online_stores(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_online_store_admin_service.ListFeatureOnlineStoresResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.list_feature_online_stores",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListFeatureOnlineStores",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListFeatureViews(
@@ -3994,7 +3542,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_online_store_admin_service.ListFeatureViewsResponse:
             r"""Call the list feature views method over HTTP.
 
@@ -4005,10 +3553,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_online_store_admin_service.ListFeatureViewsResponse:
@@ -4020,7 +3566,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViews._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_feature_views(
                 request, metadata
             )
@@ -4032,33 +3577,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViews._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.ListFeatureViews",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListFeatureViews",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._ListFeatureViews._get_response(
@@ -4082,31 +3600,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_feature_views(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_online_store_admin_service.ListFeatureViewsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.list_feature_views",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListFeatureViews",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListFeatureViewSyncs(
@@ -4147,7 +3641,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_online_store_admin_service.ListFeatureViewSyncsResponse:
             r"""Call the list feature view syncs method over HTTP.
 
@@ -4158,10 +3652,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_online_store_admin_service.ListFeatureViewSyncsResponse:
@@ -4173,7 +3665,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViewSyncs._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_feature_view_syncs(
                 request, metadata
             )
@@ -4185,33 +3676,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListFeatureViewSyncs._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.ListFeatureViewSyncs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListFeatureViewSyncs",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._ListFeatureViewSyncs._get_response(
@@ -4235,31 +3699,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_feature_view_syncs(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_online_store_admin_service.ListFeatureViewSyncsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.list_feature_view_syncs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListFeatureViewSyncs",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _SyncFeatureView(
@@ -4299,7 +3739,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> feature_online_store_admin_service.SyncFeatureViewResponse:
             r"""Call the sync feature view method over HTTP.
 
@@ -4310,10 +3750,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.feature_online_store_admin_service.SyncFeatureViewResponse:
@@ -4325,7 +3763,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSyncFeatureView._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_sync_feature_view(
                 request, metadata
             )
@@ -4341,33 +3778,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSyncFeatureView._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.SyncFeatureView",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "SyncFeatureView",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._SyncFeatureView._get_response(
@@ -4392,31 +3802,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_sync_feature_view(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = feature_online_store_admin_service.SyncFeatureViewResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.sync_feature_view",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "SyncFeatureView",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateFeatureOnlineStore(
@@ -4458,7 +3844,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update feature online
             store method over HTTP.
@@ -4470,10 +3856,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -4486,7 +3870,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureOnlineStore._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_feature_online_store(
                 request, metadata
             )
@@ -4502,33 +3885,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureOnlineStore._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.UpdateFeatureOnlineStore",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "UpdateFeatureOnlineStore",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._UpdateFeatureOnlineStore._get_response(
@@ -4549,29 +3905,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_feature_online_store(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.update_feature_online_store",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "UpdateFeatureOnlineStore",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateFeatureView(
@@ -4611,7 +3945,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update feature view method over HTTP.
 
@@ -4622,10 +3956,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4638,7 +3970,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureView._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_update_feature_view(
                 request, metadata
             )
@@ -4654,33 +3985,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseUpdateFeatureView._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.UpdateFeatureView",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "UpdateFeatureView",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._UpdateFeatureView._get_response(
@@ -4701,29 +4005,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_feature_view(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.update_feature_view",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "UpdateFeatureView",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     @property
@@ -4909,7 +4191,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -4920,10 +4202,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -4932,7 +4212,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetLocation._get_transcoded_request(
                 http_options, request
@@ -4942,33 +4221,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4991,27 +4243,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5054,7 +4285,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -5065,10 +4296,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -5077,7 +4306,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -5087,33 +4315,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._ListLocations._get_response(
@@ -5134,27 +4335,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5197,7 +4377,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -5208,10 +4388,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -5220,7 +4398,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -5230,33 +4407,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5279,27 +4429,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5343,7 +4472,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -5354,10 +4483,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -5366,7 +4493,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -5380,33 +4506,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5430,27 +4529,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5495,7 +4573,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -5506,10 +4584,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -5518,7 +4594,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -5530,33 +4605,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._TestIamPermissions._get_response(
@@ -5577,27 +4625,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -5640,7 +4667,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -5651,16 +4678,13 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -5672,33 +4696,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._CancelOperation._get_response(
@@ -5757,7 +4754,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -5768,16 +4765,13 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -5789,33 +4783,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._DeleteOperation._get_response(
@@ -5874,7 +4841,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -5885,10 +4852,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -5897,7 +4862,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -5907,33 +4871,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5956,27 +4893,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6019,7 +4935,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -6030,10 +4946,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -6042,7 +4956,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -6052,33 +4965,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._ListOperations._get_response(
@@ -6099,27 +4985,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -6162,7 +5027,7 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -6173,10 +5038,8 @@ class FeatureOnlineStoreAdminServiceRestTransport(
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -6185,7 +5048,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             http_options = (
                 _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -6195,33 +5057,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             query_params = _BaseFeatureOnlineStoreAdminServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = FeatureOnlineStoreAdminServiceRestTransport._WaitOperation._get_response(
@@ -6242,27 +5077,6 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1.FeatureOnlineStoreAdminServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1.FeatureOnlineStoreAdminService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

@@ -3140,7 +3140,6 @@ def test_import_extension_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.import_extension(request)
 
@@ -3193,7 +3192,6 @@ def test_import_extension_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.import_extension(**mock_args)
 
@@ -3326,7 +3324,6 @@ def test_get_extension_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_extension(request)
 
@@ -3374,7 +3371,6 @@ def test_get_extension_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_extension(**mock_args)
 
@@ -3517,7 +3513,6 @@ def test_list_extensions_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_extensions(request)
 
@@ -3575,7 +3570,6 @@ def test_list_extensions_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_extensions(**mock_args)
 
@@ -3771,7 +3765,6 @@ def test_update_extension_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_extension(request)
 
@@ -3830,7 +3823,6 @@ def test_update_extension_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_extension(**mock_args)
 
@@ -3966,7 +3958,6 @@ def test_delete_extension_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_extension(request)
 
@@ -4012,7 +4003,6 @@ def test_delete_extension_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_extension(**mock_args)
 
@@ -4432,7 +4422,6 @@ def test_import_extension_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.import_extension(request)
 
 
@@ -4642,7 +4631,6 @@ def test_import_extension_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.import_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -4684,7 +4672,6 @@ def test_import_extension_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -4729,7 +4716,6 @@ def test_get_extension_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_extension(request)
 
 
@@ -4768,7 +4754,6 @@ def test_get_extension_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -4812,7 +4797,6 @@ def test_get_extension_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = extension.Extension.to_json(extension.Extension())
         req.return_value.content = return_value
 
@@ -4857,7 +4841,6 @@ def test_list_extensions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_extensions(request)
 
 
@@ -4895,7 +4878,6 @@ def test_list_extensions_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_extensions(request)
 
     # Establish that the response is the type that we expect.
@@ -4936,7 +4918,6 @@ def test_list_extensions_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = extension_registry_service.ListExtensionsResponse.to_json(
             extension_registry_service.ListExtensionsResponse()
         )
@@ -4985,7 +4966,6 @@ def test_update_extension_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_extension(request)
 
 
@@ -5205,7 +5185,6 @@ def test_update_extension_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -5249,7 +5228,6 @@ def test_update_extension_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_extension.Extension.to_json(gca_extension.Extension())
         req.return_value.content = return_value
 
@@ -5294,7 +5272,6 @@ def test_delete_extension_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_extension(request)
 
 
@@ -5325,7 +5302,6 @@ def test_delete_extension_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -5367,7 +5343,6 @@ def test_delete_extension_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -5412,7 +5387,6 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -5443,7 +5417,6 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -5472,7 +5445,6 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -5503,7 +5475,6 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -5535,7 +5506,6 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -5568,7 +5538,6 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -5600,7 +5569,6 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -5633,7 +5601,6 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -5665,7 +5632,6 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -5698,7 +5664,6 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -5729,7 +5694,6 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -5760,7 +5724,6 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -5791,7 +5754,6 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -5822,7 +5784,6 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -5853,7 +5814,6 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -5884,7 +5844,6 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -5915,7 +5874,6 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -5946,7 +5904,6 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -5977,7 +5934,6 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -6008,7 +5964,6 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -6176,7 +6131,6 @@ async def test_import_extension_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.import_extension(request)
 
 
@@ -6393,7 +6347,6 @@ async def test_import_extension_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.import_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -6440,7 +6393,6 @@ async def test_import_extension_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6489,7 +6441,6 @@ async def test_get_extension_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_extension(request)
 
 
@@ -6535,7 +6486,6 @@ async def test_get_extension_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -6584,7 +6534,6 @@ async def test_get_extension_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = extension.Extension.to_json(extension.Extension())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -6633,7 +6582,6 @@ async def test_list_extensions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_extensions(request)
 
 
@@ -6678,7 +6626,6 @@ async def test_list_extensions_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_extensions(request)
 
     # Establish that the response is the type that we expect.
@@ -6724,7 +6671,6 @@ async def test_list_extensions_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = extension_registry_service.ListExtensionsResponse.to_json(
             extension_registry_service.ListExtensionsResponse()
         )
@@ -6777,7 +6723,6 @@ async def test_update_extension_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_extension(request)
 
 
@@ -7004,7 +6949,6 @@ async def test_update_extension_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -7053,7 +6997,6 @@ async def test_update_extension_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_extension.Extension.to_json(gca_extension.Extension())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -7102,7 +7045,6 @@ async def test_delete_extension_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_extension(request)
 
 
@@ -7140,7 +7082,6 @@ async def test_delete_extension_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_extension(request)
 
     # Establish that the response is the type that we expect.
@@ -7187,7 +7128,6 @@ async def test_delete_extension_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -7238,7 +7178,6 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -7276,7 +7215,6 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -7309,7 +7247,6 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -7347,7 +7284,6 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -7383,7 +7319,6 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -7423,7 +7358,6 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -7459,7 +7393,6 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -7499,7 +7432,6 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -7535,7 +7467,6 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -7575,7 +7506,6 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -7610,7 +7540,6 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -7648,7 +7577,6 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -7683,7 +7611,6 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -7721,7 +7648,6 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -7756,7 +7682,6 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -7794,7 +7719,6 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -7829,7 +7753,6 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -7867,7 +7790,6 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -7902,7 +7824,6 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -7940,7 +7861,6 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

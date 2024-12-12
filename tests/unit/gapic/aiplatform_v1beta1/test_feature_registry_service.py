@@ -1588,8 +1588,6 @@ def test_get_feature_group(request_type, transport: str = "grpc"):
             name="name_value",
             etag="etag_value",
             description="description_value",
-            service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
-            service_account_email="service_account_email_value",
         )
         response = client.get_feature_group(request)
 
@@ -1604,11 +1602,6 @@ def test_get_feature_group(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
-    assert (
-        response.service_agent_type
-        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
-    )
-    assert response.service_account_email == "service_account_email_value"
 
 
 def test_get_feature_group_non_empty_request_with_auto_populated_field():
@@ -1744,8 +1737,6 @@ async def test_get_feature_group_async(
                 name="name_value",
                 etag="etag_value",
                 description="description_value",
-                service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
-                service_account_email="service_account_email_value",
             )
         )
         response = await client.get_feature_group(request)
@@ -1761,11 +1752,6 @@ async def test_get_feature_group_async(
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
-    assert (
-        response.service_agent_type
-        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
-    )
-    assert response.service_account_email == "service_account_email_value"
 
 
 @pytest.mark.asyncio
@@ -8483,7 +8469,6 @@ def test_create_feature_group_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_feature_group(request)
 
@@ -8548,7 +8533,6 @@ def test_create_feature_group_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_feature_group(**mock_args)
 
@@ -8688,7 +8672,6 @@ def test_get_feature_group_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_feature_group(request)
 
@@ -8736,7 +8719,6 @@ def test_get_feature_group_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_feature_group(**mock_args)
 
@@ -8883,7 +8865,6 @@ def test_list_feature_groups_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_feature_groups(request)
 
@@ -8941,7 +8922,6 @@ def test_list_feature_groups_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_feature_groups(**mock_args)
 
@@ -9140,7 +9120,6 @@ def test_update_feature_group_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_feature_group(request)
 
@@ -9193,7 +9172,6 @@ def test_update_feature_group_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_feature_group(**mock_args)
 
@@ -9337,7 +9315,6 @@ def test_delete_feature_group_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_feature_group(request)
 
@@ -9384,7 +9361,6 @@ def test_delete_feature_group_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_feature_group(**mock_args)
 
@@ -9528,7 +9504,6 @@ def test_create_feature_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_feature(request)
 
@@ -9591,7 +9566,6 @@ def test_create_feature_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_feature(**mock_args)
 
@@ -9732,7 +9706,6 @@ def test_batch_create_features_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_create_features(request)
 
@@ -9787,7 +9760,6 @@ def test_batch_create_features_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_create_features(**mock_args)
 
@@ -9922,7 +9894,6 @@ def test_get_feature_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_feature(request)
 
@@ -9970,7 +9941,6 @@ def test_get_feature_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_feature(**mock_args)
 
@@ -10113,7 +10083,6 @@ def test_list_features_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_features(request)
 
@@ -10173,7 +10142,6 @@ def test_list_features_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_features(**mock_args)
 
@@ -10369,7 +10337,6 @@ def test_update_feature_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_feature(request)
 
@@ -10418,7 +10385,6 @@ def test_update_feature_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_feature(**mock_args)
 
@@ -10552,7 +10518,6 @@ def test_delete_feature_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_feature(request)
 
@@ -10598,7 +10563,6 @@ def test_delete_feature_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_feature(**mock_args)
 
@@ -10746,7 +10710,6 @@ def test_create_feature_monitor_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_feature_monitor(request)
 
@@ -10809,7 +10772,6 @@ def test_create_feature_monitor_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_feature_monitor(**mock_args)
 
@@ -10947,7 +10909,6 @@ def test_get_feature_monitor_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_feature_monitor(request)
 
@@ -10995,7 +10956,6 @@ def test_get_feature_monitor_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_feature_monitor(**mock_args)
 
@@ -11143,7 +11103,6 @@ def test_list_feature_monitors_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_feature_monitors(request)
 
@@ -11203,7 +11162,6 @@ def test_list_feature_monitors_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_feature_monitors(**mock_args)
 
@@ -11407,7 +11365,6 @@ def test_delete_feature_monitor_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_feature_monitor(request)
 
@@ -11453,7 +11410,6 @@ def test_delete_feature_monitor_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_feature_monitor(**mock_args)
 
@@ -11593,7 +11549,6 @@ def test_create_feature_monitor_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_feature_monitor_job(request)
 
@@ -11653,7 +11608,6 @@ def test_create_feature_monitor_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_feature_monitor_job(**mock_args)
 
@@ -11794,7 +11748,6 @@ def test_get_feature_monitor_job_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_feature_monitor_job(request)
 
@@ -11842,7 +11795,6 @@ def test_get_feature_monitor_job_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_feature_monitor_job(**mock_args)
 
@@ -11990,7 +11942,6 @@ def test_list_feature_monitor_jobs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_feature_monitor_jobs(request)
 
@@ -12050,7 +12001,6 @@ def test_list_feature_monitor_jobs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_feature_monitor_jobs(**mock_args)
 
@@ -12718,8 +12668,6 @@ async def test_get_feature_group_empty_call_grpc_asyncio():
                 name="name_value",
                 etag="etag_value",
                 description="description_value",
-                service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
-                service_account_email="service_account_email_value",
             )
         )
         await client.get_feature_group(request=None)
@@ -13212,7 +13160,6 @@ def test_create_feature_group_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_feature_group(request)
 
 
@@ -13247,8 +13194,6 @@ def test_create_feature_group_rest_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
-        "service_agent_type": 1,
-        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13332,7 +13277,6 @@ def test_create_feature_group_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -13374,7 +13318,6 @@ def test_create_feature_group_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13419,7 +13362,6 @@ def test_get_feature_group_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_feature_group(request)
 
 
@@ -13446,8 +13388,6 @@ def test_get_feature_group_rest_call_success(request_type):
             name="name_value",
             etag="etag_value",
             description="description_value",
-            service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
-            service_account_email="service_account_email_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -13459,7 +13399,6 @@ def test_get_feature_group_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -13467,11 +13406,6 @@ def test_get_feature_group_rest_call_success(request_type):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
-    assert (
-        response.service_agent_type
-        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
-    )
-    assert response.service_account_email == "service_account_email_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -13507,7 +13441,6 @@ def test_get_feature_group_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_group.FeatureGroup.to_json(feature_group.FeatureGroup())
         req.return_value.content = return_value
 
@@ -13552,7 +13485,6 @@ def test_list_feature_groups_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_feature_groups(request)
 
 
@@ -13590,7 +13522,6 @@ def test_list_feature_groups_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_feature_groups(request)
 
     # Establish that the response is the type that we expect.
@@ -13631,7 +13562,6 @@ def test_list_feature_groups_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_registry_service.ListFeatureGroupsResponse.to_json(
             feature_registry_service.ListFeatureGroupsResponse()
         )
@@ -13682,7 +13612,6 @@ def test_update_feature_group_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_feature_group(request)
 
 
@@ -13721,8 +13650,6 @@ def test_update_feature_group_rest_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
-        "service_agent_type": 1,
-        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13806,7 +13733,6 @@ def test_update_feature_group_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -13848,7 +13774,6 @@ def test_update_feature_group_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -13893,7 +13818,6 @@ def test_delete_feature_group_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_feature_group(request)
 
 
@@ -13924,7 +13848,6 @@ def test_delete_feature_group_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -13966,7 +13889,6 @@ def test_delete_feature_group_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14013,7 +13935,6 @@ def test_create_feature_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_feature(request)
 
 
@@ -14167,7 +14088,6 @@ def test_create_feature_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -14209,7 +14129,6 @@ def test_create_feature_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14256,7 +14175,6 @@ def test_batch_create_features_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_create_features(request)
 
 
@@ -14289,7 +14207,6 @@ def test_batch_create_features_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_create_features(request)
 
     # Establish that the response is the type that we expect.
@@ -14331,7 +14248,6 @@ def test_batch_create_features_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14378,7 +14294,6 @@ def test_get_feature_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_feature(request)
 
 
@@ -14422,7 +14337,6 @@ def test_get_feature_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -14469,7 +14383,6 @@ def test_get_feature_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature.Feature.to_json(feature.Feature())
         req.return_value.content = return_value
 
@@ -14516,7 +14429,6 @@ def test_list_features_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_features(request)
 
 
@@ -14554,7 +14466,6 @@ def test_list_features_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_features(request)
 
     # Establish that the response is the type that we expect.
@@ -14595,7 +14506,6 @@ def test_list_features_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_service.ListFeaturesResponse.to_json(
             featurestore_service.ListFeaturesResponse()
         )
@@ -14646,7 +14556,6 @@ def test_update_feature_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_feature(request)
 
 
@@ -14802,7 +14711,6 @@ def test_update_feature_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -14844,7 +14752,6 @@ def test_update_feature_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -14891,7 +14798,6 @@ def test_delete_feature_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_feature(request)
 
 
@@ -14924,7 +14830,6 @@ def test_delete_feature_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -14966,7 +14871,6 @@ def test_delete_feature_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -15013,7 +14917,6 @@ def test_create_feature_monitor_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_feature_monitor(request)
 
 
@@ -15129,7 +15032,6 @@ def test_create_feature_monitor_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_feature_monitor(request)
 
     # Establish that the response is the type that we expect.
@@ -15171,7 +15073,6 @@ def test_create_feature_monitor_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -15218,7 +15119,6 @@ def test_get_feature_monitor_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_feature_monitor(request)
 
 
@@ -15258,7 +15158,6 @@ def test_get_feature_monitor_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_feature_monitor(request)
 
     # Establish that the response is the type that we expect.
@@ -15301,7 +15200,6 @@ def test_get_feature_monitor_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_monitor.FeatureMonitor.to_json(
             feature_monitor.FeatureMonitor()
         )
@@ -15350,7 +15248,6 @@ def test_list_feature_monitors_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_feature_monitors(request)
 
 
@@ -15390,7 +15287,6 @@ def test_list_feature_monitors_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_feature_monitors(request)
 
     # Establish that the response is the type that we expect.
@@ -15431,7 +15327,6 @@ def test_list_feature_monitors_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_registry_service.ListFeatureMonitorsResponse.to_json(
             feature_registry_service.ListFeatureMonitorsResponse()
         )
@@ -15480,7 +15375,6 @@ def test_delete_feature_monitor_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_feature_monitor(request)
 
 
@@ -15513,7 +15407,6 @@ def test_delete_feature_monitor_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_feature_monitor(request)
 
     # Establish that the response is the type that we expect.
@@ -15555,7 +15448,6 @@ def test_delete_feature_monitor_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -15602,7 +15494,6 @@ def test_create_feature_monitor_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_feature_monitor_job(request)
 
 
@@ -15758,7 +15649,6 @@ def test_create_feature_monitor_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_feature_monitor_job(request)
 
     # Establish that the response is the type that we expect.
@@ -15807,7 +15697,6 @@ def test_create_feature_monitor_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_feature_monitor_job.FeatureMonitorJob.to_json(
             gca_feature_monitor_job.FeatureMonitorJob()
         )
@@ -15856,7 +15745,6 @@ def test_get_feature_monitor_job_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_feature_monitor_job(request)
 
 
@@ -15897,7 +15785,6 @@ def test_get_feature_monitor_job_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_feature_monitor_job(request)
 
     # Establish that the response is the type that we expect.
@@ -15944,7 +15831,6 @@ def test_get_feature_monitor_job_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_monitor_job.FeatureMonitorJob.to_json(
             feature_monitor_job.FeatureMonitorJob()
         )
@@ -15993,7 +15879,6 @@ def test_list_feature_monitor_jobs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_feature_monitor_jobs(request)
 
 
@@ -16033,7 +15918,6 @@ def test_list_feature_monitor_jobs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_feature_monitor_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -16076,7 +15960,6 @@ def test_list_feature_monitor_jobs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_registry_service.ListFeatureMonitorJobsResponse.to_json(
             feature_registry_service.ListFeatureMonitorJobsResponse()
         )
@@ -16123,7 +16006,6 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -16154,7 +16036,6 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -16183,7 +16064,6 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -16214,7 +16094,6 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -16246,7 +16125,6 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -16279,7 +16157,6 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -16311,7 +16188,6 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -16344,7 +16220,6 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -16376,7 +16251,6 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -16409,7 +16283,6 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -16440,7 +16313,6 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -16471,7 +16343,6 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -16502,7 +16373,6 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -16533,7 +16403,6 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -16564,7 +16433,6 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -16595,7 +16463,6 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -16626,7 +16493,6 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -16657,7 +16523,6 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -16688,7 +16553,6 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -16719,7 +16583,6 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -17173,7 +17036,6 @@ async def test_create_feature_group_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_feature_group(request)
 
 
@@ -17213,8 +17075,6 @@ async def test_create_feature_group_rest_asyncio_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
-        "service_agent_type": 1,
-        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -17300,7 +17160,6 @@ async def test_create_feature_group_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -17349,7 +17208,6 @@ async def test_create_feature_group_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17398,7 +17256,6 @@ async def test_get_feature_group_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_feature_group(request)
 
 
@@ -17430,8 +17287,6 @@ async def test_get_feature_group_rest_asyncio_call_success(request_type):
             name="name_value",
             etag="etag_value",
             description="description_value",
-            service_agent_type=feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
-            service_account_email="service_account_email_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -17445,7 +17300,6 @@ async def test_get_feature_group_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -17453,11 +17307,6 @@ async def test_get_feature_group_rest_asyncio_call_success(request_type):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.description == "description_value"
-    assert (
-        response.service_agent_type
-        == feature_group.FeatureGroup.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
-    )
-    assert response.service_account_email == "service_account_email_value"
 
 
 @pytest.mark.asyncio
@@ -17498,7 +17347,6 @@ async def test_get_feature_group_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_group.FeatureGroup.to_json(feature_group.FeatureGroup())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17547,7 +17395,6 @@ async def test_list_feature_groups_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_feature_groups(request)
 
 
@@ -17592,7 +17439,6 @@ async def test_list_feature_groups_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_feature_groups(request)
 
     # Establish that the response is the type that we expect.
@@ -17639,7 +17485,6 @@ async def test_list_feature_groups_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_registry_service.ListFeatureGroupsResponse.to_json(
             feature_registry_service.ListFeatureGroupsResponse()
         )
@@ -17694,7 +17539,6 @@ async def test_update_feature_group_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_feature_group(request)
 
 
@@ -17738,8 +17582,6 @@ async def test_update_feature_group_rest_asyncio_call_success(request_type):
         "etag": "etag_value",
         "labels": {},
         "description": "description_value",
-        "service_agent_type": 1,
-        "service_account_email": "service_account_email_value",
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -17825,7 +17667,6 @@ async def test_update_feature_group_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -17874,7 +17715,6 @@ async def test_update_feature_group_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -17923,7 +17763,6 @@ async def test_delete_feature_group_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_feature_group(request)
 
 
@@ -17961,7 +17800,6 @@ async def test_delete_feature_group_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_feature_group(request)
 
     # Establish that the response is the type that we expect.
@@ -18010,7 +17848,6 @@ async def test_delete_feature_group_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18061,7 +17898,6 @@ async def test_create_feature_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_feature(request)
 
 
@@ -18222,7 +18058,6 @@ async def test_create_feature_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -18269,7 +18104,6 @@ async def test_create_feature_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18320,7 +18154,6 @@ async def test_batch_create_features_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_create_features(request)
 
 
@@ -18360,7 +18193,6 @@ async def test_batch_create_features_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_create_features(request)
 
     # Establish that the response is the type that we expect.
@@ -18409,7 +18241,6 @@ async def test_batch_create_features_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18460,7 +18291,6 @@ async def test_get_feature_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_feature(request)
 
 
@@ -18511,7 +18341,6 @@ async def test_get_feature_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -18563,7 +18392,6 @@ async def test_get_feature_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature.Feature.to_json(feature.Feature())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -18614,7 +18442,6 @@ async def test_list_features_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_features(request)
 
 
@@ -18659,7 +18486,6 @@ async def test_list_features_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_features(request)
 
     # Establish that the response is the type that we expect.
@@ -18705,7 +18531,6 @@ async def test_list_features_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_service.ListFeaturesResponse.to_json(
             featurestore_service.ListFeaturesResponse()
         )
@@ -18760,7 +18585,6 @@ async def test_update_feature_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_feature(request)
 
 
@@ -18923,7 +18747,6 @@ async def test_update_feature_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -18970,7 +18793,6 @@ async def test_update_feature_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -19021,7 +18843,6 @@ async def test_delete_feature_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_feature(request)
 
 
@@ -19061,7 +18882,6 @@ async def test_delete_feature_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_feature(request)
 
     # Establish that the response is the type that we expect.
@@ -19108,7 +18928,6 @@ async def test_delete_feature_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -19159,7 +18978,6 @@ async def test_create_feature_monitor_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_feature_monitor(request)
 
 
@@ -19282,7 +19100,6 @@ async def test_create_feature_monitor_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_feature_monitor(request)
 
     # Establish that the response is the type that we expect.
@@ -19331,7 +19148,6 @@ async def test_create_feature_monitor_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -19382,7 +19198,6 @@ async def test_get_feature_monitor_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_feature_monitor(request)
 
 
@@ -19429,7 +19244,6 @@ async def test_get_feature_monitor_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_feature_monitor(request)
 
     # Establish that the response is the type that we expect.
@@ -19478,7 +19292,6 @@ async def test_get_feature_monitor_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_monitor.FeatureMonitor.to_json(
             feature_monitor.FeatureMonitor()
         )
@@ -19531,7 +19344,6 @@ async def test_list_feature_monitors_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_feature_monitors(request)
 
 
@@ -19578,7 +19390,6 @@ async def test_list_feature_monitors_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_feature_monitors(request)
 
     # Establish that the response is the type that we expect.
@@ -19626,7 +19437,6 @@ async def test_list_feature_monitors_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_registry_service.ListFeatureMonitorsResponse.to_json(
             feature_registry_service.ListFeatureMonitorsResponse()
         )
@@ -19679,7 +19489,6 @@ async def test_delete_feature_monitor_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_feature_monitor(request)
 
 
@@ -19719,7 +19528,6 @@ async def test_delete_feature_monitor_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_feature_monitor(request)
 
     # Establish that the response is the type that we expect.
@@ -19768,7 +19576,6 @@ async def test_delete_feature_monitor_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -19819,7 +19626,6 @@ async def test_create_feature_monitor_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_feature_monitor_job(request)
 
 
@@ -19982,7 +19788,6 @@ async def test_create_feature_monitor_job_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_feature_monitor_job(request)
 
     # Establish that the response is the type that we expect.
@@ -20036,7 +19841,6 @@ async def test_create_feature_monitor_job_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_feature_monitor_job.FeatureMonitorJob.to_json(
             gca_feature_monitor_job.FeatureMonitorJob()
         )
@@ -20089,7 +19893,6 @@ async def test_get_feature_monitor_job_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_feature_monitor_job(request)
 
 
@@ -20137,7 +19940,6 @@ async def test_get_feature_monitor_job_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_feature_monitor_job(request)
 
     # Establish that the response is the type that we expect.
@@ -20191,7 +19993,6 @@ async def test_get_feature_monitor_job_rest_asyncio_interceptors(null_intercepto
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_monitor_job.FeatureMonitorJob.to_json(
             feature_monitor_job.FeatureMonitorJob()
         )
@@ -20244,7 +20045,6 @@ async def test_list_feature_monitor_jobs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_feature_monitor_jobs(request)
 
 
@@ -20291,7 +20091,6 @@ async def test_list_feature_monitor_jobs_rest_asyncio_call_success(request_type)
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_feature_monitor_jobs(request)
 
     # Establish that the response is the type that we expect.
@@ -20339,7 +20138,6 @@ async def test_list_feature_monitor_jobs_rest_asyncio_interceptors(null_intercep
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = feature_registry_service.ListFeatureMonitorJobsResponse.to_json(
             feature_registry_service.ListFeatureMonitorJobsResponse()
         )
@@ -20392,7 +20190,6 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -20430,7 +20227,6 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -20463,7 +20259,6 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -20501,7 +20296,6 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -20537,7 +20331,6 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -20577,7 +20370,6 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -20613,7 +20405,6 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -20653,7 +20444,6 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -20689,7 +20479,6 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -20729,7 +20518,6 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -20764,7 +20552,6 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -20802,7 +20589,6 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -20837,7 +20623,6 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -20875,7 +20660,6 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -20910,7 +20694,6 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -20948,7 +20731,6 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -20983,7 +20765,6 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -21021,7 +20802,6 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -21056,7 +20836,6 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -21094,7 +20873,6 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

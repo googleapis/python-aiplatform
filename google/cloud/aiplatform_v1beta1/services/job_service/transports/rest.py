@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
-import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
+import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -69,14 +68,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
-try:
-    from google.api_core import client_logging  # type: ignore
-
-    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    CLIENT_LOGGING_SUPPORTED = False
-
-_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -361,11 +352,8 @@ class JobServiceRestInterceptor:
     def pre_cancel_batch_prediction_job(
         self,
         request: job_service.CancelBatchPredictionJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CancelBatchPredictionJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CancelBatchPredictionJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_batch_prediction_job
 
         Override in a subclass to manipulate the request or metadata
@@ -376,10 +364,8 @@ class JobServiceRestInterceptor:
     def pre_cancel_custom_job(
         self,
         request: job_service.CancelCustomJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CancelCustomJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CancelCustomJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_custom_job
 
         Override in a subclass to manipulate the request or metadata
@@ -390,11 +376,8 @@ class JobServiceRestInterceptor:
     def pre_cancel_data_labeling_job(
         self,
         request: job_service.CancelDataLabelingJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CancelDataLabelingJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CancelDataLabelingJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_data_labeling_job
 
         Override in a subclass to manipulate the request or metadata
@@ -405,10 +388,9 @@ class JobServiceRestInterceptor:
     def pre_cancel_hyperparameter_tuning_job(
         self,
         request: job_service.CancelHyperparameterTuningJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.CancelHyperparameterTuningJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.CancelHyperparameterTuningJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for cancel_hyperparameter_tuning_job
 
@@ -420,10 +402,8 @@ class JobServiceRestInterceptor:
     def pre_cancel_nas_job(
         self,
         request: job_service.CancelNasJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CancelNasJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CancelNasJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_nas_job
 
         Override in a subclass to manipulate the request or metadata
@@ -434,11 +414,8 @@ class JobServiceRestInterceptor:
     def pre_create_batch_prediction_job(
         self,
         request: job_service.CreateBatchPredictionJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CreateBatchPredictionJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CreateBatchPredictionJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_batch_prediction_job
 
         Override in a subclass to manipulate the request or metadata
@@ -460,10 +437,8 @@ class JobServiceRestInterceptor:
     def pre_create_custom_job(
         self,
         request: job_service.CreateCustomJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CreateCustomJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CreateCustomJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_custom_job
 
         Override in a subclass to manipulate the request or metadata
@@ -485,11 +460,8 @@ class JobServiceRestInterceptor:
     def pre_create_data_labeling_job(
         self,
         request: job_service.CreateDataLabelingJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CreateDataLabelingJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CreateDataLabelingJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_data_labeling_job
 
         Override in a subclass to manipulate the request or metadata
@@ -511,10 +483,9 @@ class JobServiceRestInterceptor:
     def pre_create_hyperparameter_tuning_job(
         self,
         request: job_service.CreateHyperparameterTuningJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.CreateHyperparameterTuningJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.CreateHyperparameterTuningJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for create_hyperparameter_tuning_job
 
@@ -537,10 +508,9 @@ class JobServiceRestInterceptor:
     def pre_create_model_deployment_monitoring_job(
         self,
         request: job_service.CreateModelDeploymentMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.CreateModelDeploymentMonitoringJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.CreateModelDeploymentMonitoringJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for create_model_deployment_monitoring_job
 
@@ -563,10 +533,8 @@ class JobServiceRestInterceptor:
     def pre_create_nas_job(
         self,
         request: job_service.CreateNasJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.CreateNasJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.CreateNasJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for create_nas_job
 
         Override in a subclass to manipulate the request or metadata
@@ -586,11 +554,8 @@ class JobServiceRestInterceptor:
     def pre_delete_batch_prediction_job(
         self,
         request: job_service.DeleteBatchPredictionJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.DeleteBatchPredictionJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.DeleteBatchPredictionJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_batch_prediction_job
 
         Override in a subclass to manipulate the request or metadata
@@ -612,10 +577,8 @@ class JobServiceRestInterceptor:
     def pre_delete_custom_job(
         self,
         request: job_service.DeleteCustomJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.DeleteCustomJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.DeleteCustomJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_custom_job
 
         Override in a subclass to manipulate the request or metadata
@@ -637,11 +600,8 @@ class JobServiceRestInterceptor:
     def pre_delete_data_labeling_job(
         self,
         request: job_service.DeleteDataLabelingJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.DeleteDataLabelingJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.DeleteDataLabelingJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_data_labeling_job
 
         Override in a subclass to manipulate the request or metadata
@@ -663,10 +623,9 @@ class JobServiceRestInterceptor:
     def pre_delete_hyperparameter_tuning_job(
         self,
         request: job_service.DeleteHyperparameterTuningJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.DeleteHyperparameterTuningJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.DeleteHyperparameterTuningJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for delete_hyperparameter_tuning_job
 
@@ -689,10 +648,9 @@ class JobServiceRestInterceptor:
     def pre_delete_model_deployment_monitoring_job(
         self,
         request: job_service.DeleteModelDeploymentMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.DeleteModelDeploymentMonitoringJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.DeleteModelDeploymentMonitoringJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for delete_model_deployment_monitoring_job
 
@@ -715,10 +673,8 @@ class JobServiceRestInterceptor:
     def pre_delete_nas_job(
         self,
         request: job_service.DeleteNasJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.DeleteNasJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.DeleteNasJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_nas_job
 
         Override in a subclass to manipulate the request or metadata
@@ -740,11 +696,8 @@ class JobServiceRestInterceptor:
     def pre_get_batch_prediction_job(
         self,
         request: job_service.GetBatchPredictionJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.GetBatchPredictionJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.GetBatchPredictionJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_batch_prediction_job
 
         Override in a subclass to manipulate the request or metadata
@@ -766,10 +719,8 @@ class JobServiceRestInterceptor:
     def pre_get_custom_job(
         self,
         request: job_service.GetCustomJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.GetCustomJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.GetCustomJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_custom_job
 
         Override in a subclass to manipulate the request or metadata
@@ -791,10 +742,8 @@ class JobServiceRestInterceptor:
     def pre_get_data_labeling_job(
         self,
         request: job_service.GetDataLabelingJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.GetDataLabelingJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.GetDataLabelingJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_data_labeling_job
 
         Override in a subclass to manipulate the request or metadata
@@ -816,10 +765,9 @@ class JobServiceRestInterceptor:
     def pre_get_hyperparameter_tuning_job(
         self,
         request: job_service.GetHyperparameterTuningJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.GetHyperparameterTuningJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.GetHyperparameterTuningJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for get_hyperparameter_tuning_job
 
@@ -842,10 +790,9 @@ class JobServiceRestInterceptor:
     def pre_get_model_deployment_monitoring_job(
         self,
         request: job_service.GetModelDeploymentMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.GetModelDeploymentMonitoringJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.GetModelDeploymentMonitoringJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for get_model_deployment_monitoring_job
 
@@ -866,10 +813,8 @@ class JobServiceRestInterceptor:
         return response
 
     def pre_get_nas_job(
-        self,
-        request: job_service.GetNasJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[job_service.GetNasJobRequest, Sequence[Tuple[str, Union[str, bytes]]]]:
+        self, request: job_service.GetNasJobRequest, metadata: Sequence[Tuple[str, str]]
+    ) -> Tuple[job_service.GetNasJobRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_nas_job
 
         Override in a subclass to manipulate the request or metadata
@@ -889,10 +834,8 @@ class JobServiceRestInterceptor:
     def pre_get_nas_trial_detail(
         self,
         request: job_service.GetNasTrialDetailRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.GetNasTrialDetailRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.GetNasTrialDetailRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_nas_trial_detail
 
         Override in a subclass to manipulate the request or metadata
@@ -914,11 +857,8 @@ class JobServiceRestInterceptor:
     def pre_list_batch_prediction_jobs(
         self,
         request: job_service.ListBatchPredictionJobsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.ListBatchPredictionJobsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.ListBatchPredictionJobsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_batch_prediction_jobs
 
         Override in a subclass to manipulate the request or metadata
@@ -940,10 +880,8 @@ class JobServiceRestInterceptor:
     def pre_list_custom_jobs(
         self,
         request: job_service.ListCustomJobsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.ListCustomJobsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.ListCustomJobsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_custom_jobs
 
         Override in a subclass to manipulate the request or metadata
@@ -965,10 +903,8 @@ class JobServiceRestInterceptor:
     def pre_list_data_labeling_jobs(
         self,
         request: job_service.ListDataLabelingJobsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.ListDataLabelingJobsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.ListDataLabelingJobsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_data_labeling_jobs
 
         Override in a subclass to manipulate the request or metadata
@@ -990,10 +926,9 @@ class JobServiceRestInterceptor:
     def pre_list_hyperparameter_tuning_jobs(
         self,
         request: job_service.ListHyperparameterTuningJobsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.ListHyperparameterTuningJobsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.ListHyperparameterTuningJobsRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for list_hyperparameter_tuning_jobs
 
@@ -1016,10 +951,9 @@ class JobServiceRestInterceptor:
     def pre_list_model_deployment_monitoring_jobs(
         self,
         request: job_service.ListModelDeploymentMonitoringJobsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.ListModelDeploymentMonitoringJobsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.ListModelDeploymentMonitoringJobsRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for list_model_deployment_monitoring_jobs
 
@@ -1042,8 +976,8 @@ class JobServiceRestInterceptor:
     def pre_list_nas_jobs(
         self,
         request: job_service.ListNasJobsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[job_service.ListNasJobsRequest, Sequence[Tuple[str, Union[str, bytes]]]]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.ListNasJobsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_nas_jobs
 
         Override in a subclass to manipulate the request or metadata
@@ -1065,10 +999,8 @@ class JobServiceRestInterceptor:
     def pre_list_nas_trial_details(
         self,
         request: job_service.ListNasTrialDetailsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        job_service.ListNasTrialDetailsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[job_service.ListNasTrialDetailsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_nas_trial_details
 
         Override in a subclass to manipulate the request or metadata
@@ -1090,10 +1022,9 @@ class JobServiceRestInterceptor:
     def pre_pause_model_deployment_monitoring_job(
         self,
         request: job_service.PauseModelDeploymentMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.PauseModelDeploymentMonitoringJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.PauseModelDeploymentMonitoringJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for pause_model_deployment_monitoring_job
 
@@ -1105,10 +1036,9 @@ class JobServiceRestInterceptor:
     def pre_resume_model_deployment_monitoring_job(
         self,
         request: job_service.ResumeModelDeploymentMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.ResumeModelDeploymentMonitoringJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.ResumeModelDeploymentMonitoringJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for resume_model_deployment_monitoring_job
 
@@ -1120,10 +1050,10 @@ class JobServiceRestInterceptor:
     def pre_search_model_deployment_monitoring_stats_anomalies(
         self,
         request: job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
         job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        Sequence[Tuple[str, str]],
     ]:
         """Pre-rpc interceptor for search_model_deployment_monitoring_stats_anomalies
 
@@ -1147,10 +1077,9 @@ class JobServiceRestInterceptor:
     def pre_update_model_deployment_monitoring_job(
         self,
         request: job_service.UpdateModelDeploymentMonitoringJobRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+        metadata: Sequence[Tuple[str, str]],
     ) -> Tuple[
-        job_service.UpdateModelDeploymentMonitoringJobRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
+        job_service.UpdateModelDeploymentMonitoringJobRequest, Sequence[Tuple[str, str]]
     ]:
         """Pre-rpc interceptor for update_model_deployment_monitoring_job
 
@@ -1173,10 +1102,8 @@ class JobServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -1198,10 +1125,8 @@ class JobServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -1223,10 +1148,8 @@ class JobServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -1246,10 +1169,8 @@ class JobServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -1269,11 +1190,8 @@ class JobServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        iam_policy_pb2.TestIamPermissionsRequest,
-        Sequence[Tuple[str, Union[str, bytes]]],
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -1295,10 +1213,8 @@ class JobServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1318,10 +1234,8 @@ class JobServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1341,10 +1255,8 @@ class JobServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1366,10 +1278,8 @@ class JobServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -1391,10 +1301,8 @@ class JobServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]],
-    ) -> Tuple[
-        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
-    ]:
+        metadata: Sequence[Tuple[str, str]],
+    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -2076,10 +1984,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     },
                     {
                         "method": "delete",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                     },
                     {
@@ -2293,10 +2197,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2506,10 +2406,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     },
                     {
                         "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
                     },
                     {
@@ -2724,10 +2620,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
-                    },
                 ],
                 "google.longrunning.Operations.ListOperations": [
                     {
@@ -2925,10 +2817,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -3146,10 +3034,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
-                    {
-                        "method": "get",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
-                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -3347,10 +3231,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -3564,10 +3444,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
                     },
-                    {
-                        "method": "post",
-                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
-                    },
                 ],
             }
 
@@ -3623,7 +3499,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the cancel batch prediction
             job method over HTTP.
@@ -3635,16 +3511,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseCancelBatchPredictionJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_batch_prediction_job(
                 request, metadata
             )
@@ -3660,33 +3533,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCancelBatchPredictionJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CancelBatchPredictionJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CancelBatchPredictionJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CancelBatchPredictionJob._get_response(
@@ -3740,7 +3586,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the cancel custom job method over HTTP.
 
@@ -3751,16 +3597,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseCancelCustomJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_custom_job(
                 request, metadata
             )
@@ -3776,33 +3619,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCancelCustomJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CancelCustomJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CancelCustomJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CancelCustomJob._get_response(
@@ -3856,7 +3672,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the cancel data labeling job method over HTTP.
 
@@ -3867,16 +3683,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseCancelDataLabelingJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_data_labeling_job(
                 request, metadata
             )
@@ -3892,33 +3705,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCancelDataLabelingJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CancelDataLabelingJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CancelDataLabelingJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CancelDataLabelingJob._get_response(
@@ -3973,7 +3759,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the cancel hyperparameter
             tuning job method over HTTP.
@@ -3985,16 +3771,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_hyperparameter_tuning_job(
                 request, metadata
             )
@@ -4010,33 +3793,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCancelHyperparameterTuningJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CancelHyperparameterTuningJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CancelHyperparameterTuningJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4092,7 +3848,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the cancel nas job method over HTTP.
 
@@ -4103,16 +3859,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseCancelNasJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_nas_job(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseCancelNasJob._get_transcoded_request(
@@ -4132,33 +3885,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CancelNasJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CancelNasJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CancelNasJob._get_response(
@@ -4212,7 +3938,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_batch_prediction_job.BatchPredictionJob:
             r"""Call the create batch prediction
             job method over HTTP.
@@ -4224,10 +3950,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.gca_batch_prediction_job.BatchPredictionJob:
@@ -4244,7 +3968,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseCreateBatchPredictionJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_batch_prediction_job(
                 request, metadata
             )
@@ -4260,33 +3983,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCreateBatchPredictionJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CreateBatchPredictionJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateBatchPredictionJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CreateBatchPredictionJob._get_response(
@@ -4309,31 +4005,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = gca_batch_prediction_job.BatchPredictionJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_batch_prediction_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        gca_batch_prediction_job.BatchPredictionJob.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.create_batch_prediction_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateBatchPredictionJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateCustomJob(
@@ -4372,7 +4044,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_custom_job.CustomJob:
             r"""Call the create custom job method over HTTP.
 
@@ -4383,10 +4055,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_custom_job.CustomJob:
@@ -4404,7 +4074,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseCreateCustomJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_custom_job(
                 request, metadata
             )
@@ -4420,33 +4089,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCreateCustomJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CreateCustomJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateCustomJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CreateCustomJob._get_response(
@@ -4469,29 +4111,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = gca_custom_job.CustomJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_custom_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_custom_job.CustomJob.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.create_custom_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateCustomJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateDataLabelingJob(
@@ -4530,7 +4150,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_data_labeling_job.DataLabelingJob:
             r"""Call the create data labeling job method over HTTP.
 
@@ -4541,10 +4161,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_data_labeling_job.DataLabelingJob:
@@ -4557,7 +4175,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseCreateDataLabelingJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_data_labeling_job(
                 request, metadata
             )
@@ -4573,33 +4190,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCreateDataLabelingJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CreateDataLabelingJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateDataLabelingJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CreateDataLabelingJob._get_response(
@@ -4622,31 +4212,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = gca_data_labeling_job.DataLabelingJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_data_labeling_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_data_labeling_job.DataLabelingJob.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.create_data_labeling_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateDataLabelingJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateHyperparameterTuningJob(
@@ -4686,7 +4252,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
             r"""Call the create hyperparameter
             tuning job method over HTTP.
@@ -4698,10 +4264,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.gca_hyperparameter_tuning_job.HyperparameterTuningJob:
@@ -4715,7 +4279,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_hyperparameter_tuning_job(
                 request, metadata
             )
@@ -4731,33 +4294,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCreateHyperparameterTuningJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CreateHyperparameterTuningJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateHyperparameterTuningJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -4782,33 +4318,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = gca_hyperparameter_tuning_job.HyperparameterTuningJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_hyperparameter_tuning_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        gca_hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
-                            response
-                        )
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.create_hyperparameter_tuning_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateHyperparameterTuningJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateModelDeploymentMonitoringJob(
@@ -4848,7 +4358,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
             r"""Call the create model deployment
             monitoring job method over HTTP.
@@ -4860,10 +4370,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
@@ -4878,7 +4386,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -4897,33 +4404,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCreateModelDeploymentMonitoringJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CreateModelDeploymentMonitoringJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateModelDeploymentMonitoringJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CreateModelDeploymentMonitoringJob._get_response(
@@ -4950,31 +4430,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_model_deployment_monitoring_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.create_model_deployment_monitoring_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateModelDeploymentMonitoringJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _CreateNasJob(
@@ -5013,7 +4469,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> gca_nas_job.NasJob:
             r"""Call the create nas job method over HTTP.
 
@@ -5024,10 +4480,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.gca_nas_job.NasJob:
@@ -5039,7 +4493,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseCreateNasJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_create_nas_job(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseCreateNasJob._get_transcoded_request(
@@ -5059,33 +4512,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CreateNasJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateNasJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CreateNasJob._get_response(
@@ -5108,29 +4534,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = gca_nas_job.NasJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_create_nas_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = gca_nas_job.NasJob.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.create_nas_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CreateNasJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteBatchPredictionJob(
@@ -5168,7 +4572,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete batch prediction
             job method over HTTP.
@@ -5180,10 +4584,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -5196,7 +4598,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseDeleteBatchPredictionJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_batch_prediction_job(
                 request, metadata
             )
@@ -5208,33 +4609,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseDeleteBatchPredictionJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.DeleteBatchPredictionJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteBatchPredictionJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._DeleteBatchPredictionJob._get_response(
@@ -5254,29 +4628,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_batch_prediction_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.delete_batch_prediction_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteBatchPredictionJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteCustomJob(
@@ -5314,7 +4666,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete custom job method over HTTP.
 
@@ -5325,10 +4677,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5341,7 +4691,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseDeleteCustomJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_custom_job(
                 request, metadata
             )
@@ -5353,33 +4702,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseDeleteCustomJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.DeleteCustomJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteCustomJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._DeleteCustomJob._get_response(
@@ -5399,29 +4721,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_custom_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.delete_custom_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteCustomJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteDataLabelingJob(
@@ -5459,7 +4759,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete data labeling job method over HTTP.
 
@@ -5470,10 +4770,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5486,7 +4784,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseDeleteDataLabelingJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_data_labeling_job(
                 request, metadata
             )
@@ -5498,33 +4795,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseDeleteDataLabelingJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.DeleteDataLabelingJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteDataLabelingJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._DeleteDataLabelingJob._get_response(
@@ -5544,29 +4814,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_data_labeling_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.delete_data_labeling_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteDataLabelingJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteHyperparameterTuningJob(
@@ -5605,7 +4853,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete hyperparameter
             tuning job method over HTTP.
@@ -5617,10 +4865,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -5633,7 +4879,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_hyperparameter_tuning_job(
                 request, metadata
             )
@@ -5645,33 +4890,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseDeleteHyperparameterTuningJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.DeleteHyperparameterTuningJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteHyperparameterTuningJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -5693,29 +4911,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_hyperparameter_tuning_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.delete_hyperparameter_tuning_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteHyperparameterTuningJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteModelDeploymentMonitoringJob(
@@ -5754,7 +4950,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete model deployment
             monitoring job method over HTTP.
@@ -5766,10 +4962,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -5782,7 +4976,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -5797,33 +4990,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseDeleteModelDeploymentMonitoringJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.DeleteModelDeploymentMonitoringJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteModelDeploymentMonitoringJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._DeleteModelDeploymentMonitoringJob._get_response(
@@ -5843,29 +5009,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_model_deployment_monitoring_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.delete_model_deployment_monitoring_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteModelDeploymentMonitoringJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _DeleteNasJob(
@@ -5903,7 +5047,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete nas job method over HTTP.
 
@@ -5914,10 +5058,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5930,7 +5072,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseDeleteNasJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_nas_job(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseDeleteNasJob._get_transcoded_request(
@@ -5944,33 +5085,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.DeleteNasJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteNasJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._DeleteNasJob._get_response(
@@ -5990,29 +5104,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_delete_nas_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.delete_nas_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteNasJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetBatchPredictionJob(
@@ -6050,7 +5142,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> batch_prediction_job.BatchPredictionJob:
             r"""Call the get batch prediction job method over HTTP.
 
@@ -6061,10 +5153,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.batch_prediction_job.BatchPredictionJob:
@@ -6081,7 +5171,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetBatchPredictionJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_batch_prediction_job(
                 request, metadata
             )
@@ -6093,33 +5182,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseGetBatchPredictionJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetBatchPredictionJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetBatchPredictionJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetBatchPredictionJob._get_response(
@@ -6141,31 +5203,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = batch_prediction_job.BatchPredictionJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_batch_prediction_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = batch_prediction_job.BatchPredictionJob.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.get_batch_prediction_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetBatchPredictionJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetCustomJob(
@@ -6203,7 +5241,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> custom_job.CustomJob:
             r"""Call the get custom job method over HTTP.
 
@@ -6214,10 +5252,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.custom_job.CustomJob:
@@ -6235,7 +5271,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetCustomJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_custom_job(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseGetCustomJob._get_transcoded_request(
@@ -6249,33 +5284,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetCustomJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetCustomJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetCustomJob._get_response(
@@ -6297,29 +5305,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = custom_job.CustomJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_custom_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = custom_job.CustomJob.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.get_custom_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetCustomJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetDataLabelingJob(
@@ -6357,7 +5343,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> data_labeling_job.DataLabelingJob:
             r"""Call the get data labeling job method over HTTP.
 
@@ -6368,10 +5354,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.data_labeling_job.DataLabelingJob:
@@ -6384,7 +5368,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetDataLabelingJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_data_labeling_job(
                 request, metadata
             )
@@ -6396,33 +5379,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseGetDataLabelingJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetDataLabelingJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetDataLabelingJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetDataLabelingJob._get_response(
@@ -6444,31 +5400,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = data_labeling_job.DataLabelingJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_data_labeling_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = data_labeling_job.DataLabelingJob.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.get_data_labeling_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetDataLabelingJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetHyperparameterTuningJob(
@@ -6506,7 +5438,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
             r"""Call the get hyperparameter tuning
             job method over HTTP.
@@ -6518,10 +5450,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.hyperparameter_tuning_job.HyperparameterTuningJob:
@@ -6535,7 +5465,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_hyperparameter_tuning_job(
                 request, metadata
             )
@@ -6547,33 +5476,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseGetHyperparameterTuningJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetHyperparameterTuningJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetHyperparameterTuningJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6597,33 +5499,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = hyperparameter_tuning_job.HyperparameterTuningJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_hyperparameter_tuning_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        hyperparameter_tuning_job.HyperparameterTuningJob.to_json(
-                            response
-                        )
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.get_hyperparameter_tuning_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetHyperparameterTuningJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetModelDeploymentMonitoringJob(
@@ -6662,7 +5538,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
             r"""Call the get model deployment
             monitoring job method over HTTP.
@@ -6674,10 +5550,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
@@ -6692,7 +5566,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -6707,33 +5580,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseGetModelDeploymentMonitoringJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetModelDeploymentMonitoringJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetModelDeploymentMonitoringJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -6759,31 +5605,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_model_deployment_monitoring_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = model_deployment_monitoring_job.ModelDeploymentMonitoringJob.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.get_model_deployment_monitoring_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetModelDeploymentMonitoringJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetNasJob(_BaseJobServiceRestTransport._BaseGetNasJob, JobServiceRestStub):
@@ -6819,7 +5641,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> nas_job.NasJob:
             r"""Call the get nas job method over HTTP.
 
@@ -6830,10 +5652,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.nas_job.NasJob:
@@ -6845,7 +5665,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetNasJob._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_nas_job(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseGetNasJob._get_transcoded_request(
@@ -6859,33 +5678,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetNasJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetNasJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetNasJob._get_response(
@@ -6907,29 +5699,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = nas_job.NasJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_nas_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = nas_job.NasJob.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.get_nas_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetNasJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _GetNasTrialDetail(
@@ -6967,7 +5737,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> nas_job.NasTrialDetail:
             r"""Call the get nas trial detail method over HTTP.
 
@@ -6978,10 +5748,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.nas_job.NasTrialDetail:
@@ -6995,7 +5763,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetNasTrialDetail._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_nas_trial_detail(
                 request, metadata
             )
@@ -7007,33 +5774,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseGetNasTrialDetail._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetNasTrialDetail",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetNasTrialDetail",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetNasTrialDetail._get_response(
@@ -7055,29 +5795,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = nas_job.NasTrialDetail.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_get_nas_trial_detail(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = nas_job.NasTrialDetail.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.get_nas_trial_detail",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetNasTrialDetail",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListBatchPredictionJobs(
@@ -7115,7 +5833,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.ListBatchPredictionJobsResponse:
             r"""Call the list batch prediction
             jobs method over HTTP.
@@ -7127,10 +5845,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.job_service.ListBatchPredictionJobsResponse:
@@ -7142,7 +5858,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListBatchPredictionJobs._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_batch_prediction_jobs(
                 request, metadata
             )
@@ -7154,33 +5869,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseListBatchPredictionJobs._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListBatchPredictionJobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListBatchPredictionJobs",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListBatchPredictionJobs._get_response(
@@ -7202,31 +5890,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = job_service.ListBatchPredictionJobsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_batch_prediction_jobs(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        job_service.ListBatchPredictionJobsResponse.to_json(response)
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.list_batch_prediction_jobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListBatchPredictionJobs",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListCustomJobs(
@@ -7264,7 +5928,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.ListCustomJobsResponse:
             r"""Call the list custom jobs method over HTTP.
 
@@ -7275,10 +5939,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.job_service.ListCustomJobsResponse:
@@ -7290,7 +5952,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListCustomJobs._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_custom_jobs(
                 request, metadata
             )
@@ -7304,33 +5965,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListCustomJobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListCustomJobs",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListCustomJobs._get_response(
@@ -7352,31 +5986,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = job_service.ListCustomJobsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_custom_jobs(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = job_service.ListCustomJobsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.list_custom_jobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListCustomJobs",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListDataLabelingJobs(
@@ -7414,7 +6024,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.ListDataLabelingJobsResponse:
             r"""Call the list data labeling jobs method over HTTP.
 
@@ -7425,10 +6035,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.job_service.ListDataLabelingJobsResponse:
@@ -7440,7 +6048,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListDataLabelingJobs._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_data_labeling_jobs(
                 request, metadata
             )
@@ -7452,33 +6059,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseListDataLabelingJobs._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListDataLabelingJobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListDataLabelingJobs",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListDataLabelingJobs._get_response(
@@ -7500,31 +6080,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = job_service.ListDataLabelingJobsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_data_labeling_jobs(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = job_service.ListDataLabelingJobsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.list_data_labeling_jobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListDataLabelingJobs",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListHyperparameterTuningJobs(
@@ -7563,7 +6119,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.ListHyperparameterTuningJobsResponse:
             r"""Call the list hyperparameter
             tuning jobs method over HTTP.
@@ -7575,10 +6131,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.job_service.ListHyperparameterTuningJobsResponse:
@@ -7590,7 +6144,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_hyperparameter_tuning_jobs(
                 request, metadata
             )
@@ -7602,33 +6155,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseListHyperparameterTuningJobs._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListHyperparameterTuningJobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListHyperparameterTuningJobs",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = (
@@ -7652,33 +6178,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = job_service.ListHyperparameterTuningJobsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_hyperparameter_tuning_jobs(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        job_service.ListHyperparameterTuningJobsResponse.to_json(
-                            response
-                        )
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.list_hyperparameter_tuning_jobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListHyperparameterTuningJobs",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListModelDeploymentMonitoringJobs(
@@ -7717,7 +6217,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.ListModelDeploymentMonitoringJobsResponse:
             r"""Call the list model deployment
             monitoring jobs method over HTTP.
@@ -7729,10 +6229,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.job_service.ListModelDeploymentMonitoringJobsResponse:
@@ -7744,7 +6242,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -7759,33 +6256,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseListModelDeploymentMonitoringJobs._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListModelDeploymentMonitoringJobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListModelDeploymentMonitoringJobs",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListModelDeploymentMonitoringJobs._get_response(
@@ -7807,33 +6277,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = job_service.ListModelDeploymentMonitoringJobsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_model_deployment_monitoring_jobs(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = (
-                        job_service.ListModelDeploymentMonitoringJobsResponse.to_json(
-                            response
-                        )
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.list_model_deployment_monitoring_jobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListModelDeploymentMonitoringJobs",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListNasJobs(
@@ -7871,7 +6315,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.ListNasJobsResponse:
             r"""Call the list nas jobs method over HTTP.
 
@@ -7882,10 +6326,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.job_service.ListNasJobsResponse:
@@ -7897,7 +6339,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListNasJobs._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_nas_jobs(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseListNasJobs._get_transcoded_request(
@@ -7911,33 +6352,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListNasJobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListNasJobs",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListNasJobs._get_response(
@@ -7959,29 +6373,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = job_service.ListNasJobsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_nas_jobs(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = job_service.ListNasJobsResponse.to_json(response)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.list_nas_jobs",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListNasJobs",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _ListNasTrialDetails(
@@ -8019,7 +6411,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.ListNasTrialDetailsResponse:
             r"""Call the list nas trial details method over HTTP.
 
@@ -8030,10 +6422,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 ~.job_service.ListNasTrialDetailsResponse:
@@ -8045,7 +6435,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListNasTrialDetails._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_nas_trial_details(
                 request, metadata
             )
@@ -8057,33 +6446,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseListNasTrialDetails._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListNasTrialDetails",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListNasTrialDetails",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListNasTrialDetails._get_response(
@@ -8105,31 +6467,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             pb_resp = job_service.ListNasTrialDetailsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_list_nas_trial_details(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = job_service.ListNasTrialDetailsResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.list_nas_trial_details",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListNasTrialDetails",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _PauseModelDeploymentMonitoringJob(
@@ -8169,7 +6507,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the pause model deployment
             monitoring job method over HTTP.
@@ -8181,16 +6519,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -8209,33 +6544,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BasePauseModelDeploymentMonitoringJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.PauseModelDeploymentMonitoringJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "PauseModelDeploymentMonitoringJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._PauseModelDeploymentMonitoringJob._get_response(
@@ -8290,7 +6598,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ):
             r"""Call the resume model deployment
             monitoring job method over HTTP.
@@ -8302,16 +6610,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -8330,33 +6635,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseResumeModelDeploymentMonitoringJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ResumeModelDeploymentMonitoringJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ResumeModelDeploymentMonitoringJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ResumeModelDeploymentMonitoringJob._get_response(
@@ -8413,7 +6691,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse:
             r"""Call the search model deployment
             monitoring stats anomalies method over HTTP.
@@ -8425,10 +6703,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse:
@@ -8440,7 +6716,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -8459,33 +6734,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseSearchModelDeploymentMonitoringStatsAnomalies._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = type(request).to_json(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.SearchModelDeploymentMonitoringStatsAnomalies",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "SearchModelDeploymentMonitoringStatsAnomalies",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._SearchModelDeploymentMonitoringStatsAnomalies._get_response(
@@ -8512,33 +6760,9 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_search_model_deployment_monitoring_stats_anomalies(
                 resp
             )
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.to_json(
-                        response
-                    )
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.search_model_deployment_monitoring_stats_anomalies",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "SearchModelDeploymentMonitoringStatsAnomalies",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     class _UpdateModelDeploymentMonitoringJob(
@@ -8578,7 +6802,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update model deployment
             monitoring job method over HTTP.
@@ -8590,10 +6814,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                        sent along with the request as metadata. Normally, each value must be of type `str`,
-                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                        be of type `bytes`.
+                    metadata (Sequence[Tuple[str, str]]): Strings which should be
+                        sent along with the request as metadata.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -8606,7 +6828,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_http_options()
             )
-
             (
                 request,
                 metadata,
@@ -8625,33 +6846,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseUpdateModelDeploymentMonitoringJob._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.UpdateModelDeploymentMonitoringJob",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "UpdateModelDeploymentMonitoringJob",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._UpdateModelDeploymentMonitoringJob._get_response(
@@ -8672,29 +6866,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
-
             resp = self._interceptor.post_update_model_deployment_monitoring_job(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceClient.update_model_deployment_monitoring_job",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "UpdateModelDeploymentMonitoringJob",
-                        "metadata": http_response["headers"],
-                        "httpResponse": http_response,
-                    },
-                )
             return resp
 
     @property
@@ -9071,7 +7243,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -9082,10 +7254,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -9094,7 +7264,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetLocation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseGetLocation._get_transcoded_request(
@@ -9108,33 +7277,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetLocation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetLocation._get_response(
@@ -9155,27 +7297,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.GetLocation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetLocation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -9217,7 +7338,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -9228,10 +7349,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -9240,7 +7359,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListLocations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseListLocations._get_transcoded_request(
@@ -9254,33 +7372,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListLocations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListLocations._get_response(
@@ -9301,27 +7392,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.ListLocations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListLocations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -9364,7 +7434,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -9375,10 +7445,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -9387,7 +7455,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
@@ -9407,33 +7474,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetIamPolicy._get_response(
@@ -9455,27 +7495,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.GetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -9518,7 +7537,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -9529,10 +7548,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -9541,7 +7558,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
@@ -9561,33 +7577,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "SetIamPolicy",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._SetIamPolicy._get_response(
@@ -9609,27 +7598,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.SetIamPolicy",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "SetIamPolicy",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -9672,7 +7640,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -9683,10 +7651,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -9695,7 +7661,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -9711,33 +7676,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "TestIamPermissions",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._TestIamPermissions._get_response(
@@ -9759,27 +7697,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.TestIamPermissions",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "TestIamPermissions",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -9821,7 +7738,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -9832,16 +7749,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseCancelOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -9853,33 +7767,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.CancelOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "CancelOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._CancelOperation._get_response(
@@ -9937,7 +7824,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -9948,16 +7835,13 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
             """
 
             http_options = (
                 _BaseJobServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -9969,33 +7853,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             query_params = _BaseJobServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.DeleteOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "DeleteOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._DeleteOperation._get_response(
@@ -10053,7 +7910,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -10064,10 +7921,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -10076,7 +7931,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseGetOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseGetOperation._get_transcoded_request(
@@ -10090,33 +7944,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._GetOperation._get_response(
@@ -10137,27 +7964,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.GetOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "GetOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -10199,7 +8005,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -10210,10 +8016,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -10222,7 +8026,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseListOperations._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseJobServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -10234,33 +8037,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListOperations",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._ListOperations._get_response(
@@ -10281,27 +8057,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.ListOperations",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "ListOperations",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property
@@ -10343,7 +8098,7 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+            metadata: Sequence[Tuple[str, str]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -10354,10 +8109,8 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                    sent along with the request as metadata. Normally, each value must be of type `str`,
-                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                    be of type `bytes`.
+                metadata (Sequence[Tuple[str, str]]): Strings which should be
+                    sent along with the request as metadata.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -10366,7 +8119,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             http_options = (
                 _BaseJobServiceRestTransport._BaseWaitOperation._get_http_options()
             )
-
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = (
                 _BaseJobServiceRestTransport._BaseWaitOperation._get_transcoded_request(
@@ -10380,33 +8132,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
                     transcoded_request
                 )
             )
-
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                request_url = "{host}{uri}".format(
-                    host=self._host, uri=transcoded_request["uri"]
-                )
-                method = transcoded_request["method"]
-                try:
-                    request_payload = json_format.MessageToJson(request)
-                except:
-                    request_payload = None
-                http_request = {
-                    "payload": request_payload,
-                    "requestMethod": method,
-                    "requestUrl": request_url,
-                    "headers": dict(metadata),
-                }
-                _LOGGER.debug(
-                    f"Sending request for google.cloud.aiplatform_v1beta1.JobServiceClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "WaitOperation",
-                        "httpRequest": http_request,
-                        "metadata": http_request["headers"],
-                    },
-                )
 
             # Send the request
             response = JobServiceRestTransport._WaitOperation._get_response(
@@ -10427,27 +8152,6 @@ class JobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                logging.DEBUG
-            ):  # pragma: NO COVER
-                try:
-                    response_payload = json_format.MessageToJson(resp)
-                except:
-                    response_payload = None
-                http_response = {
-                    "payload": response_payload,
-                    "headers": dict(response.headers),
-                    "status": response.status_code,
-                }
-                _LOGGER.debug(
-                    "Received response for google.cloud.aiplatform_v1beta1.JobServiceAsyncClient.WaitOperation",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.JobService",
-                        "rpcName": "WaitOperation",
-                        "httpResponse": http_response,
-                        "metadata": http_response["headers"],
-                    },
-                )
             return resp
 
     @property

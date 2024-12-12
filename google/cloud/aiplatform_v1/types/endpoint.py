@@ -378,43 +378,11 @@ class DeployedModel(proto.Message):
             configured.
         faster_deployment_config (google.cloud.aiplatform_v1.types.FasterDeploymentConfig):
             Configuration for faster model deployment.
-        status (google.cloud.aiplatform_v1.types.DeployedModel.Status):
-            Output only. Runtime status of the deployed
-            model.
         system_labels (MutableMapping[str, str]):
             System labels to apply to Model Garden
             deployments. System labels are managed by Google
             for internal use only.
     """
-
-    class Status(proto.Message):
-        r"""Runtime status of the deployed model.
-
-        Attributes:
-            message (str):
-                Output only. The latest deployed model's
-                status message (if any).
-            last_update_time (google.protobuf.timestamp_pb2.Timestamp):
-                Output only. The time at which the status was
-                last updated.
-            available_replica_count (int):
-                Output only. The number of available replicas
-                of the deployed model.
-        """
-
-        message: str = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        last_update_time: timestamp_pb2.Timestamp = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            message=timestamp_pb2.Timestamp,
-        )
-        available_replica_count: int = proto.Field(
-            proto.INT32,
-            number=3,
-        )
 
     dedicated_resources: machine_resources.DedicatedResources = proto.Field(
         proto.MESSAGE,
@@ -484,11 +452,6 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=23,
         message="FasterDeploymentConfig",
-    )
-    status: Status = proto.Field(
-        proto.MESSAGE,
-        number=26,
-        message=Status,
     )
     system_labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
