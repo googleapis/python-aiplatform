@@ -46,6 +46,7 @@ from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     JiraSource,
     LayoutParserConfig,
+    LlmParserConfig,
     Pinecone,
     RagCorpus,
     RagFile,
@@ -475,6 +476,7 @@ def import_files(
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -592,7 +594,10 @@ def import_files(
             to the table.
         layout_parser: Configuration for the Document AI Layout Parser Processor
             to use for document parsing. Optional.
-            If not None,`use_advanced_pdf_parsing` must be False.
+            If not None, the other parser configs must be None.
+        llm_parser: Configuration for the LLM Parser to use for document parsing.
+            Optional.
+            If not None, the other parser configs must be None.
     Returns:
         ImportRagFilesResponse.
     """
@@ -604,6 +609,15 @@ def import_files(
         raise ValueError(
             "Only one of use_advanced_pdf_parsing or layout_parser may be "
             "passed in at a time"
+        )
+    if use_advanced_pdf_parsing and llm_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or llm_parser may be "
+            "passed in at a time"
+        )
+    if layout_parser is not None and llm_parser is not None:
+        raise ValueError(
+            "Only one of layout_parser or llm_parser may be passed in at a time"
         )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
@@ -617,6 +631,7 @@ def import_files(
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,
+        llm_parser=llm_parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -638,6 +653,7 @@ async def import_files_async(
     use_advanced_pdf_parsing: Optional[bool] = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -755,7 +771,10 @@ async def import_files_async(
             to the table.
         layout_parser: Configuration for the Document AI Layout Parser Processor
             to use for document parsing. Optional.
-            If not None,`use_advanced_pdf_parsing` must be False.
+            If not None, the other parser configs must be None.
+        llm_parser: Configuration for the LLM Parser to use for document parsing.
+            Optional.
+            If not None, the other parser configs must be None.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -767,6 +786,15 @@ async def import_files_async(
         raise ValueError(
             "Only one of use_advanced_pdf_parsing or layout_parser may be "
             "passed in at a time"
+        )
+    if use_advanced_pdf_parsing and llm_parser is not None:
+        raise ValueError(
+            "Only one of use_advanced_pdf_parsing or llm_parser may be "
+            "passed in at a time"
+        )
+    if layout_parser is not None and llm_parser is not None:
+        raise ValueError(
+            "Only one of layout_parser or llm_parser may be passed in at a time"
         )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
@@ -780,6 +808,7 @@ async def import_files_async(
         use_advanced_pdf_parsing=use_advanced_pdf_parsing,
         partial_failures_sink=partial_failures_sink,
         layout_parser=layout_parser,
+        llm_parser=llm_parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:
