@@ -13057,6 +13057,7 @@ def test_create_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard(request)
 
@@ -13109,6 +13110,7 @@ def test_create_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard(**mock_args)
 
@@ -13241,6 +13243,7 @@ def test_get_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard(request)
 
@@ -13288,6 +13291,7 @@ def test_get_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard(**mock_args)
 
@@ -13422,6 +13426,7 @@ def test_update_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard(request)
 
@@ -13478,6 +13483,7 @@ def test_update_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard(**mock_args)
 
@@ -13622,6 +13628,7 @@ def test_list_tensorboards_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboards(request)
 
@@ -13678,6 +13685,7 @@ def test_list_tensorboards_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboards(**mock_args)
 
@@ -13877,6 +13885,7 @@ def test_delete_tensorboard_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard(request)
 
@@ -13922,6 +13931,7 @@ def test_delete_tensorboard_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard(**mock_args)
 
@@ -14060,6 +14070,7 @@ def test_read_tensorboard_usage_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.read_tensorboard_usage(request)
 
@@ -14107,6 +14118,7 @@ def test_read_tensorboard_usage_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.read_tensorboard_usage(**mock_args)
 
@@ -14245,6 +14257,7 @@ def test_read_tensorboard_size_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.read_tensorboard_size(request)
 
@@ -14292,6 +14305,7 @@ def test_read_tensorboard_size_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.read_tensorboard_size(**mock_args)
 
@@ -14446,6 +14460,7 @@ def test_create_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard_experiment(request)
 
@@ -14513,6 +14528,7 @@ def test_create_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard_experiment(**mock_args)
 
@@ -14653,6 +14669,7 @@ def test_get_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard_experiment(request)
 
@@ -14700,6 +14717,7 @@ def test_get_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard_experiment(**mock_args)
 
@@ -14836,6 +14854,7 @@ def test_update_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard_experiment(request)
 
@@ -14898,6 +14917,7 @@ def test_update_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard_experiment(**mock_args)
 
@@ -15049,6 +15069,7 @@ def test_list_tensorboard_experiments_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboard_experiments(request)
 
@@ -15109,6 +15130,7 @@ def test_list_tensorboard_experiments_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboard_experiments(**mock_args)
 
@@ -15314,6 +15336,7 @@ def test_delete_tensorboard_experiment_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard_experiment(request)
 
@@ -15361,6 +15384,7 @@ def test_delete_tensorboard_experiment_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard_experiment(**mock_args)
 
@@ -15507,6 +15531,7 @@ def test_create_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard_run(request)
 
@@ -15571,6 +15596,7 @@ def test_create_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard_run(**mock_args)
 
@@ -15712,6 +15738,7 @@ def test_batch_create_tensorboard_runs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_create_tensorboard_runs(request)
 
@@ -15774,6 +15801,7 @@ def test_batch_create_tensorboard_runs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_create_tensorboard_runs(**mock_args)
 
@@ -15912,6 +15940,7 @@ def test_get_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard_run(request)
 
@@ -15959,6 +15988,7 @@ def test_get_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard_run(**mock_args)
 
@@ -16093,6 +16123,7 @@ def test_update_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard_run(request)
 
@@ -16151,6 +16182,7 @@ def test_update_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard_run(**mock_args)
 
@@ -16300,6 +16332,7 @@ def test_list_tensorboard_runs_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboard_runs(request)
 
@@ -16358,6 +16391,7 @@ def test_list_tensorboard_runs_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboard_runs(**mock_args)
 
@@ -16560,6 +16594,7 @@ def test_delete_tensorboard_run_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard_run(request)
 
@@ -16605,6 +16640,7 @@ def test_delete_tensorboard_run_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard_run(**mock_args)
 
@@ -16746,6 +16782,7 @@ def test_batch_create_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_create_tensorboard_time_series(request)
 
@@ -16810,6 +16847,7 @@ def test_batch_create_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_create_tensorboard_time_series(**mock_args)
 
@@ -16958,6 +16996,7 @@ def test_create_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_tensorboard_time_series(request)
 
@@ -17020,6 +17059,7 @@ def test_create_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.create_tensorboard_time_series(**mock_args)
 
@@ -17161,6 +17201,7 @@ def test_get_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_tensorboard_time_series(request)
 
@@ -17208,6 +17249,7 @@ def test_get_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.get_tensorboard_time_series(**mock_args)
 
@@ -17344,6 +17386,7 @@ def test_update_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_tensorboard_time_series(request)
 
@@ -17408,6 +17451,7 @@ def test_update_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.update_tensorboard_time_series(**mock_args)
 
@@ -17559,6 +17603,7 @@ def test_list_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_tensorboard_time_series(request)
 
@@ -17619,6 +17664,7 @@ def test_list_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.list_tensorboard_time_series(**mock_args)
 
@@ -17825,6 +17871,7 @@ def test_delete_tensorboard_time_series_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_tensorboard_time_series(request)
 
@@ -17872,6 +17919,7 @@ def test_delete_tensorboard_time_series_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.delete_tensorboard_time_series(**mock_args)
 
@@ -18025,6 +18073,7 @@ def test_batch_read_tensorboard_time_series_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.batch_read_tensorboard_time_series_data(request)
 
@@ -18092,6 +18141,7 @@ def test_batch_read_tensorboard_time_series_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.batch_read_tensorboard_time_series_data(**mock_args)
 
@@ -18239,6 +18289,7 @@ def test_read_tensorboard_time_series_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.read_tensorboard_time_series_data(request)
 
@@ -18298,6 +18349,7 @@ def test_read_tensorboard_time_series_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.read_tensorboard_time_series_data(**mock_args)
 
@@ -18441,6 +18493,7 @@ def test_read_tensorboard_blob_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             with mock.patch.object(response_value, "iter_content") as iter_content:
                 iter_content.return_value = iter(json_return_value)
@@ -18493,6 +18546,7 @@ def test_read_tensorboard_blob_data_rest_flattened():
         json_return_value = "[{}]".format(json_return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         with mock.patch.object(response_value, "iter_content") as iter_content:
             iter_content.return_value = iter(json_return_value)
@@ -18636,6 +18690,7 @@ def test_write_tensorboard_experiment_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.write_tensorboard_experiment_data(request)
 
@@ -18700,6 +18755,7 @@ def test_write_tensorboard_experiment_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.write_tensorboard_experiment_data(**mock_args)
 
@@ -18846,6 +18902,7 @@ def test_write_tensorboard_run_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.write_tensorboard_run_data(request)
 
@@ -18908,6 +18965,7 @@ def test_write_tensorboard_run_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.write_tensorboard_run_data(**mock_args)
 
@@ -19054,6 +19112,7 @@ def test_export_tensorboard_time_series_data_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.export_tensorboard_time_series_data(request)
 
@@ -19105,6 +19164,7 @@ def test_export_tensorboard_time_series_data_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.export_tensorboard_time_series_data(**mock_args)
 
@@ -20936,6 +20996,7 @@ def test_create_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard(request)
 
 
@@ -21048,6 +21109,7 @@ def test_create_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21089,6 +21151,7 @@ def test_create_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21133,6 +21196,7 @@ def test_get_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard(request)
 
 
@@ -21176,6 +21240,7 @@ def test_get_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21224,6 +21289,7 @@ def test_get_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard.Tensorboard.to_json(tensorboard.Tensorboard())
         req.return_value.content = return_value
 
@@ -21272,6 +21338,7 @@ def test_update_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard(request)
 
 
@@ -21388,6 +21455,7 @@ def test_update_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21429,6 +21497,7 @@ def test_update_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21473,6 +21542,7 @@ def test_list_tensorboards_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboards(request)
 
 
@@ -21508,6 +21578,7 @@ def test_list_tensorboards_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboards(request)
 
     # Establish that the response is the type that we expect.
@@ -21548,6 +21619,7 @@ def test_list_tensorboards_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardsResponse.to_json(
             tensorboard_service.ListTensorboardsResponse()
         )
@@ -21594,6 +21666,7 @@ def test_delete_tensorboard_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard(request)
 
 
@@ -21624,6 +21697,7 @@ def test_delete_tensorboard_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -21665,6 +21739,7 @@ def test_delete_tensorboard_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -21711,6 +21786,7 @@ def test_read_tensorboard_usage_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_usage(request)
 
 
@@ -21746,6 +21822,7 @@ def test_read_tensorboard_usage_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_usage(request)
 
     # Establish that the response is the type that we expect.
@@ -21785,6 +21862,7 @@ def test_read_tensorboard_usage_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardUsageResponse.to_json(
             tensorboard_service.ReadTensorboardUsageResponse()
         )
@@ -21833,6 +21911,7 @@ def test_read_tensorboard_size_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_size(request)
 
 
@@ -21870,6 +21949,7 @@ def test_read_tensorboard_size_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_size(request)
 
     # Establish that the response is the type that we expect.
@@ -21910,6 +21990,7 @@ def test_read_tensorboard_size_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardSizeResponse.to_json(
             tensorboard_service.ReadTensorboardSizeResponse()
         )
@@ -21956,6 +22037,7 @@ def test_create_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard_experiment(request)
 
 
@@ -22076,6 +22158,7 @@ def test_create_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22122,6 +22205,7 @@ def test_create_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -22170,6 +22254,7 @@ def test_get_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard_experiment(request)
 
 
@@ -22211,6 +22296,7 @@ def test_get_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22255,6 +22341,7 @@ def test_get_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_experiment.TensorboardExperiment.to_json(
             tensorboard_experiment.TensorboardExperiment()
         )
@@ -22305,6 +22392,7 @@ def test_update_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard_experiment(request)
 
 
@@ -22429,6 +22517,7 @@ def test_update_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22475,6 +22564,7 @@ def test_update_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -22521,6 +22611,7 @@ def test_list_tensorboard_experiments_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboard_experiments(request)
 
 
@@ -22558,6 +22649,7 @@ def test_list_tensorboard_experiments_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboard_experiments(request)
 
     # Establish that the response is the type that we expect.
@@ -22599,6 +22691,7 @@ def test_list_tensorboard_experiments_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardExperimentsResponse.to_json(
             tensorboard_service.ListTensorboardExperimentsResponse()
         )
@@ -22647,6 +22740,7 @@ def test_delete_tensorboard_experiment_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard_experiment(request)
 
 
@@ -22679,6 +22773,7 @@ def test_delete_tensorboard_experiment_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -22722,6 +22817,7 @@ def test_delete_tensorboard_experiment_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -22768,6 +22864,7 @@ def test_create_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard_run(request)
 
 
@@ -22886,6 +22983,7 @@ def test_create_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -22929,6 +23027,7 @@ def test_create_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -22977,6 +23076,7 @@ def test_batch_create_tensorboard_runs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_create_tensorboard_runs(request)
 
 
@@ -23014,6 +23114,7 @@ def test_batch_create_tensorboard_runs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_create_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -23055,6 +23156,7 @@ def test_batch_create_tensorboard_runs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.BatchCreateTensorboardRunsResponse.to_json(
             tensorboard_service.BatchCreateTensorboardRunsResponse()
         )
@@ -23103,6 +23205,7 @@ def test_get_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard_run(request)
 
 
@@ -23143,6 +23246,7 @@ def test_get_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -23186,6 +23290,7 @@ def test_get_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_run.TensorboardRun.to_json(
             tensorboard_run.TensorboardRun()
         )
@@ -23236,6 +23341,7 @@ def test_update_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard_run(request)
 
 
@@ -23356,6 +23462,7 @@ def test_update_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -23399,6 +23506,7 @@ def test_update_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -23447,6 +23555,7 @@ def test_list_tensorboard_runs_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboard_runs(request)
 
 
@@ -23484,6 +23593,7 @@ def test_list_tensorboard_runs_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -23524,6 +23634,7 @@ def test_list_tensorboard_runs_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardRunsResponse.to_json(
             tensorboard_service.ListTensorboardRunsResponse()
         )
@@ -23572,6 +23683,7 @@ def test_delete_tensorboard_run_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard_run(request)
 
 
@@ -23604,6 +23716,7 @@ def test_delete_tensorboard_run_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -23645,6 +23758,7 @@ def test_delete_tensorboard_run_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -23691,6 +23805,7 @@ def test_batch_create_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_create_tensorboard_time_series(request)
 
 
@@ -23728,6 +23843,7 @@ def test_batch_create_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -23771,6 +23887,7 @@ def test_batch_create_tensorboard_time_series_rest_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.to_json(
                 tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
@@ -23823,6 +23940,7 @@ def test_create_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.create_tensorboard_time_series(request)
 
 
@@ -23955,6 +24073,7 @@ def test_create_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24006,6 +24125,7 @@ def test_create_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -24054,6 +24174,7 @@ def test_get_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_tensorboard_time_series(request)
 
 
@@ -24097,6 +24218,7 @@ def test_get_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24146,6 +24268,7 @@ def test_get_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_time_series.TensorboardTimeSeries.to_json(
             tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -24196,6 +24319,7 @@ def test_update_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.update_tensorboard_time_series(request)
 
 
@@ -24330,6 +24454,7 @@ def test_update_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24381,6 +24506,7 @@ def test_update_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -24429,6 +24555,7 @@ def test_list_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_tensorboard_time_series(request)
 
 
@@ -24468,6 +24595,7 @@ def test_list_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24509,6 +24637,7 @@ def test_list_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardTimeSeriesResponse.to_json(
             tensorboard_service.ListTensorboardTimeSeriesResponse()
         )
@@ -24557,6 +24686,7 @@ def test_delete_tensorboard_time_series_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_tensorboard_time_series(request)
 
 
@@ -24589,6 +24719,7 @@ def test_delete_tensorboard_time_series_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -24632,6 +24763,7 @@ def test_delete_tensorboard_time_series_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.content = return_value
 
@@ -24678,6 +24810,7 @@ def test_batch_read_tensorboard_time_series_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.batch_read_tensorboard_time_series_data(request)
 
 
@@ -24717,6 +24850,7 @@ def test_batch_read_tensorboard_time_series_data_rest_call_success(request_type)
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.batch_read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -24760,6 +24894,7 @@ def test_batch_read_tensorboard_time_series_data_rest_interceptors(null_intercep
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
@@ -24812,6 +24947,7 @@ def test_read_tensorboard_time_series_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_time_series_data(request)
 
 
@@ -24849,6 +24985,7 @@ def test_read_tensorboard_time_series_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -24892,6 +25029,7 @@ def test_read_tensorboard_time_series_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
@@ -24942,6 +25080,7 @@ def test_read_tensorboard_blob_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_tensorboard_blob_data(request)
 
 
@@ -24980,6 +25119,7 @@ def test_read_tensorboard_blob_data_rest_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.iter_content = mock.Mock(return_value=iter(json_return_value))
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_tensorboard_blob_data(request)
 
     assert isinstance(response, Iterable)
@@ -25022,6 +25162,7 @@ def test_read_tensorboard_blob_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardBlobDataResponse.to_json(
             tensorboard_service.ReadTensorboardBlobDataResponse()
         )
@@ -25070,6 +25211,7 @@ def test_write_tensorboard_experiment_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.write_tensorboard_experiment_data(request)
 
 
@@ -25107,6 +25249,7 @@ def test_write_tensorboard_experiment_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.write_tensorboard_experiment_data(request)
 
     # Establish that the response is the type that we expect.
@@ -25150,6 +25293,7 @@ def test_write_tensorboard_experiment_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.WriteTensorboardExperimentDataResponse.to_json(
                 tensorboard_service.WriteTensorboardExperimentDataResponse()
@@ -25200,6 +25344,7 @@ def test_write_tensorboard_run_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.write_tensorboard_run_data(request)
 
 
@@ -25237,6 +25382,7 @@ def test_write_tensorboard_run_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.write_tensorboard_run_data(request)
 
     # Establish that the response is the type that we expect.
@@ -25276,6 +25422,7 @@ def test_write_tensorboard_run_data_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.WriteTensorboardRunDataResponse.to_json(
             tensorboard_service.WriteTensorboardRunDataResponse()
         )
@@ -25324,6 +25471,7 @@ def test_export_tensorboard_time_series_data_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.export_tensorboard_time_series_data(request)
 
 
@@ -25363,6 +25511,7 @@ def test_export_tensorboard_time_series_data_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.export_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -25405,6 +25554,7 @@ def test_export_tensorboard_time_series_data_rest_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
@@ -25455,6 +25605,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -25485,6 +25636,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -25513,6 +25665,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -25543,6 +25696,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -25574,6 +25728,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -25606,6 +25761,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -25637,6 +25793,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -25669,6 +25826,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -25700,6 +25858,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -25732,6 +25891,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -25762,6 +25922,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -25792,6 +25953,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -25822,6 +25984,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -25852,6 +26015,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -25882,6 +26046,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -25912,6 +26077,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -25942,6 +26108,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -25972,6 +26139,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -26002,6 +26170,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -26032,6 +26201,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -26757,6 +26927,7 @@ async def test_create_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard(request)
 
 
@@ -26876,6 +27047,7 @@ async def test_create_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -26922,6 +27094,7 @@ async def test_create_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -26970,6 +27143,7 @@ async def test_get_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard(request)
 
 
@@ -27020,6 +27194,7 @@ async def test_get_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -27073,6 +27248,7 @@ async def test_get_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard.Tensorboard.to_json(tensorboard.Tensorboard())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27125,6 +27301,7 @@ async def test_update_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard(request)
 
 
@@ -27248,6 +27425,7 @@ async def test_update_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -27294,6 +27472,7 @@ async def test_update_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27342,6 +27521,7 @@ async def test_list_tensorboards_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboards(request)
 
 
@@ -27384,6 +27564,7 @@ async def test_list_tensorboards_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboards(request)
 
     # Establish that the response is the type that we expect.
@@ -27429,6 +27610,7 @@ async def test_list_tensorboards_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardsResponse.to_json(
             tensorboard_service.ListTensorboardsResponse()
         )
@@ -27479,6 +27661,7 @@ async def test_delete_tensorboard_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard(request)
 
 
@@ -27516,6 +27699,7 @@ async def test_delete_tensorboard_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard(request)
 
     # Establish that the response is the type that we expect.
@@ -27562,6 +27746,7 @@ async def test_delete_tensorboard_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -27612,6 +27797,7 @@ async def test_read_tensorboard_usage_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_usage(request)
 
 
@@ -27654,6 +27840,7 @@ async def test_read_tensorboard_usage_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_usage(request)
 
     # Establish that the response is the type that we expect.
@@ -27698,6 +27885,7 @@ async def test_read_tensorboard_usage_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardUsageResponse.to_json(
             tensorboard_service.ReadTensorboardUsageResponse()
         )
@@ -27750,6 +27938,7 @@ async def test_read_tensorboard_size_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_size(request)
 
 
@@ -27794,6 +27983,7 @@ async def test_read_tensorboard_size_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_size(request)
 
     # Establish that the response is the type that we expect.
@@ -27839,6 +28029,7 @@ async def test_read_tensorboard_size_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardSizeResponse.to_json(
             tensorboard_service.ReadTensorboardSizeResponse()
         )
@@ -27889,6 +28080,7 @@ async def test_create_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard_experiment(request)
 
 
@@ -28016,6 +28208,7 @@ async def test_create_tensorboard_experiment_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28069,6 +28262,7 @@ async def test_create_tensorboard_experiment_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -28121,6 +28315,7 @@ async def test_get_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard_experiment(request)
 
 
@@ -28169,6 +28364,7 @@ async def test_get_tensorboard_experiment_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28220,6 +28416,7 @@ async def test_get_tensorboard_experiment_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_experiment.TensorboardExperiment.to_json(
             tensorboard_experiment.TensorboardExperiment()
         )
@@ -28274,6 +28471,7 @@ async def test_update_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard_experiment(request)
 
 
@@ -28405,6 +28603,7 @@ async def test_update_tensorboard_experiment_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28458,6 +28657,7 @@ async def test_update_tensorboard_experiment_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_experiment.TensorboardExperiment.to_json(
             gca_tensorboard_experiment.TensorboardExperiment()
         )
@@ -28508,6 +28708,7 @@ async def test_list_tensorboard_experiments_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboard_experiments(request)
 
 
@@ -28552,6 +28753,7 @@ async def test_list_tensorboard_experiments_rest_asyncio_call_success(request_ty
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboard_experiments(request)
 
     # Establish that the response is the type that we expect.
@@ -28599,6 +28801,7 @@ async def test_list_tensorboard_experiments_rest_asyncio_interceptors(null_inter
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardExperimentsResponse.to_json(
             tensorboard_service.ListTensorboardExperimentsResponse()
         )
@@ -28651,6 +28854,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard_experiment(request)
 
 
@@ -28690,6 +28894,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard_experiment(request)
 
     # Establish that the response is the type that we expect.
@@ -28740,6 +28945,7 @@ async def test_delete_tensorboard_experiment_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -28790,6 +28996,7 @@ async def test_create_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard_run(request)
 
 
@@ -28915,6 +29122,7 @@ async def test_create_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -28963,6 +29171,7 @@ async def test_create_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -29015,6 +29224,7 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_create_tensorboard_runs(request)
 
 
@@ -29059,6 +29269,7 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_call_success(request_t
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_create_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -29107,6 +29318,7 @@ async def test_batch_create_tensorboard_runs_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.BatchCreateTensorboardRunsResponse.to_json(
             tensorboard_service.BatchCreateTensorboardRunsResponse()
         )
@@ -29159,6 +29371,7 @@ async def test_get_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard_run(request)
 
 
@@ -29206,6 +29419,7 @@ async def test_get_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -29254,6 +29468,7 @@ async def test_get_tensorboard_run_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_run.TensorboardRun.to_json(
             tensorboard_run.TensorboardRun()
         )
@@ -29308,6 +29523,7 @@ async def test_update_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard_run(request)
 
 
@@ -29435,6 +29651,7 @@ async def test_update_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -29483,6 +29700,7 @@ async def test_update_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_run.TensorboardRun.to_json(
             gca_tensorboard_run.TensorboardRun()
         )
@@ -29535,6 +29753,7 @@ async def test_list_tensorboard_runs_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboard_runs(request)
 
 
@@ -29579,6 +29798,7 @@ async def test_list_tensorboard_runs_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboard_runs(request)
 
     # Establish that the response is the type that we expect.
@@ -29624,6 +29844,7 @@ async def test_list_tensorboard_runs_rest_asyncio_interceptors(null_interceptor)
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardRunsResponse.to_json(
             tensorboard_service.ListTensorboardRunsResponse()
         )
@@ -29676,6 +29897,7 @@ async def test_delete_tensorboard_run_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard_run(request)
 
 
@@ -29715,6 +29937,7 @@ async def test_delete_tensorboard_run_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard_run(request)
 
     # Establish that the response is the type that we expect.
@@ -29761,6 +29984,7 @@ async def test_delete_tensorboard_run_rest_asyncio_interceptors(null_interceptor
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -29811,6 +30035,7 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_create_tensorboard_time_series(request)
 
 
@@ -29857,6 +30082,7 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -29907,6 +30133,7 @@ async def test_batch_create_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.to_json(
                 tensorboard_service.BatchCreateTensorboardTimeSeriesResponse()
@@ -29963,6 +30190,7 @@ async def test_create_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.create_tensorboard_time_series(request)
 
 
@@ -30102,6 +30330,7 @@ async def test_create_tensorboard_time_series_rest_asyncio_call_success(request_
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30160,6 +30389,7 @@ async def test_create_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -30212,6 +30442,7 @@ async def test_get_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_tensorboard_time_series(request)
 
 
@@ -30262,6 +30493,7 @@ async def test_get_tensorboard_time_series_rest_asyncio_call_success(request_typ
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30318,6 +30550,7 @@ async def test_get_tensorboard_time_series_rest_asyncio_interceptors(null_interc
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_time_series.TensorboardTimeSeries.to_json(
             tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -30372,6 +30605,7 @@ async def test_update_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.update_tensorboard_time_series(request)
 
 
@@ -30513,6 +30747,7 @@ async def test_update_tensorboard_time_series_rest_asyncio_call_success(request_
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30571,6 +30806,7 @@ async def test_update_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
             gca_tensorboard_time_series.TensorboardTimeSeries()
         )
@@ -30623,6 +30859,7 @@ async def test_list_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_tensorboard_time_series(request)
 
 
@@ -30669,6 +30906,7 @@ async def test_list_tensorboard_time_series_rest_asyncio_call_success(request_ty
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30716,6 +30954,7 @@ async def test_list_tensorboard_time_series_rest_asyncio_interceptors(null_inter
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ListTensorboardTimeSeriesResponse.to_json(
             tensorboard_service.ListTensorboardTimeSeriesResponse()
         )
@@ -30768,6 +31007,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_tensorboard_time_series(request)
 
 
@@ -30807,6 +31047,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_call_success(request_
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_tensorboard_time_series(request)
 
     # Establish that the response is the type that we expect.
@@ -30857,6 +31098,7 @@ async def test_delete_tensorboard_time_series_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = json_format.MessageToJson(operations_pb2.Operation())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
@@ -30907,6 +31149,7 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.batch_read_tensorboard_time_series_data(request)
 
 
@@ -30955,6 +31198,7 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_call_success
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.batch_read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31005,6 +31249,7 @@ async def test_batch_read_tensorboard_time_series_data_rest_asyncio_interceptors
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse()
@@ -31061,6 +31306,7 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_time_series_data(request)
 
 
@@ -31107,6 +31353,7 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31157,6 +31404,7 @@ async def test_read_tensorboard_time_series_data_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ReadTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ReadTensorboardTimeSeriesDataResponse()
@@ -31211,6 +31459,7 @@ async def test_read_tensorboard_blob_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_tensorboard_blob_data(request)
 
 
@@ -31254,6 +31503,7 @@ async def test_read_tensorboard_blob_data_rest_asyncio_call_success(request_type
         json_return_value = "[{}]".format(json_return_value)
         response_value.content.return_value = mock_async_gen(json_return_value)
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_tensorboard_blob_data(request)
 
     assert isinstance(response, AsyncIterable)
@@ -31303,6 +31553,7 @@ async def test_read_tensorboard_blob_data_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.ReadTensorboardBlobDataResponse.to_json(
             tensorboard_service.ReadTensorboardBlobDataResponse()
         )
@@ -31355,6 +31606,7 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.write_tensorboard_experiment_data(request)
 
 
@@ -31401,6 +31653,7 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.write_tensorboard_experiment_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31451,6 +31704,7 @@ async def test_write_tensorboard_experiment_data_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.WriteTensorboardExperimentDataResponse.to_json(
                 tensorboard_service.WriteTensorboardExperimentDataResponse()
@@ -31505,6 +31759,7 @@ async def test_write_tensorboard_run_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.write_tensorboard_run_data(request)
 
 
@@ -31549,6 +31804,7 @@ async def test_write_tensorboard_run_data_rest_asyncio_call_success(request_type
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.write_tensorboard_run_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31595,6 +31851,7 @@ async def test_write_tensorboard_run_data_rest_asyncio_interceptors(null_interce
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = tensorboard_service.WriteTensorboardRunDataResponse.to_json(
             tensorboard_service.WriteTensorboardRunDataResponse()
         )
@@ -31647,6 +31904,7 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.export_tensorboard_time_series_data(request)
 
 
@@ -31695,6 +31953,7 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_call_success(
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.export_tensorboard_time_series_data(request)
 
     # Establish that the response is the type that we expect.
@@ -31744,6 +32003,7 @@ async def test_export_tensorboard_time_series_data_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = (
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse.to_json(
                 tensorboard_service.ExportTensorboardTimeSeriesDataResponse()
@@ -31800,6 +32060,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -31837,6 +32098,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -31869,6 +32131,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -31906,6 +32169,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -31941,6 +32205,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -31980,6 +32245,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -32015,6 +32281,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -32054,6 +32321,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -32089,6 +32357,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -32128,6 +32397,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -32162,6 +32432,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -32199,6 +32470,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -32233,6 +32505,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -32270,6 +32543,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -32304,6 +32578,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -32341,6 +32616,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -32375,6 +32651,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -32412,6 +32689,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -32446,6 +32724,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -32483,6 +32762,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 

@@ -34,6 +34,9 @@ __protobuf__ = proto.module(
         "Blob",
         "FileData",
         "VideoMetadata",
+        "PrebuiltVoiceConfig",
+        "VoiceConfig",
+        "SpeechConfig",
         "GenerationConfig",
         "SafetySetting",
         "SafetyRating",
@@ -288,6 +291,61 @@ class VideoMetadata(proto.Message):
     )
 
 
+class PrebuiltVoiceConfig(proto.Message):
+    r"""The configuration for the prebuilt speaker to use.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        voice_name (str):
+            The name of the preset voice to use.
+
+            This field is a member of `oneof`_ ``_voice_name``.
+    """
+
+    voice_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+
+
+class VoiceConfig(proto.Message):
+    r"""The configuration for the voice to use.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        prebuilt_voice_config (google.cloud.aiplatform_v1beta1.types.PrebuiltVoiceConfig):
+            The configuration for the prebuilt voice to
+            use.
+
+            This field is a member of `oneof`_ ``voice_config``.
+    """
+
+    prebuilt_voice_config: "PrebuiltVoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="voice_config",
+        message="PrebuiltVoiceConfig",
+    )
+
+
+class SpeechConfig(proto.Message):
+    r"""The speech generation config.
+
+    Attributes:
+        voice_config (google.cloud.aiplatform_v1beta1.types.VoiceConfig):
+            The configuration for the speaker to use.
+    """
+
+    voice_config: "VoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="VoiceConfig",
+    )
+
+
 class GenerationConfig(proto.Message):
     r"""Generation config.
 
@@ -370,7 +428,56 @@ class GenerationConfig(proto.Message):
             included in the request to the model.
 
             This field is a member of `oneof`_ ``_audio_timestamp``.
+        response_modalities (MutableSequence[google.cloud.aiplatform_v1beta1.types.GenerationConfig.Modality]):
+            Optional. The modalities of the response.
+        media_resolution (google.cloud.aiplatform_v1beta1.types.GenerationConfig.MediaResolution):
+            Optional. If specified, the media resolution
+            specified will be used.
+
+            This field is a member of `oneof`_ ``_media_resolution``.
+        speech_config (google.cloud.aiplatform_v1beta1.types.SpeechConfig):
+            Optional. The speech generation config.
+
+            This field is a member of `oneof`_ ``_speech_config``.
     """
+
+    class Modality(proto.Enum):
+        r"""The modalities of the response.
+
+        Values:
+            MODALITY_UNSPECIFIED (0):
+                Unspecified modality. Will be processed as
+                text.
+            TEXT (1):
+                Text modality.
+            IMAGE (2):
+                Image modality.
+            AUDIO (3):
+                Audio modality.
+        """
+        MODALITY_UNSPECIFIED = 0
+        TEXT = 1
+        IMAGE = 2
+        AUDIO = 3
+
+    class MediaResolution(proto.Enum):
+        r"""Media resolution for the input media.
+
+        Values:
+            MEDIA_RESOLUTION_UNSPECIFIED (0):
+                Media resolution has not been set.
+            MEDIA_RESOLUTION_LOW (1):
+                Media resolution set to low (64 tokens).
+            MEDIA_RESOLUTION_MEDIUM (2):
+                Media resolution set to medium (256 tokens).
+            MEDIA_RESOLUTION_HIGH (3):
+                Media resolution set to high (zoomed
+                reframing with 256 tokens).
+        """
+        MEDIA_RESOLUTION_UNSPECIFIED = 0
+        MEDIA_RESOLUTION_LOW = 1
+        MEDIA_RESOLUTION_MEDIUM = 2
+        MEDIA_RESOLUTION_HIGH = 3
 
     class RoutingConfig(proto.Message):
         r"""The configuration for routing the request to a specific
@@ -542,6 +649,23 @@ class GenerationConfig(proto.Message):
         proto.BOOL,
         number=20,
         optional=True,
+    )
+    response_modalities: MutableSequence[Modality] = proto.RepeatedField(
+        proto.ENUM,
+        number=21,
+        enum=Modality,
+    )
+    media_resolution: MediaResolution = proto.Field(
+        proto.ENUM,
+        number=22,
+        optional=True,
+        enum=MediaResolution,
+    )
+    speech_config: "SpeechConfig" = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        optional=True,
+        message="SpeechConfig",
     )
 
 
