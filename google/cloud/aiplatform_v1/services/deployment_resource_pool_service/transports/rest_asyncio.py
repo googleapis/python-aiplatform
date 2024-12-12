@@ -59,6 +59,18 @@ from .rest_base import _BaseDeploymentResourcePoolServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
+
+import logging
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
+
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -143,10 +155,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_create_deployment_resource_pool(
         self,
         request: deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_deployment_resource_pool
 
@@ -169,10 +181,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_delete_deployment_resource_pool(
         self,
         request: deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_deployment_resource_pool
 
@@ -195,10 +207,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_get_deployment_resource_pool(
         self,
         request: deployment_resource_pool_service.GetDeploymentResourcePoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         deployment_resource_pool_service.GetDeploymentResourcePoolRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_deployment_resource_pool
 
@@ -221,10 +233,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_list_deployment_resource_pools(
         self,
         request: deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_deployment_resource_pools
 
@@ -248,10 +260,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_query_deployed_models(
         self,
         request: deployment_resource_pool_service.QueryDeployedModelsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         deployment_resource_pool_service.QueryDeployedModelsRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for query_deployed_models
 
@@ -274,10 +286,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_update_deployment_resource_pool(
         self,
         request: deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_deployment_resource_pool
 
@@ -300,8 +312,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -323,8 +337,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -346,8 +362,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -369,8 +387,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -392,8 +412,11 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -415,8 +438,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -436,8 +461,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -457,8 +484,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -480,8 +509,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -503,8 +534,10 @@ class AsyncDeploymentResourcePoolServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -721,7 +754,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create deployment
             resource pool method over HTTP.
@@ -733,8 +766,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -747,6 +782,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseCreateDeploymentResourcePool._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -765,6 +801,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseCreateDeploymentResourcePool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.CreateDeploymentResourcePool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "CreateDeploymentResourcePool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._CreateDeploymentResourcePool._get_response(
@@ -794,6 +857,28 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_deployment_resource_pool(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.create_deployment_resource_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "CreateDeploymentResourcePool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeleteDeploymentResourcePool(
@@ -834,7 +919,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete deployment
             resource pool method over HTTP.
@@ -846,8 +931,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -860,6 +947,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseDeleteDeploymentResourcePool._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -874,6 +962,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseDeleteDeploymentResourcePool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.DeleteDeploymentResourcePool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "DeleteDeploymentResourcePool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._DeleteDeploymentResourcePool._get_response(
@@ -902,6 +1017,28 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_deployment_resource_pool(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.delete_deployment_resource_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "DeleteDeploymentResourcePool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetDeploymentResourcePool(
@@ -942,7 +1079,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> deployment_resource_pool.DeploymentResourcePool:
             r"""Call the get deployment resource
             pool method over HTTP.
@@ -954,8 +1091,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.deployment_resource_pool.DeploymentResourcePool:
@@ -969,6 +1108,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseGetDeploymentResourcePool._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -983,6 +1123,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseGetDeploymentResourcePool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.GetDeploymentResourcePool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetDeploymentResourcePool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._GetDeploymentResourcePool._get_response(
@@ -1011,6 +1178,32 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_deployment_resource_pool(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        deployment_resource_pool.DeploymentResourcePool.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.get_deployment_resource_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetDeploymentResourcePool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListDeploymentResourcePools(
@@ -1051,7 +1244,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> deployment_resource_pool_service.ListDeploymentResourcePoolsResponse:
             r"""Call the list deployment resource
             pools method over HTTP.
@@ -1063,8 +1256,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.deployment_resource_pool_service.ListDeploymentResourcePoolsResponse:
@@ -1076,6 +1271,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseListDeploymentResourcePools._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -1090,6 +1286,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseListDeploymentResourcePools._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.ListDeploymentResourcePools",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "ListDeploymentResourcePools",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._ListDeploymentResourcePools._get_response(
@@ -1124,6 +1347,30 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_deployment_resource_pools(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = deployment_resource_pool_service.ListDeploymentResourcePoolsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.list_deployment_resource_pools",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "ListDeploymentResourcePools",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _QueryDeployedModels(
@@ -1164,7 +1411,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> deployment_resource_pool_service.QueryDeployedModelsResponse:
             r"""Call the query deployed models method over HTTP.
 
@@ -1175,8 +1422,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.deployment_resource_pool_service.QueryDeployedModelsResponse:
@@ -1188,6 +1437,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseQueryDeployedModels._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_query_deployed_models(
                 request, metadata
             )
@@ -1199,6 +1449,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseQueryDeployedModels._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.QueryDeployedModels",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "QueryDeployedModels",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._QueryDeployedModels._get_response(
@@ -1229,6 +1506,30 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_query_deployed_models(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = deployment_resource_pool_service.QueryDeployedModelsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.query_deployed_models",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "QueryDeployedModels",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _UpdateDeploymentResourcePool(
@@ -1270,7 +1571,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update deployment
             resource pool method over HTTP.
@@ -1282,8 +1583,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -1296,6 +1599,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseUpdateDeploymentResourcePool._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -1314,6 +1618,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseUpdateDeploymentResourcePool._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.UpdateDeploymentResourcePool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "UpdateDeploymentResourcePool",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._UpdateDeploymentResourcePool._get_response(
@@ -1343,6 +1674,28 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_deployment_resource_pool(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.update_deployment_resource_pool",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "UpdateDeploymentResourcePool",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property
@@ -3316,7 +3669,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -3327,8 +3680,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -3337,6 +3692,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -3348,6 +3704,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._GetLocation._get_response(
@@ -3374,6 +3757,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3416,7 +3820,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -3427,8 +3831,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -3437,6 +3843,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -3448,6 +3855,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._ListLocations._get_response(
@@ -3474,6 +3908,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3516,7 +3971,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -3527,8 +3982,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -3537,6 +3994,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -3548,6 +4006,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._GetIamPolicy._get_response(
@@ -3574,6 +4059,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3617,7 +4123,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -3628,8 +4134,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -3638,6 +4146,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -3653,6 +4162,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._SetIamPolicy._get_response(
@@ -3680,6 +4216,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3724,7 +4281,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -3735,8 +4292,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -3745,6 +4304,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -3756,6 +4316,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._TestIamPermissions._get_response(
@@ -3782,6 +4369,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -3826,7 +4434,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -3837,13 +4445,16 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -3855,6 +4466,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._CancelOperation._get_response(
@@ -3921,7 +4559,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -3932,13 +4570,16 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -3950,6 +4591,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._DeleteOperation._get_response(
@@ -4014,7 +4682,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -4025,8 +4693,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -4035,6 +4705,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -4046,6 +4717,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._GetOperation._get_response(
@@ -4072,6 +4770,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4116,7 +4835,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -4127,8 +4846,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -4137,6 +4858,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -4148,6 +4870,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._ListOperations._get_response(
@@ -4174,6 +4923,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4216,7 +4986,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -4227,8 +4997,10 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -4237,6 +5009,7 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             http_options = (
                 _BaseDeploymentResourcePoolServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -4248,6 +5021,33 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             query_params = _BaseDeploymentResourcePoolServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncDeploymentResourcePoolServiceRestTransport._WaitOperation._get_response(
@@ -4274,6 +5074,27 @@ class AsyncDeploymentResourcePoolServiceRestTransport(
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.DeploymentResourcePoolServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.DeploymentResourcePoolService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

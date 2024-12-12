@@ -2355,6 +2355,7 @@ def test_read_feature_values_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.read_feature_values(request)
 
@@ -2413,6 +2414,7 @@ def test_read_feature_values_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.read_feature_values(**mock_args)
 
@@ -2557,6 +2559,7 @@ def test_streaming_read_feature_values_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             with mock.patch.object(response_value, "iter_content") as iter_content:
                 iter_content.return_value = iter(json_return_value)
@@ -2620,6 +2623,7 @@ def test_streaming_read_feature_values_rest_flattened():
         json_return_value = "[{}]".format(json_return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         with mock.patch.object(response_value, "iter_content") as iter_content:
             iter_content.return_value = iter(json_return_value)
@@ -2760,6 +2764,7 @@ def test_write_feature_values_rest_required_fields(
 
             response_value._content = json_return_value.encode("UTF-8")
             req.return_value = response_value
+            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.write_feature_values(request)
 
@@ -2822,6 +2827,7 @@ def test_write_feature_values_rest_flattened():
         json_return_value = json_format.MessageToJson(return_value)
         response_value._content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         client.write_feature_values(**mock_args)
 
@@ -3159,6 +3165,7 @@ def test_read_feature_values_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.read_feature_values(request)
 
 
@@ -3196,6 +3203,7 @@ def test_read_feature_values_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.read_feature_values(request)
 
     # Establish that the response is the type that we expect.
@@ -3237,6 +3245,7 @@ def test_read_feature_values_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_online_service.ReadFeatureValuesResponse.to_json(
             featurestore_online_service.ReadFeatureValuesResponse()
         )
@@ -3285,6 +3294,7 @@ def test_streaming_read_feature_values_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.streaming_read_feature_values(request)
 
 
@@ -3323,6 +3333,7 @@ def test_streaming_read_feature_values_rest_call_success(request_type):
         json_return_value = "[{}]".format(json_return_value)
         response_value.iter_content = mock.Mock(return_value=iter(json_return_value))
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.streaming_read_feature_values(request)
 
     assert isinstance(response, Iterable)
@@ -3367,6 +3378,7 @@ def test_streaming_read_feature_values_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_online_service.ReadFeatureValuesResponse.to_json(
             featurestore_online_service.ReadFeatureValuesResponse()
         )
@@ -3415,6 +3427,7 @@ def test_write_feature_values_rest_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.write_feature_values(request)
 
 
@@ -3452,6 +3465,7 @@ def test_write_feature_values_rest_call_success(request_type):
         json_return_value = json_format.MessageToJson(return_value)
         response_value.content = json_return_value.encode("UTF-8")
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.write_feature_values(request)
 
     # Establish that the response is the type that we expect.
@@ -3493,6 +3507,7 @@ def test_write_feature_values_rest_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_online_service.WriteFeatureValuesResponse.to_json(
             featurestore_online_service.WriteFeatureValuesResponse()
         )
@@ -3539,6 +3554,7 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_location(request)
 
 
@@ -3569,6 +3585,7 @@ def test_get_location_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_location(request)
 
@@ -3597,6 +3614,7 @@ def test_list_locations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_locations(request)
 
 
@@ -3627,6 +3645,7 @@ def test_list_locations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_locations(request)
 
@@ -3658,6 +3677,7 @@ def test_get_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_iam_policy(request)
 
 
@@ -3690,6 +3710,7 @@ def test_get_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_iam_policy(request)
 
@@ -3721,6 +3742,7 @@ def test_set_iam_policy_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.set_iam_policy(request)
 
 
@@ -3753,6 +3775,7 @@ def test_set_iam_policy_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.set_iam_policy(request)
 
@@ -3784,6 +3807,7 @@ def test_test_iam_permissions_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.test_iam_permissions(request)
 
 
@@ -3816,6 +3840,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.test_iam_permissions(request)
 
@@ -3846,6 +3871,7 @@ def test_cancel_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.cancel_operation(request)
 
 
@@ -3876,6 +3902,7 @@ def test_cancel_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.cancel_operation(request)
 
@@ -3906,6 +3933,7 @@ def test_delete_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.delete_operation(request)
 
 
@@ -3936,6 +3964,7 @@ def test_delete_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.delete_operation(request)
 
@@ -3966,6 +3995,7 @@ def test_get_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.get_operation(request)
 
 
@@ -3996,6 +4026,7 @@ def test_get_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.get_operation(request)
 
@@ -4026,6 +4057,7 @@ def test_list_operations_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.list_operations(request)
 
 
@@ -4056,6 +4088,7 @@ def test_list_operations_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.list_operations(request)
 
@@ -4086,6 +4119,7 @@ def test_wait_operation_rest_bad_request(
         response_value.status_code = 400
         response_value.request = Request()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         client.wait_operation(request)
 
 
@@ -4116,6 +4150,7 @@ def test_wait_operation_rest(request_type):
         response_value.content = json_return_value.encode("UTF-8")
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = client.wait_operation(request)
 
@@ -4234,6 +4269,7 @@ async def test_read_feature_values_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.read_feature_values(request)
 
 
@@ -4278,6 +4314,7 @@ async def test_read_feature_values_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.read_feature_values(request)
 
     # Establish that the response is the type that we expect.
@@ -4324,6 +4361,7 @@ async def test_read_feature_values_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_online_service.ReadFeatureValuesResponse.to_json(
             featurestore_online_service.ReadFeatureValuesResponse()
         )
@@ -4376,6 +4414,7 @@ async def test_streaming_read_feature_values_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.streaming_read_feature_values(request)
 
 
@@ -4419,6 +4458,7 @@ async def test_streaming_read_feature_values_rest_asyncio_call_success(request_t
         json_return_value = "[{}]".format(json_return_value)
         response_value.content.return_value = mock_async_gen(json_return_value)
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.streaming_read_feature_values(request)
 
     assert isinstance(response, AsyncIterable)
@@ -4470,6 +4510,7 @@ async def test_streaming_read_feature_values_rest_asyncio_interceptors(
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_online_service.ReadFeatureValuesResponse.to_json(
             featurestore_online_service.ReadFeatureValuesResponse()
         )
@@ -4522,6 +4563,7 @@ async def test_write_feature_values_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.write_feature_values(request)
 
 
@@ -4566,6 +4608,7 @@ async def test_write_feature_values_rest_asyncio_call_success(request_type):
             return_value=json_return_value.encode("UTF-8")
         )
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.write_feature_values(request)
 
     # Establish that the response is the type that we expect.
@@ -4612,6 +4655,7 @@ async def test_write_feature_values_rest_asyncio_interceptors(null_interceptor):
 
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         return_value = featurestore_online_service.WriteFeatureValuesResponse.to_json(
             featurestore_online_service.WriteFeatureValuesResponse()
         )
@@ -4664,6 +4708,7 @@ async def test_get_location_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
 
@@ -4701,6 +4746,7 @@ async def test_get_location_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_location(request)
 
@@ -4733,6 +4779,7 @@ async def test_list_locations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
 
@@ -4770,6 +4817,7 @@ async def test_list_locations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_locations(request)
 
@@ -4805,6 +4853,7 @@ async def test_get_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
 
@@ -4844,6 +4893,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_iam_policy(request)
 
@@ -4879,6 +4929,7 @@ async def test_set_iam_policy_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
 
@@ -4918,6 +4969,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.set_iam_policy(request)
 
@@ -4953,6 +5005,7 @@ async def test_test_iam_permissions_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
 
@@ -4992,6 +5045,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.test_iam_permissions(request)
 
@@ -5026,6 +5080,7 @@ async def test_cancel_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
 
@@ -5063,6 +5118,7 @@ async def test_cancel_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.cancel_operation(request)
 
@@ -5097,6 +5153,7 @@ async def test_delete_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
 
@@ -5134,6 +5191,7 @@ async def test_delete_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.delete_operation(request)
 
@@ -5168,6 +5226,7 @@ async def test_get_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
 
@@ -5205,6 +5264,7 @@ async def test_get_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.get_operation(request)
 
@@ -5239,6 +5299,7 @@ async def test_list_operations_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
 
@@ -5276,6 +5337,7 @@ async def test_list_operations_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.list_operations(request)
 
@@ -5310,6 +5372,7 @@ async def test_wait_operation_rest_asyncio_bad_request(
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
 
@@ -5347,6 +5410,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         )
 
         req.return_value = response_value
+        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
         response = await client.wait_operation(request)
 
