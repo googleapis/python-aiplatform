@@ -18,6 +18,7 @@
 import enum
 from typing import (
     Dict,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -577,3 +578,33 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         )
 
         return feature_view_obj
+
+    def list_feature_views(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[FeatureView]:
+        """Lists feature views under this feature online store.
+
+        Args:
+            project:
+                Project to list feature views in. If unset, the project set in
+                aiplatform.init will be used.
+            location:
+                Location to list feature views in. If not set, location set in
+                aiplatform.init will be used.
+            credentials:
+                Custom credentials to use to list feature views. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List of feature views under this feature online store.
+        """
+
+        return FeatureView.list(
+            feature_online_store_id=self.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
