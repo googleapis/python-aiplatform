@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
-import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -58,6 +59,14 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -330,9 +339,10 @@ class TensorboardServiceRestInterceptor:
     def pre_batch_create_tensorboard_runs(
         self,
         request: tensorboard_service.BatchCreateTensorboardRunsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.BatchCreateTensorboardRunsRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.BatchCreateTensorboardRunsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for batch_create_tensorboard_runs
 
@@ -355,10 +365,10 @@ class TensorboardServiceRestInterceptor:
     def pre_batch_create_tensorboard_time_series(
         self,
         request: tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.BatchCreateTensorboardTimeSeriesRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for batch_create_tensorboard_time_series
 
@@ -381,10 +391,10 @@ class TensorboardServiceRestInterceptor:
     def pre_batch_read_tensorboard_time_series_data(
         self,
         request: tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for batch_read_tensorboard_time_series_data
 
@@ -407,8 +417,11 @@ class TensorboardServiceRestInterceptor:
     def pre_create_tensorboard(
         self,
         request: tensorboard_service.CreateTensorboardRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[tensorboard_service.CreateTensorboardRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.CreateTensorboardRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for create_tensorboard
 
         Override in a subclass to manipulate the request or metadata
@@ -430,10 +443,10 @@ class TensorboardServiceRestInterceptor:
     def pre_create_tensorboard_experiment(
         self,
         request: tensorboard_service.CreateTensorboardExperimentRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.CreateTensorboardExperimentRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_tensorboard_experiment
 
@@ -456,9 +469,10 @@ class TensorboardServiceRestInterceptor:
     def pre_create_tensorboard_run(
         self,
         request: tensorboard_service.CreateTensorboardRunRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.CreateTensorboardRunRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.CreateTensorboardRunRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_tensorboard_run
 
@@ -481,10 +495,10 @@ class TensorboardServiceRestInterceptor:
     def pre_create_tensorboard_time_series(
         self,
         request: tensorboard_service.CreateTensorboardTimeSeriesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.CreateTensorboardTimeSeriesRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_tensorboard_time_series
 
@@ -507,8 +521,11 @@ class TensorboardServiceRestInterceptor:
     def pre_delete_tensorboard(
         self,
         request: tensorboard_service.DeleteTensorboardRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[tensorboard_service.DeleteTensorboardRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.DeleteTensorboardRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for delete_tensorboard
 
         Override in a subclass to manipulate the request or metadata
@@ -530,10 +547,10 @@ class TensorboardServiceRestInterceptor:
     def pre_delete_tensorboard_experiment(
         self,
         request: tensorboard_service.DeleteTensorboardExperimentRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.DeleteTensorboardExperimentRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_tensorboard_experiment
 
@@ -556,9 +573,10 @@ class TensorboardServiceRestInterceptor:
     def pre_delete_tensorboard_run(
         self,
         request: tensorboard_service.DeleteTensorboardRunRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.DeleteTensorboardRunRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.DeleteTensorboardRunRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_tensorboard_run
 
@@ -581,10 +599,10 @@ class TensorboardServiceRestInterceptor:
     def pre_delete_tensorboard_time_series(
         self,
         request: tensorboard_service.DeleteTensorboardTimeSeriesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.DeleteTensorboardTimeSeriesRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_tensorboard_time_series
 
@@ -607,10 +625,10 @@ class TensorboardServiceRestInterceptor:
     def pre_export_tensorboard_time_series_data(
         self,
         request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for export_tensorboard_time_series_data
 
@@ -633,8 +651,11 @@ class TensorboardServiceRestInterceptor:
     def pre_get_tensorboard(
         self,
         request: tensorboard_service.GetTensorboardRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[tensorboard_service.GetTensorboardRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.GetTensorboardRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for get_tensorboard
 
         Override in a subclass to manipulate the request or metadata
@@ -656,9 +677,10 @@ class TensorboardServiceRestInterceptor:
     def pre_get_tensorboard_experiment(
         self,
         request: tensorboard_service.GetTensorboardExperimentRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.GetTensorboardExperimentRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.GetTensorboardExperimentRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_tensorboard_experiment
 
@@ -681,8 +703,11 @@ class TensorboardServiceRestInterceptor:
     def pre_get_tensorboard_run(
         self,
         request: tensorboard_service.GetTensorboardRunRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[tensorboard_service.GetTensorboardRunRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.GetTensorboardRunRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for get_tensorboard_run
 
         Override in a subclass to manipulate the request or metadata
@@ -704,9 +729,10 @@ class TensorboardServiceRestInterceptor:
     def pre_get_tensorboard_time_series(
         self,
         request: tensorboard_service.GetTensorboardTimeSeriesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.GetTensorboardTimeSeriesRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.GetTensorboardTimeSeriesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_tensorboard_time_series
 
@@ -729,9 +755,10 @@ class TensorboardServiceRestInterceptor:
     def pre_list_tensorboard_experiments(
         self,
         request: tensorboard_service.ListTensorboardExperimentsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.ListTensorboardExperimentsRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.ListTensorboardExperimentsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_tensorboard_experiments
 
@@ -754,9 +781,10 @@ class TensorboardServiceRestInterceptor:
     def pre_list_tensorboard_runs(
         self,
         request: tensorboard_service.ListTensorboardRunsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.ListTensorboardRunsRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.ListTensorboardRunsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_tensorboard_runs
 
@@ -779,8 +807,11 @@ class TensorboardServiceRestInterceptor:
     def pre_list_tensorboards(
         self,
         request: tensorboard_service.ListTensorboardsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[tensorboard_service.ListTensorboardsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ListTensorboardsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for list_tensorboards
 
         Override in a subclass to manipulate the request or metadata
@@ -802,9 +833,10 @@ class TensorboardServiceRestInterceptor:
     def pre_list_tensorboard_time_series(
         self,
         request: tensorboard_service.ListTensorboardTimeSeriesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.ListTensorboardTimeSeriesRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.ListTensorboardTimeSeriesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_tensorboard_time_series
 
@@ -827,9 +859,10 @@ class TensorboardServiceRestInterceptor:
     def pre_read_tensorboard_blob_data(
         self,
         request: tensorboard_service.ReadTensorboardBlobDataRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.ReadTensorboardBlobDataRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.ReadTensorboardBlobDataRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for read_tensorboard_blob_data
 
@@ -852,9 +885,10 @@ class TensorboardServiceRestInterceptor:
     def pre_read_tensorboard_size(
         self,
         request: tensorboard_service.ReadTensorboardSizeRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.ReadTensorboardSizeRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.ReadTensorboardSizeRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for read_tensorboard_size
 
@@ -877,10 +911,10 @@ class TensorboardServiceRestInterceptor:
     def pre_read_tensorboard_time_series_data(
         self,
         request: tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.ReadTensorboardTimeSeriesDataRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for read_tensorboard_time_series_data
 
@@ -903,9 +937,10 @@ class TensorboardServiceRestInterceptor:
     def pre_read_tensorboard_usage(
         self,
         request: tensorboard_service.ReadTensorboardUsageRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.ReadTensorboardUsageRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.ReadTensorboardUsageRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for read_tensorboard_usage
 
@@ -928,8 +963,11 @@ class TensorboardServiceRestInterceptor:
     def pre_update_tensorboard(
         self,
         request: tensorboard_service.UpdateTensorboardRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[tensorboard_service.UpdateTensorboardRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.UpdateTensorboardRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for update_tensorboard
 
         Override in a subclass to manipulate the request or metadata
@@ -951,10 +989,10 @@ class TensorboardServiceRestInterceptor:
     def pre_update_tensorboard_experiment(
         self,
         request: tensorboard_service.UpdateTensorboardExperimentRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.UpdateTensorboardExperimentRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_tensorboard_experiment
 
@@ -977,9 +1015,10 @@ class TensorboardServiceRestInterceptor:
     def pre_update_tensorboard_run(
         self,
         request: tensorboard_service.UpdateTensorboardRunRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.UpdateTensorboardRunRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.UpdateTensorboardRunRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_tensorboard_run
 
@@ -1002,10 +1041,10 @@ class TensorboardServiceRestInterceptor:
     def pre_update_tensorboard_time_series(
         self,
         request: tensorboard_service.UpdateTensorboardTimeSeriesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.UpdateTensorboardTimeSeriesRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_tensorboard_time_series
 
@@ -1028,10 +1067,10 @@ class TensorboardServiceRestInterceptor:
     def pre_write_tensorboard_experiment_data(
         self,
         request: tensorboard_service.WriteTensorboardExperimentDataRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
         tensorboard_service.WriteTensorboardExperimentDataRequest,
-        Sequence[Tuple[str, str]],
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for write_tensorboard_experiment_data
 
@@ -1054,9 +1093,10 @@ class TensorboardServiceRestInterceptor:
     def pre_write_tensorboard_run_data(
         self,
         request: tensorboard_service.WriteTensorboardRunDataRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        tensorboard_service.WriteTensorboardRunDataRequest, Sequence[Tuple[str, str]]
+        tensorboard_service.WriteTensorboardRunDataRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for write_tensorboard_run_data
 
@@ -1079,8 +1119,10 @@ class TensorboardServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -1102,8 +1144,10 @@ class TensorboardServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -1125,8 +1169,10 @@ class TensorboardServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -1146,8 +1192,10 @@ class TensorboardServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -1167,8 +1215,11 @@ class TensorboardServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -1190,8 +1241,10 @@ class TensorboardServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1211,8 +1264,10 @@ class TensorboardServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1232,8 +1287,10 @@ class TensorboardServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1255,8 +1312,10 @@ class TensorboardServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -1278,8 +1337,10 @@ class TensorboardServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -3301,7 +3362,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
             r"""Call the batch create tensorboard
             runs method over HTTP.
@@ -3313,8 +3374,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.BatchCreateTensorboardRunsResponse:
@@ -3326,6 +3389,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_batch_create_tensorboard_runs(
                 request, metadata
             )
@@ -3341,6 +3405,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardRuns._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.BatchCreateTensorboardRuns",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "BatchCreateTensorboardRuns",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._BatchCreateTensorboardRuns._get_response(
@@ -3363,7 +3454,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.BatchCreateTensorboardRunsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_batch_create_tensorboard_runs(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.BatchCreateTensorboardRunsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.batch_create_tensorboard_runs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "BatchCreateTensorboardRuns",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _BatchCreateTensorboardTimeSeries(
@@ -3405,7 +3522,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
             r"""Call the batch create tensorboard
             time series method over HTTP.
@@ -3417,8 +3534,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
@@ -3430,6 +3549,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -3448,6 +3568,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseBatchCreateTensorboardTimeSeries._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.BatchCreateTensorboardTimeSeries",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "BatchCreateTensorboardTimeSeries",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._BatchCreateTensorboardTimeSeries._get_response(
@@ -3472,7 +3619,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_batch_create_tensorboard_time_series(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = tensorboard_service.BatchCreateTensorboardTimeSeriesResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.batch_create_tensorboard_time_series",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "BatchCreateTensorboardTimeSeries",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _BatchReadTensorboardTimeSeriesData(
@@ -3513,7 +3684,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse:
             r"""Call the batch read tensorboard
             time series data method over HTTP.
@@ -3525,8 +3696,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse:
@@ -3538,6 +3711,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -3552,6 +3726,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseBatchReadTensorboardTimeSeriesData._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.BatchReadTensorboardTimeSeriesData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "BatchReadTensorboardTimeSeriesData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._BatchReadTensorboardTimeSeriesData._get_response(
@@ -3575,7 +3776,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_batch_read_tensorboard_time_series_data(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.batch_read_tensorboard_time_series_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "BatchReadTensorboardTimeSeriesData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateTensorboard(
@@ -3615,7 +3840,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create tensorboard method over HTTP.
 
@@ -3626,8 +3851,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3640,6 +3867,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_tensorboard(
                 request, metadata
             )
@@ -3655,6 +3883,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboard._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.CreateTensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboard",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._CreateTensorboard._get_response(
@@ -3675,7 +3930,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_tensorboard(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.create_tensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboard",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateTensorboardExperiment(
@@ -3715,7 +3992,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_tensorboard_experiment.TensorboardExperiment:
             r"""Call the create tensorboard
             experiment method over HTTP.
@@ -3727,8 +4004,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.gca_tensorboard_experiment.TensorboardExperiment:
@@ -3742,6 +4021,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_tensorboard_experiment(
                 request, metadata
             )
@@ -3757,6 +4037,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardExperiment._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.CreateTensorboardExperiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboardExperiment",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._CreateTensorboardExperiment._get_response(
@@ -3779,7 +4086,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = gca_tensorboard_experiment.TensorboardExperiment.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_tensorboard_experiment(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        gca_tensorboard_experiment.TensorboardExperiment.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.create_tensorboard_experiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboardExperiment",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateTensorboardRun(
@@ -3819,7 +4152,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_tensorboard_run.TensorboardRun:
             r"""Call the create tensorboard run method over HTTP.
 
@@ -3830,8 +4163,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_tensorboard_run.TensorboardRun:
@@ -3845,6 +4180,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_tensorboard_run(
                 request, metadata
             )
@@ -3860,6 +4196,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardRun._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.CreateTensorboardRun",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboardRun",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3884,7 +4247,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = gca_tensorboard_run.TensorboardRun.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_tensorboard_run(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_tensorboard_run.TensorboardRun.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.create_tensorboard_run",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboardRun",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateTensorboardTimeSeries(
@@ -3924,7 +4311,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
             r"""Call the create tensorboard time
             series method over HTTP.
@@ -3936,8 +4323,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.gca_tensorboard_time_series.TensorboardTimeSeries:
@@ -3949,6 +4338,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_tensorboard_time_series(
                 request, metadata
             )
@@ -3964,6 +4354,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseCreateTensorboardTimeSeries._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.CreateTensorboardTimeSeries",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboardTimeSeries",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._CreateTensorboardTimeSeries._get_response(
@@ -3986,7 +4403,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = gca_tensorboard_time_series.TensorboardTimeSeries.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_tensorboard_time_series(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.create_tensorboard_time_series",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CreateTensorboardTimeSeries",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteTensorboard(
@@ -4025,7 +4468,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete tensorboard method over HTTP.
 
@@ -4036,8 +4479,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4050,6 +4495,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_tensorboard(
                 request, metadata
             )
@@ -4061,6 +4507,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboard._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.DeleteTensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboard",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._DeleteTensorboard._get_response(
@@ -4080,7 +4553,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_tensorboard(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.delete_tensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboard",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteTensorboardExperiment(
@@ -4119,7 +4614,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete tensorboard
             experiment method over HTTP.
@@ -4131,8 +4626,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -4145,6 +4642,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_tensorboard_experiment(
                 request, metadata
             )
@@ -4156,6 +4654,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardExperiment._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.DeleteTensorboardExperiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboardExperiment",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._DeleteTensorboardExperiment._get_response(
@@ -4175,7 +4700,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_tensorboard_experiment(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.delete_tensorboard_experiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboardExperiment",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteTensorboardRun(
@@ -4214,7 +4761,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete tensorboard run method over HTTP.
 
@@ -4225,8 +4772,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4239,6 +4788,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_tensorboard_run(
                 request, metadata
             )
@@ -4250,6 +4800,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardRun._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.DeleteTensorboardRun",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboardRun",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4271,7 +4848,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_tensorboard_run(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.delete_tensorboard_run",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboardRun",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteTensorboardTimeSeries(
@@ -4310,7 +4909,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete tensorboard time
             series method over HTTP.
@@ -4322,8 +4921,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -4336,6 +4937,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_tensorboard_time_series(
                 request, metadata
             )
@@ -4347,6 +4949,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseDeleteTensorboardTimeSeries._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.DeleteTensorboardTimeSeries",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboardTimeSeries",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._DeleteTensorboardTimeSeries._get_response(
@@ -4366,7 +4995,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_tensorboard_time_series(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.delete_tensorboard_time_series",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteTensorboardTimeSeries",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ExportTensorboardTimeSeriesData(
@@ -4408,7 +5059,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ExportTensorboardTimeSeriesDataResponse:
             r"""Call the export tensorboard time
             series data method over HTTP.
@@ -4420,8 +5071,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.ExportTensorboardTimeSeriesDataResponse:
@@ -4433,6 +5086,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -4451,6 +5105,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseExportTensorboardTimeSeriesData._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ExportTensorboardTimeSeriesData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ExportTensorboardTimeSeriesData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._ExportTensorboardTimeSeriesData._get_response(
@@ -4475,7 +5156,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_export_tensorboard_time_series_data(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = tensorboard_service.ExportTensorboardTimeSeriesDataResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.export_tensorboard_time_series_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ExportTensorboardTimeSeriesData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetTensorboard(
@@ -4514,7 +5219,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard.Tensorboard:
             r"""Call the get tensorboard method over HTTP.
 
@@ -4525,8 +5230,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.tensorboard.Tensorboard:
@@ -4542,6 +5249,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_tensorboard(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_transcoded_request(
                 http_options, request
@@ -4551,6 +5259,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboard._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.GetTensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboard",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._GetTensorboard._get_response(
@@ -4572,7 +5307,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard.Tensorboard.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_tensorboard(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = tensorboard.Tensorboard.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.get_tensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboard",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetTensorboardExperiment(
@@ -4611,7 +5368,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_experiment.TensorboardExperiment:
             r"""Call the get tensorboard
             experiment method over HTTP.
@@ -4623,8 +5380,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_experiment.TensorboardExperiment:
@@ -4638,6 +5397,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_tensorboard_experiment(
                 request, metadata
             )
@@ -4649,6 +5409,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardExperiment._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.GetTensorboardExperiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboardExperiment",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4672,7 +5459,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_experiment.TensorboardExperiment.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_tensorboard_experiment(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_experiment.TensorboardExperiment.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.get_tensorboard_experiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboardExperiment",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetTensorboardRun(
@@ -4711,7 +5522,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_run.TensorboardRun:
             r"""Call the get tensorboard run method over HTTP.
 
@@ -4722,8 +5533,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.tensorboard_run.TensorboardRun:
@@ -4737,6 +5550,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_tensorboard_run(
                 request, metadata
             )
@@ -4748,6 +5562,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardRun._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.GetTensorboardRun",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboardRun",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._GetTensorboardRun._get_response(
@@ -4769,7 +5610,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_run.TensorboardRun.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_tensorboard_run(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = tensorboard_run.TensorboardRun.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.get_tensorboard_run",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboardRun",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetTensorboardTimeSeries(
@@ -4808,7 +5671,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_time_series.TensorboardTimeSeries:
             r"""Call the get tensorboard time
             series method over HTTP.
@@ -4820,8 +5683,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_time_series.TensorboardTimeSeries:
@@ -4833,6 +5698,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_tensorboard_time_series(
                 request, metadata
             )
@@ -4844,6 +5710,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseGetTensorboardTimeSeries._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.GetTensorboardTimeSeries",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboardTimeSeries",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4867,7 +5760,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_time_series.TensorboardTimeSeries.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_tensorboard_time_series(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_time_series.TensorboardTimeSeries.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.get_tensorboard_time_series",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetTensorboardTimeSeries",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListTensorboardExperiments(
@@ -4906,7 +5823,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ListTensorboardExperimentsResponse:
             r"""Call the list tensorboard
             experiments method over HTTP.
@@ -4918,8 +5835,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.ListTensorboardExperimentsResponse:
@@ -4931,6 +5850,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_tensorboard_experiments(
                 request, metadata
             )
@@ -4942,6 +5862,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardExperiments._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ListTensorboardExperiments",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboardExperiments",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._ListTensorboardExperiments._get_response(
@@ -4963,7 +5910,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.ListTensorboardExperimentsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_tensorboard_experiments(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.ListTensorboardExperimentsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.list_tensorboard_experiments",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboardExperiments",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListTensorboardRuns(
@@ -5002,7 +5975,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ListTensorboardRunsResponse:
             r"""Call the list tensorboard runs method over HTTP.
 
@@ -5013,8 +5986,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.tensorboard_service.ListTensorboardRunsResponse:
@@ -5026,6 +6001,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_tensorboard_runs(
                 request, metadata
             )
@@ -5037,6 +6013,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardRuns._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ListTensorboardRuns",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboardRuns",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -5060,7 +6063,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.ListTensorboardRunsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_tensorboard_runs(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.ListTensorboardRunsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.list_tensorboard_runs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboardRuns",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListTensorboards(
@@ -5099,7 +6128,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ListTensorboardsResponse:
             r"""Call the list tensorboards method over HTTP.
 
@@ -5110,8 +6139,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.tensorboard_service.ListTensorboardsResponse:
@@ -5123,6 +6154,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_tensorboards(
                 request, metadata
             )
@@ -5134,6 +6166,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboards._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ListTensorboards",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboards",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._ListTensorboards._get_response(
@@ -5155,7 +6214,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.ListTensorboardsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_tensorboards(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.ListTensorboardsResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.list_tensorboards",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboards",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListTensorboardTimeSeries(
@@ -5194,7 +6277,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ListTensorboardTimeSeriesResponse:
             r"""Call the list tensorboard time
             series method over HTTP.
@@ -5206,8 +6289,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.ListTensorboardTimeSeriesResponse:
@@ -5219,6 +6304,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_tensorboard_time_series(
                 request, metadata
             )
@@ -5230,6 +6316,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseListTensorboardTimeSeries._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ListTensorboardTimeSeries",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboardTimeSeries",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._ListTensorboardTimeSeries._get_response(
@@ -5251,7 +6364,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.ListTensorboardTimeSeriesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_tensorboard_time_series(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.ListTensorboardTimeSeriesResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.list_tensorboard_time_series",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListTensorboardTimeSeries",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ReadTensorboardBlobData(
@@ -5291,7 +6430,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> rest_streaming.ResponseIterator:
             r"""Call the read tensorboard blob
             data method over HTTP.
@@ -5303,8 +6442,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.ReadTensorboardBlobDataResponse:
@@ -5316,6 +6457,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_read_tensorboard_blob_data(
                 request, metadata
             )
@@ -5327,6 +6469,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardBlobData._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ReadTensorboardBlobData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ReadTensorboardBlobData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -5349,6 +6518,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = rest_streaming.ResponseIterator(
                 response, tensorboard_service.ReadTensorboardBlobDataResponse
             )
+
             resp = self._interceptor.post_read_tensorboard_blob_data(resp)
             return resp
 
@@ -5388,7 +6558,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ReadTensorboardSizeResponse:
             r"""Call the read tensorboard size method over HTTP.
 
@@ -5399,8 +6569,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.tensorboard_service.ReadTensorboardSizeResponse:
@@ -5412,6 +6584,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_read_tensorboard_size(
                 request, metadata
             )
@@ -5423,6 +6596,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardSize._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ReadTensorboardSize",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ReadTensorboardSize",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -5446,7 +6646,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.ReadTensorboardSizeResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_read_tensorboard_size(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.ReadTensorboardSizeResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.read_tensorboard_size",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ReadTensorboardSize",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ReadTensorboardTimeSeriesData(
@@ -5485,7 +6711,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
             r"""Call the read tensorboard time
             series data method over HTTP.
@@ -5497,8 +6723,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
@@ -5510,6 +6738,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_read_tensorboard_time_series_data(
                 request, metadata
             )
@@ -5521,6 +6750,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardTimeSeriesData._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ReadTensorboardTimeSeriesData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ReadTensorboardTimeSeriesData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._ReadTensorboardTimeSeriesData._get_response(
@@ -5542,7 +6798,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.ReadTensorboardTimeSeriesDataResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_read_tensorboard_time_series_data(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = tensorboard_service.ReadTensorboardTimeSeriesDataResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.read_tensorboard_time_series_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ReadTensorboardTimeSeriesData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ReadTensorboardUsage(
@@ -5581,7 +6861,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.ReadTensorboardUsageResponse:
             r"""Call the read tensorboard usage method over HTTP.
 
@@ -5592,8 +6872,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.tensorboard_service.ReadTensorboardUsageResponse:
@@ -5605,6 +6887,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_read_tensorboard_usage(
                 request, metadata
             )
@@ -5616,6 +6899,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseReadTensorboardUsage._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ReadTensorboardUsage",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ReadTensorboardUsage",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -5639,7 +6949,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.ReadTensorboardUsageResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_read_tensorboard_usage(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.ReadTensorboardUsageResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.read_tensorboard_usage",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ReadTensorboardUsage",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateTensorboard(
@@ -5679,7 +7015,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update tensorboard method over HTTP.
 
@@ -5690,8 +7026,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -5704,6 +7042,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_tensorboard(
                 request, metadata
             )
@@ -5719,6 +7058,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboard._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.UpdateTensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboard",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._UpdateTensorboard._get_response(
@@ -5739,7 +7105,29 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_tensorboard(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.update_tensorboard",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboard",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateTensorboardExperiment(
@@ -5779,7 +7167,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_tensorboard_experiment.TensorboardExperiment:
             r"""Call the update tensorboard
             experiment method over HTTP.
@@ -5791,8 +7179,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.gca_tensorboard_experiment.TensorboardExperiment:
@@ -5806,6 +7196,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_tensorboard_experiment(
                 request, metadata
             )
@@ -5821,6 +7212,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardExperiment._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.UpdateTensorboardExperiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboardExperiment",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._UpdateTensorboardExperiment._get_response(
@@ -5843,7 +7261,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = gca_tensorboard_experiment.TensorboardExperiment.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_tensorboard_experiment(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        gca_tensorboard_experiment.TensorboardExperiment.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.update_tensorboard_experiment",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboardExperiment",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateTensorboardRun(
@@ -5883,7 +7327,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_tensorboard_run.TensorboardRun:
             r"""Call the update tensorboard run method over HTTP.
 
@@ -5894,8 +7338,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_tensorboard_run.TensorboardRun:
@@ -5909,6 +7355,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_tensorboard_run(
                 request, metadata
             )
@@ -5924,6 +7371,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardRun._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.UpdateTensorboardRun",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboardRun",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -5948,7 +7422,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = gca_tensorboard_run.TensorboardRun.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_tensorboard_run(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_tensorboard_run.TensorboardRun.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.update_tensorboard_run",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboardRun",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateTensorboardTimeSeries(
@@ -5988,7 +7486,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
             r"""Call the update tensorboard time
             series method over HTTP.
@@ -6000,8 +7498,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.gca_tensorboard_time_series.TensorboardTimeSeries:
@@ -6013,6 +7513,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_tensorboard_time_series(
                 request, metadata
             )
@@ -6028,6 +7529,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseUpdateTensorboardTimeSeries._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.UpdateTensorboardTimeSeries",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboardTimeSeries",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._UpdateTensorboardTimeSeries._get_response(
@@ -6050,7 +7578,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = gca_tensorboard_time_series.TensorboardTimeSeries.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_tensorboard_time_series(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        gca_tensorboard_time_series.TensorboardTimeSeries.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.update_tensorboard_time_series",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "UpdateTensorboardTimeSeries",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _WriteTensorboardExperimentData(
@@ -6092,7 +7646,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.WriteTensorboardExperimentDataResponse:
             r"""Call the write tensorboard
             experiment data method over HTTP.
@@ -6104,8 +7658,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.WriteTensorboardExperimentDataResponse:
@@ -6117,6 +7673,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_write_tensorboard_experiment_data(
                 request, metadata
             )
@@ -6132,6 +7689,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardExperimentData._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.WriteTensorboardExperimentData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "WriteTensorboardExperimentData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._WriteTensorboardExperimentData._get_response(
@@ -6156,7 +7740,31 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             )
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_write_tensorboard_experiment_data(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = tensorboard_service.WriteTensorboardExperimentDataResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.write_tensorboard_experiment_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "WriteTensorboardExperimentData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _WriteTensorboardRunData(
@@ -6196,7 +7804,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> tensorboard_service.WriteTensorboardRunDataResponse:
             r"""Call the write tensorboard run
             data method over HTTP.
@@ -6208,8 +7816,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.tensorboard_service.WriteTensorboardRunDataResponse:
@@ -6221,6 +7831,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_write_tensorboard_run_data(
                 request, metadata
             )
@@ -6236,6 +7847,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseWriteTensorboardRunData._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.WriteTensorboardRunData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "WriteTensorboardRunData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -6260,7 +7898,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             pb_resp = tensorboard_service.WriteTensorboardRunDataResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_write_tensorboard_run_data(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        tensorboard_service.WriteTensorboardRunDataResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceClient.write_tensorboard_run_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "WriteTensorboardRunData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     @property
@@ -6625,7 +8289,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -6636,8 +8300,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -6646,6 +8312,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetLocation._get_transcoded_request(
                 http_options, request
@@ -6655,6 +8322,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._GetLocation._get_response(
@@ -6675,6 +8369,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -6717,7 +8432,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -6728,8 +8443,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -6738,6 +8455,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -6747,6 +8465,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._ListLocations._get_response(
@@ -6767,6 +8512,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -6809,7 +8575,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -6820,8 +8586,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -6830,6 +8598,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -6839,6 +8608,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._GetIamPolicy._get_response(
@@ -6859,6 +8655,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -6902,7 +8719,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -6913,8 +8730,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -6923,6 +8742,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -6936,6 +8756,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._SetIamPolicy._get_response(
@@ -6957,6 +8804,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -6999,7 +8867,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -7010,8 +8878,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -7020,6 +8890,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -7031,6 +8902,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -7053,6 +8951,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -7095,7 +9014,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -7106,13 +9025,16 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -7124,6 +9046,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._CancelOperation._get_response(
@@ -7182,7 +9131,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -7193,13 +9142,16 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -7211,6 +9163,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._DeleteOperation._get_response(
@@ -7269,7 +9248,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -7280,8 +9259,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -7290,6 +9271,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -7299,6 +9281,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._GetOperation._get_response(
@@ -7319,6 +9328,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -7361,7 +9391,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -7372,8 +9402,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -7382,6 +9414,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -7391,6 +9424,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._ListOperations._get_response(
@@ -7411,6 +9471,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -7453,7 +9534,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -7464,8 +9545,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -7474,6 +9557,7 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             http_options = (
                 _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -7483,6 +9567,33 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             query_params = _BaseTensorboardServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.TensorboardServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = TensorboardServiceRestTransport._WaitOperation._get_response(
@@ -7503,6 +9614,27 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.TensorboardServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.TensorboardService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

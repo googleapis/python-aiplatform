@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
-import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -49,6 +50,14 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -209,9 +218,10 @@ class NotebookServiceRestInterceptor:
     def pre_assign_notebook_runtime(
         self,
         request: notebook_service.AssignNotebookRuntimeRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.AssignNotebookRuntimeRequest, Sequence[Tuple[str, str]]
+        notebook_service.AssignNotebookRuntimeRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for assign_notebook_runtime
 
@@ -234,9 +244,10 @@ class NotebookServiceRestInterceptor:
     def pre_create_notebook_execution_job(
         self,
         request: notebook_service.CreateNotebookExecutionJobRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.CreateNotebookExecutionJobRequest, Sequence[Tuple[str, str]]
+        notebook_service.CreateNotebookExecutionJobRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_notebook_execution_job
 
@@ -259,9 +270,10 @@ class NotebookServiceRestInterceptor:
     def pre_create_notebook_runtime_template(
         self,
         request: notebook_service.CreateNotebookRuntimeTemplateRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.CreateNotebookRuntimeTemplateRequest, Sequence[Tuple[str, str]]
+        notebook_service.CreateNotebookRuntimeTemplateRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_notebook_runtime_template
 
@@ -284,9 +296,10 @@ class NotebookServiceRestInterceptor:
     def pre_delete_notebook_execution_job(
         self,
         request: notebook_service.DeleteNotebookExecutionJobRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.DeleteNotebookExecutionJobRequest, Sequence[Tuple[str, str]]
+        notebook_service.DeleteNotebookExecutionJobRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_notebook_execution_job
 
@@ -309,9 +322,10 @@ class NotebookServiceRestInterceptor:
     def pre_delete_notebook_runtime(
         self,
         request: notebook_service.DeleteNotebookRuntimeRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.DeleteNotebookRuntimeRequest, Sequence[Tuple[str, str]]
+        notebook_service.DeleteNotebookRuntimeRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_notebook_runtime
 
@@ -334,9 +348,10 @@ class NotebookServiceRestInterceptor:
     def pre_delete_notebook_runtime_template(
         self,
         request: notebook_service.DeleteNotebookRuntimeTemplateRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.DeleteNotebookRuntimeTemplateRequest, Sequence[Tuple[str, str]]
+        notebook_service.DeleteNotebookRuntimeTemplateRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_notebook_runtime_template
 
@@ -359,9 +374,10 @@ class NotebookServiceRestInterceptor:
     def pre_get_notebook_execution_job(
         self,
         request: notebook_service.GetNotebookExecutionJobRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.GetNotebookExecutionJobRequest, Sequence[Tuple[str, str]]
+        notebook_service.GetNotebookExecutionJobRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_notebook_execution_job
 
@@ -384,8 +400,11 @@ class NotebookServiceRestInterceptor:
     def pre_get_notebook_runtime(
         self,
         request: notebook_service.GetNotebookRuntimeRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[notebook_service.GetNotebookRuntimeRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        notebook_service.GetNotebookRuntimeRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for get_notebook_runtime
 
         Override in a subclass to manipulate the request or metadata
@@ -407,9 +426,10 @@ class NotebookServiceRestInterceptor:
     def pre_get_notebook_runtime_template(
         self,
         request: notebook_service.GetNotebookRuntimeTemplateRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.GetNotebookRuntimeTemplateRequest, Sequence[Tuple[str, str]]
+        notebook_service.GetNotebookRuntimeTemplateRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for get_notebook_runtime_template
 
@@ -432,9 +452,10 @@ class NotebookServiceRestInterceptor:
     def pre_list_notebook_execution_jobs(
         self,
         request: notebook_service.ListNotebookExecutionJobsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.ListNotebookExecutionJobsRequest, Sequence[Tuple[str, str]]
+        notebook_service.ListNotebookExecutionJobsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_notebook_execution_jobs
 
@@ -457,8 +478,11 @@ class NotebookServiceRestInterceptor:
     def pre_list_notebook_runtimes(
         self,
         request: notebook_service.ListNotebookRuntimesRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[notebook_service.ListNotebookRuntimesRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        notebook_service.ListNotebookRuntimesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for list_notebook_runtimes
 
         Override in a subclass to manipulate the request or metadata
@@ -480,9 +504,10 @@ class NotebookServiceRestInterceptor:
     def pre_list_notebook_runtime_templates(
         self,
         request: notebook_service.ListNotebookRuntimeTemplatesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.ListNotebookRuntimeTemplatesRequest, Sequence[Tuple[str, str]]
+        notebook_service.ListNotebookRuntimeTemplatesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_notebook_runtime_templates
 
@@ -505,8 +530,11 @@ class NotebookServiceRestInterceptor:
     def pre_start_notebook_runtime(
         self,
         request: notebook_service.StartNotebookRuntimeRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[notebook_service.StartNotebookRuntimeRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        notebook_service.StartNotebookRuntimeRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for start_notebook_runtime
 
         Override in a subclass to manipulate the request or metadata
@@ -528,8 +556,11 @@ class NotebookServiceRestInterceptor:
     def pre_stop_notebook_runtime(
         self,
         request: notebook_service.StopNotebookRuntimeRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[notebook_service.StopNotebookRuntimeRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        notebook_service.StopNotebookRuntimeRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for stop_notebook_runtime
 
         Override in a subclass to manipulate the request or metadata
@@ -551,9 +582,10 @@ class NotebookServiceRestInterceptor:
     def pre_update_notebook_runtime_template(
         self,
         request: notebook_service.UpdateNotebookRuntimeTemplateRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.UpdateNotebookRuntimeTemplateRequest, Sequence[Tuple[str, str]]
+        notebook_service.UpdateNotebookRuntimeTemplateRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_notebook_runtime_template
 
@@ -576,9 +608,10 @@ class NotebookServiceRestInterceptor:
     def pre_upgrade_notebook_runtime(
         self,
         request: notebook_service.UpgradeNotebookRuntimeRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        notebook_service.UpgradeNotebookRuntimeRequest, Sequence[Tuple[str, str]]
+        notebook_service.UpgradeNotebookRuntimeRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for upgrade_notebook_runtime
 
@@ -601,8 +634,10 @@ class NotebookServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -624,8 +659,10 @@ class NotebookServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -647,8 +684,10 @@ class NotebookServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -668,8 +707,10 @@ class NotebookServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -689,8 +730,11 @@ class NotebookServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -712,8 +756,10 @@ class NotebookServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -733,8 +779,10 @@ class NotebookServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -754,8 +802,10 @@ class NotebookServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -777,8 +827,10 @@ class NotebookServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -800,8 +852,10 @@ class NotebookServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -3032,7 +3086,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the assign notebook runtime method over HTTP.
 
@@ -3043,8 +3097,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3057,6 +3113,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseAssignNotebookRuntime._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_assign_notebook_runtime(
                 request, metadata
             )
@@ -3072,6 +3129,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseAssignNotebookRuntime._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.AssignNotebookRuntime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "AssignNotebookRuntime",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3094,7 +3178,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_assign_notebook_runtime(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.assign_notebook_runtime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "AssignNotebookRuntime",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateNotebookExecutionJob(
@@ -3134,7 +3240,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create notebook execution
             job method over HTTP.
@@ -3146,8 +3252,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -3160,6 +3268,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseCreateNotebookExecutionJob._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_notebook_execution_job(
                 request, metadata
             )
@@ -3175,6 +3284,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseCreateNotebookExecutionJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.CreateNotebookExecutionJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "CreateNotebookExecutionJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3197,7 +3333,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_notebook_execution_job(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.create_notebook_execution_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "CreateNotebookExecutionJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CreateNotebookRuntimeTemplate(
@@ -3237,7 +3395,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the create notebook runtime
             template method over HTTP.
@@ -3249,8 +3407,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -3263,6 +3423,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseCreateNotebookRuntimeTemplate._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_create_notebook_runtime_template(
                 request, metadata
             )
@@ -3278,6 +3439,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseCreateNotebookRuntimeTemplate._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.CreateNotebookRuntimeTemplate",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "CreateNotebookRuntimeTemplate",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._CreateNotebookRuntimeTemplate._get_response(
@@ -3298,7 +3486,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_create_notebook_runtime_template(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.create_notebook_runtime_template",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "CreateNotebookRuntimeTemplate",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteNotebookExecutionJob(
@@ -3337,7 +3547,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete notebook execution
             job method over HTTP.
@@ -3349,8 +3559,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -3363,6 +3575,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseDeleteNotebookExecutionJob._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_notebook_execution_job(
                 request, metadata
             )
@@ -3374,6 +3587,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseDeleteNotebookExecutionJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.DeleteNotebookExecutionJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "DeleteNotebookExecutionJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3395,7 +3635,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_notebook_execution_job(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.delete_notebook_execution_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "DeleteNotebookExecutionJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteNotebookRuntime(
@@ -3434,7 +3696,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete notebook runtime method over HTTP.
 
@@ -3445,8 +3707,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3459,6 +3723,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseDeleteNotebookRuntime._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_notebook_runtime(
                 request, metadata
             )
@@ -3470,6 +3735,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseDeleteNotebookRuntime._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.DeleteNotebookRuntime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "DeleteNotebookRuntime",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3491,7 +3783,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_notebook_runtime(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.delete_notebook_runtime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "DeleteNotebookRuntime",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteNotebookRuntimeTemplate(
@@ -3530,7 +3844,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete notebook runtime
             template method over HTTP.
@@ -3542,8 +3856,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -3556,6 +3872,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseDeleteNotebookRuntimeTemplate._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_notebook_runtime_template(
                 request, metadata
             )
@@ -3567,6 +3884,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseDeleteNotebookRuntimeTemplate._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.DeleteNotebookRuntimeTemplate",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "DeleteNotebookRuntimeTemplate",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._DeleteNotebookRuntimeTemplate._get_response(
@@ -3586,7 +3930,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_notebook_runtime_template(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.delete_notebook_runtime_template",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "DeleteNotebookRuntimeTemplate",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetNotebookExecutionJob(
@@ -3625,7 +3991,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> notebook_execution_job.NotebookExecutionJob:
             r"""Call the get notebook execution
             job method over HTTP.
@@ -3637,8 +4003,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.notebook_execution_job.NotebookExecutionJob:
@@ -3650,6 +4018,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseGetNotebookExecutionJob._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_notebook_execution_job(
                 request, metadata
             )
@@ -3661,6 +4030,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseGetNotebookExecutionJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.GetNotebookExecutionJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetNotebookExecutionJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3684,7 +4080,31 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             pb_resp = notebook_execution_job.NotebookExecutionJob.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_notebook_execution_job(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        notebook_execution_job.NotebookExecutionJob.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.get_notebook_execution_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetNotebookExecutionJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetNotebookRuntime(
@@ -3723,7 +4143,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> notebook_runtime.NotebookRuntime:
             r"""Call the get notebook runtime method over HTTP.
 
@@ -3734,8 +4154,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.notebook_runtime.NotebookRuntime:
@@ -3749,6 +4171,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseGetNotebookRuntime._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_notebook_runtime(
                 request, metadata
             )
@@ -3760,6 +4183,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseGetNotebookRuntime._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.GetNotebookRuntime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetNotebookRuntime",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._GetNotebookRuntime._get_response(
@@ -3781,7 +4231,31 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             pb_resp = notebook_runtime.NotebookRuntime.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_notebook_runtime(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = notebook_runtime.NotebookRuntime.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.get_notebook_runtime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetNotebookRuntime",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetNotebookRuntimeTemplate(
@@ -3820,7 +4294,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> notebook_runtime.NotebookRuntimeTemplate:
             r"""Call the get notebook runtime
             template method over HTTP.
@@ -3832,8 +4306,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.notebook_runtime.NotebookRuntimeTemplate:
@@ -3848,6 +4324,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseGetNotebookRuntimeTemplate._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_notebook_runtime_template(
                 request, metadata
             )
@@ -3859,6 +4336,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseGetNotebookRuntimeTemplate._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.GetNotebookRuntimeTemplate",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetNotebookRuntimeTemplate",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3882,7 +4386,31 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             pb_resp = notebook_runtime.NotebookRuntimeTemplate.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_notebook_runtime_template(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = notebook_runtime.NotebookRuntimeTemplate.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.get_notebook_runtime_template",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetNotebookRuntimeTemplate",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListNotebookExecutionJobs(
@@ -3921,7 +4449,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> notebook_service.ListNotebookExecutionJobsResponse:
             r"""Call the list notebook execution
             jobs method over HTTP.
@@ -3933,8 +4461,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.notebook_service.ListNotebookExecutionJobsResponse:
@@ -3946,6 +4476,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseListNotebookExecutionJobs._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_notebook_execution_jobs(
                 request, metadata
             )
@@ -3957,6 +4488,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseListNotebookExecutionJobs._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.ListNotebookExecutionJobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListNotebookExecutionJobs",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -3980,7 +4538,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             pb_resp = notebook_service.ListNotebookExecutionJobsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_notebook_execution_jobs(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        notebook_service.ListNotebookExecutionJobsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.list_notebook_execution_jobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListNotebookExecutionJobs",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListNotebookRuntimes(
@@ -4019,7 +4603,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> notebook_service.ListNotebookRuntimesResponse:
             r"""Call the list notebook runtimes method over HTTP.
 
@@ -4030,8 +4614,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.notebook_service.ListNotebookRuntimesResponse:
@@ -4043,6 +4629,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseListNotebookRuntimes._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_notebook_runtimes(
                 request, metadata
             )
@@ -4054,6 +4641,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseListNotebookRuntimes._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.ListNotebookRuntimes",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListNotebookRuntimes",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._ListNotebookRuntimes._get_response(
@@ -4075,7 +4689,31 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             pb_resp = notebook_service.ListNotebookRuntimesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_notebook_runtimes(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        notebook_service.ListNotebookRuntimesResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.list_notebook_runtimes",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListNotebookRuntimes",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListNotebookRuntimeTemplates(
@@ -4114,7 +4752,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> notebook_service.ListNotebookRuntimeTemplatesResponse:
             r"""Call the list notebook runtime
             templates method over HTTP.
@@ -4126,8 +4764,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.notebook_service.ListNotebookRuntimeTemplatesResponse:
@@ -4139,6 +4779,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseListNotebookRuntimeTemplates._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_notebook_runtime_templates(
                 request, metadata
             )
@@ -4150,6 +4791,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseListNotebookRuntimeTemplates._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.ListNotebookRuntimeTemplates",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListNotebookRuntimeTemplates",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._ListNotebookRuntimeTemplates._get_response(
@@ -4171,7 +4839,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             pb_resp = notebook_service.ListNotebookRuntimeTemplatesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_notebook_runtime_templates(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        notebook_service.ListNotebookRuntimeTemplatesResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.list_notebook_runtime_templates",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListNotebookRuntimeTemplates",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _StartNotebookRuntime(
@@ -4211,7 +4905,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the start notebook runtime method over HTTP.
 
@@ -4222,8 +4916,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4236,6 +4932,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseStartNotebookRuntime._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_start_notebook_runtime(
                 request, metadata
             )
@@ -4251,6 +4948,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseStartNotebookRuntime._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.StartNotebookRuntime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "StartNotebookRuntime",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._StartNotebookRuntime._get_response(
@@ -4271,7 +4995,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_start_notebook_runtime(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.start_notebook_runtime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "StartNotebookRuntime",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _StopNotebookRuntime(
@@ -4311,7 +5057,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the stop notebook runtime method over HTTP.
 
@@ -4322,8 +5068,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4336,6 +5084,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseStopNotebookRuntime._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_stop_notebook_runtime(
                 request, metadata
             )
@@ -4351,6 +5100,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseStopNotebookRuntime._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.StopNotebookRuntime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "StopNotebookRuntime",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._StopNotebookRuntime._get_response(
@@ -4371,7 +5147,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_stop_notebook_runtime(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.stop_notebook_runtime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "StopNotebookRuntime",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateNotebookRuntimeTemplate(
@@ -4411,7 +5209,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> notebook_runtime.NotebookRuntimeTemplate:
             r"""Call the update notebook runtime
             template method over HTTP.
@@ -4423,8 +5221,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.notebook_runtime.NotebookRuntimeTemplate:
@@ -4439,6 +5239,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseUpdateNotebookRuntimeTemplate._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_notebook_runtime_template(
                 request, metadata
             )
@@ -4454,6 +5255,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseUpdateNotebookRuntimeTemplate._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.UpdateNotebookRuntimeTemplate",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "UpdateNotebookRuntimeTemplate",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._UpdateNotebookRuntimeTemplate._get_response(
@@ -4476,7 +5304,31 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             pb_resp = notebook_runtime.NotebookRuntimeTemplate.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_notebook_runtime_template(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = notebook_runtime.NotebookRuntimeTemplate.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.update_notebook_runtime_template",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "UpdateNotebookRuntimeTemplate",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpgradeNotebookRuntime(
@@ -4516,7 +5368,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the upgrade notebook runtime method over HTTP.
 
@@ -4527,8 +5379,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4541,6 +5395,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseUpgradeNotebookRuntime._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_upgrade_notebook_runtime(
                 request, metadata
             )
@@ -4556,6 +5411,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseUpgradeNotebookRuntime._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.UpgradeNotebookRuntime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "UpgradeNotebookRuntime",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4578,7 +5460,29 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_upgrade_notebook_runtime(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceClient.upgrade_notebook_runtime",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "UpgradeNotebookRuntime",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     @property
@@ -4788,7 +5692,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -4799,8 +5703,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -4809,6 +5715,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = _BaseNotebookServiceRestTransport._BaseGetLocation._get_transcoded_request(
                 http_options, request
@@ -4818,6 +5725,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._GetLocation._get_response(
@@ -4838,6 +5772,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4879,7 +5834,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -4890,8 +5845,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -4900,6 +5857,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseNotebookServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -4909,6 +5867,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._ListLocations._get_response(
@@ -4929,6 +5914,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4971,7 +5977,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -4982,8 +5988,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -4992,6 +6000,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseNotebookServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -5005,6 +6014,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._GetIamPolicy._get_response(
@@ -5026,6 +6062,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5068,7 +6125,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -5079,8 +6136,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -5089,6 +6148,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseNotebookServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -5102,6 +6162,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._SetIamPolicy._get_response(
@@ -5123,6 +6210,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5166,7 +6274,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -5177,8 +6285,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -5187,6 +6297,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -5202,6 +6313,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._TestIamPermissions._get_response(
@@ -5223,6 +6361,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5264,7 +6423,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -5275,13 +6434,16 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -5293,6 +6455,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._CancelOperation._get_response(
@@ -5350,7 +6539,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -5361,13 +6550,16 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -5379,6 +6571,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._DeleteOperation._get_response(
@@ -5436,7 +6655,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -5447,8 +6666,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -5457,6 +6678,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseNotebookServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -5466,6 +6688,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._GetOperation._get_response(
@@ -5486,6 +6735,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5527,7 +6797,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -5538,8 +6808,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -5548,6 +6820,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseNotebookServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -5557,6 +6830,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._ListOperations._get_response(
@@ -5577,6 +6877,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5618,7 +6939,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -5629,8 +6950,10 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -5639,6 +6962,7 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             http_options = (
                 _BaseNotebookServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseNotebookServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -5648,6 +6972,33 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             query_params = _BaseNotebookServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.NotebookServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = NotebookServiceRestTransport._WaitOperation._get_response(
@@ -5668,6 +7019,27 @@ class NotebookServiceRestTransport(_BaseNotebookServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.NotebookServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.NotebookService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property

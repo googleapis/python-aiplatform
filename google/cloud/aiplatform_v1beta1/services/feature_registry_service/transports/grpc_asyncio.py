@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 import inspect
+import json
+import pickle
+import logging as std_logging
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
@@ -24,8 +27,11 @@ from google.api_core import retry_async as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+from google.protobuf.json_format import MessageToJson
+import google.protobuf.message
 
 import grpc  # type: ignore
+import proto  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import feature
@@ -43,6 +49,82 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from .base import FeatureRegistryServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import FeatureRegistryServiceGrpcTransport
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = std_logging.getLogger(__name__)
+
+
+class _LoggingClientAIOInterceptor(
+    grpc.aio.UnaryUnaryClientInterceptor
+):  # pragma: NO COVER
+    async def intercept_unary_unary(self, continuation, client_call_details, request):
+        logging_enabled = CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+            std_logging.DEBUG
+        )
+        if logging_enabled:  # pragma: NO COVER
+            request_metadata = client_call_details.metadata
+            if isinstance(request, proto.Message):
+                request_payload = type(request).to_json(request)
+            elif isinstance(request, google.protobuf.message.Message):
+                request_payload = MessageToJson(request)
+            else:
+                request_payload = f"{type(request).__name__}: {pickle.dumps(request)}"
+
+            request_metadata = {
+                key: value.decode("utf-8") if isinstance(value, bytes) else value
+                for key, value in request_metadata
+            }
+            grpc_request = {
+                "payload": request_payload,
+                "requestMethod": "grpc",
+                "metadata": dict(request_metadata),
+            }
+            _LOGGER.debug(
+                f"Sending request for {client_call_details.method}",
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+                    "rpcName": str(client_call_details.method),
+                    "request": grpc_request,
+                    "metadata": grpc_request["metadata"],
+                },
+            )
+        response = await continuation(client_call_details, request)
+        if logging_enabled:  # pragma: NO COVER
+            response_metadata = await response.trailing_metadata()
+            # Convert gRPC metadata `<class 'grpc.aio._metadata.Metadata'>` to list of tuples
+            metadata = (
+                dict([(k, str(v)) for k, v in response_metadata])
+                if response_metadata
+                else None
+            )
+            result = await response
+            if isinstance(result, proto.Message):
+                response_payload = type(result).to_json(result)
+            elif isinstance(result, google.protobuf.message.Message):
+                response_payload = MessageToJson(result)
+            else:
+                response_payload = f"{type(result).__name__}: {pickle.dumps(result)}"
+            grpc_response = {
+                "payload": response_payload,
+                "metadata": metadata,
+                "status": "OK",
+            }
+            _LOGGER.debug(
+                f"Received response to rpc {client_call_details.method}.",
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1beta1.FeatureRegistryService",
+                    "rpcName": str(client_call_details.method),
+                    "response": grpc_response,
+                    "metadata": grpc_response["metadata"],
+                },
+            )
+        return response
 
 
 class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport):
@@ -242,10 +324,13 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
                 ],
             )
 
-        # Wrap messages. This must be done after self._grpc_channel exists
+        self._interceptor = _LoggingClientAIOInterceptor()
+        self._grpc_channel._unary_unary_interceptors.append(self._interceptor)
+        self._logged_channel = self._grpc_channel
         self._wrap_with_kind = (
             "kind" in inspect.signature(gapic_v1.method_async.wrap_method).parameters
         )
+        # Wrap messages. This must be done after self._logged_channel exists
         self._prep_wrapped_messages(client_info)
 
     @property
@@ -268,7 +353,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # Quick check: Only create a new client if we do not already have one.
         if self._operations_client is None:
             self._operations_client = operations_v1.OperationsAsyncClient(
-                self.grpc_channel
+                self._logged_channel
             )
 
         # Return the client from cache.
@@ -297,7 +382,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_feature_group" not in self._stubs:
-            self._stubs["create_feature_group"] = self.grpc_channel.unary_unary(
+            self._stubs["create_feature_group"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeatureGroup",
                 request_serializer=feature_registry_service.CreateFeatureGroupRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -326,7 +411,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_feature_group" not in self._stubs:
-            self._stubs["get_feature_group"] = self.grpc_channel.unary_unary(
+            self._stubs["get_feature_group"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/GetFeatureGroup",
                 request_serializer=feature_registry_service.GetFeatureGroupRequest.serialize,
                 response_deserializer=feature_group.FeatureGroup.deserialize,
@@ -355,7 +440,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_feature_groups" not in self._stubs:
-            self._stubs["list_feature_groups"] = self.grpc_channel.unary_unary(
+            self._stubs["list_feature_groups"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/ListFeatureGroups",
                 request_serializer=feature_registry_service.ListFeatureGroupsRequest.serialize,
                 response_deserializer=feature_registry_service.ListFeatureGroupsResponse.deserialize,
@@ -384,7 +469,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_feature_group" not in self._stubs:
-            self._stubs["update_feature_group"] = self.grpc_channel.unary_unary(
+            self._stubs["update_feature_group"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/UpdateFeatureGroup",
                 request_serializer=feature_registry_service.UpdateFeatureGroupRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -413,7 +498,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_feature_group" not in self._stubs:
-            self._stubs["delete_feature_group"] = self.grpc_channel.unary_unary(
+            self._stubs["delete_feature_group"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/DeleteFeatureGroup",
                 request_serializer=feature_registry_service.DeleteFeatureGroupRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -441,7 +526,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_feature" not in self._stubs:
-            self._stubs["create_feature"] = self.grpc_channel.unary_unary(
+            self._stubs["create_feature"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeature",
                 request_serializer=featurestore_service.CreateFeatureRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -470,7 +555,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "batch_create_features" not in self._stubs:
-            self._stubs["batch_create_features"] = self.grpc_channel.unary_unary(
+            self._stubs["batch_create_features"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/BatchCreateFeatures",
                 request_serializer=featurestore_service.BatchCreateFeaturesRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -496,7 +581,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_feature" not in self._stubs:
-            self._stubs["get_feature"] = self.grpc_channel.unary_unary(
+            self._stubs["get_feature"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/GetFeature",
                 request_serializer=featurestore_service.GetFeatureRequest.serialize,
                 response_deserializer=feature.Feature.deserialize,
@@ -525,7 +610,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_features" not in self._stubs:
-            self._stubs["list_features"] = self.grpc_channel.unary_unary(
+            self._stubs["list_features"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/ListFeatures",
                 request_serializer=featurestore_service.ListFeaturesRequest.serialize,
                 response_deserializer=featurestore_service.ListFeaturesResponse.deserialize,
@@ -553,7 +638,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "update_feature" not in self._stubs:
-            self._stubs["update_feature"] = self.grpc_channel.unary_unary(
+            self._stubs["update_feature"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/UpdateFeature",
                 request_serializer=featurestore_service.UpdateFeatureRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -581,7 +666,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_feature" not in self._stubs:
-            self._stubs["delete_feature"] = self.grpc_channel.unary_unary(
+            self._stubs["delete_feature"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/DeleteFeature",
                 request_serializer=featurestore_service.DeleteFeatureRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -611,7 +696,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_feature_monitor" not in self._stubs:
-            self._stubs["create_feature_monitor"] = self.grpc_channel.unary_unary(
+            self._stubs["create_feature_monitor"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeatureMonitor",
                 request_serializer=feature_registry_service.CreateFeatureMonitorRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -640,7 +725,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_feature_monitor" not in self._stubs:
-            self._stubs["get_feature_monitor"] = self.grpc_channel.unary_unary(
+            self._stubs["get_feature_monitor"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/GetFeatureMonitor",
                 request_serializer=feature_registry_service.GetFeatureMonitorRequest.serialize,
                 response_deserializer=feature_monitor.FeatureMonitor.deserialize,
@@ -669,7 +754,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_feature_monitors" not in self._stubs:
-            self._stubs["list_feature_monitors"] = self.grpc_channel.unary_unary(
+            self._stubs["list_feature_monitors"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/ListFeatureMonitors",
                 request_serializer=feature_registry_service.ListFeatureMonitorsRequest.serialize,
                 response_deserializer=feature_registry_service.ListFeatureMonitorsResponse.deserialize,
@@ -698,7 +783,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_feature_monitor" not in self._stubs:
-            self._stubs["delete_feature_monitor"] = self.grpc_channel.unary_unary(
+            self._stubs["delete_feature_monitor"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/DeleteFeatureMonitor",
                 request_serializer=feature_registry_service.DeleteFeatureMonitorRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -727,7 +812,9 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "create_feature_monitor_job" not in self._stubs:
-            self._stubs["create_feature_monitor_job"] = self.grpc_channel.unary_unary(
+            self._stubs[
+                "create_feature_monitor_job"
+            ] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/CreateFeatureMonitorJob",
                 request_serializer=feature_registry_service.CreateFeatureMonitorJobRequest.serialize,
                 response_deserializer=gca_feature_monitor_job.FeatureMonitorJob.deserialize,
@@ -756,7 +843,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_feature_monitor_job" not in self._stubs:
-            self._stubs["get_feature_monitor_job"] = self.grpc_channel.unary_unary(
+            self._stubs["get_feature_monitor_job"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/GetFeatureMonitorJob",
                 request_serializer=feature_registry_service.GetFeatureMonitorJobRequest.serialize,
                 response_deserializer=feature_monitor_job.FeatureMonitorJob.deserialize,
@@ -785,7 +872,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_feature_monitor_jobs" not in self._stubs:
-            self._stubs["list_feature_monitor_jobs"] = self.grpc_channel.unary_unary(
+            self._stubs["list_feature_monitor_jobs"] = self._logged_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/ListFeatureMonitorJobs",
                 request_serializer=feature_registry_service.ListFeatureMonitorJobsRequest.serialize,
                 response_deserializer=feature_registry_service.ListFeatureMonitorJobsResponse.deserialize,
@@ -943,7 +1030,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
 
     def close(self):
-        return self.grpc_channel.close()
+        return self._logged_channel.close()
 
     @property
     def kind(self) -> str:
@@ -959,7 +1046,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "delete_operation" not in self._stubs:
-            self._stubs["delete_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["delete_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/DeleteOperation",
                 request_serializer=operations_pb2.DeleteOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -976,7 +1063,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "cancel_operation" not in self._stubs:
-            self._stubs["cancel_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["cancel_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/CancelOperation",
                 request_serializer=operations_pb2.CancelOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -993,7 +1080,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "wait_operation" not in self._stubs:
-            self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["wait_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/WaitOperation",
                 request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
                 response_deserializer=None,
@@ -1010,7 +1097,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_operation" not in self._stubs:
-            self._stubs["get_operation"] = self.grpc_channel.unary_unary(
+            self._stubs["get_operation"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/GetOperation",
                 request_serializer=operations_pb2.GetOperationRequest.SerializeToString,
                 response_deserializer=operations_pb2.Operation.FromString,
@@ -1029,7 +1116,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_operations" not in self._stubs:
-            self._stubs["list_operations"] = self.grpc_channel.unary_unary(
+            self._stubs["list_operations"] = self._logged_channel.unary_unary(
                 "/google.longrunning.Operations/ListOperations",
                 request_serializer=operations_pb2.ListOperationsRequest.SerializeToString,
                 response_deserializer=operations_pb2.ListOperationsResponse.FromString,
@@ -1048,7 +1135,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "list_locations" not in self._stubs:
-            self._stubs["list_locations"] = self.grpc_channel.unary_unary(
+            self._stubs["list_locations"] = self._logged_channel.unary_unary(
                 "/google.cloud.location.Locations/ListLocations",
                 request_serializer=locations_pb2.ListLocationsRequest.SerializeToString,
                 response_deserializer=locations_pb2.ListLocationsResponse.FromString,
@@ -1065,7 +1152,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_location" not in self._stubs:
-            self._stubs["get_location"] = self.grpc_channel.unary_unary(
+            self._stubs["get_location"] = self._logged_channel.unary_unary(
                 "/google.cloud.location.Locations/GetLocation",
                 request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
                 response_deserializer=locations_pb2.Location.FromString,
@@ -1090,7 +1177,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "set_iam_policy" not in self._stubs:
-            self._stubs["set_iam_policy"] = self.grpc_channel.unary_unary(
+            self._stubs["set_iam_policy"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/SetIamPolicy",
                 request_serializer=iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1116,7 +1203,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "get_iam_policy" not in self._stubs:
-            self._stubs["get_iam_policy"] = self.grpc_channel.unary_unary(
+            self._stubs["get_iam_policy"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/GetIamPolicy",
                 request_serializer=iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
                 response_deserializer=policy_pb2.Policy.FromString,
@@ -1145,7 +1232,7 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
         if "test_iam_permissions" not in self._stubs:
-            self._stubs["test_iam_permissions"] = self.grpc_channel.unary_unary(
+            self._stubs["test_iam_permissions"] = self._logged_channel.unary_unary(
                 "/google.iam.v1.IAMPolicy/TestIamPermissions",
                 request_serializer=iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
                 response_deserializer=iam_policy_pb2.TestIamPermissionsResponse.FromString,

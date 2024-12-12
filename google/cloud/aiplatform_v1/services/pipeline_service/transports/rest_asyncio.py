@@ -63,6 +63,18 @@ from .rest_base import _BasePipelineServiceRestTransport
 
 from .base import DEFAULT_CLIENT_INFO as BASE_DEFAULT_CLIENT_INFO
 
+
+import logging
+
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
+
 try:
     OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
@@ -187,9 +199,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_batch_cancel_pipeline_jobs(
         self,
         request: pipeline_service.BatchCancelPipelineJobsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        pipeline_service.BatchCancelPipelineJobsRequest, Sequence[Tuple[str, str]]
+        pipeline_service.BatchCancelPipelineJobsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for batch_cancel_pipeline_jobs
 
@@ -212,9 +225,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_batch_delete_pipeline_jobs(
         self,
         request: pipeline_service.BatchDeletePipelineJobsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        pipeline_service.BatchDeletePipelineJobsRequest, Sequence[Tuple[str, str]]
+        pipeline_service.BatchDeletePipelineJobsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for batch_delete_pipeline_jobs
 
@@ -237,8 +251,11 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_cancel_pipeline_job(
         self,
         request: pipeline_service.CancelPipelineJobRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[pipeline_service.CancelPipelineJobRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.CancelPipelineJobRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for cancel_pipeline_job
 
         Override in a subclass to manipulate the request or metadata
@@ -249,9 +266,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_cancel_training_pipeline(
         self,
         request: pipeline_service.CancelTrainingPipelineRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        pipeline_service.CancelTrainingPipelineRequest, Sequence[Tuple[str, str]]
+        pipeline_service.CancelTrainingPipelineRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for cancel_training_pipeline
 
@@ -263,8 +281,11 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_create_pipeline_job(
         self,
         request: pipeline_service.CreatePipelineJobRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[pipeline_service.CreatePipelineJobRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.CreatePipelineJobRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for create_pipeline_job
 
         Override in a subclass to manipulate the request or metadata
@@ -286,9 +307,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_create_training_pipeline(
         self,
         request: pipeline_service.CreateTrainingPipelineRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        pipeline_service.CreateTrainingPipelineRequest, Sequence[Tuple[str, str]]
+        pipeline_service.CreateTrainingPipelineRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for create_training_pipeline
 
@@ -311,8 +333,11 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_delete_pipeline_job(
         self,
         request: pipeline_service.DeletePipelineJobRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[pipeline_service.DeletePipelineJobRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.DeletePipelineJobRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for delete_pipeline_job
 
         Override in a subclass to manipulate the request or metadata
@@ -334,9 +359,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_delete_training_pipeline(
         self,
         request: pipeline_service.DeleteTrainingPipelineRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        pipeline_service.DeleteTrainingPipelineRequest, Sequence[Tuple[str, str]]
+        pipeline_service.DeleteTrainingPipelineRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for delete_training_pipeline
 
@@ -359,8 +385,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_get_pipeline_job(
         self,
         request: pipeline_service.GetPipelineJobRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[pipeline_service.GetPipelineJobRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.GetPipelineJobRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_pipeline_job
 
         Override in a subclass to manipulate the request or metadata
@@ -382,8 +410,11 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_get_training_pipeline(
         self,
         request: pipeline_service.GetTrainingPipelineRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[pipeline_service.GetTrainingPipelineRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.GetTrainingPipelineRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for get_training_pipeline
 
         Override in a subclass to manipulate the request or metadata
@@ -405,8 +436,11 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_list_pipeline_jobs(
         self,
         request: pipeline_service.ListPipelineJobsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[pipeline_service.ListPipelineJobsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.ListPipelineJobsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for list_pipeline_jobs
 
         Override in a subclass to manipulate the request or metadata
@@ -428,9 +462,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_list_training_pipelines(
         self,
         request: pipeline_service.ListTrainingPipelinesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        pipeline_service.ListTrainingPipelinesRequest, Sequence[Tuple[str, str]]
+        pipeline_service.ListTrainingPipelinesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_training_pipelines
 
@@ -453,8 +488,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -476,8 +513,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -499,8 +538,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -522,8 +563,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -545,8 +588,11 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -568,8 +614,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -589,8 +637,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -610,8 +660,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -633,8 +685,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -656,8 +710,10 @@ class AsyncPipelineServiceRestInterceptor:
     async def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -901,7 +957,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the batch cancel pipeline
             jobs method over HTTP.
@@ -913,8 +969,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -927,6 +985,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseBatchCancelPipelineJobs._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_batch_cancel_pipeline_jobs(
                 request, metadata
             )
@@ -942,6 +1001,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseBatchCancelPipelineJobs._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.BatchCancelPipelineJobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "BatchCancelPipelineJobs",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._BatchCancelPipelineJobs._get_response(
@@ -971,6 +1057,28 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_cancel_pipeline_jobs(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.batch_cancel_pipeline_jobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "BatchCancelPipelineJobs",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _BatchDeletePipelineJobs(
@@ -1010,7 +1118,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the batch delete pipeline
             jobs method over HTTP.
@@ -1022,8 +1130,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -1036,6 +1146,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseBatchDeletePipelineJobs._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_batch_delete_pipeline_jobs(
                 request, metadata
             )
@@ -1051,6 +1162,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseBatchDeletePipelineJobs._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.BatchDeletePipelineJobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "BatchDeletePipelineJobs",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._BatchDeletePipelineJobs._get_response(
@@ -1080,6 +1218,28 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_delete_pipeline_jobs(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.batch_delete_pipeline_jobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "BatchDeletePipelineJobs",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _CancelPipelineJob(
@@ -1119,7 +1279,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ):
             r"""Call the cancel pipeline job method over HTTP.
 
@@ -1130,13 +1290,16 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCancelPipelineJob._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_pipeline_job(
                 request, metadata
             )
@@ -1152,6 +1315,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseCancelPipelineJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.CancelPipelineJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "CancelPipelineJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._CancelPipelineJob._get_response(
@@ -1212,7 +1402,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ):
             r"""Call the cancel training pipeline method over HTTP.
 
@@ -1223,13 +1413,16 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCancelTrainingPipeline._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_training_pipeline(
                 request, metadata
             )
@@ -1245,6 +1438,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseCancelTrainingPipeline._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.CancelTrainingPipeline",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "CancelTrainingPipeline",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._CancelTrainingPipeline._get_response(
@@ -1305,7 +1525,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_pipeline_job.PipelineJob:
             r"""Call the create pipeline job method over HTTP.
 
@@ -1316,8 +1536,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_pipeline_job.PipelineJob:
@@ -1329,6 +1551,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCreatePipelineJob._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_create_pipeline_job(
                 request, metadata
             )
@@ -1344,6 +1567,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseCreatePipelineJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.CreatePipelineJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "CreatePipelineJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._CreatePipelineJob._get_response(
@@ -1373,6 +1623,28 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_pipeline_job(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_pipeline_job.PipelineJob.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.create_pipeline_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "CreatePipelineJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _CreateTrainingPipeline(
@@ -1412,7 +1684,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_training_pipeline.TrainingPipeline:
             r"""Call the create training pipeline method over HTTP.
 
@@ -1423,8 +1695,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_training_pipeline.TrainingPipeline:
@@ -1440,6 +1714,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCreateTrainingPipeline._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_create_training_pipeline(
                 request, metadata
             )
@@ -1455,6 +1730,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseCreateTrainingPipeline._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.CreateTrainingPipeline",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "CreateTrainingPipeline",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._CreateTrainingPipeline._get_response(
@@ -1484,6 +1786,30 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_training_pipeline(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_training_pipeline.TrainingPipeline.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.create_training_pipeline",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "CreateTrainingPipeline",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeletePipelineJob(
@@ -1522,7 +1848,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete pipeline job method over HTTP.
 
@@ -1533,8 +1859,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1547,6 +1875,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseDeletePipelineJob._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_pipeline_job(
                 request, metadata
             )
@@ -1558,6 +1887,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseDeletePipelineJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.DeletePipelineJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "DeletePipelineJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._DeletePipelineJob._get_response(
@@ -1586,6 +1942,28 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_pipeline_job(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.delete_pipeline_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "DeletePipelineJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _DeleteTrainingPipeline(
@@ -1624,7 +2002,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete training pipeline method over HTTP.
 
@@ -1635,8 +2013,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -1649,6 +2029,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseDeleteTrainingPipeline._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_training_pipeline(
                 request, metadata
             )
@@ -1660,6 +2041,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseDeleteTrainingPipeline._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.DeleteTrainingPipeline",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "DeleteTrainingPipeline",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._DeleteTrainingPipeline._get_response(
@@ -1688,6 +2096,28 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_training_pipeline(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.delete_training_pipeline",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "DeleteTrainingPipeline",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetPipelineJob(
@@ -1726,7 +2156,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> pipeline_job.PipelineJob:
             r"""Call the get pipeline job method over HTTP.
 
@@ -1737,8 +2167,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.pipeline_job.PipelineJob:
@@ -1750,6 +2182,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetPipelineJob._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_pipeline_job(
                 request, metadata
             )
@@ -1761,6 +2194,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseGetPipelineJob._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.GetPipelineJob",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetPipelineJob",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1791,6 +2251,28 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_pipeline_job(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = pipeline_job.PipelineJob.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.get_pipeline_job",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetPipelineJob",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _GetTrainingPipeline(
@@ -1829,7 +2311,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> training_pipeline.TrainingPipeline:
             r"""Call the get training pipeline method over HTTP.
 
@@ -1840,8 +2322,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.training_pipeline.TrainingPipeline:
@@ -1857,6 +2341,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetTrainingPipeline._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_training_pipeline(
                 request, metadata
             )
@@ -1868,6 +2353,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseGetTrainingPipeline._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.GetTrainingPipeline",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetTrainingPipeline",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._GetTrainingPipeline._get_response(
@@ -1896,6 +2408,30 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_training_pipeline(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = training_pipeline.TrainingPipeline.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.get_training_pipeline",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetTrainingPipeline",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListPipelineJobs(
@@ -1934,7 +2470,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> pipeline_service.ListPipelineJobsResponse:
             r"""Call the list pipeline jobs method over HTTP.
 
@@ -1945,8 +2481,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.pipeline_service.ListPipelineJobsResponse:
@@ -1958,6 +2496,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListPipelineJobs._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_pipeline_jobs(
                 request, metadata
             )
@@ -1969,6 +2508,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseListPipelineJobs._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.ListPipelineJobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListPipelineJobs",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -1999,6 +2565,30 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_pipeline_jobs(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        pipeline_service.ListPipelineJobsResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.list_pipeline_jobs",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListPipelineJobs",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     class _ListTrainingPipelines(
@@ -2037,7 +2627,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> pipeline_service.ListTrainingPipelinesResponse:
             r"""Call the list training pipelines method over HTTP.
 
@@ -2048,8 +2638,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.pipeline_service.ListTrainingPipelinesResponse:
@@ -2061,6 +2653,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListTrainingPipelines._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_training_pipelines(
                 request, metadata
             )
@@ -2072,6 +2665,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseListTrainingPipelines._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.ListTrainingPipelines",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListTrainingPipelines",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._ListTrainingPipelines._get_response(
@@ -2100,6 +2720,30 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_training_pipelines(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        pipeline_service.ListTrainingPipelinesResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.list_training_pipelines",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListTrainingPipelines",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
             return resp
 
     @property
@@ -4112,7 +4756,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -4123,8 +4767,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -4133,6 +4779,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_location(
                 request, metadata
             )
@@ -4144,6 +4791,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseGetLocation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4172,6 +4846,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4214,7 +4909,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -4225,8 +4920,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -4235,6 +4932,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_locations(
                 request, metadata
             )
@@ -4246,6 +4944,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4274,6 +4999,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4316,7 +5062,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -4327,8 +5073,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -4337,6 +5085,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_iam_policy(
                 request, metadata
             )
@@ -4348,6 +5097,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseGetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4376,6 +5152,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4419,7 +5216,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -4430,8 +5227,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -4440,6 +5239,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_set_iam_policy(
                 request, metadata
             )
@@ -4455,6 +5255,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseSetIamPolicy._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4484,6 +5311,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4526,7 +5374,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -4537,8 +5385,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -4547,6 +5397,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -4558,6 +5409,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = await AsyncPipelineServiceRestTransport._TestIamPermissions._get_response(
@@ -4584,6 +5462,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4626,7 +5525,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -4637,13 +5536,16 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BasePipelineServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -4655,6 +5557,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4721,7 +5650,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -4732,13 +5661,16 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BasePipelineServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -4750,6 +5682,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4816,7 +5775,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -4827,8 +5786,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -4837,6 +5798,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_get_operation(
                 request, metadata
             )
@@ -4848,6 +5810,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseGetOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4876,6 +5865,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -4918,7 +5928,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -4929,8 +5939,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -4939,6 +5951,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_list_operations(
                 request, metadata
             )
@@ -4950,6 +5963,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4978,6 +6018,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5020,7 +6081,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -5031,8 +6092,10 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                 retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -5041,6 +6104,7 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             http_options = (
                 _BasePipelineServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = await self._interceptor.pre_wait_operation(
                 request, metadata
             )
@@ -5052,6 +6116,33 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             query_params = _BasePipelineServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.PipelineServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -5080,6 +6171,27 @@ class AsyncPipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = await self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.PipelineServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.PipelineService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
