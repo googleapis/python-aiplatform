@@ -125,12 +125,15 @@ from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
 from .types.content import Part
+from .types.content import PrebuiltVoiceConfig
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
+from .types.content import SpeechConfig
 from .types.content import VideoMetadata
+from .types.content import VoiceConfig
 from .types.content import HarmCategory
 from .types.context import Context
 from .types.custom_job import ContainerSpec
@@ -1858,6 +1861,7 @@ __all__ = (
     "PointwiseMetricResult",
     "PointwiseMetricSpec",
     "Port",
+    "PrebuiltVoiceConfig",
     "PredefinedSplit",
     "PredictLongRunningMetadata",
     "PredictLongRunningResponse",
@@ -2007,6 +2011,7 @@ __all__ = (
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "SpeechConfig",
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
     "StartNotebookRuntimeResponse",
@@ -2210,6 +2215,7 @@ __all__ = (
     "VertexRagStore",
     "VideoMetadata",
     "VizierServiceClient",
+    "VoiceConfig",
     "WorkerPoolSpec",
     "WriteFeatureValuesPayload",
     "WriteFeatureValuesRequest",

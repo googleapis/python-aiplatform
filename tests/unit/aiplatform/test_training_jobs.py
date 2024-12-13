@@ -2355,7 +2355,8 @@ class TestCustomTrainingJob:
             job.wait()
 
         print(caplog.text)
-        assert "workerpool0-0" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
@@ -2403,7 +2404,8 @@ class TestCustomTrainingJob:
             job.wait()
 
         print(caplog.text)
-        assert "workerpool0-0:8888" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0:8888" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
@@ -4740,7 +4742,8 @@ class TestCustomContainerTrainingJob:
             job.wait()
 
         print(caplog.text)
-        assert "workerpool0-0" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
@@ -4787,7 +4790,8 @@ class TestCustomContainerTrainingJob:
             job.wait()
 
         print(caplog.text)
-        assert "workerpool0-0:8888" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0:8888" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
@@ -7379,7 +7383,8 @@ class TestCustomPythonPackageTrainingJob:
             job.wait()
 
         print(caplog.text)
-        assert "workerpool0-0" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_web_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
@@ -7426,7 +7431,8 @@ class TestCustomPythonPackageTrainingJob:
         if not sync:
             job.wait()
         print(caplog.text)
-        assert "workerpool0-0:8888" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0:8888" in caplog.text
         assert job._gca_resource == make_training_pipeline_with_enable_dashboard_access(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )

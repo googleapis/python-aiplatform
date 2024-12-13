@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+import json  # type: ignore
 
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
-import json  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry as retries
@@ -54,6 +55,14 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
 
+try:
+    from google.api_core import client_logging  # type: ignore
+
+    CLIENT_LOGGING_SUPPORTED = True  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
+    CLIENT_LOGGING_SUPPORTED = False
+
+_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=BASE_DEFAULT_CLIENT_INFO.gapic_version,
@@ -230,9 +239,10 @@ class ModelServiceRestInterceptor:
     def pre_batch_import_evaluated_annotations(
         self,
         request: model_service.BatchImportEvaluatedAnnotationsRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_service.BatchImportEvaluatedAnnotationsRequest, Sequence[Tuple[str, str]]
+        model_service.BatchImportEvaluatedAnnotationsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for batch_import_evaluated_annotations
 
@@ -255,9 +265,10 @@ class ModelServiceRestInterceptor:
     def pre_batch_import_model_evaluation_slices(
         self,
         request: model_service.BatchImportModelEvaluationSlicesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_service.BatchImportModelEvaluationSlicesRequest, Sequence[Tuple[str, str]]
+        model_service.BatchImportModelEvaluationSlicesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for batch_import_model_evaluation_slices
 
@@ -280,8 +291,8 @@ class ModelServiceRestInterceptor:
     def pre_copy_model(
         self,
         request: model_service.CopyModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.CopyModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[model_service.CopyModelRequest, Sequence[Tuple[str, Union[str, bytes]]]]:
         """Pre-rpc interceptor for copy_model
 
         Override in a subclass to manipulate the request or metadata
@@ -303,8 +314,10 @@ class ModelServiceRestInterceptor:
     def pre_delete_model(
         self,
         request: model_service.DeleteModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.DeleteModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.DeleteModelRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_model
 
         Override in a subclass to manipulate the request or metadata
@@ -326,8 +339,10 @@ class ModelServiceRestInterceptor:
     def pre_delete_model_version(
         self,
         request: model_service.DeleteModelVersionRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.DeleteModelVersionRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.DeleteModelVersionRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_model_version
 
         Override in a subclass to manipulate the request or metadata
@@ -349,8 +364,10 @@ class ModelServiceRestInterceptor:
     def pre_export_model(
         self,
         request: model_service.ExportModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.ExportModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ExportModelRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for export_model
 
         Override in a subclass to manipulate the request or metadata
@@ -372,8 +389,8 @@ class ModelServiceRestInterceptor:
     def pre_get_model(
         self,
         request: model_service.GetModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.GetModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[model_service.GetModelRequest, Sequence[Tuple[str, Union[str, bytes]]]]:
         """Pre-rpc interceptor for get_model
 
         Override in a subclass to manipulate the request or metadata
@@ -393,8 +410,10 @@ class ModelServiceRestInterceptor:
     def pre_get_model_evaluation(
         self,
         request: model_service.GetModelEvaluationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.GetModelEvaluationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.GetModelEvaluationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_model_evaluation
 
         Override in a subclass to manipulate the request or metadata
@@ -416,8 +435,11 @@ class ModelServiceRestInterceptor:
     def pre_get_model_evaluation_slice(
         self,
         request: model_service.GetModelEvaluationSliceRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.GetModelEvaluationSliceRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.GetModelEvaluationSliceRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for get_model_evaluation_slice
 
         Override in a subclass to manipulate the request or metadata
@@ -439,8 +461,11 @@ class ModelServiceRestInterceptor:
     def pre_import_model_evaluation(
         self,
         request: model_service.ImportModelEvaluationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.ImportModelEvaluationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ImportModelEvaluationRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for import_model_evaluation
 
         Override in a subclass to manipulate the request or metadata
@@ -462,8 +487,11 @@ class ModelServiceRestInterceptor:
     def pre_list_model_evaluations(
         self,
         request: model_service.ListModelEvaluationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.ListModelEvaluationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelEvaluationsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for list_model_evaluations
 
         Override in a subclass to manipulate the request or metadata
@@ -485,9 +513,10 @@ class ModelServiceRestInterceptor:
     def pre_list_model_evaluation_slices(
         self,
         request: model_service.ListModelEvaluationSlicesRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_service.ListModelEvaluationSlicesRequest, Sequence[Tuple[str, str]]
+        model_service.ListModelEvaluationSlicesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for list_model_evaluation_slices
 
@@ -510,8 +539,10 @@ class ModelServiceRestInterceptor:
     def pre_list_models(
         self,
         request: model_service.ListModelsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.ListModelsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_models
 
         Override in a subclass to manipulate the request or metadata
@@ -533,8 +564,10 @@ class ModelServiceRestInterceptor:
     def pre_list_model_versions(
         self,
         request: model_service.ListModelVersionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.ListModelVersionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelVersionsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_model_versions
 
         Override in a subclass to manipulate the request or metadata
@@ -556,8 +589,11 @@ class ModelServiceRestInterceptor:
     def pre_merge_version_aliases(
         self,
         request: model_service.MergeVersionAliasesRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.MergeVersionAliasesRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.MergeVersionAliasesRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for merge_version_aliases
 
         Override in a subclass to manipulate the request or metadata
@@ -577,9 +613,10 @@ class ModelServiceRestInterceptor:
     def pre_update_explanation_dataset(
         self,
         request: model_service.UpdateExplanationDatasetRequest,
-        metadata: Sequence[Tuple[str, str]],
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
     ) -> Tuple[
-        model_service.UpdateExplanationDatasetRequest, Sequence[Tuple[str, str]]
+        model_service.UpdateExplanationDatasetRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
     ]:
         """Pre-rpc interceptor for update_explanation_dataset
 
@@ -602,8 +639,10 @@ class ModelServiceRestInterceptor:
     def pre_update_model(
         self,
         request: model_service.UpdateModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.UpdateModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.UpdateModelRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for update_model
 
         Override in a subclass to manipulate the request or metadata
@@ -623,8 +662,10 @@ class ModelServiceRestInterceptor:
     def pre_upload_model(
         self,
         request: model_service.UploadModelRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[model_service.UploadModelRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.UploadModelRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for upload_model
 
         Override in a subclass to manipulate the request or metadata
@@ -646,8 +687,10 @@ class ModelServiceRestInterceptor:
     def pre_get_location(
         self,
         request: locations_pb2.GetLocationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.GetLocationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.GetLocationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_location
 
         Override in a subclass to manipulate the request or metadata
@@ -669,8 +712,10 @@ class ModelServiceRestInterceptor:
     def pre_list_locations(
         self,
         request: locations_pb2.ListLocationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[locations_pb2.ListLocationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        locations_pb2.ListLocationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_locations
 
         Override in a subclass to manipulate the request or metadata
@@ -692,8 +737,10 @@ class ModelServiceRestInterceptor:
     def pre_get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.GetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -713,8 +760,10 @@ class ModelServiceRestInterceptor:
     def pre_set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.SetIamPolicyRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for set_iam_policy
 
         Override in a subclass to manipulate the request or metadata
@@ -734,8 +783,11 @@ class ModelServiceRestInterceptor:
     def pre_test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[iam_policy_pb2.TestIamPermissionsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        iam_policy_pb2.TestIamPermissionsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
         """Pre-rpc interceptor for test_iam_permissions
 
         Override in a subclass to manipulate the request or metadata
@@ -757,8 +809,10 @@ class ModelServiceRestInterceptor:
     def pre_cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.CancelOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.CancelOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for cancel_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -778,8 +832,10 @@ class ModelServiceRestInterceptor:
     def pre_delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.DeleteOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for delete_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -799,8 +855,10 @@ class ModelServiceRestInterceptor:
     def pre_get_operation(
         self,
         request: operations_pb2.GetOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.GetOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.GetOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for get_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -822,8 +880,10 @@ class ModelServiceRestInterceptor:
     def pre_list_operations(
         self,
         request: operations_pb2.ListOperationsRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.ListOperationsRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.ListOperationsRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for list_operations
 
         Override in a subclass to manipulate the request or metadata
@@ -845,8 +905,10 @@ class ModelServiceRestInterceptor:
     def pre_wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest,
-        metadata: Sequence[Tuple[str, str]],
-    ) -> Tuple[operations_pb2.WaitOperationRequest, Sequence[Tuple[str, str]]]:
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        operations_pb2.WaitOperationRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
         """Pre-rpc interceptor for wait_operation
 
         Override in a subclass to manipulate the request or metadata
@@ -1528,6 +1590,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                     },
                     {
@@ -1741,6 +1807,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1950,6 +2020,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
                     },
                     {
@@ -2164,6 +2238,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
                     },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
                 ],
                 "google.longrunning.Operations.ListOperations": [
                     {
@@ -2361,6 +2439,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "get",
@@ -2578,6 +2660,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
                     },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
                     {
@@ -2775,6 +2861,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
@@ -2988,6 +3078,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
                     },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
                 ],
             }
 
@@ -3044,7 +3138,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_service.BatchImportEvaluatedAnnotationsResponse:
             r"""Call the batch import evaluated
             annotations method over HTTP.
@@ -3056,8 +3150,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.model_service.BatchImportEvaluatedAnnotationsResponse:
@@ -3069,6 +3165,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -3087,6 +3184,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.BatchImportEvaluatedAnnotations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "BatchImportEvaluatedAnnotations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._BatchImportEvaluatedAnnotations._get_response(
@@ -3109,7 +3233,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_service.BatchImportEvaluatedAnnotationsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_batch_import_evaluated_annotations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_service.BatchImportEvaluatedAnnotationsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.batch_import_evaluated_annotations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "BatchImportEvaluatedAnnotations",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _BatchImportModelEvaluationSlices(
@@ -3149,7 +3299,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_service.BatchImportModelEvaluationSlicesResponse:
             r"""Call the batch import model
             evaluation slices method over HTTP.
@@ -3161,8 +3311,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.model_service.BatchImportModelEvaluationSlicesResponse:
@@ -3174,6 +3326,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_http_options()
             )
+
             (
                 request,
                 metadata,
@@ -3192,6 +3345,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.BatchImportModelEvaluationSlices",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "BatchImportModelEvaluationSlices",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._BatchImportModelEvaluationSlices._get_response(
@@ -3214,7 +3394,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_service.BatchImportModelEvaluationSlicesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_batch_import_model_evaluation_slices(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_service.BatchImportModelEvaluationSlicesResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.batch_import_model_evaluation_slices",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "BatchImportModelEvaluationSlices",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _CopyModel(
@@ -3253,7 +3459,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the copy model method over HTTP.
 
@@ -3264,8 +3470,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3278,6 +3486,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseCopyModel._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_copy_model(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseCopyModel._get_transcoded_request(
@@ -3295,6 +3504,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.CopyModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "CopyModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._CopyModel._get_response(
@@ -3315,7 +3551,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_copy_model(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.copy_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "CopyModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteModel(
@@ -3353,7 +3611,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete model method over HTTP.
 
@@ -3364,8 +3622,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3378,6 +3638,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseDeleteModel._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_model(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseDeleteModel._get_transcoded_request(
@@ -3391,6 +3652,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.DeleteModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "DeleteModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._DeleteModel._get_response(
@@ -3410,7 +3698,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_model(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.delete_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "DeleteModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _DeleteModelVersion(
@@ -3448,7 +3758,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the delete model version method over HTTP.
 
@@ -3459,8 +3769,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3473,6 +3785,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseDeleteModelVersion._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_model_version(
                 request, metadata
             )
@@ -3484,6 +3797,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseDeleteModelVersion._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.DeleteModelVersion",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "DeleteModelVersion",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._DeleteModelVersion._get_response(
@@ -3503,7 +3843,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_delete_model_version(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.delete_model_version",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "DeleteModelVersion",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ExportModel(
@@ -3542,7 +3904,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the export model method over HTTP.
 
@@ -3553,8 +3915,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -3567,6 +3931,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseExportModel._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_export_model(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseExportModel._get_transcoded_request(
@@ -3587,6 +3952,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 )
             )
 
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ExportModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ExportModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
             # Send the request
             response = ModelServiceRestTransport._ExportModel._get_response(
                 self._host,
@@ -3606,7 +3998,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_export_model(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.export_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ExportModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetModel(_BaseModelServiceRestTransport._BaseGetModel, ModelServiceRestStub):
@@ -3642,7 +4056,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model.Model:
             r"""Call the get model method over HTTP.
 
@@ -3653,8 +4067,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model.Model:
@@ -3664,6 +4080,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseGetModel._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_model(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseGetModel._get_transcoded_request(
@@ -3677,6 +4094,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.GetModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._GetModel._get_response(
@@ -3698,7 +4142,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model.Model.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_model(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model.Model.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.get_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetModelEvaluation(
@@ -3736,7 +4202,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_evaluation.ModelEvaluation:
             r"""Call the get model evaluation method over HTTP.
 
@@ -3747,8 +4213,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model_evaluation.ModelEvaluation:
@@ -3762,6 +4230,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseGetModelEvaluation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_model_evaluation(
                 request, metadata
             )
@@ -3773,6 +4242,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseGetModelEvaluation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.GetModelEvaluation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetModelEvaluation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._GetModelEvaluation._get_response(
@@ -3794,7 +4290,31 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_evaluation.ModelEvaluation.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_model_evaluation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_evaluation.ModelEvaluation.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.get_model_evaluation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetModelEvaluation",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _GetModelEvaluationSlice(
@@ -3833,7 +4353,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_evaluation_slice.ModelEvaluationSlice:
             r"""Call the get model evaluation
             slice method over HTTP.
@@ -3845,8 +4365,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.model_evaluation_slice.ModelEvaluationSlice:
@@ -3860,6 +4382,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseGetModelEvaluationSlice._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_model_evaluation_slice(
                 request, metadata
             )
@@ -3871,6 +4394,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseGetModelEvaluationSlice._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.GetModelEvaluationSlice",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetModelEvaluationSlice",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._GetModelEvaluationSlice._get_response(
@@ -3892,7 +4442,31 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_evaluation_slice.ModelEvaluationSlice.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_get_model_evaluation_slice(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_evaluation_slice.ModelEvaluationSlice.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.get_model_evaluation_slice",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetModelEvaluationSlice",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ImportModelEvaluation(
@@ -3931,7 +4505,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_model_evaluation.ModelEvaluation:
             r"""Call the import model evaluation method over HTTP.
 
@@ -3942,8 +4516,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_model_evaluation.ModelEvaluation:
@@ -3957,6 +4533,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseImportModelEvaluation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_import_model_evaluation(
                 request, metadata
             )
@@ -3972,6 +4549,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseImportModelEvaluation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ImportModelEvaluation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ImportModelEvaluation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._ImportModelEvaluation._get_response(
@@ -3994,7 +4598,31 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = gca_model_evaluation.ModelEvaluation.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_import_model_evaluation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_model_evaluation.ModelEvaluation.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.import_model_evaluation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ImportModelEvaluation",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListModelEvaluations(
@@ -4032,7 +4660,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_service.ListModelEvaluationsResponse:
             r"""Call the list model evaluations method over HTTP.
 
@@ -4043,8 +4671,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model_service.ListModelEvaluationsResponse:
@@ -4056,6 +4686,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseListModelEvaluations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_model_evaluations(
                 request, metadata
             )
@@ -4067,6 +4698,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseListModelEvaluations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ListModelEvaluations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelEvaluations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._ListModelEvaluations._get_response(
@@ -4088,7 +4746,31 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_service.ListModelEvaluationsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_model_evaluations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_service.ListModelEvaluationsResponse.to_json(response)
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.list_model_evaluations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelEvaluations",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListModelEvaluationSlices(
@@ -4127,7 +4809,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_service.ListModelEvaluationSlicesResponse:
             r"""Call the list model evaluation
             slices method over HTTP.
@@ -4139,8 +4821,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.model_service.ListModelEvaluationSlicesResponse:
@@ -4152,6 +4836,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseListModelEvaluationSlices._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_model_evaluation_slices(
                 request, metadata
             )
@@ -4163,6 +4848,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseListModelEvaluationSlices._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ListModelEvaluationSlices",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelEvaluationSlices",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4186,7 +4898,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_service.ListModelEvaluationSlicesResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_model_evaluation_slices(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_service.ListModelEvaluationSlicesResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.list_model_evaluation_slices",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelEvaluationSlices",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListModels(
@@ -4224,7 +4962,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_service.ListModelsResponse:
             r"""Call the list models method over HTTP.
 
@@ -4235,8 +4973,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model_service.ListModelsResponse:
@@ -4248,6 +4988,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseListModels._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_models(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseListModels._get_transcoded_request(
@@ -4261,6 +5002,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ListModels",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModels",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._ListModels._get_response(
@@ -4282,7 +5050,31 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_service.ListModelsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_models(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_service.ListModelsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.list_models",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModels",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _ListModelVersions(
@@ -4320,7 +5112,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model_service.ListModelVersionsResponse:
             r"""Call the list model versions method over HTTP.
 
@@ -4331,8 +5123,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model_service.ListModelVersionsResponse:
@@ -4344,6 +5138,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseListModelVersions._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_model_versions(
                 request, metadata
             )
@@ -4355,6 +5150,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseListModelVersions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ListModelVersions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelVersions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._ListModelVersions._get_response(
@@ -4376,7 +5198,31 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model_service.ListModelVersionsResponse.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_list_model_versions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model_service.ListModelVersionsResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.list_model_versions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelVersions",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _MergeVersionAliases(
@@ -4415,7 +5261,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> model.Model:
             r"""Call the merge version aliases method over HTTP.
 
@@ -4426,8 +5272,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.model.Model:
@@ -4437,6 +5285,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseMergeVersionAliases._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_merge_version_aliases(
                 request, metadata
             )
@@ -4452,6 +5301,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseMergeVersionAliases._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.MergeVersionAliases",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "MergeVersionAliases",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._MergeVersionAliases._get_response(
@@ -4474,7 +5350,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = model.Model.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_merge_version_aliases(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = model.Model.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.merge_version_aliases",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "MergeVersionAliases",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateExplanationDataset(
@@ -4514,7 +5412,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the update explanation
             dataset method over HTTP.
@@ -4526,8 +5424,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     retry (google.api_core.retry.Retry): Designation of what errors, if any,
                         should be retried.
                     timeout (float): The timeout for this request.
-                    metadata (Sequence[Tuple[str, str]]): Strings which should be
-                        sent along with the request as metadata.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
 
                 Returns:
                     ~.operations_pb2.Operation:
@@ -4540,6 +5440,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseUpdateExplanationDataset._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_explanation_dataset(
                 request, metadata
             )
@@ -4555,6 +5456,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseUpdateExplanationDataset._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.UpdateExplanationDataset",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "UpdateExplanationDataset",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = (
@@ -4577,7 +5505,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_explanation_dataset(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.update_explanation_dataset",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "UpdateExplanationDataset",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UpdateModel(
@@ -4616,7 +5566,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> gca_model.Model:
             r"""Call the update model method over HTTP.
 
@@ -4627,8 +5577,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.gca_model.Model:
@@ -4638,6 +5590,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseUpdateModel._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_update_model(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseUpdateModel._get_transcoded_request(
@@ -4657,6 +5610,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.UpdateModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "UpdateModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._UpdateModel._get_response(
@@ -4679,7 +5659,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             pb_resp = gca_model.Model.pb(resp)
 
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_update_model(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = gca_model.Model.to_json(response)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.update_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "UpdateModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     class _UploadModel(
@@ -4718,7 +5720,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
             r"""Call the upload model method over HTTP.
 
@@ -4729,8 +5731,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 ~.operations_pb2.Operation:
@@ -4743,6 +5747,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseUploadModel._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_upload_model(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseUploadModel._get_transcoded_request(
@@ -4763,6 +5768,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 )
             )
 
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.UploadModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "UploadModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
             # Send the request
             response = ModelServiceRestTransport._UploadModel._get_response(
                 self._host,
@@ -4782,7 +5814,29 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             # Return the response
             resp = operations_pb2.Operation()
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
             resp = self._interceptor.post_upload_model(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.upload_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "UploadModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
             return resp
 
     @property
@@ -4991,7 +6045,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.Location:
 
             r"""Call the get location method over HTTP.
@@ -5002,8 +6056,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.Location: Response from GetLocation method.
@@ -5012,6 +6068,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseGetLocation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_location(request, metadata)
             transcoded_request = (
                 _BaseModelServiceRestTransport._BaseGetLocation._get_transcoded_request(
@@ -5025,6 +6082,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetLocation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._GetLocation._get_response(
@@ -5045,6 +6129,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = locations_pb2.Location()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_location(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.GetLocation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetLocation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5086,7 +6191,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> locations_pb2.ListLocationsResponse:
 
             r"""Call the list locations method over HTTP.
@@ -5097,8 +6202,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 locations_pb2.ListLocationsResponse: Response from ListLocations method.
@@ -5107,6 +6214,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseListLocations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_locations(request, metadata)
             transcoded_request = _BaseModelServiceRestTransport._BaseListLocations._get_transcoded_request(
                 http_options, request
@@ -5116,6 +6224,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseListLocations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListLocations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._ListLocations._get_response(
@@ -5136,6 +6271,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = locations_pb2.ListLocationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_locations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.ListLocations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListLocations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5178,7 +6334,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the get iam policy method over HTTP.
@@ -5189,8 +6345,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from GetIamPolicy method.
@@ -5199,6 +6357,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseGetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_iam_policy(request, metadata)
             transcoded_request = _BaseModelServiceRestTransport._BaseGetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -5216,6 +6375,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._GetIamPolicy._get_response(
@@ -5237,6 +6423,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.GetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5279,7 +6486,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> policy_pb2.Policy:
 
             r"""Call the set iam policy method over HTTP.
@@ -5290,8 +6497,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 policy_pb2.Policy: Response from SetIamPolicy method.
@@ -5300,6 +6509,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseSetIamPolicy._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_set_iam_policy(request, metadata)
             transcoded_request = _BaseModelServiceRestTransport._BaseSetIamPolicy._get_transcoded_request(
                 http_options, request
@@ -5317,6 +6527,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "SetIamPolicy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._SetIamPolicy._get_response(
@@ -5338,6 +6575,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = policy_pb2.Policy()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_set_iam_policy(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.SetIamPolicy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "SetIamPolicy",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5380,7 +6638,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> iam_policy_pb2.TestIamPermissionsResponse:
 
             r"""Call the test iam permissions method over HTTP.
@@ -5391,8 +6649,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 iam_policy_pb2.TestIamPermissionsResponse: Response from TestIamPermissions method.
@@ -5401,6 +6661,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseTestIamPermissions._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_test_iam_permissions(
                 request, metadata
             )
@@ -5416,6 +6677,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseTestIamPermissions._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "TestIamPermissions",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._TestIamPermissions._get_response(
@@ -5437,6 +6725,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = iam_policy_pb2.TestIamPermissionsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_test_iam_permissions(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.TestIamPermissions",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "TestIamPermissions",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5478,7 +6787,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the cancel operation method over HTTP.
@@ -5489,13 +6798,16 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseModelServiceRestTransport._BaseCancelOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_cancel_operation(
                 request, metadata
             )
@@ -5507,6 +6819,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseCancelOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.CancelOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "CancelOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._CancelOperation._get_response(
@@ -5564,7 +6903,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> None:
 
             r"""Call the delete operation method over HTTP.
@@ -5575,13 +6914,16 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
             """
 
             http_options = (
                 _BaseModelServiceRestTransport._BaseDeleteOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_delete_operation(
                 request, metadata
             )
@@ -5593,6 +6935,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseDeleteOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.DeleteOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "DeleteOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._DeleteOperation._get_response(
@@ -5650,7 +7019,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the get operation method over HTTP.
@@ -5661,8 +7030,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from GetOperation method.
@@ -5671,6 +7042,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseGetOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_get_operation(request, metadata)
             transcoded_request = _BaseModelServiceRestTransport._BaseGetOperation._get_transcoded_request(
                 http_options, request
@@ -5682,6 +7054,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     transcoded_request
                 )
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._GetOperation._get_response(
@@ -5702,6 +7101,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_get_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.GetOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "GetOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5743,7 +7163,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.ListOperationsResponse:
 
             r"""Call the list operations method over HTTP.
@@ -5754,8 +7174,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.ListOperationsResponse: Response from ListOperations method.
@@ -5764,6 +7186,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseListOperations._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_list_operations(request, metadata)
             transcoded_request = _BaseModelServiceRestTransport._BaseListOperations._get_transcoded_request(
                 http_options, request
@@ -5773,6 +7196,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseListOperations._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListOperations",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._ListOperations._get_response(
@@ -5793,6 +7243,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = operations_pb2.ListOperationsResponse()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_list_operations(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.ListOperations",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListOperations",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
@@ -5834,7 +7305,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             *,
             retry: OptionalRetry = gapic_v1.method.DEFAULT,
             timeout: Optional[float] = None,
-            metadata: Sequence[Tuple[str, str]] = (),
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
         ) -> operations_pb2.Operation:
 
             r"""Call the wait operation method over HTTP.
@@ -5845,8 +7316,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
-                metadata (Sequence[Tuple[str, str]]): Strings which should be
-                    sent along with the request as metadata.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
 
             Returns:
                 operations_pb2.Operation: Response from WaitOperation method.
@@ -5855,6 +7328,7 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             http_options = (
                 _BaseModelServiceRestTransport._BaseWaitOperation._get_http_options()
             )
+
             request, metadata = self._interceptor.pre_wait_operation(request, metadata)
             transcoded_request = _BaseModelServiceRestTransport._BaseWaitOperation._get_transcoded_request(
                 http_options, request
@@ -5864,6 +7338,33 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             query_params = _BaseModelServiceRestTransport._BaseWaitOperation._get_query_params_json(
                 transcoded_request
             )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "WaitOperation",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
 
             # Send the request
             response = ModelServiceRestTransport._WaitOperation._get_response(
@@ -5884,6 +7385,27 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             resp = operations_pb2.Operation()
             resp = json_format.Parse(content, resp)
             resp = self._interceptor.post_wait_operation(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceAsyncClient.WaitOperation",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "WaitOperation",
+                        "httpResponse": http_response,
+                        "metadata": http_response["headers"],
+                    },
+                )
             return resp
 
     @property
