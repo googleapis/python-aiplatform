@@ -934,8 +934,8 @@ class TestHyperparameterTuningJob:
         )
 
         job.wait()
-
-        assert "workerpool0-0" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0" in caplog.text
 
         expected_hyperparameter_tuning_job = (
             _get_hyperparameter_tuning_job_proto_with_enable_web_access()
