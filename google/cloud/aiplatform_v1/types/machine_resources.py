@@ -141,6 +141,14 @@ class DedicatedResources(proto.Message):
             (max_replica_count \* number of cores in the selected
             machine type) and (max_replica_count \* number of GPUs per
             replica in the selected machine type).
+        required_replica_count (int):
+            Optional. Number of required available replicas for the
+            deployment to succeed. This field is only needed when
+            partial model deployment/mutation is desired. If set, the
+            model deploy/mutate operation will succeed once
+            available_replica_count reaches required_replica_count, and
+            the rest of the replicas will be retried. If not set, the
+            default required_replica_count will be min_replica_count.
         autoscaling_metric_specs (MutableSequence[google.cloud.aiplatform_v1.types.AutoscalingMetricSpec]):
             Immutable. The metric specifications that overrides a
             resource utilization metric (CPU utilization, accelerator's
@@ -186,6 +194,10 @@ class DedicatedResources(proto.Message):
     max_replica_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    required_replica_count: int = proto.Field(
+        proto.INT32,
+        number=9,
     )
     autoscaling_metric_specs: MutableSequence[
         "AutoscalingMetricSpec"

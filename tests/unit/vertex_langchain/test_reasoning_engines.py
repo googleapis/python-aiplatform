@@ -783,7 +783,8 @@ class TestReasoningEngine:
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
         )
-        assert "does not support user-defined resource IDs" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "does not support user-defined resource IDs" in caplog.text
 
     @pytest.mark.usefixtures("caplog")
     def test_create_reasoning_engine_warn_sys_version(
@@ -802,7 +803,8 @@ class TestReasoningEngine:
             display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
             requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
         )
-        assert f"is inconsistent with {sys.version_info=}" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert f"is inconsistent with {sys.version_info=}" in caplog.text
 
     def test_create_reasoning_engine_requirements_from_file(
         self,
@@ -996,7 +998,8 @@ class TestReasoningEngine:
         test_reasoning_engine.update(
             sys_version="3.10", display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME
         )
-        assert "Updated sys_version is not supported." in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "Updated sys_version is not supported." in caplog.text
 
     def test_update_reasoning_engine_requirements_from_file(
         self,

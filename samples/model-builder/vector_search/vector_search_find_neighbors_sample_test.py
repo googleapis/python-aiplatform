@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest.mock import call
+
 import test_constants as constants
 from vector_search import vector_search_find_neighbors_sample
 
@@ -24,8 +26,8 @@ def test_vector_search_find_neighbors_sample(
         location=constants.LOCATION,
         index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT,
         deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        queries=constants.VECTOR_SEARCH_INDEX_QUERIES,
-        num_neighbors=10,
+        queries=constants.VECTOR_SERACH_INDEX_QUERIES,
+        num_neighbors=10
     )
 
     # Check client initialization
@@ -35,79 +37,23 @@ def test_vector_search_find_neighbors_sample(
 
     # Check index endpoint initialization with right index endpoint name
     mock_index_endpoint_init.assert_called_with(
-        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT
-    )
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT)
 
     # Check index_endpoint.find_neighbors is called with right params.
-    mock_index_endpoint_find_neighbors.assert_called_with(
-        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        queries=constants.VECTOR_SEARCH_INDEX_QUERIES,
-        num_neighbors=10,
-    )
-
-
-def test_vector_search_find_neighbors_hybrid_sample(
-    mock_sdk_init, mock_index_endpoint_init, mock_index_endpoint_find_neighbors
-):
-    vector_search_find_neighbors_sample.vector_search_find_neighbors_hybrid_queries(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT,
-        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        num_neighbors=10,
-    )
-
-    # Check client initialization
-    mock_sdk_init.assert_called_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
-
-    # Check index endpoint initialization with right index endpoint name
-    mock_index_endpoint_init.assert_called_with(
-        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT
-    )
-
-    # Check index_endpoint.find_neighbors is called with right params.
-    mock_index_endpoint_find_neighbors.assert_called_with(
-        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        queries=constants.VECTOR_SEARCH_INDEX_HYBRID_QUERIES,
-        num_neighbors=10,
-    )
-
-
-def test_vector_search_find_neighbors_filtering_crowding_sample(
-    mock_sdk_init, mock_index_endpoint_init, mock_index_endpoint_find_neighbors
-):
-    vector_search_find_neighbors_sample.vector_search_find_neighbors_filtering_crowding(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT,
-        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        queries=constants.VECTOR_SEARCH_INDEX_QUERIES,
-        num_neighbors=10,
-        filter=constants.VECTOR_SEARCH_FILTER,
-        numeric_filter=constants.VECTOR_SEARCH_NUMERIC_FILTER,
-        per_crowding_attribute_neighbor_count=constants.VECTOR_SEARCH_PER_CROWDING_ATTRIBUTE_NEIGHBOR_COUNT,
-    )
-
-    # Check client initialization
-    mock_sdk_init.assert_called_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
-
-    # Check index endpoint initialization with right index endpoint name
-    mock_index_endpoint_init.assert_called_with(
-        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT
-    )
-
-    # Check index_endpoint.find_neighbors is called with right params.
-    mock_index_endpoint_find_neighbors.assert_called_with(
-        deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        queries=constants.VECTOR_SEARCH_INDEX_QUERIES,
-        num_neighbors=10,
-        filter=constants.VECTOR_SEARCH_FILTER,
-        numeric_filter=constants.VECTOR_SEARCH_NUMERIC_FILTER,
-        per_crowding_attribute_neighbor_count=constants.VECTOR_SEARCH_PER_CROWDING_ATTRIBUTE_NEIGHBOR_COUNT,
+    mock_index_endpoint_find_neighbors.assert_has_calls(
+        [
+            call(
+                deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+                queries=constants.VECTOR_SERACH_INDEX_QUERIES,
+                num_neighbors=10,
+            ),
+            call(
+                deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
+                queries=constants.VECTOR_SERACH_INDEX_HYBRID_QUERIES,
+                num_neighbors=10,
+            ),
+        ],
+        any_order=False,
     )
 
 
@@ -119,7 +65,7 @@ def test_vector_search_find_neighbors_jwt_sample(
         location=constants.LOCATION,
         index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT,
         deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        queries=constants.VECTOR_SEARCH_INDEX_QUERIES,
+        queries=constants.VECTOR_SERACH_INDEX_QUERIES,
         num_neighbors=10,
         signed_jwt=constants.VECTOR_SEARCH_PRIVATE_ENDPOINT_SIGNED_JWT,
     )
@@ -131,13 +77,12 @@ def test_vector_search_find_neighbors_jwt_sample(
 
     # Check index endpoint initialization with right index endpoint name
     mock_index_endpoint_init.assert_called_with(
-        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT
-    )
+        index_endpoint_name=constants.VECTOR_SEARCH_INDEX_ENDPOINT)
 
     # Check index_endpoint.find_neighbors is called with right params.
     mock_index_endpoint_find_neighbors.assert_called_with(
         deployed_index_id=constants.VECTOR_SEARCH_DEPLOYED_INDEX_ID,
-        queries=constants.VECTOR_SEARCH_INDEX_QUERIES,
+        queries=constants.VECTOR_SERACH_INDEX_QUERIES,
         num_neighbors=10,
         signed_jwt=constants.VECTOR_SEARCH_PRIVATE_ENDPOINT_SIGNED_JWT,
     )

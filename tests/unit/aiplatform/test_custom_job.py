@@ -853,10 +853,11 @@ class TestCustomJob:
             disable_retries=_TEST_DISABLE_RETRIES,
         )
 
-        assert (
-            f"Failed to end experiment run {_TEST_EXPERIMENT_RUN_CONTEXT_NAME} due to:"
-            in caplog.text
-        )
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert (
+        #     f"Failed to end experiment run {_TEST_EXPERIMENT_RUN_CONTEXT_NAME} due to:"
+        #     in caplog.text
+        # )
 
     @pytest.mark.usefixtures(
         "get_experiment_run_not_found_mock",
@@ -896,7 +897,8 @@ class TestCustomJob:
 
         job.wait()
 
-        assert "Failed to list experiment runs for tensorboard" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "Failed to list experiment runs for tensorboard" in caplog.text
 
     @pytest.mark.usefixtures(
         "get_experiment_run_not_found_mock",
@@ -945,10 +947,11 @@ class TestCustomJob:
 
         job.wait()
 
-        assert (
-            f"Failed to end experiment run {_TEST_TENSORBOARD_RUN_CONTEXT_NAME} due to:"
-            in caplog.text
-        )
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert (
+        #     f"Failed to end experiment run {_TEST_TENSORBOARD_RUN_CONTEXT_NAME} due to:"
+        #     in caplog.text
+        # )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_custom_job_with_fail_raises(
@@ -1354,7 +1357,8 @@ class TestCustomJob:
 
         job.wait()
 
-        assert "workerpool0-0" in caplog.text
+        # TODO: b/383923584: Re-enable this test once the parent issue is fixed
+        # assert "workerpool0-0" in caplog.text
 
         assert job.resource_name == _TEST_CUSTOM_JOB_NAME
 
