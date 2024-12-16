@@ -25,7 +25,7 @@ def create_custom_job_psci_sample(
     machine_type: str,
     replica_count: int,
     image_uri: str,
-    network_attachment_name: str,
+    network_attachment: str,
 ):
     """Custom training job sample with PSC-I through aiplatform_v1beta1."""
     aiplatform.init(project=project, location=location, staging_bucket=bucket)
@@ -51,7 +51,7 @@ def create_custom_job_psci_sample(
                     )
                 ],
                 psc_interface_config=aiplatform_v1beta1.PscInterfaceConfig(
-                    network_attachment=network_attachment_name,
+                    network_attachment=network_attachment,
                 ),
             ),
         ),
