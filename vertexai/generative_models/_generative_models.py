@@ -1638,6 +1638,8 @@ class ResponseValidationError(ResponseBlockedError):
 class GenerationConfig:
     """Parameters for the generation."""
 
+    Modality = gapic_content_types.GenerationConfig.Modality
+
     def __init__(
         self,
         *,
@@ -1656,6 +1658,7 @@ class GenerationConfig:
         routing_config: Optional["RoutingConfig"] = None,
         logprobs: Optional[int] = None,
         response_logprobs: Optional[bool] = None,
+        response_modalities: Optional[List["GenerationConfig.Modality"]] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1725,6 +1728,7 @@ class GenerationConfig:
             audio_timestamp=audio_timestamp,
             logprobs=logprobs,
             response_logprobs=response_logprobs,
+            response_modalities=response_modalities,
         )
         if routing_config is not None:
             self._raw_generation_config.routing_config = (

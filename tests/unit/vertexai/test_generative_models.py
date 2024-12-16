@@ -748,6 +748,7 @@ class TestGenerativeModels:
                 frequency_penalty=0.0,
                 logprobs=5,
                 response_logprobs=True,
+                response_modalities=["TEXT"],
             ),
             safety_settings=[
                 generative_models.SafetySetting(
