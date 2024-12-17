@@ -18,6 +18,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Iterable,
     Mapping,
     Optional,
     Sequence,
@@ -609,3 +610,33 @@ class LangchainAgent:
         return langchain_load_dump.dumpd(
             self._runnable.invoke(input=input, config=config, **kwargs)
         )
+
+    def stream_query(
+        self,
+        *,
+        input: Union[str, Mapping[str, Any]],
+        config: Optional["RunnableConfig"] = None,
+        **kwargs,
+    ) -> Iterable[Any]:
+        """Stream queries the Agent with the given input and config.
+
+        Args:
+            input (Union[str, Mapping[str, Any]]):
+                Required. The input to be passed to the Agent.
+            config (langchain_core.runnables.RunnableConfig):
+                Optional. The config (if any) to be used for invoking the Agent.
+            **kwargs:
+                Optional. Any additional keyword arguments to be passed to the
+                `.invoke()` method of the corresponding AgentExecutor.
+
+        Yields:
+            The output of querying the Agent with the given input and config.
+        """
+        from langchain.load import dump as langchain_load_dump
+
+        if isinstance(input, str):
+            input = {"input": input}
+        if not self._runnable:
+            self.set_up()
+        for chunk in self._runnable.stream(input=input, config=config, **kwargs):
+            yield langchain_load_dump.dumpd(chunk)
