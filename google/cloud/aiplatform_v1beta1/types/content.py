@@ -172,6 +172,9 @@ class Part(proto.Message):
             or file_data.
 
             This field is a member of `oneof`_ ``metadata``.
+        thought (bool):
+            Output only. Indicates if the part is thought
+            from the model.
     """
 
     text: str = proto.Field(
@@ -220,6 +223,10 @@ class Part(proto.Message):
         number=4,
         oneof="metadata",
         message="VideoMetadata",
+    )
+    thought: bool = proto.Field(
+        proto.BOOL,
+        number=10,
     )
 
 
