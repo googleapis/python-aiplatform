@@ -32,7 +32,7 @@ def test_create_custom_job_psci_sample(
         machine_type=constants.MACHINE_TYPE,
         replica_count=1,
         image_uri=constants.TRAIN_IMAGE,
-        network_attachment_name=constants.NETWORK_ATTACHMENT_NAME,
+        network_attachment=constants.NETWORK_ATTACHMENT_NAME,
     )
 
     mock_sdk_init.assert_called_once_with(

@@ -221,6 +221,16 @@ class TestLangchainAgent:
             [mock.call.invoke.invoke(input={"input": "test query"}, config=None)]
         )
 
+    def test_stream_query(self, langchain_dump_mock):
+        agent = reasoning_engines.LangchainAgent(model=_TEST_MODEL)
+        agent._runnable = mock.Mock()
+        agent._runnable.stream.return_value = []
+        list(agent.stream_query(input="test stream query"))
+        agent._runnable.stream.assert_called_once_with(
+            input={"input": "test stream query"},
+            config=None,
+        )
+
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(
         self,

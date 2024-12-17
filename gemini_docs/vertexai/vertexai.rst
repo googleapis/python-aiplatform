@@ -16,6 +16,16 @@ Vertex AI SDK
     :show-inheritance:
     :inherited-members:
 
+.. automodule:: vertexai.preview.prompts._prompts
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
+.. automodule:: vertexai.preview.prompts._prompt_management
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
 .. automodule:: vertexai.language_models
     :members:
     :show-inheritance:

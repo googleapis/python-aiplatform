@@ -383,13 +383,13 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             project:
-                Project to create feature in. If unset, the project set in
+                Project to list features in. If unset, the project set in
                 aiplatform.init will be used.
             location:
-                Location to create feature in. If not set, location set in
+                Location to list features in. If not set, location set in
                 aiplatform.init will be used.
             credentials:
-                Custom credentials to use to create this feature. Overrides
+                Custom credentials to use to list features. Overrides
                 credentials set in aiplatform.init.
 
         Returns:
