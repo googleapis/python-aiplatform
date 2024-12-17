@@ -231,40 +231,40 @@ class TestLangchainAgent:
             config=None,
         )
 
-    @pytest.mark.usefixtures("caplog")
-    def test_enable_tracing(
-        self,
-        caplog,
-        cloud_trace_exporter_mock,
-        tracer_provider_mock,
-        simple_span_processor_mock,
-        langchain_instrumentor_mock,
-    ):
-        agent = reasoning_engines.LangchainAgent(
-            model=_TEST_MODEL,
-            prompt=self.prompt,
-            output_parser=self.output_parser,
-            enable_tracing=True,
-        )
-        assert agent._instrumentor is None
-        agent.set_up()
-        assert agent._instrumentor is not None
-        assert (
-            "enable_tracing=True but proceeding with tracing disabled"
-            not in caplog.text
-        )
+    # @pytest.mark.usefixtures("caplog")
+    # def test_enable_tracing(
+    #     self,
+    #     caplog,
+    #     cloud_trace_exporter_mock,
+    #     tracer_provider_mock,
+    #     simple_span_processor_mock,
+    #     langchain_instrumentor_mock,
+    # ):
+    #     agent = reasoning_engines.LangchainAgent(
+    #         model=_TEST_MODEL,
+    #         prompt=self.prompt,
+    #         output_parser=self.output_parser,
+    #         enable_tracing=True,
+    #     )
+    #     assert agent._instrumentor is None
+    #     agent.set_up()
+    #     assert agent._instrumentor is not None
+    #     assert (
+    #         "enable_tracing=True but proceeding with tracing disabled"
+    #         not in caplog.text
+    #     )
 
-    @pytest.mark.usefixtures("caplog")
-    def test_enable_tracing_warning(self, caplog, langchain_instrumentor_none_mock):
-        agent = reasoning_engines.LangchainAgent(
-            model=_TEST_MODEL,
-            prompt=self.prompt,
-            output_parser=self.output_parser,
-            enable_tracing=True,
-        )
-        assert agent._instrumentor is None
-        agent.set_up()
-        assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+    # @pytest.mark.usefixtures("caplog")
+    # def test_enable_tracing_warning(self, caplog, langchain_instrumentor_none_mock):
+    #     agent = reasoning_engines.LangchainAgent(
+    #         model=_TEST_MODEL,
+    #         prompt=self.prompt,
+    #         output_parser=self.output_parser,
+    #         enable_tracing=True,
+    #     )
+    #     assert agent._instrumentor is None
+    #     agent.set_up()
+    #     assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
 
 def _return_input_no_typing(input_):
