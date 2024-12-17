@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.75.0](https://github.com/googleapis/python-aiplatform/compare/v1.74.0...v1.75.0) (2024-12-17)
+
+
+### Features
+
+* A new field `list_all_versions` to `ListPublisherModelsRequest` ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* A new value `NVIDIA_H100_MEGA_80GB` is added to enum `AcceleratorType` ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Add new `RequiredReplicaCount` field to DedicatedResources in MachineResources ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Add new `Status` field to DeployedModel in Endpoint ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Add new `Status` field to DeployedModel in Endpoint ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Add properties feature_stats_and_anomalies to `FeatureMonitorJob` ([92feb60](https://github.com/googleapis/python-aiplatform/commit/92feb600b72efa384f6bbc075061403dc2663ca7))
+* Add service renaming to GoSettings ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Add support for opt-in debug logging ([#4734](https://github.com/googleapis/python-aiplatform/issues/4734)) ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Add workbench_runtime and kernel_name to NotebookExecutionJob ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Add workbench_runtime and kernel_name to NotebookExecutionJob ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* Feature Store - Support returning stats in get feature ([9a12097](https://github.com/googleapis/python-aiplatform/commit/9a12097aef6fc0aa2a4685688e366fca93dfbae5))
+* GenAI - Added support for `GenerationConfig.response_modalities` ([78898fc](https://github.com/googleapis/python-aiplatform/commit/78898fc70fc43a5fddf1d3b5af54c789f50f4540))
+* Support `stream_query` in LangChain Agent Templates in the Python Reasoning Engine Client ([99f613b](https://github.com/googleapis/python-aiplatform/commit/99f613b1c029f4ba7379fdf7b1c5ea653f5021b0))
+* Support streaming in the Reasoning Engine Python client. ([a604a2e](https://github.com/googleapis/python-aiplatform/commit/a604a2e5d037836691c30625dc57311baefc74d3))
+
+
+### Bug Fixes
+
+* RAG - Fix the uri used for upload_file ([05f27b6](https://github.com/googleapis/python-aiplatform/commit/05f27b60e142433889824f3bbd6caa93ec56083b))
+* Rag - fix upload file environment mismatch ([b9fecea](https://github.com/googleapis/python-aiplatform/commit/b9fecea66c95abf1ecc8dce4e72374daa7220ec3))
+
+
+### Documentation
+
+* A comment for field `encryption_spec` in message `.google.cloud.aiplatform.v1.NotebookExecutionJob` is changed ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+* A comment for field `encryption_spec` in message `.google.cloud.aiplatform.v1beta1.NotebookExecutionJob` is changed ([4b7799b](https://github.com/googleapis/python-aiplatform/commit/4b7799bf1cb64edf2a3485e1ac593015122a7631))
+
 ## [1.74.0](https://github.com/googleapis/python-aiplatform/compare/v1.73.0...v1.74.0) (2024-12-04)
 
 
