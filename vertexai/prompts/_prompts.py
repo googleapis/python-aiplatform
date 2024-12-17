@@ -79,7 +79,6 @@ class Prompt:
                 top_k=20,
                 candidate_count=1,
                 max_output_tokens=100,
-                stop_sequences=["\n\n\n"],
             ),
             model_name="gemini-1.0-pro-002",
             safety_settings=[SafetySetting(
@@ -109,7 +108,6 @@ class Prompt:
                 top_k=20,
                 candidate_count=1,
                 max_output_tokens=100,
-                stop_sequences=["\n\n\n"],
             ),
             model_name="gemini-1.0-pro-002",
             safety_settings=[SafetySetting(
