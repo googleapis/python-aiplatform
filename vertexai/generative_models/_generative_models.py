@@ -293,6 +293,7 @@ class _GenerativeModel:
 
 
     Usage:
+
         ```
         model = GenerativeModel("gemini-pro")
         response = model.generate_content(
@@ -334,6 +335,7 @@ class _GenerativeModel:
         r"""Initializes GenerativeModel.
 
         Usage:
+
             ```
             model = GenerativeModel("gemini-pro")
             print(model.generate_content("Hello"))
@@ -1691,6 +1693,7 @@ class GenerationConfig:
             reponse_logprobs: If true, export the logprobs results in response.
 
         Usage:
+
             ```
             response = model.generate_content(
                 "Why is sky blue?",
@@ -1870,13 +1873,16 @@ class Tool:
 
     Usage:
         Create tool from function declarations:
+
         ```
         get_current_weather_func = generative_models.FunctionDeclaration(...)
         weather_tool = generative_models.Tool(
             function_declarations=[get_current_weather_func],
         )
         ```
+
         Use tool in `GenerativeModel.generate_content`:
+
         ```
         model = GenerativeModel("gemini-pro")
         print(model.generate_content(
@@ -1885,7 +1891,9 @@ class Tool:
             tools=[weather_tool],
         ))
         ```
+
         Use tool in chat:
+
         ```
         model = GenerativeModel(
             "gemini-pro",
@@ -1981,6 +1989,7 @@ class ToolConfig:
 
     Usage:
         Create ToolConfig
+
         ```
         tool_config = ToolConfig(
             function_calling_config=ToolConfig.FunctionCallingConfig(
@@ -1988,7 +1997,9 @@ class ToolConfig:
                 allowed_function_names=["get_current_weather_func"],
         ))
         ```
+
         Use ToolConfig in `GenerativeModel.generate_content`:
+
         ```
         model = GenerativeModel("gemini-pro")
         print(model.generate_content(
@@ -1998,7 +2009,9 @@ class ToolConfig:
             tool_config=tool_config,
         ))
         ```
+
         Use ToolConfig in chat:
+
         ```
         model = GenerativeModel(
             "gemini-pro",
@@ -2067,6 +2080,7 @@ class FunctionDeclaration:
 
     Usage:
         Create function declaration and tool:
+
         ```
         get_current_weather_func = generative_models.FunctionDeclaration(
             name="get_current_weather",
@@ -2105,7 +2119,9 @@ class FunctionDeclaration:
             function_declarations=[get_current_weather_func],
         )
         ```
+
         Use tool in `GenerativeModel.generate_content`:
+
         ```
         model = GenerativeModel("gemini-pro")
         print(model.generate_content(
@@ -2114,7 +2130,9 @@ class FunctionDeclaration:
             tools=[weather_tool],
         ))
         ```
+
         Use tool in chat:
+
         ```
         model = GenerativeModel(
             "gemini-pro",
@@ -2437,6 +2455,7 @@ class Content:
     r"""The multi-part content of a message.
 
     Usage:
+
         ```
         response = model.generate_content(contents=[
             Content(role="user", parts=[Part.from_text("Why is sky blue?")])
@@ -2502,6 +2521,7 @@ class Part:
     r"""A part of a multi-part Content message.
 
     Usage:
+
         ```
         text_part = Part.from_text("Why is sky blue?")
         image_part = Part.from_image(Image.load_from_file("image.jpg"))
