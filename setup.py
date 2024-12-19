@@ -123,6 +123,7 @@ ray_extra_require = [
 
 genai_requires = (
     "pydantic < 3",
+    "typing_extensions",
     "docstring_parser < 1",
 )
 
@@ -143,7 +144,8 @@ reasoning_engine_extra_require = [
     "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-trace < 2",
-    "pydantic >= 2.6.3, < 2.10",
+    "pydantic >= 2.6.3, < 3",
+    "typing_extensions",
 ]
 
 evaluation_extra_require = [
