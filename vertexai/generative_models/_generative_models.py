@@ -86,36 +86,76 @@ SafetyRating = gapic_content_types.SafetyRating
 
 
 # These type defnitions are expanded to help the user see all the types
-PartsType = Union[
-    str,
-    "Image",
-    "Part",
-    List[Union[str, "Image", "Part"]],
-]
-
 ContentDict = Dict[str, Any]
-ContentsType = Union[
-    List["Content"],
-    List[ContentDict],
-    str,
-    "Image",
-    "Part",
-    List[Union[str, "Image", "Part"]],
-]
-
 GenerationConfigDict = Dict[str, Any]
-GenerationConfigType = Union[
-    "GenerationConfig",
-    GenerationConfigDict,
-]
+try:
+    # For Pydantic to resolve the forward references inside these aliases.
+    from typing_extensions import TypeAliasType
 
-SafetySettingsType = Union[
-    List["SafetySetting"],
-    Dict[
-        gapic_content_types.HarmCategory,
-        gapic_content_types.SafetySetting.HarmBlockThreshold,
-    ],
-]
+    PartsType = TypeAliasType(
+        "PartsType",
+        Union[
+            str,
+            "Image",
+            "Part",
+            List[Union[str, "Image", "Part"]],
+        ],
+    )
+    ContentsType = TypeAliasType(
+        "ContentsType",
+        Union[
+            List["Content"],
+            List[ContentDict],
+            str,
+            "Image",
+            "Part",
+            List[Union[str, "Image", "Part"]],
+        ],
+    )
+    GenerationConfigType = TypeAliasType(
+        "GenerationConfigType",
+        Union[
+            "GenerationConfig",
+            GenerationConfigDict,
+        ],
+    )
+    SafetySettingsType = TypeAliasType(
+        "SafetySettingsType",
+        Union[
+            List["SafetySetting"],
+            Dict[
+                gapic_content_types.HarmCategory,
+                gapic_content_types.SafetySetting.HarmBlockThreshold,
+            ],
+        ],
+    )
+except ImportError:
+    # Use existing definitions if typing_extensions is not available.
+    PartsType = Union[
+        str,
+        "Image",
+        "Part",
+        List[Union[str, "Image", "Part"]],
+    ]
+    ContentsType = Union[
+        List["Content"],
+        List[ContentDict],
+        str,
+        "Image",
+        "Part",
+        List[Union[str, "Image", "Part"]],
+    ]
+    GenerationConfigType = Union[
+        "GenerationConfig",
+        GenerationConfigDict,
+    ]
+    SafetySettingsType = Union[
+        List["SafetySetting"],
+        Dict[
+            gapic_content_types.HarmCategory,
+            gapic_content_types.SafetySetting.HarmBlockThreshold,
+        ],
+    ]
 
 
 def _reconcile_model_name(model_name: str, project: str, location: str) -> str:
