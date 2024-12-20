@@ -241,6 +241,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
@@ -287,6 +288,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             max_replica_count (int):
                 Optional. The maximum replica count of the new deployment
                 resource pool.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_
                 count if used. One of NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -343,6 +352,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             reservation_affinity_type=reservation_affinity_type,
@@ -368,6 +378,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         reservation_affinity_type: Optional[str] = None,
@@ -417,6 +428,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             max_replica_count (int):
                 Optional. The maximum replica count of the new deployment
                 resource pool.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_
                 count if used. One of NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -465,6 +484,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         dedicated_resources = gca_machine_resources_compat.DedicatedResources(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             spot=spot,
         )
 
@@ -1181,6 +1201,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
     def _validate_deploy_args(
         min_replica_count: Optional[int],
         max_replica_count: Optional[int],
+        required_replica_count: Optional[int],
         accelerator_type: Optional[str],
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
@@ -1206,6 +1227,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Required. Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
@@ -1246,6 +1275,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 and min_replica_count != 1
                 or max_replica_count
                 and max_replica_count != 1
+                or required_replica_count
+                and required_replica_count != 0
             ):
                 raise ValueError(
                     "Ignoring explicitly specified replica counts, "
@@ -1264,6 +1295,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 raise ValueError("Min replica cannot be negative.")
             if max_replica_count < 0:
                 raise ValueError("Max replica cannot be negative.")
+            if required_replica_count and required_replica_count < 0:
+                raise ValueError("Required replica cannot be negative.")
             if accelerator_type:
                 utils.validate_accelerator_type(accelerator_type)
 
@@ -1291,6 +1324,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
@@ -1356,6 +1390,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -1434,6 +1476,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
@@ -1454,6 +1497,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
@@ -1485,6 +1529,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
@@ -1547,6 +1592,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -1630,6 +1683,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
@@ -1668,6 +1722,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
@@ -1739,6 +1794,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -1926,6 +1989,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                     min_replica_count=min_replica_count,
                     max_replica_count=max_replica_count,
+                    required_replica_count=required_replica_count,
                     spot=spot,
                 )
 
@@ -3945,6 +4009,7 @@ class PrivateEndpoint(Endpoint):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
@@ -4015,6 +4080,14 @@ class PrivateEndpoint(Endpoint):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -4093,6 +4166,7 @@ class PrivateEndpoint(Endpoint):
         self._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
@@ -4113,6 +4187,7 @@ class PrivateEndpoint(Endpoint):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
@@ -5163,6 +5238,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
@@ -5233,6 +5309,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 handle, a portion of the traffic will be dropped. If this value
                 is not provided, the smaller value of min_replica_count or 1 will
                 be used.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -5340,6 +5424,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         Endpoint._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
@@ -5374,6 +5459,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,
@@ -5416,6 +5502,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         tpu_topology: Optional[str] = None,
@@ -5483,6 +5570,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 handle, a portion of the traffic will be dropped. If this value
                 is not provided, the smaller value of min_replica_count or 1 will
                 be used.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -5615,6 +5710,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             tpu_topology=tpu_topology,

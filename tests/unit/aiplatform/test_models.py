@@ -1167,6 +1167,7 @@ def preview_get_drp_mock():
             machine_spec=machine_spec,
             min_replica_count=10,
             max_replica_count=20,
+            required_replica_count=5,
             autoscaling_metric_specs=autoscaling_metric_specs,
         )
 
@@ -1204,6 +1205,7 @@ def get_drp_mock():
             machine_spec=machine_spec,
             min_replica_count=10,
             max_replica_count=20,
+            required_replica_count=5,
             autoscaling_metric_specs=autoscaling_metric_specs,
         )
 
