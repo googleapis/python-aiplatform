@@ -19,7 +19,9 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import publisher_model
+from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import operation
+from google.cloud.aiplatform_v1beta1.types import publisher_model as gca_publisher_model
 
 
 __protobuf__ = proto.module(
@@ -29,6 +31,9 @@ __protobuf__ = proto.module(
         "GetPublisherModelRequest",
         "ListPublisherModelsRequest",
         "ListPublisherModelsResponse",
+        "DeployPublisherModelRequest",
+        "DeployPublisherModelResponse",
+        "DeployPublisherModelOperationMetadata",
     },
 )
 
@@ -190,15 +195,156 @@ class ListPublisherModelsResponse(proto.Message):
         return self
 
     publisher_models: MutableSequence[
-        publisher_model.PublisherModel
+        gca_publisher_model.PublisherModel
     ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
-        message=publisher_model.PublisherModel,
+        message=gca_publisher_model.PublisherModel,
     )
     next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class DeployPublisherModelRequest(proto.Message):
+    r"""Request message for
+    [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
+
+    Attributes:
+        model (str):
+            Required. The name of the PublisherModel resource. Format:
+            ``publishers/{publisher}/models/{publisher_model}@{version_id}``,
+            or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001``
+            or Hugging Face model ID like ``google/gemma-2-2b-it``.
+        destination (str):
+            Required. The resource name of the Location to deploy the
+            model in. Format:
+            ``projects/{project}/locations/{location}``
+        endpoint_display_name (str):
+            Optional. The user-specified display name of
+            the endpoint. If not set, a default name will be
+            used.
+        dedicated_resources (google.cloud.aiplatform_v1beta1.types.DedicatedResources):
+            Optional. The dedicated resources to use for
+            the endpoint. If not set, the default resources
+            will be used.
+        model_display_name (str):
+            Optional. The user-specified display name of
+            the uploaded model. If not set, a default name
+            will be used.
+        hugging_face_access_token (str):
+            Optional. The Hugging Face read access token
+            used to access the model artifacts of gated
+            models.
+        accept_eula (bool):
+            Optional. Whether the user accepts the End
+            User License Agreement (EULA) for the model.
+    """
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    destination: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    endpoint_display_name: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    dedicated_resources: machine_resources.DedicatedResources = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=machine_resources.DedicatedResources,
+    )
+    model_display_name: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    hugging_face_access_token: str = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    accept_eula: bool = proto.Field(
+        proto.BOOL,
+        number=7,
+    )
+
+
+class DeployPublisherModelResponse(proto.Message):
+    r"""Response message for
+    [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
+
+    Attributes:
+        publisher_model (str):
+            Output only. The name of the PublisherModel resource.
+            Format:
+            ``publishers/{publisher}/models/{publisher_model}@{version_id}``,
+            or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001``
+        endpoint (str):
+            Output only. The name of the Endpoint created. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+        model (str):
+            Output only. The name of the Model created. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+    """
+
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    model: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class DeployPublisherModelOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The operation generic information.
+        publisher_model (str):
+            Output only. The name of the PublisherModel resource.
+            Format:
+            ``publishers/{publisher}/models/{publisher_model}@{version_id}``,
+            or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001``
+        destination (str):
+            Output only. The resource name of the Location to deploy the
+            model in. Format:
+            ``projects/{project}/locations/{location}``
+        project_number (int):
+            Output only. The project number where the
+            deploy model request is sent.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    destination: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    project_number: int = proto.Field(
+        proto.INT64,
+        number=4,
     )
 
 
