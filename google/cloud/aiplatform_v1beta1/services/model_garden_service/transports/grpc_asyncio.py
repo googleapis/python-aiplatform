@@ -24,6 +24,7 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers_async
 from google.api_core import exceptions as core_exceptions
 from google.api_core import retry_async as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.protobuf.json_format import MessageToJson
@@ -249,6 +250,7 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
+        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -334,6 +336,22 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
         return self._grpc_channel
 
     @property
+    def operations_client(self) -> operations_v1.OperationsAsyncClient:
+        """Create the client designed to process long-running operations.
+
+        This property caches on the instance; repeated calls return the same
+        client.
+        """
+        # Quick check: Only create a new client if we do not already have one.
+        if self._operations_client is None:
+            self._operations_client = operations_v1.OperationsAsyncClient(
+                self._logged_channel
+            )
+
+        # Return the client from cache.
+        return self._operations_client
+
+    @property
     def get_publisher_model(
         self,
     ) -> Callable[
@@ -391,6 +409,35 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
             )
         return self._stubs["list_publisher_models"]
 
+    @property
+    def deploy_publisher_model(
+        self,
+    ) -> Callable[
+        [model_garden_service.DeployPublisherModelRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the deploy publisher model method over gRPC.
+
+        Deploys publisher models.
+
+        Returns:
+            Callable[[~.DeployPublisherModelRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "deploy_publisher_model" not in self._stubs:
+            self._stubs["deploy_publisher_model"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelGardenService/DeployPublisherModel",
+                request_serializer=model_garden_service.DeployPublisherModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["deploy_publisher_model"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -401,6 +448,11 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
             ),
             self.list_publisher_models: self._wrap_method(
                 self.list_publisher_models,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.deploy_publisher_model: self._wrap_method(
+                self.deploy_publisher_model,
                 default_timeout=None,
                 client_info=client_info,
             ),

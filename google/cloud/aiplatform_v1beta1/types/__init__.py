@@ -782,6 +782,9 @@ from .model_evaluation_slice import (
     ModelEvaluationSlice,
 )
 from .model_garden_service import (
+    DeployPublisherModelOperationMetadata,
+    DeployPublisherModelRequest,
+    DeployPublisherModelResponse,
     GetPublisherModelRequest,
     ListPublisherModelsRequest,
     ListPublisherModelsResponse,
@@ -1911,6 +1914,9 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "DeployPublisherModelOperationMetadata",
+    "DeployPublisherModelRequest",
+    "DeployPublisherModelResponse",
     "GetPublisherModelRequest",
     "ListPublisherModelsRequest",
     "ListPublisherModelsResponse",

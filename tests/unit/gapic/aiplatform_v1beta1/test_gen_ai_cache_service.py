@@ -4570,6 +4570,7 @@ def test_create_cached_content_rest_call_success(request_type):
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
                 }
             ],
         },
@@ -5031,6 +5032,7 @@ def test_update_cached_content_rest_call_success(request_type):
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
                 }
             ],
         },
@@ -6351,6 +6353,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
                 }
             ],
         },
@@ -6844,6 +6847,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "thought": True,
                 }
             ],
         },
