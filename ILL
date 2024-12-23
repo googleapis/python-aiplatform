@@ -1,0 +1,6 @@
+predict_custom_trained_model_sample(
+    project="715006590659",
+    endpoint_id="7405147041396948992",
+    location="us-central1",
+    instances={ "instance_key_1": "value", ...}
+)
