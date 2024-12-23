@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.76.0](https://github.com/googleapis/python-aiplatform/compare/v1.75.0...v1.76.0) (2024-12-23)
+
+
+### Features
+
+* Update v1beta1 sdk to support llmparser in import file functions ([1eb493b](https://github.com/googleapis/python-aiplatform/commit/1eb493baa51b35e0e4df91a7ffbba3aa3f260ab6))
+* Use `TypeAliasType` to define aliases for union types in generative models ([2224c83](https://github.com/googleapis/python-aiplatform/commit/2224c835076ad583a2fe4bc2ee04ab63b0aa1acf))
+
+
+### Bug Fixes
+
+* Caching - Fixed an edge case where the `contents` arg could be `None` ([ede0266](https://github.com/googleapis/python-aiplatform/commit/ede026619f874189c5cc0edb6e5494591fac609c))
+
+
+### Documentation
+
+* Add latest_stats_count to get_feature in FeatureGroup. ([15bfb54](https://github.com/googleapis/python-aiplatform/commit/15bfb5453f8965bfe70629c43c8838f778fe85c1))
+
 ## [1.75.0](https://github.com/googleapis/python-aiplatform/compare/v1.74.0...v1.75.0) (2024-12-17)
 
 
