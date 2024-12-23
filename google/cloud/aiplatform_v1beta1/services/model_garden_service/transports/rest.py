@@ -25,6 +25,7 @@ from google.api_core import rest_streaming
 from google.api_core import gapic_v1
 
 from google.protobuf import json_format
+from google.api_core import operations_v1
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.cloud.location import locations_pb2  # type: ignore
@@ -79,6 +80,14 @@ class ModelGardenServiceRestInterceptor:
 
     .. code-block:: python
         class MyCustomModelGardenServiceInterceptor(ModelGardenServiceRestInterceptor):
+            def pre_deploy_publisher_model(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_deploy_publisher_model(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_get_publisher_model(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -100,6 +109,32 @@ class ModelGardenServiceRestInterceptor:
 
 
     """
+
+    def pre_deploy_publisher_model(
+        self,
+        request: model_garden_service.DeployPublisherModelRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.DeployPublisherModelRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for deploy_publisher_model
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelGardenService server.
+        """
+        return request, metadata
+
+    def post_deploy_publisher_model(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for deploy_publisher_model
+
+        Override in a subclass to manipulate the response
+        after it is returned by the ModelGardenService server but before
+        it is returned to user code.
+        """
+        return response
 
     def pre_get_publisher_model(
         self,
@@ -478,10 +513,2251 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
         self._session = AuthorizedSession(
             self._credentials, default_host=self.DEFAULT_HOST
         )
+        self._operations_client: Optional[operations_v1.AbstractOperationsClient] = None
         if client_cert_source_for_mtls:
             self._session.configure_mtls_channel(client_cert_source_for_mtls)
         self._interceptor = interceptor or ModelGardenServiceRestInterceptor()
         self._prep_wrapped_messages(client_info)
+
+    @property
+    def operations_client(self) -> operations_v1.AbstractOperationsClient:
+        """Create the client designed to process long-running operations.
+
+        This property caches on the instance; repeated calls return the same
+        client.
+        """
+        # Only create a new client if we do not already have one.
+        if self._operations_client is None:
+            http_options: Dict[str, List[Dict[str, str]]] = {
+                "google.longrunning.Operations.CancelOperation": [
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                ],
+                "google.longrunning.Operations.DeleteOperation": [
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                ],
+                "google.longrunning.Operations.GetOperation": [
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/edgeDeploymentJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                ],
+                "google.longrunning.Operations.ListOperations": [
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/endpoints/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/extensions/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/customJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/indexes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/migratableResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/specialistPools/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
+                ],
+                "google.longrunning.Operations.WaitOperation": [
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/edgeDevices/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/extensionControllers/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tuningJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/agents/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/apps/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/savedQueries/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/annotationSpecs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/datasets/*/dataItems/*/annotations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/deploymentResourcePools/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/edgeDevices/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/endpoints/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/evaluationTasks/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/exampleStores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensionControllers/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/extensions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featurestores/*/entityTypes/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/customJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/dataLabelingJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/hyperparameterTuningJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/indexEndpoints/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/artifacts/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/contexts/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/metadataStores/*/executions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelDeploymentMonitoringJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/modelMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/migratableResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/models/*/evaluations/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookExecutionJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimes/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/studies/*/trials/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/trainingPipelines/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/pipelineJobs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/specialistPools/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                ],
+            }
+
+            rest_transport = operations_v1.OperationsRestTransport(
+                host=self._host,
+                # use the credentials which are saved
+                credentials=self._credentials,
+                scopes=self._scopes,
+                http_options=http_options,
+                path_prefix="v1beta1",
+            )
+
+            self._operations_client = operations_v1.AbstractOperationsClient(
+                transport=rest_transport
+            )
+
+        # Return the client from cache.
+        return self._operations_client
+
+    class _DeployPublisherModel(
+        _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel,
+        ModelGardenServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("ModelGardenServiceRestTransport.DeployPublisherModel")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: model_garden_service.DeployPublisherModelRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the deploy publisher model method over HTTP.
+
+            Args:
+                request (~.model_garden_service.DeployPublisherModelRequest):
+                    The request object. Request message for
+                [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_http_options()
+            )
+
+            request, metadata = self._interceptor.pre_deploy_publisher_model(
+                request, metadata
+            )
+            transcoded_request = _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.DeployPublisherModel",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "DeployPublisherModel",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = (
+                ModelGardenServiceRestTransport._DeployPublisherModel._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_deploy_publisher_model(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.deploy_publisher_model",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "DeployPublisherModel",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
 
     class _GetPublisherModel(
         _BaseModelGardenServiceRestTransport._BaseGetPublisherModel,
@@ -780,6 +3056,16 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
                     },
                 )
             return resp
+
+    @property
+    def deploy_publisher_model(
+        self,
+    ) -> Callable[
+        [model_garden_service.DeployPublisherModelRequest], operations_pb2.Operation
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._DeployPublisherModel(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def get_publisher_model(
