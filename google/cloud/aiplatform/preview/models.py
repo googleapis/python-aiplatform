@@ -132,6 +132,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
@@ -174,6 +175,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             max_replica_count (int):
                 Optional. The maximum replica count of the new deployment
                 resource pool.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_
                 count if used. One of NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -216,6 +225,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
@@ -237,6 +247,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
@@ -282,6 +293,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             max_replica_count (int):
                 Optional. The maximum replica count of the new deployment
                 resource pool.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_
                 count if used. One of NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
@@ -316,6 +335,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         dedicated_resources = gca_machine_resources_compat.DedicatedResources(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
         )
 
         machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -456,6 +476,7 @@ class Endpoint(aiplatform.Endpoint):
     def _validate_deploy_args(
         min_replica_count: Optional[int],
         max_replica_count: Optional[int],
+        required_replica_count: Optional[int],
         accelerator_type: Optional[str],
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
@@ -480,6 +501,14 @@ class Endpoint(aiplatform.Endpoint):
               value is not provided, the larger value of min_replica_count or 1 will
               be used. If value provided is smaller than min_replica_count, it will
               automatically be increased to be min_replica_count.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str): Required. Hardware accelerator type. One of
               ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
               NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
@@ -521,6 +550,7 @@ class Endpoint(aiplatform.Endpoint):
             return aiplatform.Endpoint._validate_deploy_args(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
+                required_replica_count=required_replica_count,
                 accelerator_type=accelerator_type,
                 deployed_model_display_name=deployed_model_display_name,
                 traffic_split=traffic_split,
@@ -533,6 +563,8 @@ class Endpoint(aiplatform.Endpoint):
             and min_replica_count != 1
             or max_replica_count
             and max_replica_count != 1
+            or required_replica_count
+            and required_replica_count != 0
         ):
             _LOGGER.warning(
                 "Ignoring explicitly specified replica counts, "
@@ -567,6 +599,7 @@ class Endpoint(aiplatform.Endpoint):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
@@ -622,6 +655,14 @@ class Endpoint(aiplatform.Endpoint):
               value is not provided, the larger value of min_replica_count or 1 will
               be used. If value provided is smaller than min_replica_count, it will
               automatically be increased to be min_replica_count.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str): Optional. Hardware accelerator type. Must also
               set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
               NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
@@ -678,6 +719,7 @@ class Endpoint(aiplatform.Endpoint):
         self._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
@@ -698,6 +740,7 @@ class Endpoint(aiplatform.Endpoint):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
@@ -723,6 +766,7 @@ class Endpoint(aiplatform.Endpoint):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
@@ -775,6 +819,14 @@ class Endpoint(aiplatform.Endpoint):
               value is not provided, the larger value of min_replica_count or 1 will
               be used. If value provided is smaller than min_replica_count, it will
               automatically be increased to be min_replica_count.
+            required_replica_count (int):
+              Optional. Number of required available replicas for the
+              deployment to succeed. This field is only needed when partial
+              model deployment/mutation is desired, with a value greater than
+              or equal to 1 and fewer than or equal to min_replica_count. If
+              set, the model deploy/mutate operation will succeed once
+              available_replica_count reaches required_replica_count, and the
+              rest of the replicas will be retried.
             accelerator_type (str): Optional. Hardware accelerator type. Must also
               set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
               NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
@@ -836,6 +888,7 @@ class Endpoint(aiplatform.Endpoint):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
@@ -868,6 +921,7 @@ class Endpoint(aiplatform.Endpoint):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
@@ -929,6 +983,14 @@ class Endpoint(aiplatform.Endpoint):
               value is not provided, the larger value of min_replica_count or 1 will
               be used. If value provided is smaller than min_replica_count, it will
               automatically be increased to be min_replica_count.
+            required_replica_count (int):
+              Optional. Number of required available replicas for the
+              deployment to succeed. This field is only needed when partial
+              model deployment/mutation is desired, with a value greater than
+              or equal to 1 and fewer than or equal to min_replica_count. If
+              set, the model deploy/mutate operation will succeed once
+              available_replica_count reaches required_replica_count, and the
+              rest of the replicas will be retried.
             accelerator_type (str): Optional. Hardware accelerator type. Must also
               set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
               NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
@@ -1045,6 +1107,7 @@ class Endpoint(aiplatform.Endpoint):
                 dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                     min_replica_count=min_replica_count,
                     max_replica_count=max_replica_count,
+                    required_replica_count=required_replica_count,
                 )
 
                 machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -1362,6 +1425,7 @@ class Model(aiplatform.Model):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
@@ -1422,6 +1486,14 @@ class Model(aiplatform.Model):
               maximum may handle, a portion of the traffic will be dropped. If this
               value is not provided, the smaller value of min_replica_count or 1
               will be used.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
             accelerator_type (str): Optional. Hardware accelerator type. Must also
               set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
               NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
@@ -1502,6 +1574,7 @@ class Model(aiplatform.Model):
         Endpoint._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
@@ -1565,6 +1638,7 @@ class Model(aiplatform.Model):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        required_replica_count: Optional[int] = 0,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
@@ -1622,6 +1696,14 @@ class Model(aiplatform.Model):
               maximum may handle, a portion of the traffic will be dropped. If this
               value is not provided, the smaller value of min_replica_count or 1
               will be used.
+            required_replica_count (int):
+              Optional. Number of required available replicas for the
+              deployment to succeed. This field is only needed when partial
+              model deployment/mutation is desired, with a value greater than
+              or equal to 1 and fewer than or equal to min_replica_count. If
+              set, the model deploy/mutate operation will succeed once
+              available_replica_count reaches required_replica_count, and the
+              rest of the replicas will be retried.
             accelerator_type (str): Optional. Hardware accelerator type. Must also
               set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
               NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
@@ -1724,6 +1806,7 @@ class Model(aiplatform.Model):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
