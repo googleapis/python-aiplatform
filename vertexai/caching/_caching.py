@@ -71,7 +71,8 @@ def _prepare_create_request(
         _generative_models._validate_tool_config_type(tool_config)
 
     # contents can either be a list of Content objects (most generic case)
-    contents = _generative_models._content_types_to_gapic_contents(contents)
+    if contents:
+        contents = _generative_models._content_types_to_gapic_contents(contents)
 
     gapic_system_instruction: Optional[gapic_content_types.Content] = None
     if system_instruction:

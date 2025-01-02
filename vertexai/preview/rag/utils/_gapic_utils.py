@@ -43,6 +43,7 @@ from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
     VertexPredictionEndpoint,
     LayoutParserConfig,
+    LlmParserConfig,
     Pinecone,
     RagCorpus,
     RagFile,
@@ -450,6 +451,7 @@ def prepare_import_files_request(
     use_advanced_pdf_parsing: bool = False,
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -479,6 +481,19 @@ def prepare_import_files_request(
             processor_name=layout_parser.processor_name,
             max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
         )
+    if llm_parser is not None:
+        rag_file_parsing_config.llm_parser = RagFileParsingConfig.LlmParser(
+            model_name=llm_parser.model_name
+        )
+        if llm_parser.max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.llm_parser.max_parsing_requests_per_min = (
+                llm_parser.max_parsing_requests_per_min
+            )
+        if llm_parser.custom_parsing_prompt is not None:
+            rag_file_parsing_config.llm_parser.custom_parsing_prompt = (
+                llm_parser.custom_parsing_prompt
+            )
+
     local_chunk_size = chunk_size
     local_chunk_overlap = chunk_overlap
     if transformation_config and transformation_config.chunking_config:

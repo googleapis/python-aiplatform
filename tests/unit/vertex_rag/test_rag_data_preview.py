@@ -1156,6 +1156,70 @@ class TestRagDataManagement:
             "passed in at a time"
         )
 
+    def test_prepare_import_files_request_llm_parser(self):
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+            transformation_config=create_transformation_config(),
+            llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants_preview.TEST_IMPORT_REQUEST_LLM_PARSER,
+        )
+
+    def test_advanced_pdf_parsing_and_llm_parser_both_set_error(self):
+        with pytest.raises(ValueError) as e:
+            rag.import_files(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                use_advanced_pdf_parsing=True,
+                llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match(
+            "Only one of use_advanced_pdf_parsing or llm_parser may be "
+            "passed in at a time"
+        )
+
+    def test_layout_parser_and_llm_parser_both_set_error(self):
+        with pytest.raises(ValueError) as e:
+            rag.import_files(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+                llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match("Only one of layout_parser or llm_parser may be passed in at a time")
+
+    @pytest.mark.asyncio
+    async def test_advanced_pdf_parsing_and_llm_parser_both_set_error_async(self):
+        with pytest.raises(ValueError) as e:
+            await rag.import_files_async(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                use_advanced_pdf_parsing=True,
+                llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match(
+            "Only one of use_advanced_pdf_parsing or llm_parser may be "
+            "passed in at a time"
+        )
+
+    @pytest.mark.asyncio
+    async def test_layout_parser_and_llm_parser_both_set_error_async(self):
+        with pytest.raises(ValueError) as e:
+            await rag.import_files_async(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
+                transformation_config=create_transformation_config(),
+                layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
+                llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
+            )
+        e.match("Only one of layout_parser or llm_parser may be passed in at a time")
+
     def test_set_embedding_model_config_set_both_error(self):
         embedding_model_config = rag.EmbeddingModelConfig(
             publisher_model="whatever",

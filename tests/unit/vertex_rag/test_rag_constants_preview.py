@@ -23,6 +23,7 @@ from vertexai.preview.rag import (
     Filter,
     HybridSearch,
     LayoutParserConfig,
+    LlmParserConfig,
     LlmRanker,
     Pinecone,
     RagCorpus,
@@ -623,6 +624,12 @@ TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG = LayoutParserConfig(
     max_parsing_requests_per_min=100,
 )
 
+TEST_LLM_PARSER_CONFIG = LlmParserConfig(
+    model_name="gemini-1.5-pro-002",
+    max_parsing_requests_per_min=500,
+    custom_parsing_prompt="test-custom-parsing-prompt",
+)
+
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,
     share_point_sources=GapicSharePointSources(
@@ -675,6 +682,23 @@ TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH.rag_file_pars
 TEST_IMPORT_REQUEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH,
+)
+
+TEST_IMPORT_FILES_CONFIG_LLM_PARSER = ImportRagFilesConfig(
+    TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER
+)
+
+TEST_IMPORT_FILES_CONFIG_LLM_PARSER.rag_file_parsing_config = RagFileParsingConfig(
+    llm_parser=RagFileParsingConfig.LlmParser(
+        model_name="gemini-1.5-pro-002",
+        max_parsing_requests_per_min=500,
+        custom_parsing_prompt="test-custom-parsing-prompt",
+    )
+)
+
+TEST_IMPORT_REQUEST_LLM_PARSER = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LLM_PARSER,
 )
 
 # Retrieval

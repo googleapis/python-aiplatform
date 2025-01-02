@@ -246,6 +246,9 @@ class FeatureGroup(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             feature_id: The ID of the feature.
+            latest_stats_count:
+                The number of latest stats to retrieve. Only returns stats if
+                Feature Monitor is created, and historical stats were generated.
             credentials:
                 Custom credentials to use to retrieve the feature under this
                 feature group. The order of which credentials are used is as
