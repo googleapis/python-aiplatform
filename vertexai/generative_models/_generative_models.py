@@ -3053,7 +3053,7 @@ def _proto_to_dict(message) -> Dict[str, Any]:
     # We needs to fix this issue using _fix_renamed_proto_dict_keys_in_place.
     result = type(message).to_dict(
         message,
-        including_default_value_fields=False,
+        always_print_fields_with_no_presence=False,
         use_integers_for_enums=False,
     )
     _fix_renamed_proto_dict_keys_in_place(result)
