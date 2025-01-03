@@ -42,12 +42,15 @@ from feature_store_constants import (
     _TEST_ESF_OPTIMIZED_FOS_LABELS,
     _TEST_ESF_OPTIMIZED_FOS_PATH,
     _TEST_FOS_LIST,
+    _TEST_FV_LIST,
     _TEST_FV1_BQ_URI,
     _TEST_FV1_ENTITY_ID_COLUMNS,
     _TEST_FV1_ID,
     _TEST_FV1_LABELS,
     _TEST_FV1_PATH,
-    _TEST_FV3_BQ_URI,
+    _TEST_FV2_ID,
+    _TEST_FV2_LABELS,
+    _TEST_FV2_PATH,
     _TEST_FV3_ID,
     _TEST_FV3_LABELS,
     _TEST_FV3_PATH,
@@ -617,65 +620,39 @@ def test_create_rag_fv_bad_uri_raises_error(get_fos_mock):
         )
 
 
-@pytest.mark.parametrize("create_request_timeout", [None, 1.0])
-@pytest.mark.parametrize("sync", [True, False])
-def test_create_rag_fv(
-    create_request_timeout,
-    sync,
+def test_list_feature_views(
     get_fos_mock,
-    create_rag_fv_mock,
-    get_rag_fv_mock,
-    fos_logger_mock,
+    list_fv_mock,
 ):
     aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
     fos = FeatureOnlineStore(_TEST_BIGTABLE_FOS1_ID)
+    feature_views = fos.list_feature_views()
 
-    rag_fv = fos.create_feature_view(
-        _TEST_FV3_ID,
-        FeatureViewVertexRagSource(uri=_TEST_FV3_BQ_URI),
-        labels=_TEST_FV3_LABELS,
-        create_request_timeout=create_request_timeout,
-    )
-
-    if not sync:
-        fos.wait()
-
-    # When creating, the FeatureView object doesn't have the path set.
-    expected_fv = types.feature_view.FeatureView(
-        vertex_rag_source=types.feature_view.FeatureView.VertexRagSource(
-            uri=_TEST_FV3_BQ_URI,
-        ),
-        labels=_TEST_FV3_LABELS,
-    )
-    create_rag_fv_mock.assert_called_with(
-        parent=_TEST_BIGTABLE_FOS1_PATH,
-        feature_view=expected_fv,
-        feature_view_id=_TEST_FV3_ID,
-        metadata=(),
-        timeout=create_request_timeout,
-    )
+    list_fv_mock.assert_called_once_with(request={"parent": _TEST_BIGTABLE_FOS1_PATH})
+    assert len(feature_views) == len(_TEST_FV_LIST)
 
     fv_eq(
-        fv_to_check=rag_fv,
+        feature_views[0],
+        name=_TEST_FV1_ID,
+        resource_name=_TEST_FV1_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FV1_LABELS,
+    )
+    fv_eq(
+        feature_views[1],
+        name=_TEST_FV2_ID,
+        resource_name=_TEST_FV2_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FV2_LABELS,
+    )
+    fv_eq(
+        feature_views[2],
         name=_TEST_FV3_ID,
         resource_name=_TEST_FV3_PATH,
         project=_TEST_PROJECT,
         location=_TEST_LOCATION,
         labels=_TEST_FV3_LABELS,
-    )
-
-    fos_logger_mock.assert_has_calls(
-        [
-            call("Creating FeatureView"),
-            call(
-                f"Create FeatureView backing LRO: {create_rag_fv_mock.return_value.operation.name}"
-            ),
-            call(
-                "FeatureView created. Resource name: projects/test-project/locations/us-central1/featureOnlineStores/my_fos1/featureViews/my_fv3"
-            ),
-            call("To use this FeatureView in another session:"),
-            call(
-                "feature_view = aiplatform.FeatureView('projects/test-project/locations/us-central1/featureOnlineStores/my_fos1/featureViews/my_fv3')"
-            ),
-        ]
     )

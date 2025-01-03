@@ -63,6 +63,7 @@ from feature_store_constants import (
     _TEST_FG1_F1,
     _TEST_FG1_F2,
     _TEST_FG1_FM1,
+    _TEST_FV_LIST,
     _TEST_FV1,
     _TEST_FV3,
     _TEST_OPTIMIZED_EMBEDDING_FV,
@@ -441,6 +442,16 @@ def get_rag_fv_mock():
     ) as get_rag_fv_mock:
         get_rag_fv_mock.return_value = _TEST_FV3
         yield get_rag_fv_mock
+
+
+@pytest.fixture
+def list_fv_mock():
+    with patch.object(
+        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
+        "list_feature_views",
+    ) as list_fv:
+        list_fv.return_value = _TEST_FV_LIST
+        yield list_fv
 
 
 @pytest.fixture
