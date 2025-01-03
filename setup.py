@@ -197,6 +197,7 @@ testing_extra_require = (
     full_extra_require
     + profiler_extra_require
     + tokenization_testing_extra_require
+    + vizier_extra_require
     + [
         # aiohttp is required for async rest tests (need google-auth[aiohttp],
         # but can't specify extras in constraints files)
