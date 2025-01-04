@@ -138,6 +138,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -196,6 +197,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 when the Future has completed.
             create_request_timeout (float):
                 Optional. The create request timeout in seconds.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Returns:
             DeploymentResourcePool
@@ -222,6 +231,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            required_replica_count=required_replica_count,
         )
 
     @classmethod
@@ -243,6 +253,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -304,6 +315,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 when the Future has completed.
             create_request_timeout (float):
                 Optional. The create request timeout in seconds.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Returns:
             DeploymentResourcePool
@@ -316,6 +335,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         dedicated_resources = gca_machine_resources_compat.DedicatedResources(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            required_replica_count=required_replica_count,
         )
 
         machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -461,6 +481,7 @@ class Endpoint(aiplatform.Endpoint):
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: Optional[int],
         deployment_resource_pool: Optional[DeploymentResourcePool],
+        required_replica_count: Optional[int],
     ):
         """Helper method to validate deploy arguments.
 
@@ -504,6 +525,14 @@ class Endpoint(aiplatform.Endpoint):
               are deployed to the same DeploymentResourcePool will be hosted in
               a shared model server. If provided, will override replica count
               arguments.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Raises:
             ValueError: if min/max replica or accelerator type are specified
@@ -526,6 +555,7 @@ class Endpoint(aiplatform.Endpoint):
                 traffic_split=traffic_split,
                 traffic_percentage=traffic_percentage,
                 deployment_resource_pool=deployment_resource_pool,
+                required_replica_count=required_replica_count,
             )
 
         if (
@@ -533,6 +563,8 @@ class Endpoint(aiplatform.Endpoint):
             and min_replica_count != 1
             or max_replica_count
             and max_replica_count != 1
+            or required_replica_count
+            and required_replica_count != 0
         ):
             _LOGGER.warning(
                 "Ignoring explicitly specified replica counts, "
@@ -583,6 +615,7 @@ class Endpoint(aiplatform.Endpoint):
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -671,6 +704,14 @@ class Endpoint(aiplatform.Endpoint):
             system_labels (Dict[str, str]):
               Optional. System labels to apply to Model Garden deployments.
               System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         """
         self._sync_gca_resource_if_skipped()
@@ -683,6 +724,7 @@ class Endpoint(aiplatform.Endpoint):
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
             deployment_resource_pool=deployment_resource_pool,
+            required_replica_count=required_replica_count,
         )
 
         explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
@@ -711,6 +753,7 @@ class Endpoint(aiplatform.Endpoint):
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
     @base.optional_sync()
@@ -736,6 +779,7 @@ class Endpoint(aiplatform.Endpoint):
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -818,6 +862,14 @@ class Endpoint(aiplatform.Endpoint):
             system_labels (Dict[str, str]):
               Optional. System labels to apply to Model Garden deployments.
               System labels are managed by Google for internal use only.
+            required_replica_count (int):
+              Optional. Number of required available replicas for the
+              deployment to succeed. This field is only needed when partial
+              model deployment/mutation is desired, with a value greater than
+              or equal to 1 and fewer than or equal to min_replica_count. If
+              set, the model deploy/mutate operation will succeed once
+              available_replica_count reaches required_replica_count, and the
+              rest of the replicas will be retried.
 
         """
         _LOGGER.log_action_start_against_resource(
@@ -848,6 +900,7 @@ class Endpoint(aiplatform.Endpoint):
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -880,6 +933,7 @@ class Endpoint(aiplatform.Endpoint):
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -969,6 +1023,14 @@ class Endpoint(aiplatform.Endpoint):
             system_labels (Dict[str, str]):
               Optional. System labels to apply to Model Garden deployments.
               System labels are managed by Google for internal use only.
+            required_replica_count (int):
+              Optional. Number of required available replicas for the
+              deployment to succeed. This field is only needed when partial
+              model deployment/mutation is desired, with a value greater than
+              or equal to 1 and fewer than or equal to min_replica_count. If
+              set, the model deploy/mutate operation will succeed once
+              available_replica_count reaches required_replica_count, and the
+              rest of the replicas will be retried.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -1045,6 +1107,7 @@ class Endpoint(aiplatform.Endpoint):
                 dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                     min_replica_count=min_replica_count,
                     max_replica_count=max_replica_count,
+                    required_replica_count=required_replica_count,
                 )
 
                 machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -1380,6 +1443,7 @@ class Model(aiplatform.Model):
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1489,6 +1553,14 @@ class Model(aiplatform.Model):
             system_labels (Dict[str, str]):
               Optional. System labels to apply to Model Garden deployments.
               System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1507,6 +1579,7 @@ class Model(aiplatform.Model):
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
             deployment_resource_pool=deployment_resource_pool,
+            required_replica_count=required_replica_count,
         )
 
         if isinstance(endpoint, models.PrivateEndpoint):
@@ -1546,6 +1619,7 @@ class Model(aiplatform.Model):
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
     def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
@@ -1580,6 +1654,7 @@ class Model(aiplatform.Model):
         disable_container_logging: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1680,6 +1755,14 @@ class Model(aiplatform.Model):
             system_labels (Dict[str, str]):
               Optional. System labels to apply to Model Garden deployments.
               System labels are managed by Google for internal use only.
+            required_replica_count (int):
+              Optional. Number of required available replicas for the
+              deployment to succeed. This field is only needed when partial
+              model deployment/mutation is desired, with a value greater than
+              or equal to 1 and fewer than or equal to min_replica_count. If
+              set, the model deploy/mutate operation will succeed once
+              available_replica_count reaches required_replica_count, and the
+              rest of the replicas will be retried.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1736,6 +1819,7 @@ class Model(aiplatform.Model):
             disable_container_logging=disable_container_logging,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

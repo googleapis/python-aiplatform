@@ -130,6 +130,7 @@ _TEST_LABEL = test_constants.ProjectConstants._TEST_LABELS
 _TEST_APPENDED_USER_AGENT = ["fake_user_agent", "another_fake_user_agent"]
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
+_TEST_REQUIRED_REPLICA_COUNT = 1
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 _TEST_STARTING_REPLICA_COUNT = 2
@@ -1167,6 +1168,7 @@ def preview_get_drp_mock():
             machine_spec=machine_spec,
             min_replica_count=10,
             max_replica_count=20,
+            required_replica_count=5,
             autoscaling_metric_specs=autoscaling_metric_specs,
         )
 
@@ -1204,6 +1206,7 @@ def get_drp_mock():
             machine_spec=machine_spec,
             min_replica_count=10,
             max_replica_count=20,
+            required_replica_count=5,
             autoscaling_metric_specs=autoscaling_metric_specs,
         )
 
@@ -2177,6 +2180,7 @@ class TestModel:
             min_replica_count=1,
             max_replica_count=1,
             spot=False,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2220,6 +2224,7 @@ class TestModel:
             min_replica_count=1,
             max_replica_count=1,
             spot=False,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2266,6 +2271,7 @@ class TestModel:
             min_replica_count=1,
             max_replica_count=1,
             spot=True,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2323,6 +2329,7 @@ class TestModel:
             min_replica_count=1,
             max_replica_count=1,
             spot=False,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2376,6 +2383,7 @@ class TestModel:
             min_replica_count=1,
             max_replica_count=1,
             spot=False,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2423,6 +2431,7 @@ class TestModel:
             min_replica_count=1,
             max_replica_count=1,
             spot=False,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2560,6 +2569,7 @@ class TestModel:
             sync=sync,
             deploy_request_timeout=None,
             fast_tryout_enabled=True,
+            required_replica_count=_TEST_REQUIRED_REPLICA_COUNT,
         )
 
         if not sync:
@@ -2587,6 +2597,7 @@ class TestModel:
             machine_spec=expected_machine_spec,
             min_replica_count=1,
             max_replica_count=1,
+            required_replica_count=_TEST_REQUIRED_REPLICA_COUNT,
         )
         expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2626,6 +2637,7 @@ class TestModel:
             sync=sync,
             deploy_request_timeout=None,
             fast_tryout_enabled=True,
+            required_replica_count=_TEST_REQUIRED_REPLICA_COUNT,
         )
 
         if not sync:
@@ -2653,6 +2665,7 @@ class TestModel:
             machine_spec=expected_machine_spec,
             min_replica_count=1,
             max_replica_count=1,
+            required_replica_count=_TEST_REQUIRED_REPLICA_COUNT,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2704,6 +2717,7 @@ class TestModel:
             machine_spec=expected_machine_spec,
             min_replica_count=1,
             max_replica_count=1,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -2754,6 +2768,7 @@ class TestModel:
             machine_spec=expected_machine_spec,
             min_replica_count=1,
             max_replica_count=1,
+            required_replica_count=0,
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
