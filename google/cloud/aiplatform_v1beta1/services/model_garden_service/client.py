@@ -58,6 +58,8 @@ except ImportError:  # pragma: NO COVER
 
 _LOGGER = std_logging.getLogger(__name__)
 
+from google.api_core import operation  # type: ignore
+from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.model_garden_service import pagers
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model_garden_service
@@ -211,6 +213,50 @@ class ModelGardenServiceClient(metaclass=ModelGardenServiceClientMeta):
                 instance.
         """
         return self._transport
+
+    @staticmethod
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
+        """Returns a fully-qualified endpoint string."""
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+            project=project,
+            location=location,
+            endpoint=endpoint,
+        )
+
+    @staticmethod
+    def parse_endpoint_path(path: str) -> Dict[str, str]:
+        """Parses a endpoint path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
+        """Returns a fully-qualified model string."""
+        return "projects/{project}/locations/{location}/models/{model}".format(
+            project=project,
+            location=location,
+            model=model,
+        )
+
+    @staticmethod
+    def parse_model_path(path: str) -> Dict[str, str]:
+        """Parses a model path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
 
     @staticmethod
     def publisher_model_path(
@@ -969,6 +1015,109 @@ class ModelGardenServiceClient(metaclass=ModelGardenServiceClientMeta):
             retry=retry,
             timeout=timeout,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def deploy_publisher_model(
+        self,
+        request: Optional[
+            Union[model_garden_service.DeployPublisherModelRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> operation.Operation:
+        r"""Deploys publisher models.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_deploy_publisher_model():
+                # Create a client
+                client = aiplatform_v1beta1.ModelGardenServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeployPublisherModelRequest(
+                    model="model_value",
+                    destination="destination_value",
+                )
+
+                # Make the request
+                operation = client.deploy_publisher_model(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeployPublisherModelRequest, dict]):
+                The request object. Request message for
+                [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeployPublisherModelResponse` Response message for
+                   [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, model_garden_service.DeployPublisherModelRequest):
+            request = model_garden_service.DeployPublisherModelRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.deploy_publisher_model]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("destination", request.destination),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            model_garden_service.DeployPublisherModelResponse,
+            metadata_type=model_garden_service.DeployPublisherModelOperationMetadata,
         )
 
         # Done; return the response.

@@ -251,6 +251,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
+        required_replica_count: Optional[int] = 0,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -323,6 +324,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Returns:
             DeploymentResourcePool
@@ -353,6 +362,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             spot=spot,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            required_replica_count=required_replica_count,
         )
 
     @classmethod
@@ -378,6 +388,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         spot: bool = False,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -453,6 +464,14 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 when the Future has completed.
             create_request_timeout (float):
                 Optional. The create request timeout in seconds.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Returns:
             DeploymentResourcePool
@@ -466,6 +485,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
             spot=spot,
+            required_replica_count=required_replica_count,
         )
 
         machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -1186,6 +1206,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: Optional[int],
         deployment_resource_pool: Optional[DeploymentResourcePool],
+        required_replica_count: Optional[int],
     ):
         """Helper method to validate deploy arguments.
 
@@ -1233,6 +1254,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 are deployed to the same DeploymentResourcePool will be hosted in
                 a shared model server. If provided, will override replica count
                 arguments.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
@@ -1246,6 +1275,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 and min_replica_count != 1
                 or max_replica_count
                 and max_replica_count != 1
+                or required_replica_count
+                and required_replica_count != 0
             ):
                 raise ValueError(
                     "Ignoring explicitly specified replica counts, "
@@ -1264,6 +1295,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 raise ValueError("Min replica cannot be negative.")
             if max_replica_count < 0:
                 raise ValueError("Max replica cannot be negative.")
+            if required_replica_count and required_replica_count < 0:
+                raise ValueError("Required replica cannot be negative.")
             if accelerator_type:
                 utils.validate_accelerator_type(accelerator_type)
 
@@ -1313,6 +1346,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         spot: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1428,6 +1462,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             system_labels (Dict[str, str]):
                 Optional. System labels to apply to Model Garden deployments.
                 System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -1439,6 +1481,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
             deployment_resource_pool=deployment_resource_pool,
+            required_replica_count=required_replica_count,
         )
 
         explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
@@ -1473,6 +1516,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
     @base.optional_sync()
@@ -1504,6 +1548,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1613,6 +1658,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             system_labels (Dict[str, str]):
                 Optional. System labels to apply to Model Garden deployments.
                 System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1648,6 +1701,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1686,6 +1740,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1802,6 +1857,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             system_labels (Dict[str, str]):
                 Optional. System labels to apply to Model Garden deployments.
                 System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is specified.
@@ -1927,6 +1990,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     min_replica_count=min_replica_count,
                     max_replica_count=max_replica_count,
                     spot=spot,
+                    required_replica_count=required_replica_count,
                 )
 
                 machine_spec = gca_machine_resources_compat.MachineSpec(
@@ -3963,6 +4027,7 @@ class PrivateEndpoint(Endpoint):
         reservation_affinity_values: Optional[List[str]] = None,
         spot: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> None:
         """Deploys a Model to the PrivateEndpoint.
 
@@ -4081,6 +4146,14 @@ class PrivateEndpoint(Endpoint):
             system_labels (Dict[str, str]):
                 Optional. System labels to apply to Model Garden deployments.
                 System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
         """
 
         if self.network:
@@ -4098,6 +4171,7 @@ class PrivateEndpoint(Endpoint):
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
             deployment_resource_pool=None,
+            required_replica_count=required_replica_count,
         )
 
         explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
@@ -4126,6 +4200,7 @@ class PrivateEndpoint(Endpoint):
             spot=spot,
             disable_container_logging=disable_container_logging,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
     def update(
@@ -5190,6 +5265,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         spot: bool = False,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5327,6 +5403,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             system_labels (Dict[str, str]):
                 Optional. System labels to apply to Model Garden deployments.
                 System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5345,6 +5429,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
             deployment_resource_pool=deployment_resource_pool,
+            required_replica_count=required_replica_count,
         )
 
         if isinstance(endpoint, PrivateEndpoint):
@@ -5397,6 +5482,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
     def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
@@ -5440,6 +5526,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
+        required_replica_count: Optional[int] = 0,
     ) -> Union[Endpoint, PrivateEndpoint]:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -5570,6 +5657,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             system_labels (Dict[str, str]):
                 Optional. System labels to apply to Model Garden deployments.
                 System labels are managed by Google for internal use only.
+            required_replica_count (int):
+                Optional. Number of required available replicas for the
+                deployment to succeed. This field is only needed when partial
+                model deployment/mutation is desired, with a value greater than
+                or equal to 1 and fewer than or equal to min_replica_count. If
+                set, the model deploy/mutate operation will succeed once
+                available_replica_count reaches required_replica_count, and the
+                rest of the replicas will be retried.
 
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
@@ -5633,6 +5728,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             deployment_resource_pool=deployment_resource_pool,
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
+            required_replica_count=required_replica_count,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

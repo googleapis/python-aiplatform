@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "0.1.0"
+    "version": "1.75.0"
   },
   "snippets": [
     {
@@ -32369,6 +32369,159 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_migration_service_search_migratable_resources_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient",
+          "shortName": "ModelGardenServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceAsyncClient.deploy_publisher_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+            "shortName": "ModelGardenService"
+          },
+          "shortName": "DeployPublisherModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeployPublisherModelRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "deploy_publisher_model"
+      },
+      "description": "Sample for DeployPublisherModel",
+      "file": "aiplatform_v1beta1_generated_model_garden_service_deploy_publisher_model_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelGardenService_DeployPublisherModel_async",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_garden_service_deploy_publisher_model_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceClient",
+          "shortName": "ModelGardenServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.deploy_publisher_model",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+            "shortName": "ModelGardenService"
+          },
+          "shortName": "DeployPublisherModel"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeployPublisherModelRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "deploy_publisher_model"
+      },
+      "description": "Sample for DeployPublisherModel",
+      "file": "aiplatform_v1beta1_generated_model_garden_service_deploy_publisher_model_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_ModelGardenService_DeployPublisherModel_sync",
+      "segments": [
+        {
+          "end": 56,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 56,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 46,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 53,
+          "start": 47,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 57,
+          "start": 54,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_model_garden_service_deploy_publisher_model_sync.py"
     },
     {
       "canonical": true,

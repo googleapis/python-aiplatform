@@ -81,16 +81,6 @@ def fv_logger_mock():
 
 
 @pytest.fixture
-def list_fv_mock():
-    with patch.object(
-        feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,
-        "list_feature_views",
-    ) as list_fv:
-        list_fv.return_value = _TEST_FV_LIST
-        yield list_fv
-
-
-@pytest.fixture
 def delete_fv_mock():
     with patch.object(
         feature_online_store_admin_service_client.FeatureOnlineStoreAdminServiceClient,

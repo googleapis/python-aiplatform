@@ -665,6 +665,7 @@ class ImageGenerationModel(
                 "inpainting-remove",
                 "outpainting",
                 "product-image",
+                "background-swap",
                 "default",
             ]
         ] = None,
@@ -723,6 +724,8 @@ class ImageGenerationModel(
                 * outpainting: extend the image based on the mask area. (Requires
                   mask)
                 * product-image: Changes the background for the predominant
+                  product or subject in the image
+                * background-swap: Changes the background for the predominant
                   product or subject in the image
                 * default: Default editing mode
             mask_mode: Solicits generation of the mask (v/s providing mask as an
@@ -884,7 +887,9 @@ class ImageGenerationModel(
                 if isinstance(reference_image.config, ControlImageConfig):
                     reference_image_instance["controlImageConfig"] = {
                         "controlType": reference_image.config.control_type,
-                        "enableControlImageComputation": reference_image.config.enable_control_image_computation,
+                        "enableControlImageComputation": (
+                            reference_image.config.enable_control_image_computation
+                        ),
                     }
                     shared_generation_parameters[
                         f"reference_image_control_config_{reference_image.reference_id}"
@@ -952,6 +957,7 @@ class ImageGenerationModel(
                     "inpainting-insert": "EDIT_MODE_INPAINT_INSERTION",
                     "inpainting-remove": "EDIT_MODE_INPAINT_REMOVAL",
                     "outpainting": "EDIT_MODE_OUTPAINT",
+                    "background-swap": "EDIT_MODE_BGSWAP",
                 }
                 capability_mode = (
                     edit_mode_to_enum_map[edit_mode]
@@ -961,7 +967,9 @@ class ImageGenerationModel(
                 parameters["editMode"] = capability_mode
                 shared_generation_parameters["edit_mode"] = capability_mode
             else:
-                edit_config["editMode"] = edit_mode
+                edit_config["editMode"] = (
+                    edit_mode if edit_mode != "background-swap" else "inpainting-insert"
+                )
                 shared_generation_parameters["edit_mode"] = edit_mode
 
         if mask is None and edit_mode is not None and edit_mode != "product-image":

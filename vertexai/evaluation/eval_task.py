@@ -430,7 +430,9 @@ class EvalTask:
                 retry_timeout=retry_timeout,
             )
             metadata._experiment_tracker.set_experiment(
-                experiment=global_experiment_name, backing_tensorboard=False
+                experiment=global_experiment_name,
+                backing_tensorboard=False,
+                display_button=False,
             )
         elif self._experiment and not global_experiment_name:
             metadata._experiment_tracker.set_experiment(

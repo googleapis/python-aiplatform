@@ -4598,6 +4598,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
                                 },
+                                "thought": True,
                             }
                         ],
                     }
@@ -6198,6 +6199,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
                                 },
+                                "thought": True,
                             }
                         ],
                     }
