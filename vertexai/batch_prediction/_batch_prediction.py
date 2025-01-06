@@ -127,16 +127,16 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
                 Supported formats for tuned model name: "789" and
                 "projects/123/locations/456/models/789"
             input_dataset (Union[str,List[str]]):
-                GCS URI(-s) or Bigquery URI to your input data to run batch
+                GCS URI(-s) or BigQuery URI to your input data to run batch
                 prediction on. Example: "gs://path/to/input/data.jsonl" or
                 "bq://projectId.bqDatasetId.bqTableId"
             output_uri_prefix (str):
-                GCS or Bigquery URI prefix for the output predictions. Example:
+                GCS or BigQuery URI prefix for the output predictions. Example:
                 "gs://path/to/output/data" or "bq://projectId.bqDatasetId"
                 If not specified, f"{STAGING_BUCKET}/gen-ai-batch-prediction" will
                 be used for GCS source and
                 f"bq://projectId.gen_ai_batch_prediction.predictions_{TIMESTAMP}"
-                will be used for Bigquery source.
+                will be used for BigQuery source.
 
         Returns:
             Instantiated BatchPredictionJob.
