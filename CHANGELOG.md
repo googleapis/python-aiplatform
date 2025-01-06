@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.76.0](https://github.com/googleapis/python-aiplatform/compare/v1.75.0...v1.76.0) (2025-01-06)
+
+
+### Features
+
+* Add a new thought field in content proto ([67358fa](https://github.com/googleapis/python-aiplatform/commit/67358fa6a830eb842f6b52d09061af4a41b54af6))
+* Add Model Garden deploy API ([67358fa](https://github.com/googleapis/python-aiplatform/commit/67358fa6a830eb842f6b52d09061af4a41b54af6))
+* Add required_replica to Vertex SDK ([f5ddbb8](https://github.com/googleapis/python-aiplatform/commit/f5ddbb8696a93d75a3989304007d7a40c11d1d94))
+* Update v1beta1 sdk to support llmparser in import file functions ([1eb493b](https://github.com/googleapis/python-aiplatform/commit/1eb493baa51b35e0e4df91a7ffbba3aa3f260ab6))
+* Use `TypeAliasType` to define aliases for union types in generative models ([2224c83](https://github.com/googleapis/python-aiplatform/commit/2224c835076ad583a2fe4bc2ee04ab63b0aa1acf))
+
+
+### Bug Fixes
+
+* Caching - Fixed an edge case where the `contents` arg could be `None` ([ede0266](https://github.com/googleapis/python-aiplatform/commit/ede026619f874189c5cc0edb6e5494591fac609c))
+* Catch runtime errors in the import of `TypeAliasType` from typing_extensions ([8497476](https://github.com/googleapis/python-aiplatform/commit/849747609553363a060fb14332dc75ead94b2c17))
+* EvalTask evaluation should only display experiment button once for ipython environments ([88d2656](https://github.com/googleapis/python-aiplatform/commit/88d265641fa6cfa83c4cc506fd36ab14269a555b))
+
+
+### Documentation
+
+* A comment for field `labels` in message `.google.cloud.aiplatform.v1beta1.PublisherModel` is changed ([67358fa](https://github.com/googleapis/python-aiplatform/commit/67358fa6a830eb842f6b52d09061af4a41b54af6))
+* Add latest_stats_count to get_feature in FeatureGroup. ([15bfb54](https://github.com/googleapis/python-aiplatform/commit/15bfb5453f8965bfe70629c43c8838f778fe85c1))
+
 ## [1.75.0](https://github.com/googleapis/python-aiplatform/compare/v1.74.0...v1.75.0) (2024-12-17)
 
 
