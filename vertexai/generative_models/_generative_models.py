@@ -129,7 +129,11 @@ try:
             ],
         ],
     )
-except ImportError:
+except (ImportError, RuntimeError) as e:
+    from google.cloud.aiplatform import base
+
+    _LOGGER = base.Logger(__name__)
+    _LOGGER.debug(f"Failed to import typing_extensions.TypeAliasType: {e}")
     # Use existing definitions if typing_extensions is not available.
     PartsType = Union[
         str,
