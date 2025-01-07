@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import base64
+import json
 import sys
 import typing
 from uuid import uuid4
@@ -27,6 +29,7 @@ if typing.TYPE_CHECKING:
     from google.cloud.aiplatform.metadata import experiment_run_resource
     from google.cloud.aiplatform import model_evaluation
     from vertexai.preview.tuning import sft
+    from vertexai.evaluation import _base as eval_base
 
 _LOGGER = base.Logger(__name__)
 
@@ -266,3 +269,26 @@ def display_browse_prebuilt_metrics_button() -> None:
         "https://cloud.google.com/vertex-ai/generative-ai/docs/models/metrics-templates"
     )
     display_link("Browse pre-built metrics", uri, "list")
+
+
+def display_gen_ai_evaluation_button(eval_result: "eval_base.EvalResult") -> None:
+    """Function to generate a link bound to the Gen AI evaluation run."""
+    if not is_ipython_available():
+        return
+
+    if eval_result.metrics_table is None:
+        return
+
+    summary_metrics = json.dumps(eval_result.summary_metrics)
+    metrics_table = eval_result.metrics_table.to_json(orient="records")
+
+    if metrics_table is None:
+        return
+
+    results = (
+        f'{{"summary_metrics": {summary_metrics}, "metrics_table": {metrics_table}}}'
+    )
+    encoded_results = base64.urlsafe_b64encode(results.encode("utf-8"))
+
+    uri = f"https://console.cloud.google.com/vertex-ai?evaluation_results={encoded_results}"
+    display_link("View evaluation results", uri, "bar_chart")

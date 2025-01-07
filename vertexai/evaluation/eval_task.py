@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 from typing import Any, Callable, Dict, List, Literal, Optional, TYPE_CHECKING, Union
+from google.cloud.aiplatform.utils import _ipython_utils
 import uuid
 
 from google.api_core import exceptions
@@ -467,6 +468,7 @@ class EvalTask:
         utils.upload_evaluation_results(
             eval_result.metrics_table, self.output_uri_prefix, output_file_name
         )
+        _ipython_utils.display_gen_ai_evaluation_button(eval_result)
         return eval_result
 
     def _validate_experiment_run(self) -> None:
