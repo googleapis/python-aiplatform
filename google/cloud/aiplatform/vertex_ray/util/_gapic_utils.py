@@ -107,21 +107,33 @@ def get_persistent_resource(
             response = None
             if num_attempts >= tolerance:
                 raise ValueError(
-                    "[Ray on Vertex AI]: Invalid cluster_resource_name (404 not found)."
+                    "[Ray on Vertex AI]: Invalid cluster_resource_name %s (404 not"
+                    " found)." % persistent_resource_name
                 )
         if response:
             if response.error.message:
-                logging.error("[Ray on Vertex AI]: %s" % response.error.message)
-                raise RuntimeError("[Ray on Vertex AI]: Cluster returned an error.")
+                logging.error(
+                    "[Ray on Vertex AI]: %s - %s",
+                    persistent_resource_name,
+                    response.error.message,
+                )
+                raise RuntimeError(
+                    "[Ray on Vertex AI]: Cluster %s returned an error."
+                    % persistent_resource_name
+                )
 
             print("[Ray on Vertex AI]: Cluster State =", response.state)
             if response.state == PersistentResource.State.RUNNING:
                 return response
             elif response.state == PersistentResource.State.STOPPING:
-                raise RuntimeError("[Ray on Vertex AI]: The cluster is stopping.")
+                raise RuntimeError(
+                    "[Ray on Vertex AI]: Cluster %s is stopping."
+                    % persistent_resource_name
+                )
             elif response.state == PersistentResource.State.ERROR:
                 raise RuntimeError(
-                    "[Ray on Vertex AI]: The cluster encountered an error."
+                    "[Ray on Vertex AI]: Cluster %s encountered an error."
+                    % persistent_resource_name
                 )
         # Polling decay
         sleep_time = polling_delay(num_attempts=num_attempts, time_scale=150.0)
