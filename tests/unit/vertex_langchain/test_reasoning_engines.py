@@ -2253,7 +2253,7 @@ class ToParsedJsonTest(parameterized.TestCase):
         dict(
             testcase_name="missing_data",
             obj=httpbody_pb2.HttpBody(content_type="application/json"),
-            expected=httpbody_pb2.HttpBody(content_type="application/json"),
+            expected=None,
         ),
         dict(
             testcase_name="wrong_content_type",
@@ -2263,7 +2263,7 @@ class ToParsedJsonTest(parameterized.TestCase):
         dict(
             testcase_name="empty_data",
             obj=httpbody_pb2.HttpBody(content_type="application/json", data=b""),
-            expected=httpbody_pb2.HttpBody(content_type="application/json", data=b""),
+            expected=None,
         ),
         dict(
             testcase_name="unicode_data",
