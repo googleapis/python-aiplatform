@@ -557,6 +557,7 @@ class _Config:
             client: Instantiated Vertex AI Service client with optional overrides
         """
         gapic_version = __version__
+        print("IN BRANCH CL PRINT -- PARKER")
 
         if appended_gapic_version:
             gapic_version = f"{gapic_version}+{appended_gapic_version}"
@@ -586,6 +587,7 @@ class _Config:
             gapic_version=gapic_version,
             user_agent=user_agent,
         )
+        print("Branch CL client info: " + str(client_info))
 
         kwargs = {
             "credentials": credentials or self.credentials,
@@ -598,6 +600,7 @@ class _Config:
             ),
             "client_info": client_info,
         }
+        print("Branch CL kwargs: " + str(kwargs))
 
         # Do not pass "grpc", rely on gapic defaults unless "rest" is specified
         if self._api_transport == "rest" and "Async" in client_class.__name__:
@@ -622,7 +625,9 @@ class _Config:
         client = client_class(**kwargs)
         # We only wrap the client if the request_metadata is set at the creation time.
         if self._request_metadata:
+            print("Branch CL wrapping client because request metadata is set")
             client = _ClientWrapperThatAddsDefaultMetadata(client)
+        print("Branch CL returning client: " + str(client))
         return client
 
     def _get_default_project_and_location(self) -> Tuple[str, str]:
