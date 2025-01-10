@@ -23,9 +23,13 @@ from vertexai.reasoning_engines._reasoning_engines import (
 from vertexai.preview.reasoning_engines.templates.langchain import (
     LangchainAgent,
 )
+from vertexai.preview.reasoning_engines.templates.langgraph import (
+    LanggraphAgent,
+)
 
 __all__ = (
     "LangchainAgent",
+    "LanggraphAgent",
     "Queryable",
     "ReasoningEngine",
 )
