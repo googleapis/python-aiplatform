@@ -58,7 +58,7 @@ class EvalTask:
     An Evaluation Tasks is defined to measure the model's ability to perform a
     certain task in response to specific prompts or inputs. Evaluation tasks must
     contain an evaluation dataset, and a list of metrics to evaluate. Evaluation
-    tasks help developers compare propmpt templates, track experiments, compare
+    tasks help developers compare prompt templates, track experiments, compare
     models and their settings, and assess the quality of the model's generated
     text.
 
