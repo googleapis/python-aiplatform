@@ -98,7 +98,7 @@ def to_parsed_json(body: httpbody_pb2.HttpBody) -> Any:
             Required. The httpbody body to be converted to a JSON.
 
     Returns:
-        Any: A JSON object.
+        Any: A JSON object or the original body if it is not JSON or None.
     """
     content_type = getattr(body, "content_type", None)
     data = getattr(body, "data", None)
@@ -111,6 +111,10 @@ def to_parsed_json(body: httpbody_pb2.HttpBody) -> Any:
     except Exception as e:
         _LOGGER.warning(f"Failed to decode data: {data}. Exception: {e}")
         return body
+
+    if not utf8_data:
+        return None
+
     try:
         return json.loads(utf8_data)
     except Exception as e:

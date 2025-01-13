@@ -157,6 +157,7 @@ langchain_extra_require = [
     "langchain >= 0.1.16, < 0.4",
     "langchain-core < 0.4",
     "langchain-google-vertexai < 3",
+    "langgraph >= 0.2.45, < 0.3",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
 ]
 

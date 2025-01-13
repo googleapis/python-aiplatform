@@ -88,53 +88,10 @@ SafetyRating = gapic_content_types.SafetyRating
 # These type defnitions are expanded to help the user see all the types
 ContentDict = Dict[str, Any]
 GenerationConfigDict = Dict[str, Any]
-try:
-    # For Pydantic to resolve the forward references inside these aliases.
-    from typing_extensions import TypeAliasType
 
-    PartsType = TypeAliasType(
-        "PartsType",
-        Union[
-            str,
-            "Image",
-            "Part",
-            List[Union[str, "Image", "Part"]],
-        ],
-    )
-    ContentsType = TypeAliasType(
-        "ContentsType",
-        Union[
-            List["Content"],
-            List[ContentDict],
-            str,
-            "Image",
-            "Part",
-            List[Union[str, "Image", "Part"]],
-        ],
-    )
-    GenerationConfigType = TypeAliasType(
-        "GenerationConfigType",
-        Union[
-            "GenerationConfig",
-            GenerationConfigDict,
-        ],
-    )
-    SafetySettingsType = TypeAliasType(
-        "SafetySettingsType",
-        Union[
-            List["SafetySetting"],
-            Dict[
-                gapic_content_types.HarmCategory,
-                gapic_content_types.SafetySetting.HarmBlockThreshold,
-            ],
-        ],
-    )
-except (ImportError, RuntimeError) as e:
-    from google.cloud.aiplatform import base
-
-    _LOGGER = base.Logger(__name__)
-    _LOGGER.debug(f"Failed to import typing_extensions.TypeAliasType: {e}")
-    # Use existing definitions if typing_extensions is not available.
+if TYPE_CHECKING:
+    # Default to the current definitions if pytype is being used for type checks
+    # because it does not support try-except for types.
     PartsType = Union[
         str,
         "Image",
@@ -160,6 +117,79 @@ except (ImportError, RuntimeError) as e:
             gapic_content_types.SafetySetting.HarmBlockThreshold,
         ],
     ]
+else:
+    try:
+        # For Pydantic to resolve the forward references inside these aliases.
+        from typing_extensions import TypeAliasType
+
+        PartsType = TypeAliasType(
+            "PartsType",
+            Union[
+                str,
+                "Image",
+                "Part",
+                List[Union[str, "Image", "Part"]],
+            ],
+        )
+        ContentsType = TypeAliasType(
+            "ContentsType",
+            Union[
+                List["Content"],
+                List[ContentDict],
+                str,
+                "Image",
+                "Part",
+                List[Union[str, "Image", "Part"]],
+            ],
+        )
+        GenerationConfigType = TypeAliasType(
+            "GenerationConfigType",
+            Union[
+                "GenerationConfig",
+                GenerationConfigDict,
+            ],
+        )
+        SafetySettingsType = TypeAliasType(
+            "SafetySettingsType",
+            Union[
+                List["SafetySetting"],
+                Dict[
+                    gapic_content_types.HarmCategory,
+                    gapic_content_types.SafetySetting.HarmBlockThreshold,
+                ],
+            ],
+        )
+    except (ImportError, RuntimeError) as e:
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
+        _LOGGER.debug(f"Failed to import typing_extensions.TypeAliasType: {e}")
+        # Use existing definitions if typing_extensions is not available.
+        PartsType = Union[
+            str,
+            "Image",
+            "Part",
+            List[Union[str, "Image", "Part"]],
+        ]
+        ContentsType = Union[
+            List["Content"],
+            List[ContentDict],
+            str,
+            "Image",
+            "Part",
+            List[Union[str, "Image", "Part"]],
+        ]
+        GenerationConfigType = Union[
+            "GenerationConfig",
+            GenerationConfigDict,
+        ]
+        SafetySettingsType = Union[
+            List["SafetySetting"],
+            Dict[
+                gapic_content_types.HarmCategory,
+                gapic_content_types.SafetySetting.HarmBlockThreshold,
+            ],
+        ]
 
 
 def _reconcile_model_name(model_name: str, project: str, location: str) -> str:
