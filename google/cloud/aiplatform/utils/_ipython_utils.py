@@ -17,6 +17,7 @@
 
 import sys
 import typing
+import urllib
 from uuid import uuid4
 from typing import Optional
 
@@ -266,3 +267,18 @@ def display_browse_prebuilt_metrics_button() -> None:
         "https://cloud.google.com/vertex-ai/generative-ai/docs/models/metrics-templates"
     )
     display_link("Browse pre-built metrics", uri, "list")
+
+
+def display_gen_ai_evaluation_results_button(
+    gcs_file_path: Optional[str] = None,
+) -> None:
+    """Function to generate a link bound to the Gen AI evaluation run."""
+    if not is_ipython_available():
+        return
+
+    uri = "https://cloud.google.com/vertex-ai/generative-ai/docs/models/view-evaluation"
+    if gcs_file_path is not None:
+        gcs_file_path = urllib.parse.quote(gcs_file_path)
+        uri = f"https://console.cloud.google.com/storage/browser/_details/{gcs_file_path};colab_enterprise=gen_ai_evaluation"
+
+    display_link("View evaluation results", uri, "bar_chart")

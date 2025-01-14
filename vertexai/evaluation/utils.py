@@ -29,6 +29,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
@@ -295,12 +296,16 @@ def upload_evaluation_results(
         file_name: File name to store the data.
     """
     if not destination_uri_prefix:
+        _ipython_utils.display_gen_ai_evaluation_results_button()
         return
     if destination_uri_prefix.startswith(_GCS_PREFIX):
         _, extension = os.path.splitext(file_name)
         file_type = extension.lower()[1:]
         output_path = destination_uri_prefix + "/" + file_name
         _upload_pandas_df_to_gcs(dataset, output_path, file_type)
+        _ipython_utils.display_gen_ai_evaluation_results_button(
+            output_path.split(_GCS_PREFIX)[1]
+        )
     else:
         raise ValueError(
             f"Unsupported destination URI: {destination_uri_prefix}."
