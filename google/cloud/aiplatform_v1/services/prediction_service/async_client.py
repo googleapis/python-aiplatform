@@ -84,6 +84,10 @@ class PredictionServiceAsyncClient:
     _DEFAULT_ENDPOINT_TEMPLATE = PredictionServiceClient._DEFAULT_ENDPOINT_TEMPLATE
     _DEFAULT_UNIVERSE = PredictionServiceClient._DEFAULT_UNIVERSE
 
+    cached_content_path = staticmethod(PredictionServiceClient.cached_content_path)
+    parse_cached_content_path = staticmethod(
+        PredictionServiceClient.parse_cached_content_path
+    )
     endpoint_path = staticmethod(PredictionServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(PredictionServiceClient.parse_endpoint_path)
     model_path = staticmethod(PredictionServiceClient.model_path)

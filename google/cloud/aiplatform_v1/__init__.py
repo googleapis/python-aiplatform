@@ -48,6 +48,8 @@ from .services.featurestore_online_serving_service import (
 )
 from .services.featurestore_service import FeaturestoreServiceClient
 from .services.featurestore_service import FeaturestoreServiceAsyncClient
+from .services.gen_ai_cache_service import GenAiCacheServiceClient
+from .services.gen_ai_cache_service import GenAiCacheServiceAsyncClient
 from .services.gen_ai_tuning_service import GenAiTuningServiceClient
 from .services.gen_ai_tuning_service import GenAiTuningServiceAsyncClient
 from .services.index_endpoint_service import IndexEndpointServiceClient
@@ -95,6 +97,7 @@ from .types.annotation_spec import AnnotationSpec
 from .types.api_auth import ApiAuth
 from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
+from .types.cached_content import CachedContent
 from .types.completion_stats import CompletionStats
 from .types.content import Blob
 from .types.content import Candidate
@@ -449,6 +452,12 @@ from .types.featurestore_service import UpdateEntityTypeRequest
 from .types.featurestore_service import UpdateFeatureRequest
 from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
+from .types.gen_ai_cache_service import CreateCachedContentRequest
+from .types.gen_ai_cache_service import DeleteCachedContentRequest
+from .types.gen_ai_cache_service import GetCachedContentRequest
+from .types.gen_ai_cache_service import ListCachedContentsRequest
+from .types.gen_ai_cache_service import ListCachedContentsResponse
+from .types.gen_ai_cache_service import UpdateCachedContentRequest
 from .types.genai_tuning_service import CancelTuningJobRequest
 from .types.genai_tuning_service import CreateTuningJobRequest
 from .types.genai_tuning_service import GetTuningJobRequest
@@ -897,6 +906,7 @@ from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
 from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
+from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
 from .types.tool import VertexAISearch
@@ -994,6 +1004,7 @@ __all__ = (
     "FeatureRegistryServiceAsyncClient",
     "FeaturestoreOnlineServingServiceAsyncClient",
     "FeaturestoreServiceAsyncClient",
+    "GenAiCacheServiceAsyncClient",
     "GenAiTuningServiceAsyncClient",
     "IndexEndpointServiceAsyncClient",
     "IndexServiceAsyncClient",
@@ -1071,6 +1082,7 @@ __all__ = (
     "Blob",
     "BlurBaselineConfig",
     "BoolArray",
+    "CachedContent",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
@@ -1113,6 +1125,7 @@ __all__ = (
     "CountTokensResponse",
     "CreateArtifactRequest",
     "CreateBatchPredictionJobRequest",
+    "CreateCachedContentRequest",
     "CreateContextRequest",
     "CreateCustomJobRequest",
     "CreateDataLabelingJobRequest",
@@ -1182,6 +1195,7 @@ __all__ = (
     "DedicatedResources",
     "DeleteArtifactRequest",
     "DeleteBatchPredictionJobRequest",
+    "DeleteCachedContentRequest",
     "DeleteContextRequest",
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
@@ -1336,6 +1350,7 @@ __all__ = (
     "FunctionResponse",
     "GcsDestination",
     "GcsSource",
+    "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
     "GenerateContentResponse",
@@ -1345,6 +1360,7 @@ __all__ = (
     "GetAnnotationSpecRequest",
     "GetArtifactRequest",
     "GetBatchPredictionJobRequest",
+    "GetCachedContentRequest",
     "GetContextRequest",
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
@@ -1434,6 +1450,8 @@ __all__ = (
     "ListArtifactsResponse",
     "ListBatchPredictionJobsRequest",
     "ListBatchPredictionJobsResponse",
+    "ListCachedContentsRequest",
+    "ListCachedContentsResponse",
     "ListContextsRequest",
     "ListContextsResponse",
     "ListCustomJobsRequest",
@@ -1710,6 +1728,7 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RetrievalConfig",
     "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",
@@ -1851,6 +1870,7 @@ __all__ = (
     "UndeployModelResponse",
     "UnmanagedContainerModel",
     "UpdateArtifactRequest",
+    "UpdateCachedContentRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",
     "UpdateDatasetVersionRequest",

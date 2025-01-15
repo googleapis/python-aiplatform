@@ -1043,6 +1043,7 @@ from .types.tool import FunctionResponse
 from .types.tool import GoogleSearchRetrieval
 from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
+from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
 from .types.tool import ToolUseExample
@@ -1967,6 +1968,7 @@ __all__ = (
     "ResumeModelDeploymentMonitoringJobRequest",
     "ResumeScheduleRequest",
     "Retrieval",
+    "RetrievalConfig",
     "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",

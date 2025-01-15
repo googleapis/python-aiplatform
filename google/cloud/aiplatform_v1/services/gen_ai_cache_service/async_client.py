@@ -13,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from collections import OrderedDict
 import logging as std_logging
-import os
+from collections import OrderedDict
 import re
 from typing import (
     Dict,
@@ -28,26 +27,39 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
 )
-import warnings
 
-from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
-from google.api_core import client_options as client_options_lib
+from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
-from google.api_core import retry as retries
+from google.api_core import retry_async as retries
 from google.auth import credentials as ga_credentials  # type: ignore
-from google.auth.transport import mtls  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
+
 try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
+    OptionalRetry = Union[retries.AsyncRetry, gapic_v1.method._MethodDefault, None]
 except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object, None]  # type: ignore
+    OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
+
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import pagers
+from google.cloud.aiplatform_v1.types import cached_content
+from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
+from google.cloud.aiplatform_v1.types import content
+from google.cloud.aiplatform_v1.types import gen_ai_cache_service
+from google.cloud.aiplatform_v1.types import tool
+from google.cloud.location import locations_pb2  # type: ignore
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from .transports.base import GenAiCacheServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc_asyncio import GenAiCacheServiceGrpcAsyncIOTransport
+from .client import GenAiCacheServiceClient
 
 try:
     from google.api_core import client_logging  # type: ignore
@@ -58,115 +70,49 @@ except ImportError:  # pragma: NO COVER
 
 _LOGGER = std_logging.getLogger(__name__)
 
-from google.api_core import operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
-from google.cloud.location import locations_pb2  # type: ignore
-from google.iam.v1 import iam_policy_pb2  # type: ignore
-from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2  # type: ignore
-from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import MigrationServiceGrpcTransport
-from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
-from .transports.rest import MigrationServiceRestTransport
 
-try:
-    from .transports.rest_asyncio import AsyncMigrationServiceRestTransport
+class GenAiCacheServiceAsyncClient:
+    """Service for managing Vertex AI's CachedContent resource."""
 
-    HAS_ASYNC_REST_DEPENDENCIES = True
-except ImportError as e:  # pragma: NO COVER
-    HAS_ASYNC_REST_DEPENDENCIES = False
-    ASYNC_REST_EXCEPTION = e
+    _client: GenAiCacheServiceClient
 
-
-class MigrationServiceClientMeta(type):
-    """Metaclass for the MigrationService client.
-
-    This provides class-level methods for building and retrieving
-    support objects (e.g. transport) without polluting the client instance
-    objects.
-    """
-
-    _transport_registry = (
-        OrderedDict()
-    )  # type: Dict[str, Type[MigrationServiceTransport]]
-    _transport_registry["grpc"] = MigrationServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
-    _transport_registry["rest"] = MigrationServiceRestTransport
-    if HAS_ASYNC_REST_DEPENDENCIES:  # pragma: NO COVER
-        _transport_registry["rest_asyncio"] = AsyncMigrationServiceRestTransport
-
-    def get_transport_class(
-        cls,
-        label: Optional[str] = None,
-    ) -> Type[MigrationServiceTransport]:
-        """Returns an appropriate transport class.
-
-        Args:
-            label: The name of the desired transport. If none is
-                provided, then the first transport in the registry is used.
-
-        Returns:
-            The transport class to use.
-        """
-        # If a specific transport is requested, return that one.
-        if (
-            label == "rest_asyncio" and not HAS_ASYNC_REST_DEPENDENCIES
-        ):  # pragma: NO COVER
-            raise ASYNC_REST_EXCEPTION
-        if label:
-            return cls._transport_registry[label]
-
-        # No transport is requested; return the default (that is, the first one
-        # in the dictionary).
-        return next(iter(cls._transport_registry.values()))
-
-
-class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
-    """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
-    """
-
-    @staticmethod
-    def _get_default_mtls_endpoint(api_endpoint):
-        """Converts api endpoint to mTLS endpoint.
-
-        Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
-        "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
-        Args:
-            api_endpoint (Optional[str]): the api endpoint to convert.
-        Returns:
-            str: converted mTLS api endpoint.
-        """
-        if not api_endpoint:
-            return api_endpoint
-
-        mtls_endpoint_re = re.compile(
-            r"(?P<name>[^.]+)(?P<mtls>\.mtls)?(?P<sandbox>\.sandbox)?(?P<googledomain>\.googleapis\.com)?"
-        )
-
-        m = mtls_endpoint_re.match(api_endpoint)
-        name, mtls, sandbox, googledomain = m.groups()
-        if mtls or not googledomain:
-            return api_endpoint
-
-        if sandbox:
-            return api_endpoint.replace(
-                "sandbox.googleapis.com", "mtls.sandbox.googleapis.com"
-            )
-
-        return api_endpoint.replace(".googleapis.com", ".mtls.googleapis.com")
-
+    # Copy defaults from the synchronous client for use here.
     # Note: DEFAULT_ENDPOINT is deprecated. Use _DEFAULT_ENDPOINT_TEMPLATE instead.
-    DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
-    DEFAULT_MTLS_ENDPOINT = _get_default_mtls_endpoint.__func__(  # type: ignore
-        DEFAULT_ENDPOINT
-    )
+    DEFAULT_ENDPOINT = GenAiCacheServiceClient.DEFAULT_ENDPOINT
+    DEFAULT_MTLS_ENDPOINT = GenAiCacheServiceClient.DEFAULT_MTLS_ENDPOINT
+    _DEFAULT_ENDPOINT_TEMPLATE = GenAiCacheServiceClient._DEFAULT_ENDPOINT_TEMPLATE
+    _DEFAULT_UNIVERSE = GenAiCacheServiceClient._DEFAULT_UNIVERSE
 
-    _DEFAULT_ENDPOINT_TEMPLATE = "aiplatform.{UNIVERSE_DOMAIN}"
-    _DEFAULT_UNIVERSE = "googleapis.com"
+    cached_content_path = staticmethod(GenAiCacheServiceClient.cached_content_path)
+    parse_cached_content_path = staticmethod(
+        GenAiCacheServiceClient.parse_cached_content_path
+    )
+    rag_corpus_path = staticmethod(GenAiCacheServiceClient.rag_corpus_path)
+    parse_rag_corpus_path = staticmethod(GenAiCacheServiceClient.parse_rag_corpus_path)
+    common_billing_account_path = staticmethod(
+        GenAiCacheServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        GenAiCacheServiceClient.parse_common_billing_account_path
+    )
+    common_folder_path = staticmethod(GenAiCacheServiceClient.common_folder_path)
+    parse_common_folder_path = staticmethod(
+        GenAiCacheServiceClient.parse_common_folder_path
+    )
+    common_organization_path = staticmethod(
+        GenAiCacheServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        GenAiCacheServiceClient.parse_common_organization_path
+    )
+    common_project_path = staticmethod(GenAiCacheServiceClient.common_project_path)
+    parse_common_project_path = staticmethod(
+        GenAiCacheServiceClient.parse_common_project_path
+    )
+    common_location_path = staticmethod(GenAiCacheServiceClient.common_location_path)
+    parse_common_location_path = staticmethod(
+        GenAiCacheServiceClient.parse_common_location_path
+    )
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -179,11 +125,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            GenAiCacheServiceAsyncClient: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_info(info)
-        kwargs["credentials"] = credentials
-        return cls(*args, **kwargs)
+        return GenAiCacheServiceClient.from_service_account_info.__func__(GenAiCacheServiceAsyncClient, info, *args, **kwargs)  # type: ignore
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -197,255 +141,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            GenAiCacheServiceAsyncClient: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(filename)
-        kwargs["credentials"] = credentials
-        return cls(*args, **kwargs)
+        return GenAiCacheServiceClient.from_service_account_file.__func__(GenAiCacheServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
 
     from_service_account_json = from_service_account_file
 
-    @property
-    def transport(self) -> MigrationServiceTransport:
-        """Returns the transport used by the client instance.
-
-        Returns:
-            MigrationServiceTransport: The transport used by the client
-                instance.
-        """
-        return self._transport
-
-    @staticmethod
-    def annotated_dataset_path(
-        project: str,
-        dataset: str,
-        annotated_dataset: str,
-    ) -> str:
-        """Returns a fully-qualified annotated_dataset string."""
-        return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-            project=project,
-            dataset=dataset,
-            annotated_dataset=annotated_dataset,
-        )
-
-    @staticmethod
-    def parse_annotated_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a annotated_dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def version_path(
-        project: str,
-        model: str,
-        version: str,
-    ) -> str:
-        """Returns a fully-qualified version string."""
-        return "projects/{project}/models/{model}/versions/{version}".format(
-            project=project,
-            model=model,
-            version=version,
-        )
-
-    @staticmethod
-    def parse_version_path(path: str) -> Dict[str, str]:
-        """Parses a version path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/models/(?P<model>.+?)/versions/(?P<version>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_billing_account_path(
-        billing_account: str,
-    ) -> str:
-        """Returns a fully-qualified billing_account string."""
-        return "billingAccounts/{billing_account}".format(
-            billing_account=billing_account,
-        )
-
-    @staticmethod
-    def parse_common_billing_account_path(path: str) -> Dict[str, str]:
-        """Parse a billing_account path into its component segments."""
-        m = re.match(r"^billingAccounts/(?P<billing_account>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_folder_path(
-        folder: str,
-    ) -> str:
-        """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(
-            folder=folder,
-        )
-
-    @staticmethod
-    def parse_common_folder_path(path: str) -> Dict[str, str]:
-        """Parse a folder path into its component segments."""
-        m = re.match(r"^folders/(?P<folder>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_organization_path(
-        organization: str,
-    ) -> str:
-        """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(
-            organization=organization,
-        )
-
-    @staticmethod
-    def parse_common_organization_path(path: str) -> Dict[str, str]:
-        """Parse a organization path into its component segments."""
-        m = re.match(r"^organizations/(?P<organization>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_project_path(
-        project: str,
-    ) -> str:
-        """Returns a fully-qualified project string."""
-        return "projects/{project}".format(
-            project=project,
-        )
-
-    @staticmethod
-    def parse_common_project_path(path: str) -> Dict[str, str]:
-        """Parse a project path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_location_path(
-        project: str,
-        location: str,
-    ) -> str:
-        """Returns a fully-qualified location string."""
-        return "projects/{project}/locations/{location}".format(
-            project=project,
-            location=location,
-        )
-
-    @staticmethod
-    def parse_common_location_path(path: str) -> Dict[str, str]:
-        """Parse a location path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
-        return m.groupdict() if m else {}
-
     @classmethod
     def get_mtls_endpoint_and_cert_source(
-        cls, client_options: Optional[client_options_lib.ClientOptions] = None
+        cls, client_options: Optional[ClientOptions] = None
     ):
-        """Deprecated. Return the API endpoint and client cert source for mutual TLS.
+        """Return the API endpoint and client cert source for mutual TLS.
 
         The client cert source is determined in the following order:
         (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
@@ -475,163 +181,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Raises:
             google.auth.exceptions.MutualTLSChannelError: If any errors happen.
         """
+        return GenAiCacheServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
 
-        warnings.warn(
-            "get_mtls_endpoint_and_cert_source is deprecated. Use the api_endpoint property instead.",
-            DeprecationWarning,
-        )
-        if client_options is None:
-            client_options = client_options_lib.ClientOptions()
-        use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
-        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
-        if use_client_cert not in ("true", "false"):
-            raise ValueError(
-                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-            )
-        if use_mtls_endpoint not in ("auto", "never", "always"):
-            raise MutualTLSChannelError(
-                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-            )
-
-        # Figure out the client cert source to use.
-        client_cert_source = None
-        if use_client_cert == "true":
-            if client_options.client_cert_source:
-                client_cert_source = client_options.client_cert_source
-            elif mtls.has_default_client_cert_source():
-                client_cert_source = mtls.default_client_cert_source()
-
-        # Figure out which api endpoint to use.
-        if client_options.api_endpoint is not None:
-            api_endpoint = client_options.api_endpoint
-        elif use_mtls_endpoint == "always" or (
-            use_mtls_endpoint == "auto" and client_cert_source
-        ):
-            api_endpoint = cls.DEFAULT_MTLS_ENDPOINT
-        else:
-            api_endpoint = cls.DEFAULT_ENDPOINT
-
-        return api_endpoint, client_cert_source
-
-    @staticmethod
-    def _read_environment_variables():
-        """Returns the environment variables used by the client.
+    @property
+    def transport(self) -> GenAiCacheServiceTransport:
+        """Returns the transport used by the client instance.
 
         Returns:
-            Tuple[bool, str, str]: returns the GOOGLE_API_USE_CLIENT_CERTIFICATE,
-            GOOGLE_API_USE_MTLS_ENDPOINT, and GOOGLE_CLOUD_UNIVERSE_DOMAIN environment variables.
-
-        Raises:
-            ValueError: If GOOGLE_API_USE_CLIENT_CERTIFICATE is not
-                any of ["true", "false"].
-            google.auth.exceptions.MutualTLSChannelError: If GOOGLE_API_USE_MTLS_ENDPOINT
-                is not any of ["auto", "never", "always"].
+            GenAiCacheServiceTransport: The transport used by the client instance.
         """
-        use_client_cert = os.getenv(
-            "GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"
-        ).lower()
-        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto").lower()
-        universe_domain_env = os.getenv("GOOGLE_CLOUD_UNIVERSE_DOMAIN")
-        if use_client_cert not in ("true", "false"):
-            raise ValueError(
-                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-            )
-        if use_mtls_endpoint not in ("auto", "never", "always"):
-            raise MutualTLSChannelError(
-                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-            )
-        return use_client_cert == "true", use_mtls_endpoint, universe_domain_env
-
-    @staticmethod
-    def _get_client_cert_source(provided_cert_source, use_cert_flag):
-        """Return the client cert source to be used by the client.
-
-        Args:
-            provided_cert_source (bytes): The client certificate source provided.
-            use_cert_flag (bool): A flag indicating whether to use the client certificate.
-
-        Returns:
-            bytes or None: The client cert source to be used by the client.
-        """
-        client_cert_source = None
-        if use_cert_flag:
-            if provided_cert_source:
-                client_cert_source = provided_cert_source
-            elif mtls.has_default_client_cert_source():
-                client_cert_source = mtls.default_client_cert_source()
-        return client_cert_source
-
-    @staticmethod
-    def _get_api_endpoint(
-        api_override, client_cert_source, universe_domain, use_mtls_endpoint
-    ):
-        """Return the API endpoint used by the client.
-
-        Args:
-            api_override (str): The API endpoint override. If specified, this is always
-                the return value of this function and the other arguments are not used.
-            client_cert_source (bytes): The client certificate source used by the client.
-            universe_domain (str): The universe domain used by the client.
-            use_mtls_endpoint (str): How to use the mTLS endpoint, which depends also on the other parameters.
-                Possible values are "always", "auto", or "never".
-
-        Returns:
-            str: The API endpoint to be used by the client.
-        """
-        if api_override is not None:
-            api_endpoint = api_override
-        elif use_mtls_endpoint == "always" or (
-            use_mtls_endpoint == "auto" and client_cert_source
-        ):
-            _default_universe = MigrationServiceClient._DEFAULT_UNIVERSE
-            if universe_domain != _default_universe:
-                raise MutualTLSChannelError(
-                    f"mTLS is not supported in any universe other than {_default_universe}."
-                )
-            api_endpoint = MigrationServiceClient.DEFAULT_MTLS_ENDPOINT
-        else:
-            api_endpoint = MigrationServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=universe_domain
-            )
-        return api_endpoint
-
-    @staticmethod
-    def _get_universe_domain(
-        client_universe_domain: Optional[str], universe_domain_env: Optional[str]
-    ) -> str:
-        """Return the universe domain used by the client.
-
-        Args:
-            client_universe_domain (Optional[str]): The universe domain configured via the client options.
-            universe_domain_env (Optional[str]): The universe domain configured via the "GOOGLE_CLOUD_UNIVERSE_DOMAIN" environment variable.
-
-        Returns:
-            str: The universe domain to be used by the client.
-
-        Raises:
-            ValueError: If the universe domain is an empty string.
-        """
-        universe_domain = MigrationServiceClient._DEFAULT_UNIVERSE
-        if client_universe_domain is not None:
-            universe_domain = client_universe_domain
-        elif universe_domain_env is not None:
-            universe_domain = universe_domain_env
-        if len(universe_domain.strip()) == 0:
-            raise ValueError("Universe Domain cannot be an empty string.")
-        return universe_domain
-
-    def _validate_universe_domain(self):
-        """Validates client's and credentials' universe domains are consistent.
-
-        Returns:
-            bool: True iff the configured universe domain is valid.
-
-        Raises:
-            ValueError: If the configured universe domain is not valid.
-        """
-
-        # NOTE (b/349488459): universe validation is disabled until further notice.
-        return True
+        return self._client.transport
 
     @property
     def api_endpoint(self):
@@ -640,16 +199,19 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Returns:
             str: The API endpoint used by the client instance.
         """
-        return self._api_endpoint
+        return self._client._api_endpoint
 
     @property
     def universe_domain(self) -> str:
         """Return the universe domain used by the client instance.
 
         Returns:
-            str: The universe domain used by the client instance.
+            str: The universe domain used
+                by the client instance.
         """
-        return self._universe_domain
+        return self._client._universe_domain
+
+    get_transport_class = GenAiCacheServiceClient.get_transport_class
 
     def __init__(
         self,
@@ -657,13 +219,15 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         credentials: Optional[ga_credentials.Credentials] = None,
         transport: Optional[
             Union[
-                str, MigrationServiceTransport, Callable[..., MigrationServiceTransport]
+                str,
+                GenAiCacheServiceTransport,
+                Callable[..., GenAiCacheServiceTransport],
             ]
-        ] = None,
-        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
+        ] = "grpc_asyncio",
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the migration service client.
+        """Instantiates the gen ai cache service async client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -671,10 +235,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,MigrationServiceTransport,Callable[..., MigrationServiceTransport]]]):
-                The transport to use, or a Callable that constructs and returns a new transport.
+            transport (Optional[Union[str,GenAiCacheServiceTransport,Callable[..., GenAiCacheServiceTransport]]]):
+                The transport to use, or a Callable that constructs and returns a new transport to use.
                 If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the MigrationServiceTransport constructor.
+                arguments as used in the GenAiCacheServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
@@ -698,7 +262,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 set, no client certificate will be used.
 
                 3. The ``universe_domain`` property can be used to override the
-                default "googleapis.com" universe. Note that the ``api_endpoint``
+                default "googleapis.com" universe. Note that ``api_endpoint``
                 property still takes precedence; and ``universe_domain`` is
                 currently not supported for mTLS.
 
@@ -709,169 +273,53 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 your own client library.
 
         Raises:
-            google.auth.exceptions.MutualTLSChannelError: If mutual TLS transport
+            google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-        self._client_options = client_options
-        if isinstance(self._client_options, dict):
-            self._client_options = client_options_lib.from_dict(self._client_options)
-        if self._client_options is None:
-            self._client_options = client_options_lib.ClientOptions()
-        self._client_options = cast(
-            client_options_lib.ClientOptions, self._client_options
+        self._client = GenAiCacheServiceClient(
+            credentials=credentials,
+            transport=transport,
+            client_options=client_options,
+            client_info=client_info,
         )
 
-        universe_domain_opt = getattr(self._client_options, "universe_domain", None)
-
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = MigrationServiceClient._read_environment_variables()
-        self._client_cert_source = MigrationServiceClient._get_client_cert_source(
-            self._client_options.client_cert_source, self._use_client_cert
-        )
-        self._universe_domain = MigrationServiceClient._get_universe_domain(
-            universe_domain_opt, self._universe_domain_env
-        )
-        self._api_endpoint = None  # updated below, depending on `transport`
-
-        # Initialize the universe domain validation.
-        self._is_universe_domain_valid = False
-
-        if CLIENT_LOGGING_SUPPORTED:  # pragma: NO COVER
-            # Setup logging.
-            client_logging.initialize_logging()
-
-        api_key_value = getattr(self._client_options, "api_key", None)
-        if api_key_value and credentials:
-            raise ValueError(
-                "client_options.api_key and credentials are mutually exclusive"
-            )
-
-        # Save or instantiate the transport.
-        # Ordinarily, we provide the transport, but allowing a custom transport
-        # instance provides an extensibility point for unusual situations.
-        transport_provided = isinstance(transport, MigrationServiceTransport)
-        if transport_provided:
-            # transport is a MigrationServiceTransport instance.
-            if credentials or self._client_options.credentials_file or api_key_value:
-                raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its credentials directly."
-                )
-            if self._client_options.scopes:
-                raise ValueError(
-                    "When providing a transport instance, provide its scopes "
-                    "directly."
-                )
-            self._transport = cast(MigrationServiceTransport, transport)
-            self._api_endpoint = self._transport.host
-
-        self._api_endpoint = (
-            self._api_endpoint
-            or MigrationServiceClient._get_api_endpoint(
-                self._client_options.api_endpoint,
-                self._client_cert_source,
-                self._universe_domain,
-                self._use_mtls_endpoint,
-            )
-        )
-
-        if not transport_provided:
-            transport_init: Union[
-                Type[MigrationServiceTransport],
-                Callable[..., MigrationServiceTransport],
-            ] = (
-                MigrationServiceClient.get_transport_class(transport)
-                if isinstance(transport, str) or transport is None
-                else cast(Callable[..., MigrationServiceTransport], transport)
-            )
-
-            if "rest_asyncio" in str(transport_init):
-                unsupported_params = {
-                    "google.api_core.client_options.ClientOptions.credentials_file": self._client_options.credentials_file,
-                    "google.api_core.client_options.ClientOptions.scopes": self._client_options.scopes,
-                    "google.api_core.client_options.ClientOptions.quota_project_id": self._client_options.quota_project_id,
-                    "google.api_core.client_options.ClientOptions.client_cert_source": self._client_options.client_cert_source,
-                    "google.api_core.client_options.ClientOptions.api_audience": self._client_options.api_audience,
+        if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+            std_logging.DEBUG
+        ):  # pragma: NO COVER
+            _LOGGER.debug(
+                "Created client `google.cloud.aiplatform_v1.GenAiCacheServiceAsyncClient`.",
+                extra={
+                    "serviceName": "google.cloud.aiplatform.v1.GenAiCacheService",
+                    "universeDomain": getattr(
+                        self._client._transport._credentials, "universe_domain", ""
+                    ),
+                    "credentialsType": f"{type(self._client._transport._credentials).__module__}.{type(self._client._transport._credentials).__qualname__}",
+                    "credentialsInfo": getattr(
+                        self.transport._credentials, "get_cred_info", lambda: None
+                    )(),
                 }
-                provided_unsupported_params = [
-                    name
-                    for name, value in unsupported_params.items()
-                    if value is not None
-                ]
-                if provided_unsupported_params:
-                    raise core_exceptions.AsyncRestUnsupportedParameterError(  # type: ignore
-                        f"The following provided parameters are not supported for `transport=rest_asyncio`: {', '.join(provided_unsupported_params)}"
-                    )
-                self._transport = transport_init(
-                    credentials=credentials,
-                    host=self._api_endpoint,
-                    client_info=client_info,
-                )
-                return
-
-            import google.auth._default  # type: ignore
-
-            if api_key_value and hasattr(
-                google.auth._default, "get_api_key_credentials"
-            ):
-                credentials = google.auth._default.get_api_key_credentials(
-                    api_key_value
-                )
-
-            # initialize with the provided callable or the passed in class
-            self._transport = transport_init(
-                credentials=credentials,
-                credentials_file=self._client_options.credentials_file,
-                host=self._api_endpoint,
-                scopes=self._client_options.scopes,
-                client_cert_source_for_mtls=self._client_cert_source,
-                quota_project_id=self._client_options.quota_project_id,
-                client_info=client_info,
-                always_use_jwt_access=True,
-                api_audience=self._client_options.api_audience,
+                if hasattr(self._client._transport, "_credentials")
+                else {
+                    "serviceName": "google.cloud.aiplatform.v1.GenAiCacheService",
+                    "credentialsType": None,
+                },
             )
 
-        if "async" not in str(self._transport):
-            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
-                std_logging.DEBUG
-            ):  # pragma: NO COVER
-                _LOGGER.debug(
-                    "Created client `google.cloud.aiplatform_v1beta1.MigrationServiceClient`.",
-                    extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.MigrationService",
-                        "universeDomain": getattr(
-                            self._transport._credentials, "universe_domain", ""
-                        ),
-                        "credentialsType": f"{type(self._transport._credentials).__module__}.{type(self._transport._credentials).__qualname__}",
-                        "credentialsInfo": getattr(
-                            self.transport._credentials, "get_cred_info", lambda: None
-                        )(),
-                    }
-                    if hasattr(self._transport, "_credentials")
-                    else {
-                        "serviceName": "google.cloud.aiplatform.v1beta1.MigrationService",
-                        "credentialsType": None,
-                    },
-                )
-
-    def search_migratable_resources(
+    async def create_cached_content(
         self,
         request: Optional[
-            Union[migration_service.SearchMigratableResourcesRequest, dict]
+            Union[gen_ai_cache_service.CreateCachedContentRequest, dict]
         ] = None,
         *,
         parent: Optional[str] = None,
+        cached_content: Optional[gca_cached_content.CachedContent] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
-    ) -> pagers.SearchMigratableResourcesPager:
-        r"""Searches all of the resources in
-        automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to Vertex AI's
-        given location.
+    ) -> gca_cached_content.CachedContent:
+        r"""Creates cached content, this call will initialize the
+        cached content in the data storage, and users need to
+        pay for the cache data storage.
 
         .. code-block:: python
 
@@ -882,39 +330,42 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             # - It may require specifying regional endpoints when creating the service
             #   client as shown in:
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
+            from google.cloud import aiplatform_v1
 
-            def sample_search_migratable_resources():
+            async def sample_create_cached_content():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1.GenAiCacheServiceAsyncClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
+                request = aiplatform_v1.CreateCachedContentRequest(
                     parent="parent_value",
                 )
 
                 # Make the request
-                page_result = client.search_migratable_resources(request=request)
+                response = await client.create_cached_content(request=request)
 
                 # Handle the response
-                for response in page_result:
-                    print(response)
+                print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateCachedContentRequest, dict]]):
                 The request object. Request message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
-            parent (str):
-                Required. The location that the migratable resources
-                should be searched from. It's the Vertex AI location
-                that the resources can be migrated to, not the
-                resources' original location. Format:
-                ``projects/{project}/locations/{location}``
+                [GenAiCacheService.CreateCachedContent][google.cloud.aiplatform.v1.GenAiCacheService.CreateCachedContent].
+            parent (:class:`str`):
+                Required. The parent resource where
+                the cached content will be created
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            cached_content (:class:`google.cloud.aiplatform_v1.types.CachedContent`):
+                Required. The cached content to
+                create
+
+                This corresponds to the ``cached_content`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -923,12 +374,457 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 be of type `bytes`.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
-                Response message for
-                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
+            google.cloud.aiplatform_v1.types.CachedContent:
+                A resource used in LLM queries for
+                users to explicitly specify what to
+                cache and how to cache.
 
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, cached_content])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, gen_ai_cache_service.CreateCachedContentRequest):
+            request = gen_ai_cache_service.CreateCachedContentRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if cached_content is not None:
+            request.cached_content = cached_content
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.create_cached_content
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_cached_content(
+        self,
+        request: Optional[
+            Union[gen_ai_cache_service.GetCachedContentRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> cached_content.CachedContent:
+        r"""Gets cached content configurations
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_get_cached_content():
+                # Create a client
+                client = aiplatform_v1.GenAiCacheServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetCachedContentRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_cached_content(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetCachedContentRequest, dict]]):
+                The request object. Request message for
+                [GenAiCacheService.GetCachedContent][google.cloud.aiplatform.v1.GenAiCacheService.GetCachedContent].
+            name (:class:`str`):
+                Required. The resource name referring
+                to the cached content
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.CachedContent:
+                A resource used in LLM queries for
+                users to explicitly specify what to
+                cache and how to cache.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, gen_ai_cache_service.GetCachedContentRequest):
+            request = gen_ai_cache_service.GetCachedContentRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.get_cached_content
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def update_cached_content(
+        self,
+        request: Optional[
+            Union[gen_ai_cache_service.UpdateCachedContentRequest, dict]
+        ] = None,
+        *,
+        cached_content: Optional[gca_cached_content.CachedContent] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gca_cached_content.CachedContent:
+        r"""Updates cached content configurations
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_update_cached_content():
+                # Create a client
+                client = aiplatform_v1.GenAiCacheServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateCachedContentRequest(
+                )
+
+                # Make the request
+                response = await client.update_cached_content(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateCachedContentRequest, dict]]):
+                The request object. Request message for
+                [GenAiCacheService.UpdateCachedContent][google.cloud.aiplatform.v1.GenAiCacheService.UpdateCachedContent].
+                Only expire_time or ttl can be updated.
+            cached_content (:class:`google.cloud.aiplatform_v1.types.CachedContent`):
+                Required. The cached content to
+                update
+
+                This corresponds to the ``cached_content`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
+                Required. The list of fields to
+                update.
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.CachedContent:
+                A resource used in LLM queries for
+                users to explicitly specify what to
+                cache and how to cache.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([cached_content, update_mask])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, gen_ai_cache_service.UpdateCachedContentRequest):
+            request = gen_ai_cache_service.UpdateCachedContentRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if cached_content is not None:
+            request.cached_content = cached_content
+        if update_mask is not None:
+            request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.update_cached_content
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("cached_content.name", request.cached_content.name),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def delete_cached_content(
+        self,
+        request: Optional[
+            Union[gen_ai_cache_service.DeleteCachedContentRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> None:
+        r"""Deletes cached content
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_delete_cached_content():
+                # Create a client
+                client = aiplatform_v1.GenAiCacheServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteCachedContentRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                await client.delete_cached_content(request=request)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteCachedContentRequest, dict]]):
+                The request object. Request message for
+                [GenAiCacheService.DeleteCachedContent][google.cloud.aiplatform.v1.GenAiCacheService.DeleteCachedContent].
+            name (:class:`str`):
+                Required. The resource name referring
+                to the cached content
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, gen_ai_cache_service.DeleteCachedContentRequest):
+            request = gen_ai_cache_service.DeleteCachedContentRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.delete_cached_content
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    async def list_cached_contents(
+        self,
+        request: Optional[
+            Union[gen_ai_cache_service.ListCachedContentsRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> pagers.ListCachedContentsAsyncPager:
+        r"""Lists cached contents in a project
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_list_cached_contents():
+                # Create a client
+                client = aiplatform_v1.GenAiCacheServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListCachedContentsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_cached_contents(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListCachedContentsRequest, dict]]):
+                The request object. Request to list CachedContents.
+            parent (:class:`str`):
+                Required. The parent, which owns this
+                collection of cached contents.
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1.services.gen_ai_cache_service.pagers.ListCachedContentsAsyncPager:
+                Response with a list of
+                CachedContents.
+                Iterating over this object will yield
+                results and resolve additional pages
+                automatically.
 
         """
         # Create or coerce a protobuf request object.
@@ -943,17 +839,18 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # - Use the request object if provided (there's no risk of modifying the input as
         #   there are no flattened fields), or create one.
-        if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
-            request = migration_service.SearchMigratableResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
+        if not isinstance(request, gen_ai_cache_service.ListCachedContentsRequest):
+            request = gen_ai_cache_service.ListCachedContentsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.search_migratable_resources
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.list_cached_contents
         ]
 
         # Certain fields should be provided within the metadata header;
@@ -963,10 +860,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -974,8 +871,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.SearchMigratableResourcesPager(
+        # an `__aiter__` convenience method.
+        response = pagers.ListCachedContentsAsyncPager(
             method=rpc,
             request=request,
             response=response,
@@ -987,165 +884,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def batch_migrate_resources(
-        self,
-        request: Optional[
-            Union[migration_service.BatchMigrateResourcesRequest, dict]
-        ] = None,
-        *,
-        parent: Optional[str] = None,
-        migrate_resource_requests: Optional[
-            MutableSequence[migration_service.MigrateResourceRequest]
-        ] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
-    ) -> operation.Operation:
-        r"""Batch migrates resources from ml.googleapis.com,
-        automl.googleapis.com, and datalabeling.googleapis.com
-        to Vertex AI.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_batch_migrate_resources():
-                # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
-
-                # Initialize request argument(s)
-                migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
-                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
-
-                request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
-                    parent="parent_value",
-                    migrate_resource_requests=migrate_resource_requests,
-                )
-
-                # Make the request
-                operation = client.batch_migrate_resources(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
-
-                # Handle the response
-                print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
-                The request object. Request message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
-            parent (str):
-                Required. The location of the migrated resource will
-                live in. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
-                Required. The request messages
-                specifying the resources to migrate.
-                They must be in the same location as the
-                destination. Up to 50 resources can be
-                migrated in one batch.
-
-                This corresponds to the ``migrate_resource_requests`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                sent along with the request as metadata. Normally, each value must be of type `str`,
-                but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                be of type `bytes`.
-
-        Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse` Response message for
-                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
-
-        """
-        # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, migrate_resource_requests])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
-            request = migration_service.BatchMigrateResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-            if migrate_resource_requests is not None:
-                request.migrate_resource_requests = migrate_resource_requests
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.batch_migrate_resources]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Validate the universe domain.
-        self._validate_universe_domain()
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Wrap the response in an operation future.
-        response = operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            migration_service.BatchMigrateResourcesResponse,
-            metadata_type=migration_service.BatchMigrateResourcesOperationMetadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def __enter__(self) -> "MigrationServiceClient":
-        return self
-
-    def __exit__(self, type, value, traceback):
-        """Releases underlying transport's resources.
-
-        .. warning::
-            ONLY use as a context manager if the transport is NOT shared
-            with other clients! Exiting the with block will CLOSE the transport
-            and may cause errors in other clients!
-        """
-        self.transport.close()
-
-    def list_operations(
+    async def list_operations(
         self,
         request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
@@ -1159,7 +898,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.operations_pb2.ListOperationsRequest`):
                 The request object. Request message for
                 `ListOperations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1178,7 +917,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_operations]
+        rpc = self.transport._wrapped_methods[self._client._transport.list_operations]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1187,10 +926,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1200,7 +939,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_operation(
+    async def get_operation(
         self,
         request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
@@ -1214,7 +953,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.operations_pb2.GetOperationRequest`):
                 The request object. Request message for
                 `GetOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1233,7 +972,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_operation]
+        rpc = self.transport._wrapped_methods[self._client._transport.get_operation]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1242,10 +981,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1255,7 +994,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def delete_operation(
+    async def delete_operation(
         self,
         request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
@@ -1274,7 +1013,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.operations_pb2.DeleteOperationRequest`):
                 The request object. Request message for
                 `DeleteOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1292,7 +1031,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.delete_operation]
+        rpc = self.transport._wrapped_methods[self._client._transport.delete_operation]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1301,17 +1040,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        rpc(
+        await rpc(
             request,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
         )
 
-    def cancel_operation(
+    async def cancel_operation(
         self,
         request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
@@ -1329,7 +1068,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.operations_pb2.CancelOperationRequest`):
                 The request object. Request message for
                 `CancelOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1347,7 +1086,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.cancel_operation]
+        rpc = self.transport._wrapped_methods[self._client._transport.cancel_operation]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1356,17 +1095,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        rpc(
+        await rpc(
             request,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
         )
 
-    def wait_operation(
+    async def wait_operation(
         self,
         request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
@@ -1386,7 +1125,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.operations_pb2.WaitOperationRequest`):
                 The request object. Request message for
                 `WaitOperation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                     if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1405,7 +1144,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.wait_operation]
+        rpc = self.transport._wrapped_methods[self._client._transport.wait_operation]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1414,10 +1153,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1427,7 +1166,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def set_iam_policy(
+    async def set_iam_policy(
         self,
         request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
@@ -1443,7 +1182,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
                 The request object. Request message for `SetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1526,7 +1265,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.set_iam_policy]
+        rpc = self.transport._wrapped_methods[self._client._transport.set_iam_policy]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1535,10 +1274,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1548,7 +1287,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_iam_policy(
+    async def get_iam_policy(
         self,
         request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
@@ -1565,7 +1304,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
                 The request object. Request message for `GetIamPolicy`
                 method.
-            retry (google.api_core.retry.Retry): Designation of what errors, if
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if
                 any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1648,7 +1387,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_iam_policy]
+        rpc = self.transport._wrapped_methods[self._client._transport.get_iam_policy]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1657,10 +1396,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1670,7 +1409,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def test_iam_permissions(
+    async def test_iam_permissions(
         self,
         request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
@@ -1688,7 +1427,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
                 The request object. Request message for
                 `TestIamPermissions` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1708,7 +1447,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.test_iam_permissions]
+        rpc = self.transport._wrapped_methods[
+            self._client._transport.test_iam_permissions
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1717,10 +1458,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1730,7 +1471,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_location(
+    async def get_location(
         self,
         request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
@@ -1744,7 +1485,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.location_pb2.GetLocationRequest`):
                 The request object. Request message for
                 `GetLocation` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1763,7 +1504,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_location]
+        rpc = self.transport._wrapped_methods[self._client._transport.get_location]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1772,10 +1513,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1785,7 +1526,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def list_locations(
+    async def list_locations(
         self,
         request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
@@ -1799,7 +1540,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             request (:class:`~.location_pb2.ListLocationsRequest`):
                 The request object. Request message for
                 `ListLocations` method.
-            retry (google.api_core.retry.Retry): Designation of what errors,
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors,
                  if any, should be retried.
             timeout (float): The timeout for this request.
             metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
@@ -1818,7 +1559,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_locations]
+        rpc = self.transport._wrapped_methods[self._client._transport.list_locations]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1827,10 +1568,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Validate the universe domain.
-        self._validate_universe_domain()
+        self._client._validate_universe_domain()
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1840,10 +1581,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
+    async def __aenter__(self) -> "GenAiCacheServiceAsyncClient":
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
+
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
 
-__all__ = ("MigrationServiceClient",)
+__all__ = ("GenAiCacheServiceAsyncClient",)

@@ -62,20 +62,20 @@ from google.api_core import path_template
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import (
     GenAiCacheServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import (
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import (
     GenAiCacheServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import pagers
-from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import transports
-from google.cloud.aiplatform_v1beta1.types import cached_content
-from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
-from google.cloud.aiplatform_v1beta1.types import content
-from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
-from google.cloud.aiplatform_v1beta1.types import openapi
-from google.cloud.aiplatform_v1beta1.types import tool
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import pagers
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import transports
+from google.cloud.aiplatform_v1.types import cached_content
+from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
+from google.cloud.aiplatform_v1.types import content
+from google.cloud.aiplatform_v1.types import gen_ai_cache_service
+from google.cloud.aiplatform_v1.types import openapi
+from google.cloud.aiplatform_v1.types import tool
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -1039,7 +1039,7 @@ def test_gen_ai_cache_service_client_client_options_credentials_file(
 
 def test_gen_ai_cache_service_client_client_options_from_dict():
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service.transports.GenAiCacheServiceGrpcTransport.__init__"
+        "google.cloud.aiplatform_v1.services.gen_ai_cache_service.transports.GenAiCacheServiceGrpcTransport.__init__"
     ) as grpc_transport:
         grpc_transport.return_value = None
         client = GenAiCacheServiceClient(
@@ -3270,7 +3270,7 @@ def test_create_cached_content_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/cachedContents"
+            "%s/v1/{parent=projects/*/locations/*}/cachedContents"
             % client.transport._host,
             args[1],
         )
@@ -3457,7 +3457,7 @@ def test_get_cached_content_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/cachedContents/*}"
+            "%s/v1/{name=projects/*/locations/*/cachedContents/*}"
             % client.transport._host,
             args[1],
         )
@@ -3653,7 +3653,7 @@ def test_update_cached_content_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{cached_content.name=projects/*/locations/*/cachedContents/*}"
+            "%s/v1/{cached_content.name=projects/*/locations/*/cachedContents/*}"
             % client.transport._host,
             args[1],
         )
@@ -3836,7 +3836,7 @@ def test_delete_cached_content_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/cachedContents/*}"
+            "%s/v1/{name=projects/*/locations/*/cachedContents/*}"
             % client.transport._host,
             args[1],
         )
@@ -4035,7 +4035,7 @@ def test_list_cached_contents_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/cachedContents"
+            "%s/v1/{parent=projects/*/locations/*}/cachedContents"
             % client.transport._host,
             args[1],
         )
@@ -4568,10 +4568,7 @@ def test_create_cached_content_rest_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
-                    "executable_code": {"language": 1, "code": "code_value"},
-                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
-                    "thought": True,
                 }
             ],
         },
@@ -4622,7 +4619,6 @@ def test_create_cached_content_rest_call_success(request_type):
                 "retrieval": {
                     "vertex_ai_search": {"datastore": "datastore_value"},
                     "vertex_rag_store": {
-                        "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
                             {
                                 "rag_corpus": "rag_corpus_value",
@@ -4636,25 +4632,18 @@ def test_create_cached_content_rest_call_success(request_type):
                         "vector_distance_threshold": 0.2665,
                         "rag_retrieval_config": {
                             "top_k": 541,
-                            "hybrid_search": {"alpha": 0.518},
                             "filter": {
                                 "vector_distance_threshold": 0.2665,
                                 "vector_similarity_threshold": 0.2917,
                                 "metadata_filter": "metadata_filter_value",
                             },
-                            "ranking": {
-                                "rank_service": {"model_name": "model_name_value"},
-                                "llm_ranker": {"model_name": "model_name_value"},
-                            },
                         },
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
-                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -5034,10 +5023,7 @@ def test_update_cached_content_rest_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
-                    "executable_code": {"language": 1, "code": "code_value"},
-                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
-                    "thought": True,
                 }
             ],
         },
@@ -5088,7 +5074,6 @@ def test_update_cached_content_rest_call_success(request_type):
                 "retrieval": {
                     "vertex_ai_search": {"datastore": "datastore_value"},
                     "vertex_rag_store": {
-                        "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
                             {
                                 "rag_corpus": "rag_corpus_value",
@@ -5102,25 +5087,18 @@ def test_update_cached_content_rest_call_success(request_type):
                         "vector_distance_threshold": 0.2665,
                         "rag_retrieval_config": {
                             "top_k": 541,
-                            "hybrid_search": {"alpha": 0.518},
                             "filter": {
                                 "vector_distance_threshold": 0.2665,
                                 "vector_similarity_threshold": 0.2917,
                                 "metadata_filter": "metadata_filter_value",
                             },
-                            "ranking": {
-                                "rank_service": {"model_name": "model_name_value"},
-                                "llm_ranker": {"model_name": "model_name_value"},
-                            },
                         },
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
-                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -6359,10 +6337,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
-                    "executable_code": {"language": 1, "code": "code_value"},
-                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
-                    "thought": True,
                 }
             ],
         },
@@ -6413,7 +6388,6 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 "retrieval": {
                     "vertex_ai_search": {"datastore": "datastore_value"},
                     "vertex_rag_store": {
-                        "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
                             {
                                 "rag_corpus": "rag_corpus_value",
@@ -6427,25 +6401,18 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                         "vector_distance_threshold": 0.2665,
                         "rag_retrieval_config": {
                             "top_k": 541,
-                            "hybrid_search": {"alpha": 0.518},
                             "filter": {
                                 "vector_distance_threshold": 0.2665,
                                 "vector_similarity_threshold": 0.2917,
                                 "metadata_filter": "metadata_filter_value",
                             },
-                            "ranking": {
-                                "rank_service": {"model_name": "model_name_value"},
-                                "llm_ranker": {"model_name": "model_name_value"},
-                            },
                         },
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
-                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -6857,10 +6824,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
-                    "executable_code": {"language": 1, "code": "code_value"},
-                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
-                    "thought": True,
                 }
             ],
         },
@@ -6911,7 +6875,6 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 "retrieval": {
                     "vertex_ai_search": {"datastore": "datastore_value"},
                     "vertex_rag_store": {
-                        "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
                             {
                                 "rag_corpus": "rag_corpus_value",
@@ -6925,25 +6888,18 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         "vector_distance_threshold": 0.2665,
                         "rag_retrieval_config": {
                             "top_k": 541,
-                            "hybrid_search": {"alpha": 0.518},
                             "filter": {
                                 "vector_distance_threshold": 0.2665,
                                 "vector_similarity_threshold": 0.2917,
                                 "metadata_filter": "metadata_filter_value",
                             },
-                            "ranking": {
-                                "rank_service": {"model_name": "model_name_value"},
-                                "llm_ranker": {"model_name": "model_name_value"},
-                            },
                         },
                     },
                     "disable_attribution": True,
                 },
-                "google_search": {},
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
-                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -8319,7 +8275,7 @@ def test_gen_ai_cache_service_base_transport_error():
 def test_gen_ai_cache_service_base_transport():
     # Instantiate the base transport.
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service.transports.GenAiCacheServiceTransport.__init__"
+        "google.cloud.aiplatform_v1.services.gen_ai_cache_service.transports.GenAiCacheServiceTransport.__init__"
     ) as Transport:
         Transport.return_value = None
         transport = transports.GenAiCacheServiceTransport(
@@ -8366,7 +8322,7 @@ def test_gen_ai_cache_service_base_transport_with_credentials_file():
     with mock.patch.object(
         google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service.transports.GenAiCacheServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.gen_ai_cache_service.transports.GenAiCacheServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
@@ -8385,7 +8341,7 @@ def test_gen_ai_cache_service_base_transport_with_credentials_file():
 def test_gen_ai_cache_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service.transports.GenAiCacheServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.gen_ai_cache_service.transports.GenAiCacheServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)

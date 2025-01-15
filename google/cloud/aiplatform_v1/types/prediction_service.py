@@ -804,6 +804,12 @@ class GenerateContentRequest(proto.Message):
             will be in a separate paragraph.
 
             This field is a member of `oneof`_ ``_system_instruction``.
+        cached_content (str):
+            Optional. The name of the cached content used as context to
+            serve the prediction. Note: only used in explicit caching,
+            where users can have control over caching (e.g. what content
+            to cache) and enjoy guaranteed cost savings. Format:
+            ``projects/{project}/locations/{location}/cachedContents/{cachedContent}``
         tools (MutableSequence[google.cloud.aiplatform_v1.types.Tool]):
             Optional. A list of ``Tools`` the model may use to generate
             the next response.
@@ -847,6 +853,10 @@ class GenerateContentRequest(proto.Message):
         number=8,
         optional=True,
         message=content.Content,
+    )
+    cached_content: str = proto.Field(
+        proto.STRING,
+        number=9,
     )
     tools: MutableSequence[tool.Tool] = proto.RepeatedField(
         proto.MESSAGE,
@@ -958,6 +968,9 @@ class GenerateContentResponse(proto.Message):
             total_token_count (int):
                 Total token count for prompt and response
                 candidates.
+            cached_content_token_count (int):
+                Output only. Number of tokens in the cached
+                part in the input (the cached content).
         """
 
         prompt_token_count: int = proto.Field(
@@ -971,6 +984,10 @@ class GenerateContentResponse(proto.Message):
         total_token_count: int = proto.Field(
             proto.INT32,
             number=3,
+        )
+        cached_content_token_count: int = proto.Field(
+            proto.INT32,
+            number=5,
         )
 
     candidates: MutableSequence[content.Candidate] = proto.RepeatedField(

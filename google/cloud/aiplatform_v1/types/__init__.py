@@ -31,6 +31,9 @@ from .artifact import (
 from .batch_prediction_job import (
     BatchPredictionJob,
 )
+from .cached_content import (
+    CachedContent,
+)
 from .completion_stats import (
     CompletionStats,
 )
@@ -452,6 +455,14 @@ from .featurestore_service import (
     UpdateFeatureRequest,
     UpdateFeaturestoreOperationMetadata,
     UpdateFeaturestoreRequest,
+)
+from .gen_ai_cache_service import (
+    CreateCachedContentRequest,
+    DeleteCachedContentRequest,
+    GetCachedContentRequest,
+    ListCachedContentsRequest,
+    ListCachedContentsResponse,
+    UpdateCachedContentRequest,
 )
 from .genai_tuning_service import (
     CancelTuningJobRequest,
@@ -1010,6 +1021,7 @@ from .tool import (
     GoogleSearchRetrieval,
     RagRetrievalConfig,
     Retrieval,
+    RetrievalConfig,
     Tool,
     ToolConfig,
     VertexAISearch,
@@ -1125,6 +1137,7 @@ __all__ = (
     "ApiAuth",
     "Artifact",
     "BatchPredictionJob",
+    "CachedContent",
     "CompletionStats",
     "Blob",
     "Candidate",
@@ -1471,6 +1484,12 @@ __all__ = (
     "UpdateFeatureRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",
+    "CreateCachedContentRequest",
+    "DeleteCachedContentRequest",
+    "GetCachedContentRequest",
+    "ListCachedContentsRequest",
+    "ListCachedContentsResponse",
+    "UpdateCachedContentRequest",
     "CancelTuningJobRequest",
     "CreateTuningJobRequest",
     "GetTuningJobRequest",
@@ -1911,6 +1930,7 @@ __all__ = (
     "GoogleSearchRetrieval",
     "RagRetrievalConfig",
     "Retrieval",
+    "RetrievalConfig",
     "Tool",
     "ToolConfig",
     "VertexAISearch",
