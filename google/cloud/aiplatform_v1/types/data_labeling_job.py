@@ -28,7 +28,7 @@ from google.type import money_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
+    package="google.cloud.aiplatform.v1.gapic_generated",
     manifest={
         "DataLabelingJob",
         "ActiveLearningConfig",

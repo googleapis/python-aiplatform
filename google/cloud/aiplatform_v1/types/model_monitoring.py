@@ -23,7 +23,7 @@ from google.cloud.aiplatform_v1.types import io
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
+    package="google.cloud.aiplatform.v1.gapic_generated",
     manifest={
         "ModelMonitoringObjectiveConfig",
         "ModelMonitoringAlertConfig",

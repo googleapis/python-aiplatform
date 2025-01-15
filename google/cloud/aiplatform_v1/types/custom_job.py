@@ -30,7 +30,7 @@ from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
+    package="google.cloud.aiplatform.v1.gapic_generated",
     manifest={
         "CustomJob",
         "CustomJobSpec",
