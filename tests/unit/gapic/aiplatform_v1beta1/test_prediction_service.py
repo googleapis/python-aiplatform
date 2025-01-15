@@ -86,6 +86,7 @@ from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
+from google.type import latlng_pb2  # type: ignore
 import google.auth
 
 

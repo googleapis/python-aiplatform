@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import openapi
 from google.protobuf import struct_pb2  # type: ignore
+from google.type import latlng_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -37,6 +38,7 @@ __protobuf__ = proto.module(
         "DynamicRetrievalConfig",
         "ToolConfig",
         "FunctionCallingConfig",
+        "RetrievalConfig",
         "RagRetrievalConfig",
     },
 )
@@ -418,12 +420,19 @@ class ToolConfig(proto.Message):
     Attributes:
         function_calling_config (google.cloud.aiplatform_v1.types.FunctionCallingConfig):
             Optional. Function calling config.
+        retrieval_config (google.cloud.aiplatform_v1.types.RetrievalConfig):
+            Optional. Retrieval config.
     """
 
     function_calling_config: "FunctionCallingConfig" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="FunctionCallingConfig",
+    )
+    retrieval_config: "RetrievalConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RetrievalConfig",
     )
 
 
@@ -475,6 +484,35 @@ class FunctionCallingConfig(proto.Message):
     allowed_function_names: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+
+
+class RetrievalConfig(proto.Message):
+    r"""Retrieval config.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        lat_lng (google.type.latlng_pb2.LatLng):
+            The location of the user.
+
+            This field is a member of `oneof`_ ``_lat_lng``.
+        language_code (str):
+            The language code of the user.
+
+            This field is a member of `oneof`_ ``_language_code``.
+    """
+
+    lat_lng: latlng_pb2.LatLng = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message=latlng_pb2.LatLng,
+    )
+    language_code: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
     )
 
 

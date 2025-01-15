@@ -218,6 +218,28 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         return self._transport
 
     @staticmethod
+    def cached_content_path(
+        project: str,
+        location: str,
+        cached_content: str,
+    ) -> str:
+        """Returns a fully-qualified cached_content string."""
+        return "projects/{project}/locations/{location}/cachedContents/{cached_content}".format(
+            project=project,
+            location=location,
+            cached_content=cached_content,
+        )
+
+    @staticmethod
+    def parse_cached_content_path(path: str) -> Dict[str, str]:
+        """Parses a cached_content path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/cachedContents/(?P<cached_content>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def endpoint_path(
         project: str,
         location: str,

@@ -86,6 +86,7 @@ from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
+from google.type import latlng_pb2  # type: ignore
 import google.auth
 
 
@@ -3801,6 +3802,7 @@ def test_generate_content_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = prediction_service.GenerateContentRequest(
         model="model_value",
+        cached_content="cached_content_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3813,6 +3815,7 @@ def test_generate_content_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest(
             model="model_value",
+            cached_content="cached_content_value",
         )
 
 
@@ -4137,6 +4140,7 @@ def test_stream_generate_content_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = prediction_service.GenerateContentRequest(
         model="model_value",
+        cached_content="cached_content_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4151,6 +4155,7 @@ def test_stream_generate_content_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == prediction_service.GenerateContentRequest(
             model="model_value",
+            cached_content="cached_content_value",
         )
 
 
@@ -11449,10 +11454,38 @@ def test_prediction_service_transport_channel_mtls_with_adc(transport_class):
             assert transport.grpc_channel == mock_grpc_channel
 
 
-def test_endpoint_path():
+def test_cached_content_path():
     project = "squid"
     location = "clam"
-    endpoint = "whelk"
+    cached_content = "whelk"
+    expected = "projects/{project}/locations/{location}/cachedContents/{cached_content}".format(
+        project=project,
+        location=location,
+        cached_content=cached_content,
+    )
+    actual = PredictionServiceClient.cached_content_path(
+        project, location, cached_content
+    )
+    assert expected == actual
+
+
+def test_parse_cached_content_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "cached_content": "nudibranch",
+    }
+    path = PredictionServiceClient.cached_content_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = PredictionServiceClient.parse_cached_content_path(path)
+    assert expected == actual
+
+
+def test_endpoint_path():
+    project = "cuttlefish"
+    location = "mussel"
+    endpoint = "winkle"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
         location=location,
@@ -11464,9 +11497,9 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "endpoint": "abalone",
     }
     path = PredictionServiceClient.endpoint_path(**expected)
 
@@ -11476,9 +11509,9 @@ def test_parse_endpoint_path():
 
 
 def test_model_path():
-    project = "cuttlefish"
-    location = "mussel"
-    model = "winkle"
+    project = "squid"
+    location = "clam"
+    model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
@@ -11490,9 +11523,9 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "model": "nudibranch",
     }
     path = PredictionServiceClient.model_path(**expected)
 
@@ -11502,9 +11535,9 @@ def test_parse_model_path():
 
 
 def test_rag_corpus_path():
-    project = "squid"
-    location = "clam"
-    rag_corpus = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    rag_corpus = "winkle"
     expected = "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
         project=project,
         location=location,
@@ -11516,9 +11549,9 @@ def test_rag_corpus_path():
 
 def test_parse_rag_corpus_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "rag_corpus": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "rag_corpus": "abalone",
     }
     path = PredictionServiceClient.rag_corpus_path(**expected)
 
@@ -11528,7 +11561,7 @@ def test_parse_rag_corpus_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -11538,7 +11571,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = PredictionServiceClient.common_billing_account_path(**expected)
 
@@ -11548,7 +11581,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -11558,7 +11591,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = PredictionServiceClient.common_folder_path(**expected)
 
@@ -11568,7 +11601,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -11578,7 +11611,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = PredictionServiceClient.common_organization_path(**expected)
 
@@ -11588,7 +11621,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -11598,7 +11631,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = PredictionServiceClient.common_project_path(**expected)
 
@@ -11608,8 +11641,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -11620,8 +11653,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = PredictionServiceClient.common_location_path(**expected)
 
