@@ -66,7 +66,7 @@ def _add_from_map_to_class(cls):
     return _from_map
 
 
-marshal = Marshal(name="google.cloud.aiplatform.v1beta1.gapic_generated")
+marshal = Marshal(name="google.cloud.aiplatform.v1beta1")
 marshal.register(Value, ConversionValueRule(marshal=marshal))
-marshal = Marshal(name="google.cloud.aiplatform.v1.gapic_generated")
+marshal = Marshal(name="google.cloud.aiplatform.v1")
 marshal.register(Value, ConversionValueRule(marshal=marshal))

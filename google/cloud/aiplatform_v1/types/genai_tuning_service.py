@@ -25,7 +25,7 @@ from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1.gapic_generated",
+    package="google.cloud.aiplatform.v1",
     manifest={
         "CreateTuningJobRequest",
         "GetTuningJobRequest",

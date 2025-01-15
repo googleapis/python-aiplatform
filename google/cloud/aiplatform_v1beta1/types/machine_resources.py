@@ -28,7 +28,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1.gapic_generated",
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
         "MachineSpec",
         "DedicatedResources",

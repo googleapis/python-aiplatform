@@ -31,7 +31,7 @@ from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1.gapic_generated",
+    package="google.cloud.aiplatform.v1",
     manifest={
         "UploadModelRequest",
         "UploadModelOperationMetadata",

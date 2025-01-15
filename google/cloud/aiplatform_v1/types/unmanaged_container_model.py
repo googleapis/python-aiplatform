@@ -23,7 +23,7 @@ from google.cloud.aiplatform_v1.types import model
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1.gapic_generated",
+    package="google.cloud.aiplatform.v1",
     manifest={
         "UnmanagedContainerModel",
     },
