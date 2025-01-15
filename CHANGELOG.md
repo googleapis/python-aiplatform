@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.77.0](https://github.com/googleapis/python-aiplatform/compare/v1.76.0...v1.77.0) (2025-01-15)
+
+
+### Features
+
+* Add Context Cache to v1 ([2148b18](https://github.com/googleapis/python-aiplatform/commit/2148b18ac49959ad2496b0eb6cf3fecd17586774))
+* Add retrieval_config to ToolConfig v1 ([2148b18](https://github.com/googleapis/python-aiplatform/commit/2148b18ac49959ad2496b0eb6cf3fecd17586774))
+* Add retrieval_config to ToolConfig v1beta1 ([2148b18](https://github.com/googleapis/python-aiplatform/commit/2148b18ac49959ad2496b0eb6cf3fecd17586774))
+* Display button to view evaluation results in an Ipython environment. ([30a9403](https://github.com/googleapis/python-aiplatform/commit/30a9403b6dc70782f420e1f30a33cc3c5a3c1c4f))
+* Enable LangGraph Agent Templates in the Python Reasoning Engine Client ([26a08c7](https://github.com/googleapis/python-aiplatform/commit/26a08c7c37762b3661631cf40424118e6a22ef1b))
+* Promote network_configs field to v2 API ([2148b18](https://github.com/googleapis/python-aiplatform/commit/2148b18ac49959ad2496b0eb6cf3fecd17586774))
+
+
+### Bug Fixes
+
+* Use typing.TYPE_CHECKING to differentiate pytype checks and runtime imports for pydantic. ([0823323](https://github.com/googleapis/python-aiplatform/commit/0823323de59c94a69d6ed20f4c3e1bacb7a66707))
+
+
+### Documentation
+
+* Fix comment typo in eval_task.py ([cabe522](https://github.com/googleapis/python-aiplatform/commit/cabe5224e36c41633607d91624648ab02e246059))
+* Improve description of `enable_simple_view` parameter ([f019e18](https://github.com/googleapis/python-aiplatform/commit/f019e187b600e0d1f31ed5c0687f56f7864d576b))
+
 ## [1.76.0](https://github.com/googleapis/python-aiplatform/compare/v1.75.0...v1.76.0) (2025-01-06)
 
 
