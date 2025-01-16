@@ -260,23 +260,18 @@ class LanggraphAgent:
         llm = ChatVertexAI(model_name=model, **model_kwargs)
 
         # runnable_builder
-        from langchain import agents
-        from langchain_core.runnables.history import RunnableWithMessageHistory
+        from langgraph.prebuilt import create_react_agent
         llm_with_tools = llm.bind_tools(tools=tools, **model_tool_kwargs)
-        agent_executor = agents.AgentExecutor(
-            agent=prompt | llm_with_tools | output_parser,
+        runnable = create_react_agent(
+            llm_with_tools,
             tools=tools,
-            **agent_executor_kwargs,
-        )
-        runnable = RunnableWithMessageHistory(
-            runnable=agent_executor,
-            get_session_history=chat_history,
             **runnable_kwargs,
         )
         ```
 
-        By default, no checkpointer is used. To enable checkpointing, provide a
-        `checkpointer_builder` function that returns a checkpointer instance.
+        By default, no checkpointer is used (i.e. there is no state history). To
+        enable checkpointing, provide a `checkpointer_builder` function that
+        returns a checkpointer instance.
 
         **Example using Spanner:**
         ```python
