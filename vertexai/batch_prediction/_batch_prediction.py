@@ -329,6 +329,28 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         return False
 
     @classmethod
+    def num_pending_jobs(cls) -> int:
+        """Returns the number of pending batch prediction jobs.
+
+        The pending jobs are those defined in _JOB_PENDING_STATES from
+        google/cloud/aiplatform/jobs.py
+        e.g. JOB_STATE_QUEUED, JOB_STATE_PENDING, JOB_STATE_RUNNING,
+        JOB_STATE_CANCELLING, JOB_STATE_UPDATING.
+        It will be used to manage the number of concurrent batch that is limited
+        according to
+        https://cloud.google.com/vertex-ai/generative-ai/docs/quotas#concurrent-batch-requests
+        """
+        return len(
+            cls._list(
+                cls_filter=lambda gca_resource: cls._is_genai_model(gca_resource.model),
+                filter=" OR ".join(
+                    f'state="{pending_state.name}"'
+                    for pending_state in jobs._JOB_PENDING_STATES
+                ),
+            )
+        )
+
+    @classmethod
     def _complete_bq_uri(cls, uri: Optional[str] = None):
         """Completes a BigQuery uri to a BigQuery table uri."""
         uri_parts = uri.split(".") if uri else []

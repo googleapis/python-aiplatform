@@ -723,3 +723,9 @@ class TestBatchPredictionJob:
         list_batch_prediction_jobs_mock.assert_called_once_with(
             request={"parent": _TEST_PARENT}
         )
+
+    def test_num_pending_jobs(self, list_batch_prediction_jobs_mock):
+        num_pending_jobs = batch_prediction.BatchPredictionJob.num_pending_jobs()
+
+        assert num_pending_jobs == 1
+        list_batch_prediction_jobs_mock.assert_called_once()
