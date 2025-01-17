@@ -657,7 +657,7 @@ class TestBatchPredictionJob:
         invalid_bq_uris = ["bq://projectId.dataset1", "bq://projectId.dataset2"]
         with pytest.raises(
             ValueError,
-            match=("Multiple Bigquery input datasets are not supported."),
+            match=("Multiple BigQuery input datasets are not supported."),
         ):
             batch_prediction.BatchPredictionJob.submit(
                 source_model=_TEST_GEMINI_MODEL_NAME,

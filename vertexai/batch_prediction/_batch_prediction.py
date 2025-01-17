@@ -171,7 +171,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             gcs_source = input_dataset
         elif first_input_uri.startswith("bq://"):
             if not isinstance(input_dataset, str):
-                raise ValueError("Multiple Bigquery input datasets are not supported.")
+                raise ValueError("Multiple BigQuery input datasets are not supported.")
             bigquery_source = input_dataset
         else:
             raise ValueError(
