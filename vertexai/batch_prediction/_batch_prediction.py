@@ -115,6 +115,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         input_dataset: Union[str, List[str]],
         *,
         output_uri_prefix: Optional[str] = None,
+        job_display_name: Optional[str] = None,
     ) -> "BatchPredictionJob":
         """Submits a batch prediction job for a GenAI model.
 
@@ -137,6 +138,10 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
                 be used for GCS source and
                 f"bq://projectId.gen_ai_batch_prediction.predictions_{TIMESTAMP}"
                 will be used for BigQuery source.
+            job_display_name (str):
+                The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
 
         Returns:
             Instantiated BatchPredictionJob.
@@ -209,6 +214,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         try:
             aiplatform_job = jobs.BatchPredictionJob.submit(
                 model_name=model_name,
+                job_display_name=job_display_name,
                 gcs_source=gcs_source,
                 bigquery_source=bigquery_source,
                 gcs_destination_prefix=gcs_destination_prefix,
