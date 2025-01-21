@@ -2181,6 +2181,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -2528,6 +2532,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2913,6 +2921,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -3280,6 +3292,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
                     },
                     {
                         "method": "get",
@@ -3662,6 +3678,10 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

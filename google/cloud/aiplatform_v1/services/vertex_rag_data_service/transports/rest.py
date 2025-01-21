@@ -1074,6 +1074,10 @@ class VertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1421,6 +1425,10 @@ class VertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1806,6 +1814,10 @@ class VertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -2173,6 +2185,10 @@ class VertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2555,6 +2571,10 @@ class VertexRagDataServiceRestTransport(_BaseVertexRagDataServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

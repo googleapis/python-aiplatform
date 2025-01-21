@@ -1448,6 +1448,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1795,6 +1799,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2180,6 +2188,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -2547,6 +2559,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
                     },
                     {
                         "method": "get",
@@ -2929,6 +2945,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

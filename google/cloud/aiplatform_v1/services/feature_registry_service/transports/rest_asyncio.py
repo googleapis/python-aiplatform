@@ -2963,6 +2963,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -3310,6 +3314,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -3695,6 +3703,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -4062,6 +4074,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
                     },
                     {
                         "method": "get",
@@ -4444,6 +4460,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

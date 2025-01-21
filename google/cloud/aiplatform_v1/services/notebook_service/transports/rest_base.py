@@ -1539,6 +1539,10 @@ class _BaseNotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -1905,6 +1909,10 @@ class _BaseNotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2309,6 +2317,10 @@ class _BaseNotebookServiceRestTransport(NotebookServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -2695,6 +2707,10 @@ class _BaseNotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*}/operations",
                 },
                 {
                     "method": "get",
@@ -3096,6 +3112,10 @@ class _BaseNotebookServiceRestTransport(NotebookServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
