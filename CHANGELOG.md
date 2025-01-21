@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.78.0](https://github.com/googleapis/python-aiplatform/compare/v1.77.0...v1.78.0) (2025-01-21)
+
+
+### Features
+
+* Allow users to specify the job_display_name. ([1d1b3f0](https://github.com/googleapis/python-aiplatform/commit/1d1b3f0595474c74438560cfc77bce1994e09302))
+* Implement method to get number of pending jobs. ([ec57cf4](https://github.com/googleapis/python-aiplatform/commit/ec57cf449db9a3a9c42851a5c8b56ed86731a2e3))
+* Reasoning Engine v1 GAPIC release ([4eab30e](https://github.com/googleapis/python-aiplatform/commit/4eab30ea19ccd7be7815ce5590f80b63c166916c))
+* Update comment for LlmParser default gemini requests per minute ([97be726](https://github.com/googleapis/python-aiplatform/commit/97be72646dabe40556870a5e90cfd9e956ee6a2c))
+
+
+### Documentation
+
+* Update the code snippet for LangGraph Agent template ([9e6cc62](https://github.com/googleapis/python-aiplatform/commit/9e6cc62f2a47c5a745cd561b4c5ba2fb5122fe59))
+
 ## [1.77.0](https://github.com/googleapis/python-aiplatform/compare/v1.76.0...v1.77.0) (2025-01-15)
 
 
