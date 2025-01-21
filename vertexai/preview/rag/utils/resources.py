@@ -516,7 +516,7 @@ class LlmParserConfig:
             Vertex AI model per minute. Consult
             https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and
             the Quota page for your project to set an appropriate value here.
-            If unspecified, a default value of 120 QPM will be used.
+            If unspecified, a default value of 5000 QPM will be used.
         custom_parsing_prompt (str):
             A custom prompt to use for parsing.
     """
