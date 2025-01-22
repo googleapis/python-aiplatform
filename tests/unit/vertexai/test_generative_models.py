@@ -39,14 +39,14 @@ from vertexai.generative_models._generative_models import (
     gapic_content_types,
     gapic_tool_types,
 )
-from google.cloud.aiplatform_v1beta1.types.cached_content import (
+from google.cloud.aiplatform_v1.types.cached_content import (
     CachedContent as GapicCachedContent,
 )
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     gen_ai_cache_service,
 )
 from vertexai.generative_models import _function_calling_utils
-from vertexai.preview import caching
+from vertexai.caching import CachedContent
 
 
 _TEST_PROJECT = "test-project"
@@ -649,17 +649,19 @@ class TestGenerativeModels:
         with pytest.raises(ValueError):
             generative_models.GenerativeModel("foo/bar/models/gemini-pro")
 
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generative_model_from_cached_content(
-        self, mock_get_cached_content_fixture
+        self, generative_models: generative_models, mock_get_cached_content_fixture
     ):
         project_location_prefix = (
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
         )
-        cached_content = caching.CachedContent(
-            "cached-content-id-in-from-cached-content-test"
-        )
+        cached_content = CachedContent("cached-content-id-in-from-cached-content-test")
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
@@ -683,14 +685,18 @@ class TestGenerativeModels:
             == "cached-content-id-in-from-cached-content-test"
         )
 
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_generative_model_from_cached_content_with_resource_name(
-        self, mock_get_cached_content_fixture
+        self, mock_get_cached_content_fixture, generative_models: generative_models
     ):
         project_location_prefix = (
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
         )
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content="cached-content-id-in-from-cached-content-test"
         )
 
@@ -848,7 +854,7 @@ class TestGenerativeModels:
         assert response5.text
 
     @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
+        target=prediction_service_v1.PredictionServiceClient,
         attribute="generate_content",
         new=lambda self, request: gapic_prediction_service_types.GenerateContentResponse(
             candidates=[
@@ -870,11 +876,9 @@ class TestGenerativeModels:
         self,
         mock_get_cached_content_fixture,
     ):
-        cached_content = caching.CachedContent(
-            "cached-content-id-in-from-cached-content-test"
-        )
+        cached_content = CachedContent("cached-content-id-in-from-cached-content-test")
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
