@@ -39,14 +39,14 @@ from vertexai.generative_models._generative_models import (
     gapic_content_types,
     gapic_tool_types,
 )
-from google.cloud.aiplatform_v1beta1.types.cached_content import (
+from google.cloud.aiplatform_v1.types.cached_content import (
     CachedContent as GapicCachedContent,
 )
-from google.cloud.aiplatform_v1beta1.services import (
+from google.cloud.aiplatform_v1.services import (
     gen_ai_cache_service,
 )
 from vertexai.generative_models import _function_calling_utils
-from vertexai.preview import caching
+from vertexai.caching import _caching
 
 
 _TEST_PROJECT = "test-project"
@@ -655,11 +655,11 @@ class TestGenerativeModels:
         project_location_prefix = (
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
         )
-        cached_content = caching.CachedContent(
+        cached_content = _caching.CachedContent(
             "cached-content-id-in-from-cached-content-test"
         )
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
@@ -690,7 +690,7 @@ class TestGenerativeModels:
             f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
         )
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content="cached-content-id-in-from-cached-content-test"
         )
 
@@ -848,7 +848,7 @@ class TestGenerativeModels:
         assert response5.text
 
     @mock.patch.object(
-        target=prediction_service.PredictionServiceClient,
+        target=prediction_service_v1.PredictionServiceClient,
         attribute="generate_content",
         new=lambda self, request: gapic_prediction_service_types.GenerateContentResponse(
             candidates=[
@@ -870,11 +870,11 @@ class TestGenerativeModels:
         self,
         mock_get_cached_content_fixture,
     ):
-        cached_content = caching.CachedContent(
+        cached_content = _caching.CachedContent(
             "cached-content-id-in-from-cached-content-test"
         )
 
-        model = preview_generative_models.GenerativeModel.from_cached_content(
+        model = generative_models.GenerativeModel.from_cached_content(
             cached_content=cached_content
         )
 
