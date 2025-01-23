@@ -464,8 +464,29 @@ class EvalTask:
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
             )
+
+        candidate_model_name = None
+        if isinstance(model, generative_models.GenerativeModel):
+            candidate_model_name = model._model_name
+
+        baseline_model_name = None
+        pairwise_metrics = [
+            metric
+            for metric in self.metrics
+            if isinstance(metric, pairwise_metric.PairwiseMetric)
+        ]
+        if pairwise_metrics:
+            # All pairwise metrics should have the same baseline model.
+            baseline_model = pairwise_metrics[0].baseline_model
+            if isinstance(baseline_model, generative_models.GenerativeModel):
+                baseline_model_name = baseline_model._model_name
+
         utils.upload_evaluation_results(
-            eval_result.metrics_table, self.output_uri_prefix, output_file_name
+            eval_result,
+            self.output_uri_prefix,
+            output_file_name,
+            candidate_model_name,
+            baseline_model_name,
         )
         return eval_result
 

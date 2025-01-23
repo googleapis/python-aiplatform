@@ -17,11 +17,12 @@
 
 import functools
 import io
+import json
 import os
 import tempfile
 import threading
 import time
-from typing import Any, Dict, Optional, TYPE_CHECKING, Union, Callable, Literal
+from typing import Any, Callable, Dict, Literal, Optional, TYPE_CHECKING, Union
 
 from google.cloud import bigquery
 from google.cloud import storage
@@ -33,6 +34,7 @@ from google.cloud.aiplatform.utils import _ipython_utils
 from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
+from vertexai.evaluation import _base as eval_base
 
 
 if TYPE_CHECKING:
@@ -276,35 +278,77 @@ def _upload_pandas_df_to_gcs(
                 " Please provide a valid GCS path with `jsonl` or `csv` suffix."
             )
 
-        storage_client = storage.Client(
-            project=initializer.global_config.project,
-            credentials=initializer.global_config.credentials,
-        )
-        storage.Blob.from_string(
-            uri=upload_gcs_path, client=storage_client
-        ).upload_from_filename(filename=local_dataset_path)
+        _upload_file_to_gcs(upload_gcs_path, local_dataset_path)
+
+
+def _upload_evaluation_summary_to_gcs(
+    summary_metrics: Dict[str, float],
+    upload_gcs_path: str,
+    candidate_model_name: Optional[str] = None,
+    baseline_model_name: Optional[str] = None,
+) -> None:
+    """Uploads the evaluation summary to a GCS bucket."""
+    summary = {
+        "summary_metrics": summary_metrics,
+    }
+    if candidate_model_name:
+        summary["candidate_model_name"] = candidate_model_name
+    if baseline_model_name:
+        summary["baseline_model_name"] = baseline_model_name
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        local_summary_path = os.path.join(temp_dir, "summary_metrics.json")
+        json.dump(summary, open(local_summary_path, "w"))
+        _upload_file_to_gcs(upload_gcs_path, local_summary_path)
+
+
+def _upload_file_to_gcs(upload_gcs_path: str, filename: str) -> None:
+    storage_client = storage.Client(
+        project=initializer.global_config.project,
+        credentials=initializer.global_config.credentials,
+    )
+    storage.Blob.from_string(
+        uri=upload_gcs_path, client=storage_client
+    ).upload_from_filename(filename)
 
 
 def upload_evaluation_results(
-    dataset: "pd.DataFrame", destination_uri_prefix: str, file_name: str
+    eval_result: eval_base.EvalResult,
+    destination_uri_prefix: str,
+    file_name: str,
+    candidate_model_name: Optional[str] = None,
+    baseline_model_name: Optional[str] = None,
 ) -> None:
     """Uploads eval results to GCS destination.
 
     Args:
-        dataset: Pandas dataframe to upload.
+        eval_result: Eval results to upload.
         destination_uri_prefix: GCS folder to store the data.
-        file_name: File name to store the data.
+        file_name: File name to store the metrics table.
+        candidate_model_name: Optional. Candidate model name.
+        baseline_model_name: Optional. Baseline model name.
     """
     if not destination_uri_prefix:
         _ipython_utils.display_gen_ai_evaluation_results_button()
         return
+    if eval_result.metrics_table is None:
+        return
     if destination_uri_prefix.startswith(_GCS_PREFIX):
-        _, extension = os.path.splitext(file_name)
+        base_name, extension = os.path.splitext(file_name)
         file_type = extension.lower()[1:]
-        output_path = destination_uri_prefix + "/" + file_name
-        _upload_pandas_df_to_gcs(dataset, output_path, file_type)
+        output_folder = destination_uri_prefix + "/" + base_name
+        metrics_table_path = output_folder + "/" + file_name
+        _upload_pandas_df_to_gcs(
+            eval_result.metrics_table, metrics_table_path, file_type
+        )
+        _upload_evaluation_summary_to_gcs(
+            eval_result.summary_metrics,
+            output_folder + "/summary_metrics.json",
+            candidate_model_name,
+            baseline_model_name,
+        )
         _ipython_utils.display_gen_ai_evaluation_results_button(
-            output_path.split(_GCS_PREFIX)[1]
+            metrics_table_path.split(_GCS_PREFIX)[1]
         )
     else:
         raise ValueError(

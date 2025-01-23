@@ -558,13 +558,9 @@ def mock_experiment_tracker():
 
 
 @pytest.fixture
-def mock_storage_blob_upload_from_filename():
-    with mock.patch(
-        "google.cloud.storage.Blob.upload_from_filename"
-    ) as mock_blob_upload_from_filename, mock.patch(
-        "google.cloud.storage.Bucket.exists", return_value=True
-    ):
-        yield mock_blob_upload_from_filename
+def mock_storage_blob_from_string():
+    with mock.patch("google.cloud.storage.Blob.from_string") as mock_blob_from_string:
+        yield mock_blob_from_string
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1948,8 +1944,29 @@ class TestPromptTemplate:
             == _EXPECTED_PAIRWISE_PROMPT_TEMPLATE_WITH_DEFAULT_VALUES.strip()
         )
 
-    def test_upload_results(self, mock_storage_blob_upload_from_filename):
-        evaluation.utils.upload_evaluation_results(
-            _TEST_CSV, _TEST_BUCKET, _TEST_FILE_NAME
+    def test_upload_results(self, mock_storage_blob_from_string):
+        with mock.patch("json.dump") as mock_json_dump:
+            evaluation.utils.upload_evaluation_results(
+                MOCK_EVAL_RESULT,
+                _TEST_BUCKET,
+                _TEST_FILE_NAME,
+                "candidate_model",
+                "baseline_model",
+            )
+
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/test-file-name/test-file-name.csv",
+            client=mock.ANY,
         )
-        assert mock_storage_blob_upload_from_filename.called_once_with(_TEST_CSV)
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/test-file-name/summary_metrics.json",
+            client=mock.ANY,
+        )
+        mock_json_dump.assert_called_once_with(
+            {
+                "summary_metrics": MOCK_EVAL_RESULT.summary_metrics,
+                "candidate_model_name": "candidate_model",
+                "baseline_model_name": "baseline_model",
+            },
+            mock.ANY,
+        )
