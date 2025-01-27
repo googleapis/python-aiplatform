@@ -3197,6 +3197,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                     },
                     {
@@ -3583,6 +3587,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/operations/*}",
                     },
                     {
@@ -3965,6 +3973,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*}/operations",
                     },
                     {
@@ -4344,6 +4356,10 @@ class AsyncFeatureRegistryServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

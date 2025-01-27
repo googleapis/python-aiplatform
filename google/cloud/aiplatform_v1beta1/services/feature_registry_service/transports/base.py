@@ -212,6 +212,11 @@ class FeatureRegistryServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.update_feature_monitor: gapic_v1.method.wrap_method(
+                self.update_feature_monitor,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.delete_feature_monitor: gapic_v1.method.wrap_method(
                 self.delete_feature_monitor,
                 default_timeout=None,
@@ -432,6 +437,15 @@ class FeatureRegistryServiceTransport(abc.ABC):
             feature_registry_service.ListFeatureMonitorsResponse,
             Awaitable[feature_registry_service.ListFeatureMonitorsResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.UpdateFeatureMonitorRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

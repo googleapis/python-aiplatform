@@ -29,6 +29,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "HarmCategory",
+        "Modality",
         "Content",
         "Part",
         "Blob",
@@ -50,6 +51,7 @@ __protobuf__ = proto.module(
         "GroundingMetadata",
         "SearchEntryPoint",
         "RetrievalMetadata",
+        "ModalityTokenCount",
     },
 )
 
@@ -78,6 +80,31 @@ class HarmCategory(proto.Enum):
     HARM_CATEGORY_HARASSMENT = 3
     HARM_CATEGORY_SEXUALLY_EXPLICIT = 4
     HARM_CATEGORY_CIVIC_INTEGRITY = 5
+
+
+class Modality(proto.Enum):
+    r"""Content Part modality
+
+    Values:
+        MODALITY_UNSPECIFIED (0):
+            Unspecified modality.
+        TEXT (1):
+            Plain text.
+        IMAGE (2):
+            Image.
+        VIDEO (3):
+            Video.
+        AUDIO (4):
+            Audio.
+        DOCUMENT (5):
+            Document, e.g. PDF.
+    """
+    MODALITY_UNSPECIFIED = 0
+    TEXT = 1
+    IMAGE = 2
+    VIDEO = 3
+    AUDIO = 4
+    DOCUMENT = 5
 
 
 class Content(proto.Message):
@@ -1384,6 +1411,28 @@ class RetrievalMetadata(proto.Message):
 
     google_search_dynamic_retrieval_score: float = proto.Field(
         proto.FLOAT,
+        number=2,
+    )
+
+
+class ModalityTokenCount(proto.Message):
+    r"""Represents token counting info for a single modality.
+
+    Attributes:
+        modality (google.cloud.aiplatform_v1beta1.types.Modality):
+            The modality associated with this token
+            count.
+        token_count (int):
+            Number of tokens.
+    """
+
+    modality: "Modality" = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum="Modality",
+    )
+    token_count: int = proto.Field(
+        proto.INT32,
         number=2,
     )
 

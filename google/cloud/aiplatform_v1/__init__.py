@@ -118,6 +118,7 @@ from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
+from .types.content import ModalityTokenCount
 from .types.content import Part
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
@@ -126,6 +127,7 @@ from .types.content import SearchEntryPoint
 from .types.content import Segment
 from .types.content import VideoMetadata
 from .types.content import HarmCategory
+from .types.content import Modality
 from .types.context import Context
 from .types.custom_job import ContainerSpec
 from .types.custom_job import CustomJob
@@ -201,6 +203,7 @@ from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
+from .types.endpoint import SpeculativeDecodingSpec
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
@@ -919,7 +922,9 @@ from .types.tensorboard_service import WriteTensorboardExperimentDataResponse
 from .types.tensorboard_service import WriteTensorboardRunDataRequest
 from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
+from .types.tool import CodeExecutionResult
 from .types.tool import DynamicRetrievalConfig
+from .types.tool import ExecutableCode
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
@@ -1122,6 +1127,7 @@ __all__ = (
     "CitationMetadata",
     "Claim",
     "ClientConnectionConfig",
+    "CodeExecutionResult",
     "CoherenceInput",
     "CoherenceInstance",
     "CoherenceResult",
@@ -1309,6 +1315,7 @@ __all__ = (
     "Examples",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
+    "ExecutableCode",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -1594,6 +1601,8 @@ __all__ = (
     "MigrateResourceRequest",
     "MigrateResourceResponse",
     "MigrationServiceClient",
+    "Modality",
+    "ModalityTokenCount",
     "Model",
     "ModelContainerSpec",
     "ModelDeploymentMonitoringBigQueryTable",
@@ -1806,6 +1815,7 @@ __all__ = (
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
+    "SpeculativeDecodingSpec",
     "StartNotebookRuntimeOperationMetadata",
     "StartNotebookRuntimeRequest",
     "StartNotebookRuntimeResponse",

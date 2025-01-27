@@ -3692,6 +3692,8 @@ def test_get_feature_view(request_type, transport: str = "grpc"):
         call.return_value = feature_view.FeatureView(
             name="name_value",
             etag="etag_value",
+            service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
         )
@@ -3707,6 +3709,11 @@ def test_get_feature_view(request_type, transport: str = "grpc"):
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert (
+        response.service_agent_type
+        == feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -3839,6 +3846,8 @@ async def test_get_feature_view_async(
             feature_view.FeatureView(
                 name="name_value",
                 etag="etag_value",
+                service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+                service_account_email="service_account_email_value",
                 satisfies_pzs=True,
                 satisfies_pzi=True,
             )
@@ -3855,6 +3864,11 @@ async def test_get_feature_view_async(
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert (
+        response.service_agent_type
+        == feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -9958,6 +9972,8 @@ async def test_get_feature_view_empty_call_grpc_asyncio():
             feature_view.FeatureView(
                 name="name_value",
                 etag="etag_value",
+                service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+                service_account_email="service_account_email_value",
                 satisfies_pzs=True,
                 satisfies_pzi=True,
             )
@@ -11089,6 +11105,8 @@ def test_create_feature_view_rest_call_success(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
     }
@@ -11295,6 +11313,8 @@ def test_get_feature_view_rest_call_success(request_type):
         return_value = feature_view.FeatureView(
             name="name_value",
             etag="etag_value",
+            service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
         )
@@ -11315,6 +11335,11 @@ def test_get_feature_view_rest_call_success(request_type):
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert (
+        response.service_agent_type
+        == feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -11593,6 +11618,8 @@ def test_update_feature_view_rest_call_success(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
     }
@@ -14259,6 +14286,8 @@ async def test_create_feature_view_rest_asyncio_call_success(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
     }
@@ -14481,6 +14510,8 @@ async def test_get_feature_view_rest_asyncio_call_success(request_type):
         return_value = feature_view.FeatureView(
             name="name_value",
             etag="etag_value",
+            service_agent_type=feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT,
+            service_account_email="service_account_email_value",
             satisfies_pzs=True,
             satisfies_pzi=True,
         )
@@ -14503,6 +14534,11 @@ async def test_get_feature_view_rest_asyncio_call_success(request_type):
     assert isinstance(response, feature_view.FeatureView)
     assert response.name == "name_value"
     assert response.etag == "etag_value"
+    assert (
+        response.service_agent_type
+        == feature_view.FeatureView.ServiceAgentType.SERVICE_AGENT_TYPE_PROJECT
+    )
+    assert response.service_account_email == "service_account_email_value"
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -14812,6 +14848,8 @@ async def test_update_feature_view_rest_asyncio_call_success(request_type):
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
         },
+        "service_agent_type": 1,
+        "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
     }

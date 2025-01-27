@@ -124,6 +124,7 @@ from .types.content import GroundingChunk
 from .types.content import GroundingMetadata
 from .types.content import GroundingSupport
 from .types.content import LogprobsResult
+from .types.content import ModalityTokenCount
 from .types.content import Part
 from .types.content import PrebuiltVoiceConfig
 from .types.content import RetrievalMetadata
@@ -135,6 +136,7 @@ from .types.content import SpeechConfig
 from .types.content import VideoMetadata
 from .types.content import VoiceConfig
 from .types.content import HarmCategory
+from .types.content import Modality
 from .types.context import Context
 from .types.custom_job import ContainerSpec
 from .types.custom_job import CustomJob
@@ -232,6 +234,7 @@ from .types.env_var import EnvVar
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import AutoraterConfig
 from .types.evaluation_service import BleuInput
 from .types.evaluation_service import BleuInstance
 from .types.evaluation_service import BleuMetricValue
@@ -241,6 +244,10 @@ from .types.evaluation_service import CoherenceInput
 from .types.evaluation_service import CoherenceInstance
 from .types.evaluation_service import CoherenceResult
 from .types.evaluation_service import CoherenceSpec
+from .types.evaluation_service import CometInput
+from .types.evaluation_service import CometInstance
+from .types.evaluation_service import CometResult
+from .types.evaluation_service import CometSpec
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
 from .types.evaluation_service import ExactMatchInput
@@ -260,6 +267,10 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import MetricxInput
+from .types.evaluation_service import MetricxInstance
+from .types.evaluation_service import MetricxResult
+from .types.evaluation_service import MetricxSpec
 from .types.evaluation_service import PairwiseMetricInput
 from .types.evaluation_service import PairwiseMetricInstance
 from .types.evaluation_service import PairwiseMetricResult
@@ -470,6 +481,8 @@ from .types.feature_registry_service import ListFeatureMonitorsRequest
 from .types.feature_registry_service import ListFeatureMonitorsResponse
 from .types.feature_registry_service import UpdateFeatureGroupOperationMetadata
 from .types.feature_registry_service import UpdateFeatureGroupRequest
+from .types.feature_registry_service import UpdateFeatureMonitorOperationMetadata
+from .types.feature_registry_service import UpdateFeatureMonitorRequest
 from .types.feature_registry_service import UpdateFeatureOperationMetadata
 from .types.feature_selector import FeatureSelector
 from .types.feature_selector import IdMatcher
@@ -1200,6 +1213,7 @@ __all__ = (
     "AuthConfig",
     "AuthType",
     "AutomaticResources",
+    "AutoraterConfig",
     "AutoscalingMetricSpec",
     "AvroSource",
     "BatchCancelPipelineJobsOperationMetadata",
@@ -1261,6 +1275,10 @@ __all__ = (
     "CoherenceInstance",
     "CoherenceResult",
     "CoherenceSpec",
+    "CometInput",
+    "CometInstance",
+    "CometResult",
+    "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
     "ComputeTokensRequest",
@@ -1769,10 +1787,16 @@ __all__ = (
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "MetricxInput",
+    "MetricxInstance",
+    "MetricxResult",
+    "MetricxSpec",
     "MigratableResource",
     "MigrateResourceRequest",
     "MigrateResourceResponse",
     "MigrationServiceClient",
+    "Modality",
+    "ModalityTokenCount",
     "Model",
     "ModelContainerSpec",
     "ModelDeploymentMonitoringBigQueryTable",
@@ -2172,6 +2196,8 @@ __all__ = (
     "UpdateExtensionRequest",
     "UpdateFeatureGroupOperationMetadata",
     "UpdateFeatureGroupRequest",
+    "UpdateFeatureMonitorOperationMetadata",
+    "UpdateFeatureMonitorRequest",
     "UpdateFeatureOnlineStoreOperationMetadata",
     "UpdateFeatureOnlineStoreRequest",
     "UpdateFeatureOperationMetadata",

@@ -328,6 +328,10 @@ class _BaseMigrationServiceRestTransport(MigrationServiceTransport):
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
                 },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
+                },
             ]
             return http_options
 
@@ -414,6 +418,11 @@ class _BaseMigrationServiceRestTransport(MigrationServiceTransport):
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
                     "body": "*",
                 },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
+                    "body": "*",
+                },
             ]
             return http_options
 
@@ -491,6 +500,10 @@ class _BaseMigrationServiceRestTransport(MigrationServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
                 },
             ]
             return http_options
@@ -1072,6 +1085,10 @@ class _BaseMigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
                 },
                 {
@@ -1477,6 +1494,10 @@ class _BaseMigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/operations/*}",
                 },
                 {
@@ -1878,6 +1899,10 @@ class _BaseMigrationServiceRestTransport(MigrationServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*}/operations",
                 },
                 {
@@ -2276,6 +2301,10 @@ class _BaseMigrationServiceRestTransport(MigrationServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                 },
                 {
                     "method": "post",

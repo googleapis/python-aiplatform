@@ -345,6 +345,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:getIamPolicy",
                 },
                 {
@@ -374,6 +378,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:getIamPolicy",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:getIamPolicy",
                 },
             ]
             return http_options
@@ -438,6 +446,11 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:setIamPolicy",
                     "body": "*",
                 },
@@ -469,6 +482,11 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:setIamPolicy",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:setIamPolicy",
                     "body": "*",
                 },
             ]
@@ -528,6 +546,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featurestores/*}:testIamPermissions",
                 },
                 {
@@ -553,6 +575,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "post",
                     "uri": "/ui/{resource=projects/*/locations/*/featureOnlineStores/*/featureViews/*}:testIamPermissions",
+                },
+                {
+                    "method": "post",
+                    "uri": "/ui/{resource=projects/*/locations/*/featureGroups/*}:testIamPermissions",
                 },
             ]
             return http_options

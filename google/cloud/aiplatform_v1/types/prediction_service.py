@@ -763,6 +763,9 @@ class CountTokensResponse(proto.Message):
         total_billable_characters (int):
             The total number of billable characters
             counted across all instances from the request.
+        prompt_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+            Output only. List of modalities that were
+            processed in the request input.
     """
 
     total_tokens: int = proto.Field(
@@ -772,6 +775,13 @@ class CountTokensResponse(proto.Message):
     total_billable_characters: int = proto.Field(
         proto.INT32,
         number=2,
+    )
+    prompt_tokens_details: MutableSequence[
+        content.ModalityTokenCount
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=content.ModalityTokenCount,
     )
 
 
@@ -971,6 +981,15 @@ class GenerateContentResponse(proto.Message):
             cached_content_token_count (int):
                 Output only. Number of tokens in the cached
                 part in the input (the cached content).
+            prompt_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. List of modalities that were
+                processed in the request input.
+            cache_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. List of modalities of the cached
+                content in the request input.
+            candidates_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. List of modalities that were
+                returned in the response.
         """
 
         prompt_token_count: int = proto.Field(
@@ -988,6 +1007,27 @@ class GenerateContentResponse(proto.Message):
         cached_content_token_count: int = proto.Field(
             proto.INT32,
             number=5,
+        )
+        prompt_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=9,
+            message=content.ModalityTokenCount,
+        )
+        cache_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=10,
+            message=content.ModalityTokenCount,
+        )
+        candidates_tokens_details: MutableSequence[
+            content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=11,
+            message=content.ModalityTokenCount,
         )
 
     candidates: MutableSequence[content.Candidate] = proto.RepeatedField(

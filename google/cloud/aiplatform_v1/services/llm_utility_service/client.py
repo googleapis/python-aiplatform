@@ -58,6 +58,7 @@ except ImportError:  # pragma: NO COVER
 
 _LOGGER = std_logging.getLogger(__name__)
 
+from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import llm_utility_service
 from google.cloud.aiplatform_v1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
