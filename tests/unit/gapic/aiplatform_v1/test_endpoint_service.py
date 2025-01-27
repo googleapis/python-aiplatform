@@ -7039,6 +7039,11 @@ def test_create_endpoint_rest_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},
@@ -7629,6 +7634,11 @@ def test_update_endpoint_rest_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},
@@ -9420,6 +9430,11 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},
@@ -10058,6 +10073,11 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "available_replica_count": 2408,
                 },
                 "system_labels": {},
+                "speculative_decoding_spec": {
+                    "draft_model_speculation": {"draft_model": "draft_model_value"},
+                    "ngram_speculation": {"ngram_size": 1071},
+                    "speculative_token_count": 2477,
+                },
             }
         ],
         "traffic_split": {},

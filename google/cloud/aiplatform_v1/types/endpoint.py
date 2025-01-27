@@ -35,8 +35,9 @@ __protobuf__ = proto.module(
         "DeployedModel",
         "PrivateEndpoints",
         "PredictRequestResponseLoggingConfig",
-        "FasterDeploymentConfig",
         "ClientConnectionConfig",
+        "FasterDeploymentConfig",
+        "SpeculativeDecodingSpec",
     },
 )
 
@@ -385,6 +386,9 @@ class DeployedModel(proto.Message):
             System labels to apply to Model Garden
             deployments. System labels are managed by Google
             for internal use only.
+        speculative_decoding_spec (google.cloud.aiplatform_v1.types.SpeculativeDecodingSpec):
+            Optional. Spec for configuring speculative
+            decoding.
     """
 
     class Status(proto.Message):
@@ -495,6 +499,11 @@ class DeployedModel(proto.Message):
         proto.STRING,
         number=28,
     )
+    speculative_decoding_spec: "SpeculativeDecodingSpec" = proto.Field(
+        proto.MESSAGE,
+        number=30,
+        message="SpeculativeDecodingSpec",
+    )
 
 
 class PrivateEndpoints(proto.Message):
@@ -572,6 +581,23 @@ class PredictRequestResponseLoggingConfig(proto.Message):
     )
 
 
+class ClientConnectionConfig(proto.Message):
+    r"""Configurations (e.g. inference timeout) that are applied on
+    your endpoints.
+
+    Attributes:
+        inference_timeout (google.protobuf.duration_pb2.Duration):
+            Customizable online prediction request
+            timeout.
+    """
+
+    inference_timeout: duration_pb2.Duration = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=duration_pb2.Duration,
+    )
+
+
 class FasterDeploymentConfig(proto.Message):
     r"""Configuration for faster model deployment.
 
@@ -587,20 +613,79 @@ class FasterDeploymentConfig(proto.Message):
     )
 
 
-class ClientConnectionConfig(proto.Message):
-    r"""Configurations (e.g. inference timeout) that are applied on
-    your endpoints.
+class SpeculativeDecodingSpec(proto.Message):
+    r"""Configuration for Speculative Decoding.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
-        inference_timeout (google.protobuf.duration_pb2.Duration):
-            Customizable online prediction request
-            timeout.
+        draft_model_speculation (google.cloud.aiplatform_v1.types.SpeculativeDecodingSpec.DraftModelSpeculation):
+            draft model speculation.
+
+            This field is a member of `oneof`_ ``speculation``.
+        ngram_speculation (google.cloud.aiplatform_v1.types.SpeculativeDecodingSpec.NgramSpeculation):
+            N-Gram speculation.
+
+            This field is a member of `oneof`_ ``speculation``.
+        speculative_token_count (int):
+            The number of speculative tokens to generate
+            at each step.
     """
 
-    inference_timeout: duration_pb2.Duration = proto.Field(
+    class DraftModelSpeculation(proto.Message):
+        r"""Draft model speculation works by using the smaller model to
+        generate candidate tokens for speculative decoding.
+
+        Attributes:
+            draft_model (str):
+                Required. The resource name of the draft
+                model.
+        """
+
+        draft_model: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    class NgramSpeculation(proto.Message):
+        r"""N-Gram speculation works by trying to find matching tokens in
+        the previous prompt sequence and use those as speculation for
+        generating new tokens.
+
+        Attributes:
+            ngram_size (int):
+                The number of last N input tokens used as
+                ngram to search/match against the previous
+                prompt sequence. This is equal to the N in
+                N-Gram.
+                The default value is 3 if not specified.
+        """
+
+        ngram_size: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+
+    draft_model_speculation: DraftModelSpeculation = proto.Field(
         proto.MESSAGE,
+        number=2,
+        oneof="speculation",
+        message=DraftModelSpeculation,
+    )
+    ngram_speculation: NgramSpeculation = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="speculation",
+        message=NgramSpeculation,
+    )
+    speculative_token_count: int = proto.Field(
+        proto.INT32,
         number=1,
-        message=duration_pb2.Duration,
     )
 
 

@@ -4568,6 +4568,8 @@ def test_create_cached_content_rest_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -4644,6 +4646,7 @@ def test_create_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -5023,6 +5026,8 @@ def test_update_cached_content_rest_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -5099,6 +5104,7 @@ def test_update_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -6337,6 +6343,8 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -6413,6 +6421,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {
@@ -6824,6 +6833,8 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     },
                     "function_call": {"name": "name_value", "args": {"fields": {}}},
                     "function_response": {"name": "name_value", "response": {}},
+                    "executable_code": {"language": 1, "code": "code_value"},
+                    "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -6900,6 +6911,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "code_execution": {},
             }
         ],
         "tool_config": {
