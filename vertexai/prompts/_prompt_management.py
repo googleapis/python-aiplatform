@@ -633,7 +633,7 @@ def _populate_fields_from_metadata(
         for execution in executions:
             serialized_variable_set = execution.arguments
             variable_set = {}
-            if serialized_variable_set:
+            if serialized_variable_set and serialized_variable_set.variables:
                 for name, value in serialized_variable_set.variables.items():
                     # Parts are dicts, not gapic objects for variables
                     variable_set[name] = [
