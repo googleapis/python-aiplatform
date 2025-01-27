@@ -49,6 +49,7 @@ from .content import (
     GroundingMetadata,
     GroundingSupport,
     LogprobsResult,
+    ModalityTokenCount,
     Part,
     RetrievalMetadata,
     SafetyRating,
@@ -57,6 +58,7 @@ from .content import (
     Segment,
     VideoMetadata,
     HarmCategory,
+    Modality,
 )
 from .context import (
     Context,
@@ -154,6 +156,7 @@ from .endpoint import (
     FasterDeploymentConfig,
     PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
+    SpeculativeDecodingSpec,
 )
 from .endpoint_service import (
     CreateEndpointOperationMetadata,
@@ -1032,7 +1035,9 @@ from .tensorboard_time_series import (
     TensorboardTimeSeries,
 )
 from .tool import (
+    CodeExecutionResult,
     DynamicRetrievalConfig,
+    ExecutableCode,
     FunctionCall,
     FunctionCallingConfig,
     FunctionDeclaration,
@@ -1169,6 +1174,7 @@ __all__ = (
     "GroundingMetadata",
     "GroundingSupport",
     "LogprobsResult",
+    "ModalityTokenCount",
     "Part",
     "RetrievalMetadata",
     "SafetyRating",
@@ -1177,6 +1183,7 @@ __all__ = (
     "Segment",
     "VideoMetadata",
     "HarmCategory",
+    "Modality",
     "Context",
     "ContainerSpec",
     "CustomJob",
@@ -1248,6 +1255,7 @@ __all__ = (
     "FasterDeploymentConfig",
     "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
+    "SpeculativeDecodingSpec",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "DeleteEndpointRequest",
@@ -1954,7 +1962,9 @@ __all__ = (
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "TensorboardTimeSeries",
+    "CodeExecutionResult",
     "DynamicRetrievalConfig",
+    "ExecutableCode",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",

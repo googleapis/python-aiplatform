@@ -1121,6 +1121,11 @@
               "methods": [
                 "update_feature_group"
               ]
+            },
+            "UpdateFeatureMonitor": {
+              "methods": [
+                "update_feature_monitor"
+              ]
             }
           }
         },
@@ -1216,6 +1221,11 @@
               "methods": [
                 "update_feature_group"
               ]
+            },
+            "UpdateFeatureMonitor": {
+              "methods": [
+                "update_feature_monitor"
+              ]
             }
           }
         },
@@ -1310,6 +1320,11 @@
             "UpdateFeatureGroup": {
               "methods": [
                 "update_feature_group"
+              ]
+            },
+            "UpdateFeatureMonitor": {
+              "methods": [
+                "update_feature_monitor"
               ]
             }
           }

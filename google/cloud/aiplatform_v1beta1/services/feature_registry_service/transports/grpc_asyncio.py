@@ -762,6 +762,35 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
         return self._stubs["list_feature_monitors"]
 
     @property
+    def update_feature_monitor(
+        self,
+    ) -> Callable[
+        [feature_registry_service.UpdateFeatureMonitorRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the update feature monitor method over gRPC.
+
+        Updates the parameters of a single FeatureMonitor.
+
+        Returns:
+            Callable[[~.UpdateFeatureMonitorRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_feature_monitor" not in self._stubs:
+            self._stubs["update_feature_monitor"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeatureRegistryService/UpdateFeatureMonitor",
+                request_serializer=feature_registry_service.UpdateFeatureMonitorRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["update_feature_monitor"]
+
+    @property
     def delete_feature_monitor(
         self,
     ) -> Callable[
@@ -949,6 +978,11 @@ class FeatureRegistryServiceGrpcAsyncIOTransport(FeatureRegistryServiceTransport
             ),
             self.list_feature_monitors: self._wrap_method(
                 self.list_feature_monitors,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_feature_monitor: self._wrap_method(
+                self.update_feature_monitor,
                 default_timeout=None,
                 client_info=client_info,
             ),

@@ -44,6 +44,7 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
+from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import llm_utility_service
 from google.cloud.aiplatform_v1.types import prediction_service
 from google.cloud.location import locations_pb2  # type: ignore
