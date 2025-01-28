@@ -80,6 +80,8 @@ class Model(proto.Message):
             The description of the Model.
         version_description (str):
             The description of this version.
+        default_checkpoint_id (str):
+            The default checkpoint id of a model version.
         predict_schemata (google.cloud.aiplatform_v1beta1.types.PredictSchemata):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
@@ -491,6 +493,10 @@ class Model(proto.Message):
     version_description: str = proto.Field(
         proto.STRING,
         number=30,
+    )
+    default_checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=53,
     )
     predict_schemata: "PredictSchemata" = proto.Field(
         proto.MESSAGE,

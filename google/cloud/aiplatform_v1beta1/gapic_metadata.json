@@ -3668,6 +3668,11 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersionCheckpoints": {
+              "methods": [
+                "list_model_version_checkpoints"
+              ]
+            },
             "ListModelVersions": {
               "methods": [
                 "list_model_versions"
@@ -3763,6 +3768,11 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersionCheckpoints": {
+              "methods": [
+                "list_model_version_checkpoints"
+              ]
+            },
             "ListModelVersions": {
               "methods": [
                 "list_model_versions"
@@ -3856,6 +3866,11 @@
             "ListModelEvaluations": {
               "methods": [
                 "list_model_evaluations"
+              ]
+            },
+            "ListModelVersionCheckpoints": {
+              "methods": [
+                "list_model_version_checkpoints"
               ]
             },
             "ListModelVersions": {
