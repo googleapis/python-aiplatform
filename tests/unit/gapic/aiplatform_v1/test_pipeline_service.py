@@ -9049,6 +9049,7 @@ def test_create_training_pipeline_rest_call_success(request_type):
             "display_name": "display_name_value",
             "description": "description_value",
             "version_description": "version_description_value",
+            "default_checkpoint_id": "default_checkpoint_id_value",
             "predict_schemata": {
                 "instance_schema_uri": "instance_schema_uri_value",
                 "parameters_schema_uri": "parameters_schema_uri_value",
@@ -11896,6 +11897,7 @@ async def test_create_training_pipeline_rest_asyncio_call_success(request_type):
             "display_name": "display_name_value",
             "description": "description_value",
             "version_description": "version_description_value",
+            "default_checkpoint_id": "default_checkpoint_id_value",
             "predict_schemata": {
                 "instance_schema_uri": "instance_schema_uri_value",
                 "parameters_schema_uri": "parameters_schema_uri_value",
