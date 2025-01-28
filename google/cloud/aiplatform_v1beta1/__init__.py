@@ -821,9 +821,12 @@ from .types.model_service import ListModelEvaluationsRequest
 from .types.model_service import ListModelEvaluationsResponse
 from .types.model_service import ListModelsRequest
 from .types.model_service import ListModelsResponse
+from .types.model_service import ListModelVersionCheckpointsRequest
+from .types.model_service import ListModelVersionCheckpointsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import ModelVersionCheckpoint
 from .types.model_service import UpdateExplanationDatasetOperationMetadata
 from .types.model_service import UpdateExplanationDatasetRequest
 from .types.model_service import UpdateExplanationDatasetResponse
@@ -1726,6 +1729,8 @@ __all__ = (
     "ListModelMonitoringJobsResponse",
     "ListModelMonitorsRequest",
     "ListModelMonitorsResponse",
+    "ListModelVersionCheckpointsRequest",
+    "ListModelVersionCheckpointsResponse",
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "ListModelsRequest",
@@ -1831,6 +1836,7 @@ __all__ = (
     "ModelMonitoringTabularStats",
     "ModelServiceClient",
     "ModelSourceInfo",
+    "ModelVersionCheckpoint",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
