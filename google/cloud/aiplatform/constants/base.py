@@ -43,6 +43,7 @@ SUPPORTED_REGIONS = frozenset(
         "europe-west8",
         "europe-west9",
         "europe-west12",
+        "global",
         "me-central1",
         "me-central2",
         "me-west1",
