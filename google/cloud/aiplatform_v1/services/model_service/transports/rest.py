@@ -188,6 +188,14 @@ class ModelServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_list_model_version_checkpoints(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_list_model_version_checkpoints(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_list_model_versions(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -552,6 +560,32 @@ class ModelServiceRestInterceptor:
         self, response: model_service.ListModelsResponse
     ) -> model_service.ListModelsResponse:
         """Post-rpc interceptor for list_models
+
+        Override in a subclass to manipulate the response
+        after it is returned by the ModelService server but before
+        it is returned to user code.
+        """
+        return response
+
+    def pre_list_model_version_checkpoints(
+        self,
+        request: model_service.ListModelVersionCheckpointsRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelVersionCheckpointsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for list_model_version_checkpoints
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelService server.
+        """
+        return request, metadata
+
+    def post_list_model_version_checkpoints(
+        self, response: model_service.ListModelVersionCheckpointsResponse
+    ) -> model_service.ListModelVersionCheckpointsResponse:
+        """Post-rpc interceptor for list_model_version_checkpoints
 
         Override in a subclass to manipulate the response
         after it is returned by the ModelService server but before
@@ -4903,6 +4937,160 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 )
             return resp
 
+    class _ListModelVersionCheckpoints(
+        _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints,
+        ModelServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("ModelServiceRestTransport.ListModelVersionCheckpoints")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        def __call__(
+            self,
+            request: model_service.ListModelVersionCheckpointsRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> model_service.ListModelVersionCheckpointsResponse:
+            r"""Call the list model version
+            checkpoints method over HTTP.
+
+                Args:
+                    request (~.model_service.ListModelVersionCheckpointsRequest):
+                        The request object. Request message for
+                    [ModelService.ListModelVersionCheckpoints][google.cloud.aiplatform.v1.ModelService.ListModelVersionCheckpoints].
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
+
+                Returns:
+                    ~.model_service.ListModelVersionCheckpointsResponse:
+                        Response message for
+                    [ModelService.ListModelVersionCheckpoints][google.cloud.aiplatform.v1.ModelService.ListModelVersionCheckpoints]
+
+            """
+
+            http_options = (
+                _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_http_options()
+            )
+
+            request, metadata = self._interceptor.pre_list_model_version_checkpoints(
+                request, metadata
+            )
+            transcoded_request = _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1.ModelServiceClient.ListModelVersionCheckpoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.ModelService",
+                        "rpcName": "ListModelVersionCheckpoints",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = (
+                ModelServiceRestTransport._ListModelVersionCheckpoints._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = model_service.ListModelVersionCheckpointsResponse()
+            pb_resp = model_service.ListModelVersionCheckpointsResponse.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_list_model_version_checkpoints(resp)
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_service.ListModelVersionCheckpointsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1.ModelServiceClient.list_model_version_checkpoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1.ModelService",
+                        "rpcName": "ListModelVersionCheckpoints",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
+
     class _ListModelVersions(
         _BaseModelServiceRestTransport._BaseListModelVersions, ModelServiceRestStub
     ):
@@ -5786,6 +5974,17 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._ListModels(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def list_model_version_checkpoints(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionCheckpointsRequest],
+        model_service.ListModelVersionCheckpointsResponse,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._ListModelVersionCheckpoints(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def list_model_versions(
