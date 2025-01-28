@@ -16,7 +16,7 @@
 #
 """Model-based Pointwise Metric."""
 
-from typing import Union
+from typing import Optional, Union
 
 from vertexai.preview.evaluation.metrics import _base
 from vertexai.preview.evaluation.metrics import (
@@ -64,6 +64,7 @@ class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acc
         metric_prompt_template: Union[
             metric_prompt_template_base.PointwiseMetricPromptTemplate, str
         ],
+        system_instruction: Optional[str] = None,
     ):
         """Initializes a pointwise evaluation metric.
 
@@ -71,8 +72,10 @@ class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acc
           metric: The pointwise evaluation metric name.
           metric_prompt_template: Pointwise metric prompt template for performing
             the model-based evaluation. A freeform string is also accepted.
+          system_instruction: The system instruction for the evaluation.
         """
         super().__init__(
             metric_prompt_template=metric_prompt_template,
             metric=metric,
+            system_instruction=system_instruction,
         )

@@ -130,6 +130,53 @@ def _validate_metric_column_map(
                     )
 
 
+def _validate_autorater_config(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+    pairwise_metric_exists: bool = False,
+):
+    """Validates the fields in the autorater config.
+
+    Args:
+      evaluation_run_config: The evaluation run config.
+      pairwise_metric_exists: Whether pairwise metrics are used.
+
+    Raises:
+      ValueError: If the sampling count is not in the range [1, 32], or flipping
+      is enabled for pairwise metrics but the required columns are not found in
+      the dataset.
+    """
+    if not evaluation_run_config.autorater_config:
+        return
+    if evaluation_run_config.autorater_config.sampling_count and (
+        evaluation_run_config.autorater_config.sampling_count < 1
+        or evaluation_run_config.autorater_config.sampling_count > 32
+    ):
+        raise ValueError(
+            "autorater_config.sampling_count must be in the range [1, 32]."
+        )
+
+    if pairwise_metric_exists and evaluation_run_config.autorater_config.flip_enabled:
+        for column in [
+            constants.Dataset.MODEL_RESPONSE_COLUMN,
+            constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
+        ]:
+            field_name = evaluation_run_config.metric_column_mapping.get(column, "")
+            if (
+                not field_name
+                or field_name not in evaluation_run_config.dataset.columns
+            ):
+                raise ValueError(
+                    f"Cannot find the `{column}` column in"
+                    " the evaluation dataset to fill the metric prompt template."
+                    " This is required for Pairwise metrics when performing"
+                    " autorater config flipping. Please check if the column is"
+                    " present in the evaluation dataset, or provide a key-value"
+                    " pair in `metric_column_mapping` parameter of `EvalTask` to"
+                    " map it to a different column name. The evaluation dataset"
+                    f" columns are {list(evaluation_run_config.dataset.columns)}."
+                )
+
+
 def _validate_column_provided(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
     column_name: str,
@@ -1034,6 +1081,7 @@ def evaluate(
     metric_column_mapping: Dict[str, str],
     evaluation_service_qps: Optional[float] = None,
     retry_timeout: float = 600.0,
+    autorater_config: Optional[evaluation_base.AutoraterConfig] = None,
 ) -> evaluation_base.EvalResult:
     """Runs the evaluation for metrics.
 
@@ -1067,6 +1115,7 @@ def evaluate(
       evaluation_service_qps: The custom QPS limit for the evaluation service.
       retry_timeout: How long to keep retrying the evaluation requests for the
         whole evaluation dataset, in seconds.
+      autorater_config: The autorater config for model based evaluation.
 
     Returns:
       EvalResult with summary metrics and a metrics table for per-instance
@@ -1076,7 +1125,9 @@ def evaluate(
       ValueError: If the metrics list is empty, or the prompt template is not
         provided for PairwiseMetric, or multiple baseline models are specified for
         PairwiseMetric instances, or both model and dataset model response column
-        are present.
+        are present, or the sampling count is not in the range [1, 32], or flipping
+        is enabled for pairwise metrics but the required columns are not found in
+        the dataset.
     """
     _validate_metrics(metrics)
     metrics = _convert_metric_prompt_template_example(metrics)
@@ -1098,10 +1149,13 @@ def evaluate(
         metrics=copied_metrics,
         metric_column_mapping=copy.deepcopy(metric_column_mapping),
         client=utils.create_evaluation_service_client(),
-        evaluation_service_qps=evaluation_service_qps
-        if evaluation_service_qps
-        else constants.QuotaLimit.EVAL_SERVICE_QPS,
+        evaluation_service_qps=(
+            evaluation_service_qps
+            if evaluation_service_qps
+            else constants.QuotaLimit.EVAL_SERVICE_QPS
+        ),
         retry_timeout=retry_timeout,
+        autorater_config=autorater_config,
     )
 
     if prompt_template:
@@ -1141,6 +1195,7 @@ def evaluate(
                 response_column_name=constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
             )
 
+    _validate_autorater_config(evaluation_run_config, pairwise_metric_exists)
     _validate_metric_column_map(evaluation_run_config)
     t1 = time.perf_counter()
     evaluation_result = _compute_metrics(evaluation_run_config)

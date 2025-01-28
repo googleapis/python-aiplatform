@@ -92,6 +92,7 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
         baseline_model: Optional[
             Union[generative_models.GenerativeModel, Callable[[str], str]]
         ] = None,
+        system_instruction: Optional[str] = None,
     ):
         """Initializes a pairwise evaluation metric.
 
@@ -102,10 +103,12 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
           baseline_model: The baseline model for side-by-side comparison. If not
             specified, `baseline_model_response` column is required in the dataset
             to perform bring-your-own-response(BYOR) evaluation.
+          system_instruction: The system instruction for the evaluation.
         """
         super().__init__(
             metric_prompt_template=metric_prompt_template,
             metric=metric,
+            system_instruction=system_instruction,
         )
         self._baseline_model = baseline_model
 

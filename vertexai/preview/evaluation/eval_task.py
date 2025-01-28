@@ -49,6 +49,7 @@ except ImportError:
 
 _LOGGER = base.Logger(__name__)
 
+AutoraterConfig = eval_base.AutoraterConfig
 EvalResult = eval_base.EvalResult
 GenerativeModel = generative_models.GenerativeModel
 
@@ -266,6 +267,7 @@ class EvalTask:
         experiment: Optional[str] = None,
         metric_column_mapping: Optional[Dict[str, str]] = None,
         output_uri_prefix: Optional[str] = "",
+        autorater_config: Optional[AutoraterConfig] = None,
     ):
         """Initializes an EvalTask.
 
@@ -297,6 +299,7 @@ class EvalTask:
               "model_1_response".
             output_uri_prefix: GCS location to store the metrics_table from
               evaluation results.
+            autorater_config: The autorater config for model based evaluation.
         """
         self._dataset = eval_utils.load_dataset(dataset)
         self._metrics = metrics
@@ -305,6 +308,7 @@ class EvalTask:
             metric_column_mapping, self._dataset
         )
         self.output_uri_prefix = output_uri_prefix
+        self._autorater_config = autorater_config
 
     @property
     def dataset(self) -> "pd.DataFrame":
@@ -315,6 +319,11 @@ class EvalTask:
     def metrics(self) -> List[Union[str, metrics_base.CustomMetric]]:
         """Returns metrics."""
         return self._metrics
+
+    @property
+    def autorater_config(self) -> Optional[AutoraterConfig]:
+        """Returns autorater config."""
+        return self._autorater_config
 
     @property
     def experiment(self) -> Optional[str]:
@@ -366,6 +375,7 @@ class EvalTask:
                 metric_column_mapping=self._metric_column_mapping,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                autorater_config=self._autorater_config,
             )
 
             eval_result.summary_metrics = {
@@ -492,6 +502,7 @@ class EvalTask:
                 metric_column_mapping=self._metric_column_mapping,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                autorater_config=self._autorater_config,
             )
         eval_utils.upload_evaluation_results(
             eval_result.metrics_table, self.output_uri_prefix, output_file_name

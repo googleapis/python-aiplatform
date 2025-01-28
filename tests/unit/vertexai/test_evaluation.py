@@ -58,6 +58,7 @@ import pandas as pd
 import pytest
 
 
+AutoraterConfig = evaluation_preview.AutoraterConfig
 EvalTask = eval_task.EvalTask
 EvalTaskPreview = evaluation_preview.eval_task.EvalTask
 Pointwise = metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise
@@ -65,6 +66,9 @@ PointwisePreview = (
     evaluation_preview.metrics.metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise
 )
 Pairwise = metric_prompt_template_examples.MetricPromptTemplateExamples.Pairwise
+PairwisePreview = (
+    evaluation_preview.metrics.metric_prompt_template_examples.MetricPromptTemplateExamples.Pairwise
+)
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -140,6 +144,11 @@ _TEST_METRICS = (
     _TEST_POINTWISE_METRIC,
     _TEST_PAIRWISE_METRIC,
 )
+_AUTORATER_CONFIG = AutoraterConfig(
+    autorater_model="test_autorater_model",
+    sampling_count=6,
+    flip_enabled=True,
+)
 _TEST_EVAL_DATASET_WITHOUT_PROMPT = pd.DataFrame(
     {
         "response": ["test", "text"],
@@ -173,6 +182,15 @@ _TEST_EVAL_DATASET_ALL_INCLUDED = pd.DataFrame(
         "context": ["test", "context"],
         "instruction": ["test", "instruction"],
         "source": ["test", "source"],
+    }
+)
+_TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS = pd.DataFrame(
+    {
+        "prompt": ["test_prompt", "text_prompt"],
+        "response": ["test", "text"],
+        "baseline_model_response": ["test", "ref"],
+        "context": ["test", "context"],
+        "instruction": ["test", "instruction"],
     }
 )
 _TEST_EVAL_DATASET_SINGLE = pd.DataFrame({"prompt": ["test_prompt", "text_prompt"]})
@@ -418,6 +436,18 @@ _MOCK_SUMMARIZATION_QUALITY_RESULT = (
     ),
     gapic_evaluation_service_types.EvaluateInstancesResponse(
         pointwise_metric_result=gapic_evaluation_service_types.PointwiseMetricResult(
+            score=4, explanation="explanation"
+        )
+    ),
+)
+_MOCK_SUMMARIZATION_QUALITY_RESULT_PREVIEW = (
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pointwise_metric_result=gapic_evaluation_service_types_preview.PointwiseMetricResult(
+            score=5, explanation="explanation"
+        )
+    ),
+    gapic_evaluation_service_types_preview.EvaluateInstancesResponse(
+        pointwise_metric_result=gapic_evaluation_service_types_preview.PointwiseMetricResult(
             score=4, explanation="explanation"
         )
     ),
@@ -1361,6 +1391,169 @@ class TestAgentEvaluation:
         assert list(
             test_result.metrics_table["trajectory_exact_match/score"].values
         ) == [1.0, 0.0]
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pointwise_autorater_request_config_enabled(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [PointwisePreview.SUMMARIZATION_QUALITY]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED,
+            metrics=test_metrics,
+            autorater_config=_AUTORATER_CONFIG,
+        )
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT_PREVIEW
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ) as mock_evaluate_instances:
+            _ = test_eval_task.evaluate()
+
+        api_requests = [
+            call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
+        ]
+        assert api_requests[0].autorater_config == _AUTORATER_CONFIG
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pairwise_autorater_request_config_enabled(self, api_transport):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [PairwisePreview.SUMMARIZATION_QUALITY]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED,
+            metrics=test_metrics,
+            autorater_config=_AUTORATER_CONFIG,
+            metric_column_mapping={
+                "baseline_model_response": "reference",
+                "response": "response",
+            },
+        )
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT_PREVIEW
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ) as mock_evaluate_instances:
+            _ = test_eval_task.evaluate()
+
+        api_requests = [
+            call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
+        ]
+        assert api_requests[0].autorater_config == _AUTORATER_CONFIG
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pairwise_flipping_missing_baseline_model_response_column(
+        self, api_transport
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [PairwisePreview.SUMMARIZATION_QUALITY]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED,
+            metrics=test_metrics,
+            autorater_config=AutoraterConfig(flip_enabled=True),
+            metric_column_mapping={
+                "response": "response",
+            },
+        )
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                (
+                    "Cannot find the `baseline_model_response` column in the"
+                    " evaluation dataset to fill the metric prompt template."
+                )
+            ),
+        ):
+            test_eval_task.evaluate()
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pairwise_flipping_incorrect_baseline_model_response_mapping(
+        self, api_transport
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [PairwisePreview.SUMMARIZATION_QUALITY]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED,
+            metrics=test_metrics,
+            autorater_config=AutoraterConfig(flip_enabled=True),
+            metric_column_mapping={
+                "response": "response",
+                "baseline_model_response": "incorrect_column_name",
+            },
+        )
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                (
+                    "Cannot find the `baseline_model_response` column in the"
+                    " evaluation dataset to fill the metric prompt template."
+                )
+            ),
+        ):
+            test_eval_task.evaluate()
+
+    @pytest.mark.parametrize("sampling_count", [-1, 33])
+    def test_pairwise_invalid_sampling_count(self, sampling_count):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        test_metrics = [PairwisePreview.SUMMARIZATION_QUALITY]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED,
+            metrics=test_metrics,
+            autorater_config=AutoraterConfig(sampling_count=sampling_count),
+        )
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "autorater_config.sampling_count must be in the range [1, 32]."
+            ),
+        ):
+            test_eval_task.evaluate()
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_pairwise_autorater_request_default_metric_column_mapping(
+        self, api_transport
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        test_metrics = [PairwisePreview.SUMMARIZATION_QUALITY]
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_ALL_INCLUDED_DEFAULT_FIELDS,
+            metrics=test_metrics,
+            autorater_config=_AUTORATER_CONFIG,
+        )
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=mock_metric_results,
+        ) as mock_evaluate_instances:
+            _ = test_eval_task.evaluate()
+
+        api_requests = [
+            call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
+        ]
+        assert api_requests[0].autorater_config == _AUTORATER_CONFIG
 
 
 @pytest.mark.usefixtures("google_auth_mock")

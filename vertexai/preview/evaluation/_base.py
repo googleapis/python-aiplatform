@@ -18,17 +18,23 @@
 
 
 import dataclasses
-from typing import Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 
 from google.cloud.aiplatform_v1beta1.services import (
     evaluation_service as gapic_evaluation_services,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    evaluation_service as gapic_eval_service_types,
 )
 from vertexai.preview.evaluation.metrics import (
     _base as metrics_base,
 )
 
+
 if TYPE_CHECKING:
     import pandas as pd
+
+AutoraterConfig = gapic_eval_service_types.AutoraterConfig
 
 
 @dataclasses.dataclass
@@ -50,6 +56,7 @@ class EvaluationRunConfig:
       evaluation_service_qps: The custom QPS limit for the evaluation service.
       retry_timeout: How long to keep retrying the evaluation requests, in
         seconds.
+      autorater_config: The autorater config for model based evaluation.
     """
 
     dataset: "pd.DataFrame"
@@ -58,6 +65,7 @@ class EvaluationRunConfig:
     client: gapic_evaluation_services.EvaluationServiceClient
     evaluation_service_qps: float
     retry_timeout: float
+    autorater_config: Optional[AutoraterConfig] = None
 
     def validate_dataset_column(self, column_name: str) -> None:
         """Validates that the column names in the column map are in the dataset.
@@ -95,3 +103,28 @@ class EvalResult:
     summary_metrics: Dict[str, float]
     metrics_table: Optional["pd.DataFrame"] = None
     metadata: Optional[Dict[str, str]] = None
+
+
+@dataclasses.dataclass
+class AutoraterEvalResult:
+    """Evaluation result for autorater evaluation."""
+
+    def __init__(
+        self,
+        eval_result: Optional[List[Dict[str, Any]]],
+        eval_dataset_metadata: Optional[Dict[str, Any]],
+        autorater_config: Optional[AutoraterConfig],
+        **kwargs,
+    ):
+        """Initializes an AutoraterEvalResult.
+
+        Args:
+          eval_result: Evaluation result from an evaluation run.
+          eval_dataset_metadata: Evaluation dataset metadata.
+          autorater_config: Autorater configuration.
+          **kwargs: Additional arguments added to AutoraterEvalResult.
+        """
+        self.eval_result = eval_result
+        self.eval_dataset_metadata = eval_dataset_metadata
+        self.autorater_config = autorater_config
+        self.__dict__.update(kwargs)

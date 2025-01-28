@@ -17,7 +17,7 @@
 """Base classes for evaluation metrics."""
 
 import abc
-from typing import Any, Callable, Dict, Literal, Union
+from typing import Any, Callable, Dict, Literal, Optional, Union
 
 from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation.metrics import (
@@ -59,6 +59,7 @@ class _ModelBasedMetric(_Metric):
             metric_prompt_template_base.PairwiseMetricPromptTemplate,
             str,
         ],
+        system_instruction: Optional[str] = None,
     ):
         """Initializes the model-based evaluation metric.
 
@@ -66,9 +67,12 @@ class _ModelBasedMetric(_Metric):
           metric: Generic model based metric name.
           metric_prompt_template: A metric prompt template for performing
             the model-based evaluation. A freeform string is also accepted.
+          system_instruction: The system instruction to be used in the metric
+            prompt.
         """
         super().__init__(metric=metric)
         self.metric_prompt_template = str(metric_prompt_template)
+        self.system_instruction = system_instruction
 
 
 class CustomMetric(_Metric):

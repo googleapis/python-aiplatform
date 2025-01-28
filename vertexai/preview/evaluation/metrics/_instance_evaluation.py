@@ -168,12 +168,23 @@ def build_request(
         metric, metrics_base._ModelBasedMetric  # pylint: disable=protected-access
     ):
         metric_spec.metric_prompt_template = metric.metric_prompt_template
+        metric_spec.system_instruction = metric.system_instruction
         for variable in prompt_template_base.PromptTemplate(
             metric.metric_prompt_template
         ).variables:
             model_based_metric_instance_input[variable] = row_dict.get(
                 metric_column_mapping.get(variable),
                 "",
+            )
+        if isinstance(metric, pairwise_metric.PairwiseMetric):
+            metric_column_mapping = evaluation_run_config.metric_column_mapping
+            metric_spec.candidate_response_field_name = metric_column_mapping.get(
+                constants.Dataset.MODEL_RESPONSE_COLUMN,
+                constants.Dataset.MODEL_RESPONSE_COLUMN,
+            )
+            metric_spec.baseline_response_field_name = metric_column_mapping.get(
+                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
+                constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
             )
     elif isinstance(metric, _rouge.Rouge):
         metric_spec.rouge_type = metric.rouge_type
@@ -315,6 +326,7 @@ def build_request(
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             pointwise_metric_input=instance,
+            autorater_config=evaluation_run_config.autorater_config,
         )
     elif metric_name == constants.Metric.PAIRWISE_METRIC:
         instance = gapic_eval_service_types.PairwiseMetricInput(
@@ -324,7 +336,9 @@ def build_request(
             ),
         )
         return gapic_eval_service_types.EvaluateInstancesRequest(
-            location=location_path, pairwise_metric_input=instance
+            location=location_path,
+            pairwise_metric_input=instance,
+            autorater_config=evaluation_run_config.autorater_config,
         )
     elif metric_name == constants.Metric.TRAJECTORY_EXACT_MATCH:
         instance = gapic_eval_service_types.TrajectoryExactMatchInput(

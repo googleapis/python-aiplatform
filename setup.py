@@ -151,6 +151,8 @@ reasoning_engine_extra_require = [
 evaluation_extra_require = [
     "pandas >= 1.0.0",
     "tqdm>=4.23.0",
+    "scikit-learn<1.6.0; python_version<='3.10'",
+    "scikit-learn; python_version>'3.10'",
 ]
 
 langchain_extra_require = [
