@@ -2234,60 +2234,58 @@ class ToParsedJsonTest(parameterized.TestCase):
             obj=httpbody_pb2.HttpBody(
                 content_type="application/json", data=b'{"a": 1, "b": "hello"}'
             ),
-            expected={"a": 1, "b": "hello"},
+            expected=[{"a": 1, "b": "hello"}],
         ),
         dict(
             testcase_name="invalid_json",
             obj=httpbody_pb2.HttpBody(
                 content_type="application/json", data=b'{"a": 1, "b": "hello"'
             ),
-            expected=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": 1, "b": "hello"'
-            ),
+            expected=['{"a": 1, "b": "hello"'],  # returns the unparsed string
         ),
         dict(
             testcase_name="missing_content_type",
             obj=httpbody_pb2.HttpBody(data=b'{"a": 1}'),
-            expected=httpbody_pb2.HttpBody(data=b'{"a": 1}'),
+            expected=[httpbody_pb2.HttpBody(data=b'{"a": 1}')],
         ),
         dict(
             testcase_name="missing_data",
             obj=httpbody_pb2.HttpBody(content_type="application/json"),
-            expected=None,
+            expected=[None],
         ),
         dict(
             testcase_name="wrong_content_type",
             obj=httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello"),
-            expected=httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello"),
+            expected=[httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")],
         ),
         dict(
             testcase_name="empty_data",
             obj=httpbody_pb2.HttpBody(content_type="application/json", data=b""),
-            expected=None,
+            expected=[None],
         ),
         dict(
             testcase_name="unicode_data",
             obj=httpbody_pb2.HttpBody(
                 content_type="application/json", data='{"a": "你好"}'.encode("utf-8")
             ),
-            expected={"a": "你好"},
+            expected=[{"a": "你好"}],
         ),
         dict(
             testcase_name="nested_json",
             obj=httpbody_pb2.HttpBody(
                 content_type="application/json", data=b'{"a": {"b": 1}}'
             ),
-            expected={"a": {"b": 1}},
+            expected=[{"a": {"b": 1}}],
         ),
         dict(
-            testcase_name="error_handling",
+            testcase_name="multiline_json",
             obj=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": 1, "b": "hello"'
+                content_type="application/json",
+                data=b'{"a": {"b": 1}}\n{"a": {"b": 2}}',
             ),
-            expected=httpbody_pb2.HttpBody(
-                content_type="application/json", data=b'{"a": 1, "b": "hello"'
-            ),
+            expected=[{"a": {"b": 1}}, {"a": {"b": 2}}],
         ),
     )
     def test_to_parsed_json(self, obj, expected):
-        self.assertEqual(_utils.to_parsed_json(obj), expected)
+        for got, want in zip(_utils.yield_parsed_json(obj), expected):
+            self.assertEqual(got, want)

@@ -17,7 +17,7 @@ import inspect
 import json
 import types
 import typing
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Union
+from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Union
 
 import proto
 
@@ -90,36 +90,42 @@ def to_dict(message: proto.Message) -> JsonDict:
     return result
 
 
-def to_parsed_json(body: httpbody_pb2.HttpBody) -> Any:
+def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
     """Converts the contents of the httpbody message to JSON format.
 
     Args:
         body (httpbody_pb2.HttpBody):
             Required. The httpbody body to be converted to a JSON.
 
-    Returns:
+    Yields:
         Any: A JSON object or the original body if it is not JSON or None.
     """
     content_type = getattr(body, "content_type", None)
     data = getattr(body, "data", None)
 
     if content_type is None or data is None or "application/json" not in content_type:
-        return body
+        yield body
+        return
 
     try:
         utf8_data = data.decode("utf-8")
     except Exception as e:
         _LOGGER.warning(f"Failed to decode data: {data}. Exception: {e}")
-        return body
+        yield body
+        return
 
     if not utf8_data:
-        return None
+        yield None
+        return
 
-    try:
-        return json.loads(utf8_data)
-    except Exception as e:
-        _LOGGER.warning(f"Failed to parse JSON: {utf8_data}. Exception: {e}")
-        return body  # Return the raw body on error
+    # Handle the case of multiple dictionaries delimited by newlines.
+    for line in utf8_data.split("\n"):
+        if line:
+            try:
+                line = json.loads(line)
+            except Exception as e:
+                _LOGGER.warning(f"failed to parse json: {line}. Exception: {e}")
+            yield line
 
 
 def generate_schema(
@@ -195,9 +201,9 @@ def generate_schema(
         #     * https://github.com/pydantic/pydantic/issues/1270
         #     * https://stackoverflow.com/a/58841311
         #     * https://github.com/pydantic/pydantic/discussions/4872
-        if typing.get_origin(annotation) is typing.Union and type(
-            None
-        ) in typing.get_args(annotation):
+        if typing.get_origin(annotation) is Union and type(None) in typing.get_args(
+            annotation
+        ):
             # for "typing.Optional" arguments, function_arg might be a
             # dictionary like
             #

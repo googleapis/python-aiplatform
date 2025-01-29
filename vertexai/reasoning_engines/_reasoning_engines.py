@@ -840,9 +840,9 @@ def _wrap_stream_query_operation(
             ),
         )
         for chunk in response:
-            parsed_json = _utils.to_parsed_json(chunk)
-            if parsed_json is not None:
-                yield parsed_json
+            for parsed_json in _utils.yield_parsed_json(chunk):
+                if parsed_json is not None:
+                    yield parsed_json
 
     _method.__name__ = method_name
     _method.__doc__ = doc
