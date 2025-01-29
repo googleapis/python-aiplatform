@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.79.0](https://github.com/googleapis/python-aiplatform/compare/v1.78.0...v1.79.0) (2025-01-28)
+
+
+### Features
+
+* Add machine_spec, data_persistent_disk_spec, network_spec, euc_config, shielded_vm_config to `.google.cloud.aiplatform.v1beta1.NotebookRuntime` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Add machine_spec, data_persistent_disk_spec, network_spec, euc_config, shielded_vm_config to message `.google.cloud.aiplatform.v1.NotebookRuntime` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Add per-modality token count break downs for GenAI APIs ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Add per-modality token count break downs for GenAI APIs ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Add speculative decoding spec to DeployedModel proto ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Enable FeatureGroup IAM Methods in v1beta1 API version ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Enable FeatureView Service Account in v1 API version ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Enable UpdateFeatureMonitor in v1beta1 API version ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Expose code execution tool API to v1 ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* GenAI Evaluation: Release GenAI Evaluation SDK Autorater Config/Tuning/Evaluation to vertexai.preview module. ([4531d08](https://github.com/googleapis/python-aiplatform/commit/4531d08c1c9c4a1949f532be9d2beddc53d154b1))
+* Reasoning Engine v1 GAPIC release ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Remove autorater config related visibility v1beta1 ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Update supported locations ([50a66b7](https://github.com/googleapis/python-aiplatform/commit/50a66b778fec5d5bfc87536888e0b835bd8d9db2))
+* Upload aggregate metrics and generative models used in an evaluation to GCS. ([713ffac](https://github.com/googleapis/python-aiplatform/commit/713ffac6f6f19408bf629dedc06450cee493dae2))
+
+
+### Documentation
+
+* Deprecate `is_default` in message `.google.cloud.aiplatform.v1.NotebookRuntimeTemplate` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Deprecate `is_default` in message `.google.cloud.aiplatform.v1beta1.NotebookRuntimeTemplate` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Deprecate `service_account` in message `.google.cloud.aiplatform.v1.NotebookRuntime` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Deprecate `service_account` in message `.google.cloud.aiplatform.v1.NotebookRuntimeTemplate` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Deprecate `service_account` in message `.google.cloud.aiplatform.v1beta1.NotebookRuntime` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+* Deprecate `service_account` in message `.google.cloud.aiplatform.v1beta1.NotebookRuntimeTemplate` ([4620e6f](https://github.com/googleapis/python-aiplatform/commit/4620e6f0b0623e18b6e676f4183e972c8ad7e89e))
+
 ## [1.78.0](https://github.com/googleapis/python-aiplatform/compare/v1.77.0...v1.78.0) (2025-01-21)
 
 
