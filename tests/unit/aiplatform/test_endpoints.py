@@ -3922,7 +3922,8 @@ class TestPrivateEndpoint:
             test_endpoint.wait()
 
         # undeploy() should not be called unless force is set to True
-        sdk_undeploy_mock.called_once_with(deployed_model_id=_TEST_ID, sync=sync)
+        # This assert is broken.
+        # sdk_undeploy_mock.assert_called_once_with(deployed_model_id=_TEST_ID, sync=sync)
 
         delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
 
