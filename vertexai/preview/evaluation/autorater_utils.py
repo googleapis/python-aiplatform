@@ -20,7 +20,7 @@ import logging
 import time
 from typing import Any, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 
-from vertexai.preview import generative_models
+from vertexai import generative_models
 from vertexai.preview.evaluation import _base as evaluation_base
 from vertexai.preview.evaluation import eval_task
 from vertexai.preview.evaluation.metrics import pairwise_metric

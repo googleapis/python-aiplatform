@@ -56,12 +56,6 @@ GenerativeModel = generative_models.GenerativeModel
 _RunnableType = Union[reasoning_engines.Queryable, Callable[[str], Dict[str, str]]]
 _ModelType = Union[generative_models.GenerativeModel, Callable[[str], str]]
 
-_LOGGER = base.Logger(__name__)
-
-
-EvalResult = eval_base.EvalResult
-GenerativeModel = generative_models.GenerativeModel
-
 
 class EvalTask:
     """A class representing an EvalTask.
