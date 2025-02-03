@@ -316,6 +316,7 @@ class Experiment:
     def list(
         cls,
         *,
+        filter: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -327,6 +328,8 @@ class Experiment:
         ```
 
         Args:
+            filter (str):
+                Optional. A query to filter available resources for matching results.
             project (str):
                 Optional. Project to list these experiments from. Overrides project set in
                 aiplatform.init.
@@ -343,6 +346,8 @@ class Experiment:
         filter_str = metadata_utils._make_filter_string(
             schema_title=constants.SYSTEM_EXPERIMENT
         )
+        if filter:
+            filter_str = f"{filter_str} AND ({filter})"
 
         with _SetLoggerLevel(resource):
             experiment_contexts = context.Context.list(
