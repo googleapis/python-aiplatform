@@ -1868,6 +1868,7 @@ def test_get_rag_corpus(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             description="description_value",
+            rag_files_count=1588,
         )
         response = client.get_rag_corpus(request)
 
@@ -1882,6 +1883,7 @@ def test_get_rag_corpus(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
+    assert response.rag_files_count == 1588
 
 
 def test_get_rag_corpus_non_empty_request_with_auto_populated_field():
@@ -2011,6 +2013,7 @@ async def test_get_rag_corpus_async(
                 name="name_value",
                 display_name="display_name_value",
                 description="description_value",
+                rag_files_count=1588,
             )
         )
         response = await client.get_rag_corpus(request)
@@ -2026,6 +2029,7 @@ async def test_get_rag_corpus_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
+    assert response.rag_files_count == 1588
 
 
 @pytest.mark.asyncio
@@ -7394,6 +7398,7 @@ async def test_get_rag_corpus_empty_call_grpc_asyncio():
                 name="name_value",
                 display_name="display_name_value",
                 description="description_value",
+                rag_files_count=1588,
             )
         )
         await client.get_rag_corpus(request=None)
@@ -7682,6 +7687,7 @@ def test_create_rag_corpus_rest_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "vector_db_config": {},
         "vertex_ai_search_config": {"serving_config": "serving_config_value"},
+        "rag_files_count": 1588,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7917,6 +7923,7 @@ def test_update_rag_corpus_rest_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "vector_db_config": {},
         "vertex_ai_search_config": {"serving_config": "serving_config_value"},
+        "rag_files_count": 1588,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8114,6 +8121,7 @@ def test_get_rag_corpus_rest_call_success(request_type):
             name="name_value",
             display_name="display_name_value",
             description="description_value",
+            rag_files_count=1588,
         )
 
         # Wrap the value into a proper Response obj
@@ -8133,6 +8141,7 @@ def test_get_rag_corpus_rest_call_success(request_type):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
+    assert response.rag_files_count == 1588
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10012,6 +10021,7 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "vector_db_config": {},
         "vertex_ai_search_config": {"serving_config": "serving_config_value"},
+        "rag_files_count": 1588,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10263,6 +10273,7 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "vector_db_config": {},
         "vertex_ai_search_config": {"serving_config": "serving_config_value"},
+        "rag_files_count": 1588,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10476,6 +10487,7 @@ async def test_get_rag_corpus_rest_asyncio_call_success(request_type):
             name="name_value",
             display_name="display_name_value",
             description="description_value",
+            rag_files_count=1588,
         )
 
         # Wrap the value into a proper Response obj
@@ -10497,6 +10509,7 @@ async def test_get_rag_corpus_rest_asyncio_call_success(request_type):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
+    assert response.rag_files_count == 1588
 
 
 @pytest.mark.asyncio
