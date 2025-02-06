@@ -231,17 +231,26 @@ class _Config:
                     f"{api_transport} is not a valid transport type. "
                     + f"Valid transport types: {VALID_TRANSPORT_TYPES}"
                 )
-        else:
             # Raise error if api_transport other than rest is specified for usage with API key.
+            elif api_key and api_transport != "rest":
+                raise ValueError(f"{api_transport} is not supported with API keys. ")
+        else:
             if not project and not api_transport:
                 api_transport = "rest"
-            elif not project and api_transport != "rest":
-                raise ValueError(f"{api_transport} is not supported with API keys. ")
+
         if location:
             utils.validate_region(location)
+            # Set api_transport as "rest" if location is "global".
+            if location == "global" and not api_transport:
+                self._api_transport = "rest"
+            elif location == "global" and api_transport == "grpc":
+                raise ValueError(
+                    "api_transport cannot be 'grpc' when location is 'global'."
+                )
         if experiment_description and experiment is None:
             raise ValueError(
-                "Experiment needs to be set in `init` in order to add experiment descriptions."
+                "Experiment needs to be set in `init` in order to add experiment"
+                " descriptions."
             )
 
         # reset metadata_service config if project or location is updated.
@@ -464,8 +473,9 @@ class _Config:
             and not self._project
             and not self._location
             and not location_override
-        ):
-            # Default endpoint is location invariant if using API key
+        ) or (self._location == "global"):
+            # Default endpoint is location invariant if using API key or global
+            # location.
             api_endpoint = "aiplatform.googleapis.com"
 
         # If both project and API key are passed in, project takes precedence.
