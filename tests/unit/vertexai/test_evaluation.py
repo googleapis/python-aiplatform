@@ -2145,6 +2145,8 @@ class TestPromptTemplate:
                 _TEST_FILE_NAME,
                 "candidate_model",
                 "baseline_model",
+                "gs://test-bucket/test-dataset.csv",
+                [_TEST_POINTWISE_METRIC, _TEST_PAIRWISE_METRIC],
             )
 
         mock_storage_blob_from_string.assert_any_call(
@@ -2160,6 +2162,17 @@ class TestPromptTemplate:
                 "summary_metrics": MOCK_EVAL_RESULT.summary_metrics,
                 "candidate_model_name": "candidate_model",
                 "baseline_model_name": "baseline_model",
+                "dataset_uri": "gs://test-bucket/test-dataset.csv",
+                "metric_descriptions": {
+                    "test_pointwise_metric": {
+                        "criteria": _CRITERIA,
+                        "rating_rubric": _POINTWISE_RATING_RUBRIC,
+                    },
+                    "test_pairwise_metric": {
+                        "criteria": _CRITERIA,
+                        "rating_rubric": _PAIRWISE_RATING_RUBRIC,
+                    },
+                },
             },
             mock.ANY,
         )

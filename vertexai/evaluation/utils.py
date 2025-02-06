@@ -22,7 +22,7 @@ import os
 import tempfile
 import threading
 import time
-from typing import Any, Callable, Dict, Literal, Optional, TYPE_CHECKING, Union
+from typing import Any, Callable, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 
 from google.cloud import bigquery
 from google.cloud import storage
@@ -35,6 +35,10 @@ from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
 )
 from vertexai.evaluation import _base as eval_base
+from vertexai.evaluation.metrics import (
+    _base as metrics_base,
+    metric_prompt_template as metric_prompt_template_base,
+)
 
 
 if TYPE_CHECKING:
@@ -286,6 +290,8 @@ def _upload_evaluation_summary_to_gcs(
     upload_gcs_path: str,
     candidate_model_name: Optional[str] = None,
     baseline_model_name: Optional[str] = None,
+    dataset_uri: Optional[str] = None,
+    metrics: Optional[List[Union[str, metrics_base._Metric]]] = None,
 ) -> None:
     """Uploads the evaluation summary to a GCS bucket."""
     summary = {
@@ -295,6 +301,21 @@ def _upload_evaluation_summary_to_gcs(
         summary["candidate_model_name"] = candidate_model_name
     if baseline_model_name:
         summary["baseline_model_name"] = baseline_model_name
+    if dataset_uri:
+        summary["dataset_uri"] = dataset_uri
+
+    if metrics:
+        metric_descriptions = {}
+        for metric in metrics:
+            if isinstance(metric, metrics_base._ModelBasedMetric) and isinstance(
+                metric._raw_metric_prompt_template,
+                metric_prompt_template_base._MetricPromptTemplate,
+            ):
+                metric_descriptions[metric.metric_name] = {
+                    "criteria": metric._raw_metric_prompt_template._criteria,
+                    "rating_rubric": metric._raw_metric_prompt_template._rating_rubric,
+                }
+        summary["metric_descriptions"] = metric_descriptions
 
     with tempfile.TemporaryDirectory() as temp_dir:
         local_summary_path = os.path.join(temp_dir, "summary_metrics.json")
@@ -318,6 +339,8 @@ def upload_evaluation_results(
     file_name: str,
     candidate_model_name: Optional[str] = None,
     baseline_model_name: Optional[str] = None,
+    dataset_uri: Optional[str] = None,
+    metrics: Optional[List[Union[str, metrics_base._Metric]]] = None,
 ) -> None:
     """Uploads eval results to GCS destination.
 
@@ -327,6 +350,8 @@ def upload_evaluation_results(
         file_name: File name to store the metrics table.
         candidate_model_name: Optional. Candidate model name.
         baseline_model_name: Optional. Baseline model name.
+        dataset_uri: Optional. URI pointing to the dataset.
+        metrics: Optional. List of metrics used for evaluation.
     """
     if not destination_uri_prefix:
         _ipython_utils.display_gen_ai_evaluation_results_button()
@@ -346,6 +371,8 @@ def upload_evaluation_results(
             output_folder + "/summary_metrics.json",
             candidate_model_name,
             baseline_model_name,
+            dataset_uri,
+            metrics,
         )
         _ipython_utils.display_gen_ai_evaluation_results_button(
             metrics_table_path.split(_GCS_PREFIX)[1]

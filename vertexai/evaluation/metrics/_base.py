@@ -68,6 +68,7 @@ class _ModelBasedMetric(_Metric):
             the model-based evaluation. A freeform string is also accepted.
         """
         super().__init__(metric=metric)
+        self._raw_metric_prompt_template = metric_prompt_template
         self.metric_prompt_template = str(metric_prompt_template)
 
 

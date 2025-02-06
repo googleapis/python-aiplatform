@@ -284,6 +284,7 @@ class EvalTask:
             output_uri_prefix: GCS location to store the metrics_table from
               evaluation results.
         """
+        self._raw_dataset = dataset
         self._dataset = utils.load_dataset(dataset)
         self._metrics = metrics
         self._experiment = experiment
@@ -481,12 +482,18 @@ class EvalTask:
             if isinstance(baseline_model, generative_models.GenerativeModel):
                 baseline_model_name = baseline_model._model_name
 
+        dataset_uri = None
+        if isinstance(self._raw_dataset, str):
+            dataset_uri = self._raw_dataset
+
         utils.upload_evaluation_results(
             eval_result,
             self.output_uri_prefix,
             output_file_name,
             candidate_model_name,
             baseline_model_name,
+            dataset_uri,
+            self.metrics,
         )
         return eval_result
 
