@@ -50,6 +50,9 @@ from feature_store_constants import (
     _TEST_FV3_ID,
     _TEST_FV3_LABELS,
     _TEST_FV3_PATH,
+    _TEST_FV4_ID,
+    _TEST_FV4_LABELS,
+    _TEST_FV4_PATH,
     _TEST_FV_FETCH1,
     _TEST_FV_LIST,
     _TEST_FV_SEARCH1,
@@ -289,6 +292,14 @@ def test_list(list_fv_mock, get_fos_mock):
         project=_TEST_PROJECT,
         location=_TEST_LOCATION,
         labels=_TEST_FV3_LABELS,
+    )
+    fv_eq(
+        feature_views[3],
+        name=_TEST_FV4_ID,
+        resource_name=_TEST_FV4_PATH,
+        project=_TEST_PROJECT,
+        location=_TEST_LOCATION,
+        labels=_TEST_FV4_LABELS,
     )
 
 

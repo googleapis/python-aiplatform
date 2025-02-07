@@ -169,8 +169,6 @@ _TEST_FV3 = types.feature_view.FeatureView(
 )
 
 
-_TEST_FV_LIST = [_TEST_FV1, _TEST_FV2, _TEST_FV3]
-
 # Test feature view sync 1
 _TEST_FV_SYNC1_ID = "my_fv_sync1"
 _TEST_FV_SYNC1_PATH = f"{_TEST_FV1_PATH}/featureViewSyncs/my_fv_sync1"
@@ -300,6 +298,8 @@ _TEST_FG1 = types.feature_group.FeatureGroup(
 
 
 _TEST_FG2_ID = "my_fg2"
+_TEST_FG2_F1_ID = "my_fg2_f1"
+_TEST_FG2_F2_ID = "my_fg2_f2"
 _TEST_FG2_PATH = f"{_TEST_PARENT}/featureGroups/{_TEST_FG2_ID}"
 _TEST_FG2_BQ_URI = f"bq://{_TEST_PROJECT}.my_dataset.my_table_for_fg2"
 _TEST_FG2_ENTITY_ID_COLUMNS = ["entity_id1", "entity_id2"]
@@ -475,3 +475,26 @@ _TEST_FG1_F1_WITH_STATS = types.feature_v1beta1.Feature(
     point_of_contact=_TEST_FG1_F1_POINT_OF_CONTACT,
     feature_stats_and_anomaly=[_TEST_FG1_F1_FEATURE_STATS_AND_ANOMALY],
 )
+
+# Test feature view 4
+_TEST_FV4_ID = "my_fv4"
+_TEST_FV4_PATH = f"{_TEST_BIGTABLE_FOS1_PATH}/featureViews/my_fv4"
+_TEST_FV4_LABELS = {"my_key": "my_fv4"}
+_TEST_FV4 = types.feature_view.FeatureView(
+    name=_TEST_FV4_PATH,
+    feature_registry_source=types.feature_view.FeatureView.FeatureRegistrySource(
+        feature_groups=[
+            types.feature_view.FeatureView.FeatureRegistrySource.FeatureGroup(
+                feature_group_id=_TEST_FG1_ID,
+                feature_ids=[_TEST_FG1_F1_ID, _TEST_FG1_F2_ID],
+            ),
+            types.feature_view.FeatureView.FeatureRegistrySource.FeatureGroup(
+                feature_group_id=_TEST_FG2_ID,
+                feature_ids=[_TEST_FG2_F1_ID, _TEST_FG2_F2_ID],
+            ),
+        ],
+    ),
+    labels=_TEST_FV4_LABELS,
+)
+
+_TEST_FV_LIST = [_TEST_FV1, _TEST_FV2, _TEST_FV3, _TEST_FV4]
