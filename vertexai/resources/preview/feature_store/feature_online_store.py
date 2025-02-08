@@ -43,6 +43,7 @@ from vertexai.resources.preview.feature_store.utils import (
     IndexConfig,
     FeatureViewBigQuerySource,
     FeatureViewVertexRagSource,
+    FeatureViewRegistrySource,
 )
 
 
@@ -410,6 +411,7 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
         source: Union[
             FeatureViewBigQuerySource,
             FeatureViewVertexRagSource,
+            FeatureViewRegistrySource,
         ],
         labels: Optional[Dict[str, str]] = None,
         sync_config: Optional[str] = None,
@@ -454,7 +456,7 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
             name: The name of the feature view.
             source:
                 The source to load data from when a feature view sync runs.
-                Currently supports a BigQuery source or a Vertex RAG source.
+                Currently supports a BigQuery source, Vertex RAG source, Registry source.
             labels:
                 The labels with user-defined metadata to organize your
                 FeatureViews.
@@ -507,6 +509,7 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
 
         big_query_source = None
         vertex_rag_source = None
+        feature_registry_source = None
 
         if isinstance(source, FeatureViewBigQuerySource):
             if not source.uri:
@@ -527,14 +530,46 @@ class FeatureOnlineStore(base.VertexAiResourceNounWithFutureManager):
                 uri=source.uri,
                 rag_corpus_id=source.rag_corpus_id or None,
             )
+        elif isinstance(source, FeatureViewRegistrySource):
+            if not source.features:
+                raise ValueError(
+                    "Please specify features in Registry Source in format `<feature_group_id>.<feature_id>`."
+                )
+            feature_group_mappings = {}
+            for feature in source.features:
+                feature_group_id, feature_id = feature.split(".")
+                if not feature_id or not feature_group_id:
+                    raise ValueError(
+                        "Please specify features in Registry Source in format `<feature_group_id>.<feature_id>`."
+                    )
+                if feature_group_id in feature_group_mappings:
+                    feature_group_mappings[feature_group_id].append(feature_id)
+                else:
+                    feature_group_mappings[feature_group_id] = [feature_id]
+            feature_groups = []
+            for feature_group_id in feature_group_mappings:
+                feature_ids = feature_group_mappings[feature_group_id]
+                feature_groups.append(
+                    gca_feature_view.FeatureView.FeatureRegistrySource.FeatureGroup(
+                        feature_group_id=feature_group_id,
+                        feature_ids=feature_ids,
+                    )
+                )
+            feature_registry_source = (
+                gca_feature_view.FeatureView.FeatureRegistrySource(
+                    feature_groups=feature_groups,
+                    project_number=source.project_number or None,
+                )
+            )
         else:
             raise ValueError(
-                "Only FeatureViewBigQuerySource and FeatureViewVertexRagSource are supported sources."
+                "Only FeatureViewBigQuerySource, FeatureViewVertexRagSource and FeatureViewRegistrySource are supported sources."
             )
 
         gapic_feature_view = gca_feature_view.FeatureView(
             big_query_source=big_query_source,
             vertex_rag_source=vertex_rag_source,
+            feature_registry_source=feature_registry_source,
             sync_config=gca_feature_view.FeatureView.SyncConfig(cron=sync_config)
             if sync_config
             else None,

@@ -21,6 +21,7 @@ from google.cloud import aiplatform
 import vertexai
 
 PROJECT = "abc"
+PROJECT_NUMBER = 123
 LOCATION = "us-central1"
 LOCATION_EUROPE = "europe-west4"
 LOCATION_ASIA = "asia-east1"
@@ -280,6 +281,7 @@ FEATURE_VIEW_BQ_INDEX_CONFIG = (
     )
 )
 FEATURE_GROUP_ID = "sample_feature_group"
+FEATURE_GROUP_ID_2 = "sample_feature_group_2"
 FEATURE_GROUP_BQ_URI = "bq://my_proj.my_dataset.my_table"
 FEATURE_GROUP_BQ_ENTITY_ID_COLUMNS = ["id"]
 FEATURE_GROUP_SOURCE = (
@@ -289,8 +291,28 @@ FEATURE_GROUP_SOURCE = (
     )
 )
 REGISTRY_FEATURE_ID = "sample_feature"
+REGISTRY_FEATURE_ID_2 = "sample_feature_2"
+FG_2_REGISTRY_FEATURE_ID_3 = "sample_feature_3"
+FG_2_REGISTRY_FEATURE_ID_4 = "sample_feature_4"
 VERSION_COLUMN_NAME = "feature_column"
 PROJECT_ALLOWLISTED = ["test-project"]
+FR_FEATURE_ID = ".".join([FEATURE_GROUP_ID, REGISTRY_FEATURE_ID])
+FR_FEATURE_ID_2 = ".".join([FEATURE_GROUP_ID, REGISTRY_FEATURE_ID_2])
+FR_FEATURE_ID_3 = ".".join([FEATURE_GROUP_ID_2, FG_2_REGISTRY_FEATURE_ID_3])
+FR_FEATURE_ID_4 = ".".join([FEATURE_GROUP_ID_2, FG_2_REGISTRY_FEATURE_ID_4])
+
+FEATURE_GROUPS_MAPPING = {
+    FEATURE_GROUP_ID: [REGISTRY_FEATURE_ID, REGISTRY_FEATURE_ID_2],
+    FEATURE_GROUP_ID_2: [FG_2_REGISTRY_FEATURE_ID_3, FG_2_REGISTRY_FEATURE_ID_4],
+}
+
+
+FEATURE_VIEW_REGISTRY_SOURCE = (
+    vertexai.resources.preview.feature_store.utils.FeatureViewRegistrySource(
+        features=[FR_FEATURE_ID, FR_FEATURE_ID_2, FR_FEATURE_ID_3, FR_FEATURE_ID_4],
+        project_number=PROJECT_NUMBER,
+    )
+)
 
 TABULAR_TARGET_COLUMN = "target_column"
 FORECASTNG_TIME_COLUMN = "date"
@@ -382,8 +404,12 @@ TENSORBOARD_PLUGIN_PROFILE_NAME = "profile"
 # Vector Search
 VECTOR_SEARCH_INDEX = "123"
 VECTOR_SEARCH_INDEX_DATAPOINTS = [
-    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_1", feature_vector=[0.1, 0.2]),
-    aiplatform.compat.types.index_v1beta1.IndexDatapoint(datapoint_id="datapoint_id_2", feature_vector=[0.3, 0.4]),
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(
+        datapoint_id="datapoint_id_1", feature_vector=[0.1, 0.2]
+    ),
+    aiplatform.compat.types.index_v1beta1.IndexDatapoint(
+        datapoint_id="datapoint_id_2", feature_vector=[0.3, 0.4]
+    ),
 ]
 VECTOR_SEARCH_INDEX_DATAPOINT_IDS = ["datapoint_id_1", "datapoint_id_2"]
 VECTOR_SEARCH_INDEX_ENDPOINT = "456"
