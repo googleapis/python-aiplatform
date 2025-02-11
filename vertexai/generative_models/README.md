@@ -198,7 +198,7 @@ model=GenerativeModel(
     ],
 )
 
-response = gnd_model.generate_content("Who win Euro 2024")
+response = model.generate_content("Who won Euro 2024")
 
 print(response.text)
 
