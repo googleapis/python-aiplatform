@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
 from typing import Any, Callable, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 import uuid
+import warnings
 
 from google.api_core import exceptions
 import vertexai
@@ -47,6 +49,8 @@ except ImportError:
     IPython_display = None
 
 _LOGGER = base.Logger(__name__)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore")
 
 EvalResult = eval_base.EvalResult
 GenerativeModel = generative_models.GenerativeModel

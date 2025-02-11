@@ -16,6 +16,8 @@
 #
 """Evaluation Task class."""
 
+import logging
+import warnings
 from typing import Any, Callable, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 import uuid
 
@@ -48,6 +50,8 @@ except ImportError:
     IPython_display = None
 
 _LOGGER = base.Logger(__name__)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore")
 
 AutoraterConfig = eval_base.AutoraterConfig
 EvalResult = eval_base.EvalResult
