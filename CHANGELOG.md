@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.80.0](https://github.com/googleapis/python-aiplatform/compare/v1.79.0...v1.80.0) (2025-02-11)
+
+
+### Features
+
+* Add notebook helper functions to preview eval SDK to display and visualize evaluation results in an IPython environment ([1ab4344](https://github.com/googleapis/python-aiplatform/commit/1ab43441419e6c484aee9da02a22e0b02b5e8a2b))
+* Add vertex_registry_source to create_feature_view method ([0abe0b7](https://github.com/googleapis/python-aiplatform/commit/0abe0b7ce56b58e6b758b8e2a3d42091936c8a3d))
+* Support global endpoint natively ([d4cae46](https://github.com/googleapis/python-aiplatform/commit/d4cae46c1a99474e7e2984968004fa16c099bd5c))
+* Support Python 3.12 for reasoning engine. ([1624a23](https://github.com/googleapis/python-aiplatform/commit/1624a23fe5697dc40814c31ca94e65186f16c322))
+* Upload dataset URI, metric criteria, and rating rubrics used in an evaluation to GCS. ([aabb579](https://github.com/googleapis/python-aiplatform/commit/aabb579766e7f4afffc5006b7ff557d807b089fc))
+
+
+### Bug Fixes
+
+* Handle the streaming of JSON delimited by newlines ([acc82c5](https://github.com/googleapis/python-aiplatform/commit/acc82c5e4f66d8061e5f9895ac4d86fa97d3d604))
+* Use GA generative_models path in `tune_autorater` to make it consistent with `model` parameter in Rapid Eval SDK `evaluate` function ([ef596f5](https://github.com/googleapis/python-aiplatform/commit/ef596f5ad21a4133f931babe6311cf19ed60c1bc))
+
+
+### Documentation
+
+* Fix minor typos in generative model readme. ([d0ef994](https://github.com/googleapis/python-aiplatform/commit/d0ef9940ef56bd798c2a632fbb2132005f2d65dc))
+
 ## [1.79.0](https://github.com/googleapis/python-aiplatform/compare/v1.78.0...v1.79.0) (2025-01-28)
 
 
