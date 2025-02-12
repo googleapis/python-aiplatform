@@ -1280,8 +1280,27 @@ class ImageSegmentationModelTests:
             target=prediction_service_client.PredictionServiceClient,
             attribute="predict",
             return_value=gca_prediction_response,
-        ):
-            segmentation_response = model.segment_image(base_image=image)
+        ) as mock_predict:
+            binary_color_threshold = 48
+            segmentation_response = model.segment_image(
+                base_image=image,
+                confidence_threshold=0.1,
+                binary_color_threshold=binary_color_threshold,
+            )
+            mock_predict.assert_called_once_with(
+                endpoint="projects/123456789/locations/us-central1/publishers/google/models/image-segmentation-001",
+                instances=[
+                    {
+                        "base64EncodedImage": image._image_bytes,
+                        "parameters": {
+                            "mode": "foreground",
+                            "confidenceThreshold": 0.1,
+                            "binaryColorThreshold": 48,
+                        },
+                    }
+                ],
+                retry=base._DEFAULT_RETRY,
+            )
             assert len(segmentation_response) == 1
 
 

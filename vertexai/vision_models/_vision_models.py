@@ -1938,6 +1938,7 @@ class ImageSegmentationModel(_model_garden_models._ModelGardenModel):
         max_predictions: Optional[int] = None,
         confidence_threshold: Optional[float] = 0.1,
         mask_dilation: Optional[float] = None,
+        binary_color_threshold: Optional[float] = None,
     ) -> ImageSegmentationResponse:
         """Segments an image.
 
@@ -1967,6 +1968,10 @@ class ImageSegmentationModel(_model_garden_models._ModelGardenModel):
             mask_dilation: A value to dilate the masks by. The value must be in the
                 range of 0.0 (no dilation) and 1.0 (the whole image will be masked).
                 The default is 0.0.
+            binary_color_threshold: The threshold to convert the grayscale soft
+                mask to a binary color black and white mask. The value must be
+                in the range of 0 and 255, or -1 to disable the thresholding.
+                The default is 96.
 
         Returns:
             An `ImageSegmentationResponse` object with the generated masks,
@@ -2000,6 +2005,8 @@ class ImageSegmentationModel(_model_garden_models._ModelGardenModel):
             parameters["confidenceThreshold"] = confidence_threshold
         if mask_dilation:
             parameters["maskDilation"] = mask_dilation
+        if binary_color_threshold:
+            parameters["binaryColorThreshold"] = binary_color_threshold
 
         response = self._endpoint.predict(
             instances=[instance],
