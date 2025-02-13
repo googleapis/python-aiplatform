@@ -154,11 +154,34 @@ class DeploymentResourcePoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_deployment_resource_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_deployment_resource_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DeploymentResourcePoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_deployment_resource_pool` interceptor runs
+        before the `post_create_deployment_resource_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_create_deployment_resource_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_deployment_resource_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DeploymentResourcePoolService server but before it is returned to user code.
+
+        We recommend only using this `post_create_deployment_resource_pool_with_metadata`
+        interceptor in new development instead of the `post_create_deployment_resource_pool` interceptor.
+        When both interceptors are used, this `post_create_deployment_resource_pool_with_metadata` interceptor runs after the
+        `post_create_deployment_resource_pool` interceptor. The (possibly modified) response returned by
+        `post_create_deployment_resource_pool` will be passed to
+        `post_create_deployment_resource_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_deployment_resource_pool(
         self,
@@ -180,11 +203,34 @@ class DeploymentResourcePoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_deployment_resource_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_deployment_resource_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DeploymentResourcePoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_deployment_resource_pool` interceptor runs
+        before the `post_delete_deployment_resource_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_deployment_resource_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_deployment_resource_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DeploymentResourcePoolService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_deployment_resource_pool_with_metadata`
+        interceptor in new development instead of the `post_delete_deployment_resource_pool` interceptor.
+        When both interceptors are used, this `post_delete_deployment_resource_pool_with_metadata` interceptor runs after the
+        `post_delete_deployment_resource_pool` interceptor. The (possibly modified) response returned by
+        `post_delete_deployment_resource_pool` will be passed to
+        `post_delete_deployment_resource_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_deployment_resource_pool(
         self,
@@ -206,11 +252,37 @@ class DeploymentResourcePoolServiceRestInterceptor:
     ) -> deployment_resource_pool.DeploymentResourcePool:
         """Post-rpc interceptor for get_deployment_resource_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_deployment_resource_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DeploymentResourcePoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_deployment_resource_pool` interceptor runs
+        before the `post_get_deployment_resource_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_get_deployment_resource_pool_with_metadata(
+        self,
+        response: deployment_resource_pool.DeploymentResourcePool,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        deployment_resource_pool.DeploymentResourcePool,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for get_deployment_resource_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DeploymentResourcePoolService server but before it is returned to user code.
+
+        We recommend only using this `post_get_deployment_resource_pool_with_metadata`
+        interceptor in new development instead of the `post_get_deployment_resource_pool` interceptor.
+        When both interceptors are used, this `post_get_deployment_resource_pool_with_metadata` interceptor runs after the
+        `post_get_deployment_resource_pool` interceptor. The (possibly modified) response returned by
+        `post_get_deployment_resource_pool` will be passed to
+        `post_get_deployment_resource_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_deployment_resource_pools(
         self,
@@ -233,11 +305,37 @@ class DeploymentResourcePoolServiceRestInterceptor:
     ) -> deployment_resource_pool_service.ListDeploymentResourcePoolsResponse:
         """Post-rpc interceptor for list_deployment_resource_pools
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_deployment_resource_pools_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DeploymentResourcePoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_deployment_resource_pools` interceptor runs
+        before the `post_list_deployment_resource_pools_with_metadata` interceptor.
         """
         return response
+
+    def post_list_deployment_resource_pools_with_metadata(
+        self,
+        response: deployment_resource_pool_service.ListDeploymentResourcePoolsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        deployment_resource_pool_service.ListDeploymentResourcePoolsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_deployment_resource_pools
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DeploymentResourcePoolService server but before it is returned to user code.
+
+        We recommend only using this `post_list_deployment_resource_pools_with_metadata`
+        interceptor in new development instead of the `post_list_deployment_resource_pools` interceptor.
+        When both interceptors are used, this `post_list_deployment_resource_pools_with_metadata` interceptor runs after the
+        `post_list_deployment_resource_pools` interceptor. The (possibly modified) response returned by
+        `post_list_deployment_resource_pools` will be passed to
+        `post_list_deployment_resource_pools_with_metadata`.
+        """
+        return response, metadata
 
     def pre_query_deployed_models(
         self,
@@ -259,11 +357,37 @@ class DeploymentResourcePoolServiceRestInterceptor:
     ) -> deployment_resource_pool_service.QueryDeployedModelsResponse:
         """Post-rpc interceptor for query_deployed_models
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_deployed_models_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DeploymentResourcePoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_deployed_models` interceptor runs
+        before the `post_query_deployed_models_with_metadata` interceptor.
         """
         return response
+
+    def post_query_deployed_models_with_metadata(
+        self,
+        response: deployment_resource_pool_service.QueryDeployedModelsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        deployment_resource_pool_service.QueryDeployedModelsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for query_deployed_models
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DeploymentResourcePoolService server but before it is returned to user code.
+
+        We recommend only using this `post_query_deployed_models_with_metadata`
+        interceptor in new development instead of the `post_query_deployed_models` interceptor.
+        When both interceptors are used, this `post_query_deployed_models_with_metadata` interceptor runs after the
+        `post_query_deployed_models` interceptor. The (possibly modified) response returned by
+        `post_query_deployed_models` will be passed to
+        `post_query_deployed_models_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_deployment_resource_pool(
         self,
@@ -285,11 +409,34 @@ class DeploymentResourcePoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_deployment_resource_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_deployment_resource_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DeploymentResourcePoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_deployment_resource_pool` interceptor runs
+        before the `post_update_deployment_resource_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_update_deployment_resource_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_deployment_resource_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DeploymentResourcePoolService server but before it is returned to user code.
+
+        We recommend only using this `post_update_deployment_resource_pool_with_metadata`
+        interceptor in new development instead of the `post_update_deployment_resource_pool` interceptor.
+        When both interceptors are used, this `post_update_deployment_resource_pool_with_metadata` interceptor runs after the
+        `post_update_deployment_resource_pool` interceptor. The (possibly modified) response returned by
+        `post_update_deployment_resource_pool` will be passed to
+        `post_update_deployment_resource_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -2844,6 +2991,13 @@ class DeploymentResourcePoolServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_deployment_resource_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_create_deployment_resource_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2993,6 +3147,13 @@ class DeploymentResourcePoolServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_deployment_resource_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_delete_deployment_resource_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3145,6 +3306,10 @@ class DeploymentResourcePoolServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_deployment_resource_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_deployment_resource_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3305,6 +3470,13 @@ class DeploymentResourcePoolServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_deployment_resource_pools(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_list_deployment_resource_pools_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3458,6 +3630,10 @@ class DeploymentResourcePoolServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_query_deployed_models(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_query_deployed_models_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3615,6 +3791,13 @@ class DeploymentResourcePoolServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_deployment_resource_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_update_deployment_resource_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

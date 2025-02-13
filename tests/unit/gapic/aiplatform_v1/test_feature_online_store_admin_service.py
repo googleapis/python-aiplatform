@@ -87,6 +87,7 @@ from google.cloud.aiplatform_v1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1.types import feature_view
 from google.cloud.aiplatform_v1.types import feature_view as gca_feature_view
 from google.cloud.aiplatform_v1.types import feature_view_sync
+from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.location import locations_pb2
@@ -101,6 +102,14 @@ from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 from google.type import interval_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -390,6 +399,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         FeatureOnlineStoreAdminServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = FeatureOnlineStoreAdminServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = FeatureOnlineStoreAdminServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -10351,10 +10403,14 @@ def test_create_feature_online_store_rest_interceptors(null_interceptor):
         "post_create_feature_online_store",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_create_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_create_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.CreateFeatureOnlineStoreRequest.pb(
                 feature_online_store_admin_service.CreateFeatureOnlineStoreRequest()
@@ -10380,6 +10436,7 @@ def test_create_feature_online_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_feature_online_store(
             request,
@@ -10391,6 +10448,7 @@ def test_create_feature_online_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_feature_online_store_rest_bad_request(
@@ -10489,10 +10547,14 @@ def test_get_feature_online_store_rest_interceptors(null_interceptor):
         "post_get_feature_online_store",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_get_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_get_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.GetFeatureOnlineStoreRequest.pb(
             feature_online_store_admin_service.GetFeatureOnlineStoreRequest()
         )
@@ -10518,6 +10580,10 @@ def test_get_feature_online_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store.FeatureOnlineStore()
+        post_with_metadata.return_value = (
+            feature_online_store.FeatureOnlineStore(),
+            metadata,
+        )
 
         client.get_feature_online_store(
             request,
@@ -10529,6 +10595,7 @@ def test_get_feature_online_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_feature_online_stores_rest_bad_request(
@@ -10621,10 +10688,14 @@ def test_list_feature_online_stores_rest_interceptors(null_interceptor):
         "post_list_feature_online_stores",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_list_feature_online_stores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_list_feature_online_stores",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.ListFeatureOnlineStoresRequest.pb(
                 feature_online_store_admin_service.ListFeatureOnlineStoresRequest()
@@ -10656,6 +10727,10 @@ def test_list_feature_online_stores_rest_interceptors(null_interceptor):
         post.return_value = (
             feature_online_store_admin_service.ListFeatureOnlineStoresResponse()
         )
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.ListFeatureOnlineStoresResponse(),
+            metadata,
+        )
 
         client.list_feature_online_stores(
             request,
@@ -10667,6 +10742,7 @@ def test_list_feature_online_stores_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_feature_online_store_rest_bad_request(
@@ -10861,10 +10937,14 @@ def test_update_feature_online_store_rest_interceptors(null_interceptor):
         "post_update_feature_online_store",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_update_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_update_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest.pb(
                 feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
@@ -10890,6 +10970,7 @@ def test_update_feature_online_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_feature_online_store(
             request,
@@ -10901,6 +10982,7 @@ def test_update_feature_online_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_feature_online_store_rest_bad_request(
@@ -10987,10 +11069,14 @@ def test_delete_feature_online_store_rest_interceptors(null_interceptor):
         "post_delete_feature_online_store",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_delete_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_delete_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest.pb(
                 feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest()
@@ -11016,6 +11102,7 @@ def test_delete_feature_online_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_feature_online_store(
             request,
@@ -11027,6 +11114,7 @@ def test_delete_feature_online_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_feature_view_rest_bad_request(
@@ -11104,6 +11192,12 @@ def test_create_feature_view_rest_call_success(request_type):
             "crowding_column": "crowding_column_value",
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
+        },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
         },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
@@ -11222,10 +11316,14 @@ def test_create_feature_view_rest_interceptors(null_interceptor):
         "post_create_feature_view",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_create_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_create_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.CreateFeatureViewRequest.pb(
             feature_online_store_admin_service.CreateFeatureViewRequest()
         )
@@ -11249,6 +11347,7 @@ def test_create_feature_view_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_feature_view(
             request,
@@ -11260,6 +11359,7 @@ def test_create_feature_view_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_feature_view_rest_bad_request(
@@ -11362,10 +11462,14 @@ def test_get_feature_view_rest_interceptors(null_interceptor):
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "post_get_feature_view",
     ) as post, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_get_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor, "pre_get_feature_view"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.GetFeatureViewRequest.pb(
             feature_online_store_admin_service.GetFeatureViewRequest()
         )
@@ -11389,6 +11493,7 @@ def test_get_feature_view_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_view.FeatureView()
+        post_with_metadata.return_value = feature_view.FeatureView(), metadata
 
         client.get_feature_view(
             request,
@@ -11400,6 +11505,7 @@ def test_get_feature_view_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_feature_views_rest_bad_request(
@@ -11492,10 +11598,14 @@ def test_list_feature_views_rest_interceptors(null_interceptor):
         "post_list_feature_views",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_list_feature_views_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_list_feature_views",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.ListFeatureViewsRequest.pb(
             feature_online_store_admin_service.ListFeatureViewsRequest()
         )
@@ -11525,6 +11635,10 @@ def test_list_feature_views_rest_interceptors(null_interceptor):
         post.return_value = (
             feature_online_store_admin_service.ListFeatureViewsResponse()
         )
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.ListFeatureViewsResponse(),
+            metadata,
+        )
 
         client.list_feature_views(
             request,
@@ -11536,6 +11650,7 @@ def test_list_feature_views_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_feature_view_rest_bad_request(
@@ -11617,6 +11732,12 @@ def test_update_feature_view_rest_call_success(request_type):
             "crowding_column": "crowding_column_value",
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
+        },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
         },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
@@ -11735,10 +11856,14 @@ def test_update_feature_view_rest_interceptors(null_interceptor):
         "post_update_feature_view",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_update_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_update_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.UpdateFeatureViewRequest.pb(
             feature_online_store_admin_service.UpdateFeatureViewRequest()
         )
@@ -11762,6 +11887,7 @@ def test_update_feature_view_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_feature_view(
             request,
@@ -11773,6 +11899,7 @@ def test_update_feature_view_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_feature_view_rest_bad_request(
@@ -11859,10 +11986,14 @@ def test_delete_feature_view_rest_interceptors(null_interceptor):
         "post_delete_feature_view",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_delete_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_delete_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.DeleteFeatureViewRequest.pb(
             feature_online_store_admin_service.DeleteFeatureViewRequest()
         )
@@ -11886,6 +12017,7 @@ def test_delete_feature_view_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_feature_view(
             request,
@@ -11897,6 +12029,7 @@ def test_delete_feature_view_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_sync_feature_view_rest_bad_request(
@@ -11991,10 +12124,14 @@ def test_sync_feature_view_rest_interceptors(null_interceptor):
         "post_sync_feature_view",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_sync_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_sync_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.SyncFeatureViewRequest.pb(
             feature_online_store_admin_service.SyncFeatureViewRequest()
         )
@@ -12022,6 +12159,10 @@ def test_sync_feature_view_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_admin_service.SyncFeatureViewResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.SyncFeatureViewResponse(),
+            metadata,
+        )
 
         client.sync_feature_view(
             request,
@@ -12033,6 +12174,7 @@ def test_sync_feature_view_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_feature_view_sync_rest_bad_request(
@@ -12127,10 +12269,14 @@ def test_get_feature_view_sync_rest_interceptors(null_interceptor):
         "post_get_feature_view_sync",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_get_feature_view_sync_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_get_feature_view_sync",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.GetFeatureViewSyncRequest.pb(
             feature_online_store_admin_service.GetFeatureViewSyncRequest()
         )
@@ -12156,6 +12302,7 @@ def test_get_feature_view_sync_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_view_sync.FeatureViewSync()
+        post_with_metadata.return_value = feature_view_sync.FeatureViewSync(), metadata
 
         client.get_feature_view_sync(
             request,
@@ -12167,6 +12314,7 @@ def test_get_feature_view_sync_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_feature_view_syncs_rest_bad_request(
@@ -12261,10 +12409,14 @@ def test_list_feature_view_syncs_rest_interceptors(null_interceptor):
         "post_list_feature_view_syncs",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_list_feature_view_syncs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_list_feature_view_syncs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.ListFeatureViewSyncsRequest.pb(
             feature_online_store_admin_service.ListFeatureViewSyncsRequest()
         )
@@ -12294,6 +12446,10 @@ def test_list_feature_view_syncs_rest_interceptors(null_interceptor):
         post.return_value = (
             feature_online_store_admin_service.ListFeatureViewSyncsResponse()
         )
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.ListFeatureViewSyncsResponse(),
+            metadata,
+        )
 
         client.list_feature_view_syncs(
             request,
@@ -12305,6 +12461,7 @@ def test_list_feature_view_syncs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -13459,10 +13616,14 @@ async def test_create_feature_online_store_rest_asyncio_interceptors(null_interc
         "post_create_feature_online_store",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_create_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_create_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.CreateFeatureOnlineStoreRequest.pb(
                 feature_online_store_admin_service.CreateFeatureOnlineStoreRequest()
@@ -13488,6 +13649,7 @@ async def test_create_feature_online_store_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_feature_online_store(
             request,
@@ -13499,6 +13661,7 @@ async def test_create_feature_online_store_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13613,10 +13776,14 @@ async def test_get_feature_online_store_rest_asyncio_interceptors(null_intercept
         "post_get_feature_online_store",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_get_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_get_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.GetFeatureOnlineStoreRequest.pb(
             feature_online_store_admin_service.GetFeatureOnlineStoreRequest()
         )
@@ -13642,6 +13809,10 @@ async def test_get_feature_online_store_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store.FeatureOnlineStore()
+        post_with_metadata.return_value = (
+            feature_online_store.FeatureOnlineStore(),
+            metadata,
+        )
 
         await client.get_feature_online_store(
             request,
@@ -13653,6 +13824,7 @@ async def test_get_feature_online_store_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13761,10 +13933,14 @@ async def test_list_feature_online_stores_rest_asyncio_interceptors(null_interce
         "post_list_feature_online_stores",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_list_feature_online_stores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_list_feature_online_stores",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.ListFeatureOnlineStoresRequest.pb(
                 feature_online_store_admin_service.ListFeatureOnlineStoresRequest()
@@ -13796,6 +13972,10 @@ async def test_list_feature_online_stores_rest_asyncio_interceptors(null_interce
         post.return_value = (
             feature_online_store_admin_service.ListFeatureOnlineStoresResponse()
         )
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.ListFeatureOnlineStoresResponse(),
+            metadata,
+        )
 
         await client.list_feature_online_stores(
             request,
@@ -13807,6 +13987,7 @@ async def test_list_feature_online_stores_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14017,10 +14198,14 @@ async def test_update_feature_online_store_rest_asyncio_interceptors(null_interc
         "post_update_feature_online_store",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_update_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_update_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest.pb(
                 feature_online_store_admin_service.UpdateFeatureOnlineStoreRequest()
@@ -14046,6 +14231,7 @@ async def test_update_feature_online_store_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_feature_online_store(
             request,
@@ -14057,6 +14243,7 @@ async def test_update_feature_online_store_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14159,10 +14346,14 @@ async def test_delete_feature_online_store_rest_asyncio_interceptors(null_interc
         "post_delete_feature_online_store",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_delete_feature_online_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_delete_feature_online_store",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest.pb(
                 feature_online_store_admin_service.DeleteFeatureOnlineStoreRequest()
@@ -14188,6 +14379,7 @@ async def test_delete_feature_online_store_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_feature_online_store(
             request,
@@ -14199,6 +14391,7 @@ async def test_delete_feature_online_store_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14285,6 +14478,12 @@ async def test_create_feature_view_rest_asyncio_call_success(request_type):
             "crowding_column": "crowding_column_value",
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
+        },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
         },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
@@ -14410,10 +14609,14 @@ async def test_create_feature_view_rest_asyncio_interceptors(null_interceptor):
         "post_create_feature_view",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_create_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_create_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.CreateFeatureViewRequest.pb(
             feature_online_store_admin_service.CreateFeatureViewRequest()
         )
@@ -14437,6 +14640,7 @@ async def test_create_feature_view_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_feature_view(
             request,
@@ -14448,6 +14652,7 @@ async def test_create_feature_view_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14567,10 +14772,14 @@ async def test_get_feature_view_rest_asyncio_interceptors(null_interceptor):
         "post_get_feature_view",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_get_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_get_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.GetFeatureViewRequest.pb(
             feature_online_store_admin_service.GetFeatureViewRequest()
         )
@@ -14594,6 +14803,7 @@ async def test_get_feature_view_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_view.FeatureView()
+        post_with_metadata.return_value = feature_view.FeatureView(), metadata
 
         await client.get_feature_view(
             request,
@@ -14605,6 +14815,7 @@ async def test_get_feature_view_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14713,10 +14924,14 @@ async def test_list_feature_views_rest_asyncio_interceptors(null_interceptor):
         "post_list_feature_views",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_list_feature_views_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_list_feature_views",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.ListFeatureViewsRequest.pb(
             feature_online_store_admin_service.ListFeatureViewsRequest()
         )
@@ -14746,6 +14961,10 @@ async def test_list_feature_views_rest_asyncio_interceptors(null_interceptor):
         post.return_value = (
             feature_online_store_admin_service.ListFeatureViewsResponse()
         )
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.ListFeatureViewsResponse(),
+            metadata,
+        )
 
         await client.list_feature_views(
             request,
@@ -14757,6 +14976,7 @@ async def test_list_feature_views_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14847,6 +15067,12 @@ async def test_update_feature_view_rest_asyncio_call_success(request_type):
             "crowding_column": "crowding_column_value",
             "embedding_dimension": 1988,
             "distance_measure_type": 1,
+        },
+        "optimized_config": {
+            "automatic_resources": {
+                "min_replica_count": 1803,
+                "max_replica_count": 1805,
+            }
         },
         "service_agent_type": 1,
         "service_account_email": "service_account_email_value",
@@ -14972,10 +15198,14 @@ async def test_update_feature_view_rest_asyncio_interceptors(null_interceptor):
         "post_update_feature_view",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_update_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_update_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.UpdateFeatureViewRequest.pb(
             feature_online_store_admin_service.UpdateFeatureViewRequest()
         )
@@ -14999,6 +15229,7 @@ async def test_update_feature_view_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_feature_view(
             request,
@@ -15010,6 +15241,7 @@ async def test_update_feature_view_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15112,10 +15344,14 @@ async def test_delete_feature_view_rest_asyncio_interceptors(null_interceptor):
         "post_delete_feature_view",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_delete_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_delete_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.DeleteFeatureViewRequest.pb(
             feature_online_store_admin_service.DeleteFeatureViewRequest()
         )
@@ -15139,6 +15375,7 @@ async def test_delete_feature_view_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_feature_view(
             request,
@@ -15150,6 +15387,7 @@ async def test_delete_feature_view_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15260,10 +15498,14 @@ async def test_sync_feature_view_rest_asyncio_interceptors(null_interceptor):
         "post_sync_feature_view",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_sync_feature_view_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_sync_feature_view",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.SyncFeatureViewRequest.pb(
             feature_online_store_admin_service.SyncFeatureViewRequest()
         )
@@ -15291,6 +15533,10 @@ async def test_sync_feature_view_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_admin_service.SyncFeatureViewResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.SyncFeatureViewResponse(),
+            metadata,
+        )
 
         await client.sync_feature_view(
             request,
@@ -15302,6 +15548,7 @@ async def test_sync_feature_view_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15412,10 +15659,14 @@ async def test_get_feature_view_sync_rest_asyncio_interceptors(null_interceptor)
         "post_get_feature_view_sync",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_get_feature_view_sync_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_get_feature_view_sync",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.GetFeatureViewSyncRequest.pb(
             feature_online_store_admin_service.GetFeatureViewSyncRequest()
         )
@@ -15441,6 +15692,7 @@ async def test_get_feature_view_sync_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = feature_view_sync.FeatureViewSync()
+        post_with_metadata.return_value = feature_view_sync.FeatureViewSync(), metadata
 
         await client.get_feature_view_sync(
             request,
@@ -15452,6 +15704,7 @@ async def test_get_feature_view_sync_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -15562,10 +15815,14 @@ async def test_list_feature_view_syncs_rest_asyncio_interceptors(null_intercepto
         "post_list_feature_view_syncs",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
+        "post_list_feature_view_syncs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreAdminServiceRestInterceptor,
         "pre_list_feature_view_syncs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_admin_service.ListFeatureViewSyncsRequest.pb(
             feature_online_store_admin_service.ListFeatureViewSyncsRequest()
         )
@@ -15595,6 +15852,10 @@ async def test_list_feature_view_syncs_rest_asyncio_interceptors(null_intercepto
         post.return_value = (
             feature_online_store_admin_service.ListFeatureViewSyncsResponse()
         )
+        post_with_metadata.return_value = (
+            feature_online_store_admin_service.ListFeatureViewSyncsResponse(),
+            metadata,
+        )
 
         await client.list_feature_view_syncs(
             request,
@@ -15606,6 +15867,7 @@ async def test_list_feature_view_syncs_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

@@ -108,6 +108,14 @@ from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -363,6 +371,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         ScheduleServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = ScheduleServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = ScheduleServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -5853,10 +5904,13 @@ def test_create_schedule_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_create_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_create_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_create_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.CreateScheduleRequest.pb(
             schedule_service.CreateScheduleRequest()
         )
@@ -5880,6 +5934,7 @@ def test_create_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         client.create_schedule(
             request,
@@ -5891,6 +5946,7 @@ def test_create_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_schedule_rest_bad_request(
@@ -5971,10 +6027,13 @@ def test_delete_schedule_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_delete_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_delete_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_delete_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.DeleteScheduleRequest.pb(
             schedule_service.DeleteScheduleRequest()
         )
@@ -5998,6 +6057,7 @@ def test_delete_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_schedule(
             request,
@@ -6009,6 +6069,7 @@ def test_delete_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_schedule_rest_bad_request(
@@ -6108,10 +6169,13 @@ def test_get_schedule_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_get_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_get_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_get_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.GetScheduleRequest.pb(
             schedule_service.GetScheduleRequest()
         )
@@ -6135,6 +6199,7 @@ def test_get_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule.Schedule()
+        post_with_metadata.return_value = schedule.Schedule(), metadata
 
         client.get_schedule(
             request,
@@ -6146,6 +6211,7 @@ def test_get_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_schedules_rest_bad_request(
@@ -6230,10 +6296,13 @@ def test_list_schedules_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_list_schedules"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_list_schedules_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_list_schedules"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.ListSchedulesRequest.pb(
             schedule_service.ListSchedulesRequest()
         )
@@ -6259,6 +6328,10 @@ def test_list_schedules_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule_service.ListSchedulesResponse()
+        post_with_metadata.return_value = (
+            schedule_service.ListSchedulesResponse(),
+            metadata,
+        )
 
         client.list_schedules(
             request,
@@ -6270,6 +6343,7 @@ def test_list_schedules_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_pause_schedule_rest_bad_request(
@@ -6846,10 +6920,13 @@ def test_update_schedule_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "post_update_schedule"
     ) as post, mock.patch.object(
+        transports.ScheduleServiceRestInterceptor, "post_update_schedule_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.ScheduleServiceRestInterceptor, "pre_update_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.UpdateScheduleRequest.pb(
             schedule_service.UpdateScheduleRequest()
         )
@@ -6873,6 +6950,7 @@ def test_update_schedule_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         client.update_schedule(
             request,
@@ -6884,6 +6962,7 @@ def test_update_schedule_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -8054,10 +8133,14 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_create_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_create_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_create_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.CreateScheduleRequest.pb(
             schedule_service.CreateScheduleRequest()
         )
@@ -8081,6 +8164,7 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         await client.create_schedule(
             request,
@@ -8092,6 +8176,7 @@ async def test_create_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8188,10 +8273,14 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_delete_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_delete_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_delete_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.DeleteScheduleRequest.pb(
             schedule_service.DeleteScheduleRequest()
         )
@@ -8215,6 +8304,7 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_schedule(
             request,
@@ -8226,6 +8316,7 @@ async def test_delete_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8341,10 +8432,14 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_get_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_get_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_get_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.GetScheduleRequest.pb(
             schedule_service.GetScheduleRequest()
         )
@@ -8368,6 +8463,7 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule.Schedule()
+        post_with_metadata.return_value = schedule.Schedule(), metadata
 
         await client.get_schedule(
             request,
@@ -8379,6 +8475,7 @@ async def test_get_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8479,10 +8576,14 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_list_schedules"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_list_schedules_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_list_schedules"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.ListSchedulesRequest.pb(
             schedule_service.ListSchedulesRequest()
         )
@@ -8508,6 +8609,10 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = schedule_service.ListSchedulesResponse()
+        post_with_metadata.return_value = (
+            schedule_service.ListSchedulesResponse(),
+            metadata,
+        )
 
         await client.list_schedules(
             request,
@@ -8519,6 +8624,7 @@ async def test_list_schedules_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9143,10 +9249,14 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "post_update_schedule"
     ) as post, mock.patch.object(
+        transports.AsyncScheduleServiceRestInterceptor,
+        "post_update_schedule_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncScheduleServiceRestInterceptor, "pre_update_schedule"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = schedule_service.UpdateScheduleRequest.pb(
             schedule_service.UpdateScheduleRequest()
         )
@@ -9170,6 +9280,7 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_schedule.Schedule()
+        post_with_metadata.return_value = gca_schedule.Schedule(), metadata
 
         await client.update_schedule(
             request,
@@ -9181,6 +9292,7 @@ async def test_update_schedule_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

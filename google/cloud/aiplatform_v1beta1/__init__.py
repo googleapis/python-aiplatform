@@ -211,6 +211,7 @@ from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
+from .types.endpoint import RolloutOptions
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
 from .types.endpoint_service import DeleteEndpointRequest
@@ -248,8 +249,12 @@ from .types.evaluation_service import CometInput
 from .types.evaluation_service import CometInstance
 from .types.evaluation_service import CometResult
 from .types.evaluation_service import CometSpec
+from .types.evaluation_service import EvaluateDatasetOperationMetadata
+from .types.evaluation_service import EvaluateDatasetRequest
+from .types.evaluation_service import EvaluateDatasetResponse
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
+from .types.evaluation_service import EvaluationDataset
 from .types.evaluation_service import ExactMatchInput
 from .types.evaluation_service import ExactMatchInstance
 from .types.evaluation_service import ExactMatchMetricValue
@@ -267,10 +272,13 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import Metric
 from .types.evaluation_service import MetricxInput
 from .types.evaluation_service import MetricxInstance
 from .types.evaluation_service import MetricxResult
 from .types.evaluation_service import MetricxSpec
+from .types.evaluation_service import OutputConfig
+from .types.evaluation_service import OutputInfo
 from .types.evaluation_service import PairwiseMetricInput
 from .types.evaluation_service import PairwiseMetricInstance
 from .types.evaluation_service import PairwiseMetricResult
@@ -821,9 +829,12 @@ from .types.model_service import ListModelEvaluationsRequest
 from .types.model_service import ListModelEvaluationsResponse
 from .types.model_service import ListModelsRequest
 from .types.model_service import ListModelsResponse
+from .types.model_service import ListModelVersionCheckpointsRequest
+from .types.model_service import ListModelVersionCheckpointsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import ModelVersionCheckpoint
 from .types.model_service import UpdateExplanationDatasetOperationMetadata
 from .types.model_service import UpdateExplanationDatasetRequest
 from .types.model_service import UpdateExplanationDatasetResponse
@@ -873,6 +884,8 @@ from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
 from .types.notebook_service import NotebookExecutionJobView
+from .types.notebook_software_config import NotebookSoftwareConfig
+from .types.notebook_software_config import PostStartupScriptConfig
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -1462,10 +1475,14 @@ __all__ = (
     "EntityType",
     "EnvVar",
     "ErrorAnalysisAnnotation",
+    "EvaluateDatasetOperationMetadata",
+    "EvaluateDatasetRequest",
+    "EvaluateDatasetResponse",
     "EvaluateInstancesRequest",
     "EvaluateInstancesResponse",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "EvaluationDataset",
     "EvaluationServiceClient",
     "Event",
     "ExactMatchInput",
@@ -1726,6 +1743,8 @@ __all__ = (
     "ListModelMonitoringJobsResponse",
     "ListModelMonitorsRequest",
     "ListModelMonitorsResponse",
+    "ListModelVersionCheckpointsRequest",
+    "ListModelVersionCheckpointsResponse",
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "ListModelsRequest",
@@ -1787,6 +1806,7 @@ __all__ = (
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "Metric",
     "MetricxInput",
     "MetricxInstance",
     "MetricxResult",
@@ -1831,6 +1851,7 @@ __all__ = (
     "ModelMonitoringTabularStats",
     "ModelServiceClient",
     "ModelSourceInfo",
+    "ModelVersionCheckpoint",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
@@ -1857,6 +1878,9 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "NotebookRuntimeType",
     "NotebookServiceClient",
+    "NotebookSoftwareConfig",
+    "OutputConfig",
+    "OutputInfo",
     "PSCAutomationConfig",
     "PairwiseChoice",
     "PairwiseMetricInput",
@@ -1892,6 +1916,7 @@ __all__ = (
     "PointwiseMetricResult",
     "PointwiseMetricSpec",
     "Port",
+    "PostStartupScriptConfig",
     "PrebuiltVoiceConfig",
     "PredefinedSplit",
     "PredictLongRunningMetadata",
@@ -1996,6 +2021,7 @@ __all__ = (
     "RetrievalMetadata",
     "RetrieveContextsRequest",
     "RetrieveContextsResponse",
+    "RolloutOptions",
     "RougeInput",
     "RougeInstance",
     "RougeMetricValue",

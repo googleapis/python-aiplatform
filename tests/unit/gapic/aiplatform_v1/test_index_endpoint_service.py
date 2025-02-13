@@ -95,6 +95,14 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -365,6 +373,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         IndexEndpointServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = IndexEndpointServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = IndexEndpointServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -6584,10 +6635,14 @@ def test_create_index_endpoint_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_create_index_endpoint"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_create_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_create_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.CreateIndexEndpointRequest.pb(
             index_endpoint_service.CreateIndexEndpointRequest()
         )
@@ -6611,6 +6666,7 @@ def test_create_index_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_index_endpoint(
             request,
@@ -6622,6 +6678,7 @@ def test_create_index_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_index_endpoint_rest_bad_request(
@@ -6724,10 +6781,14 @@ def test_get_index_endpoint_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_get_index_endpoint"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_get_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_get_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.GetIndexEndpointRequest.pb(
             index_endpoint_service.GetIndexEndpointRequest()
         )
@@ -6753,6 +6814,7 @@ def test_get_index_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = index_endpoint.IndexEndpoint()
+        post_with_metadata.return_value = index_endpoint.IndexEndpoint(), metadata
 
         client.get_index_endpoint(
             request,
@@ -6764,6 +6826,7 @@ def test_get_index_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_index_endpoints_rest_bad_request(
@@ -6850,10 +6913,14 @@ def test_list_index_endpoints_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_list_index_endpoints"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_list_index_endpoints_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_list_index_endpoints"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.ListIndexEndpointsRequest.pb(
             index_endpoint_service.ListIndexEndpointsRequest()
         )
@@ -6879,6 +6946,10 @@ def test_list_index_endpoints_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = index_endpoint_service.ListIndexEndpointsResponse()
+        post_with_metadata.return_value = (
+            index_endpoint_service.ListIndexEndpointsResponse(),
+            metadata,
+        )
 
         client.list_index_endpoints(
             request,
@@ -6890,6 +6961,7 @@ def test_list_index_endpoints_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_index_endpoint_rest_bad_request(
@@ -7155,10 +7227,14 @@ def test_update_index_endpoint_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_update_index_endpoint"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_update_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_update_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.UpdateIndexEndpointRequest.pb(
             index_endpoint_service.UpdateIndexEndpointRequest()
         )
@@ -7184,6 +7260,7 @@ def test_update_index_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_index_endpoint.IndexEndpoint()
+        post_with_metadata.return_value = gca_index_endpoint.IndexEndpoint(), metadata
 
         client.update_index_endpoint(
             request,
@@ -7195,6 +7272,7 @@ def test_update_index_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_index_endpoint_rest_bad_request(
@@ -7275,10 +7353,14 @@ def test_delete_index_endpoint_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_delete_index_endpoint"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_delete_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_delete_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.DeleteIndexEndpointRequest.pb(
             index_endpoint_service.DeleteIndexEndpointRequest()
         )
@@ -7302,6 +7384,7 @@ def test_delete_index_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_index_endpoint(
             request,
@@ -7313,6 +7396,7 @@ def test_delete_index_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_deploy_index_rest_bad_request(
@@ -7397,10 +7481,14 @@ def test_deploy_index_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_deploy_index"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_deploy_index_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_deploy_index"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.DeployIndexRequest.pb(
             index_endpoint_service.DeployIndexRequest()
         )
@@ -7424,6 +7512,7 @@ def test_deploy_index_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.deploy_index(
             request,
@@ -7435,6 +7524,7 @@ def test_deploy_index_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_undeploy_index_rest_bad_request(
@@ -7519,10 +7609,14 @@ def test_undeploy_index_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_undeploy_index"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_undeploy_index_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_undeploy_index"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.UndeployIndexRequest.pb(
             index_endpoint_service.UndeployIndexRequest()
         )
@@ -7546,6 +7640,7 @@ def test_undeploy_index_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.undeploy_index(
             request,
@@ -7557,6 +7652,7 @@ def test_undeploy_index_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_mutate_deployed_index_rest_bad_request(
@@ -7764,10 +7860,14 @@ def test_mutate_deployed_index_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "post_mutate_deployed_index"
     ) as post, mock.patch.object(
+        transports.IndexEndpointServiceRestInterceptor,
+        "post_mutate_deployed_index_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.IndexEndpointServiceRestInterceptor, "pre_mutate_deployed_index"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.MutateDeployedIndexRequest.pb(
             index_endpoint_service.MutateDeployedIndexRequest()
         )
@@ -7791,6 +7891,7 @@ def test_mutate_deployed_index_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.mutate_deployed_index(
             request,
@@ -7802,6 +7903,7 @@ def test_mutate_deployed_index_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -8886,10 +8988,14 @@ async def test_create_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         transports.AsyncIndexEndpointServiceRestInterceptor,
         "post_create_index_endpoint",
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_create_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_create_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.CreateIndexEndpointRequest.pb(
             index_endpoint_service.CreateIndexEndpointRequest()
         )
@@ -8913,6 +9019,7 @@ async def test_create_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_index_endpoint(
             request,
@@ -8924,6 +9031,7 @@ async def test_create_index_endpoint_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9042,10 +9150,14 @@ async def test_get_index_endpoint_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "post_get_index_endpoint"
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_get_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_get_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.GetIndexEndpointRequest.pb(
             index_endpoint_service.GetIndexEndpointRequest()
         )
@@ -9071,6 +9183,7 @@ async def test_get_index_endpoint_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = index_endpoint.IndexEndpoint()
+        post_with_metadata.return_value = index_endpoint.IndexEndpoint(), metadata
 
         await client.get_index_endpoint(
             request,
@@ -9082,6 +9195,7 @@ async def test_get_index_endpoint_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9184,10 +9298,14 @@ async def test_list_index_endpoints_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "post_list_index_endpoints"
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_list_index_endpoints_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_list_index_endpoints"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.ListIndexEndpointsRequest.pb(
             index_endpoint_service.ListIndexEndpointsRequest()
         )
@@ -9213,6 +9331,10 @@ async def test_list_index_endpoints_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = index_endpoint_service.ListIndexEndpointsResponse()
+        post_with_metadata.return_value = (
+            index_endpoint_service.ListIndexEndpointsResponse(),
+            metadata,
+        )
 
         await client.list_index_endpoints(
             request,
@@ -9224,6 +9346,7 @@ async def test_list_index_endpoints_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9506,10 +9629,14 @@ async def test_update_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         transports.AsyncIndexEndpointServiceRestInterceptor,
         "post_update_index_endpoint",
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_update_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_update_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.UpdateIndexEndpointRequest.pb(
             index_endpoint_service.UpdateIndexEndpointRequest()
         )
@@ -9535,6 +9662,7 @@ async def test_update_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = gca_index_endpoint.IndexEndpoint()
+        post_with_metadata.return_value = gca_index_endpoint.IndexEndpoint(), metadata
 
         await client.update_index_endpoint(
             request,
@@ -9546,6 +9674,7 @@ async def test_update_index_endpoint_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9643,10 +9772,14 @@ async def test_delete_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         transports.AsyncIndexEndpointServiceRestInterceptor,
         "post_delete_index_endpoint",
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_delete_index_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_delete_index_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.DeleteIndexEndpointRequest.pb(
             index_endpoint_service.DeleteIndexEndpointRequest()
         )
@@ -9670,6 +9803,7 @@ async def test_delete_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_index_endpoint(
             request,
@@ -9681,6 +9815,7 @@ async def test_delete_index_endpoint_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9781,10 +9916,14 @@ async def test_deploy_index_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "post_deploy_index"
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_deploy_index_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_deploy_index"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.DeployIndexRequest.pb(
             index_endpoint_service.DeployIndexRequest()
         )
@@ -9808,6 +9947,7 @@ async def test_deploy_index_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.deploy_index(
             request,
@@ -9819,6 +9959,7 @@ async def test_deploy_index_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9919,10 +10060,14 @@ async def test_undeploy_index_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "post_undeploy_index"
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_undeploy_index_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_undeploy_index"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.UndeployIndexRequest.pb(
             index_endpoint_service.UndeployIndexRequest()
         )
@@ -9946,6 +10091,7 @@ async def test_undeploy_index_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.undeploy_index(
             request,
@@ -9957,6 +10103,7 @@ async def test_undeploy_index_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10181,10 +10328,14 @@ async def test_mutate_deployed_index_rest_asyncio_interceptors(null_interceptor)
         transports.AsyncIndexEndpointServiceRestInterceptor,
         "post_mutate_deployed_index",
     ) as post, mock.patch.object(
+        transports.AsyncIndexEndpointServiceRestInterceptor,
+        "post_mutate_deployed_index_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncIndexEndpointServiceRestInterceptor, "pre_mutate_deployed_index"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = index_endpoint_service.MutateDeployedIndexRequest.pb(
             index_endpoint_service.MutateDeployedIndexRequest()
         )
@@ -10208,6 +10359,7 @@ async def test_mutate_deployed_index_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.mutate_deployed_index(
             request,
@@ -10219,6 +10371,7 @@ async def test_mutate_deployed_index_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

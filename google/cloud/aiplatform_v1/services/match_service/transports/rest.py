@@ -119,11 +119,36 @@ class MatchServiceRestInterceptor:
     ) -> match_service.FindNeighborsResponse:
         """Post-rpc interceptor for find_neighbors
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_find_neighbors_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MatchService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_find_neighbors` interceptor runs
+        before the `post_find_neighbors_with_metadata` interceptor.
         """
         return response
+
+    def post_find_neighbors_with_metadata(
+        self,
+        response: match_service.FindNeighborsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        match_service.FindNeighborsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for find_neighbors
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MatchService server but before it is returned to user code.
+
+        We recommend only using this `post_find_neighbors_with_metadata`
+        interceptor in new development instead of the `post_find_neighbors` interceptor.
+        When both interceptors are used, this `post_find_neighbors_with_metadata` interceptor runs after the
+        `post_find_neighbors` interceptor. The (possibly modified) response returned by
+        `post_find_neighbors` will be passed to
+        `post_find_neighbors_with_metadata`.
+        """
+        return response, metadata
 
     def pre_read_index_datapoints(
         self,
@@ -145,11 +170,37 @@ class MatchServiceRestInterceptor:
     ) -> match_service.ReadIndexDatapointsResponse:
         """Post-rpc interceptor for read_index_datapoints
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_read_index_datapoints_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MatchService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_read_index_datapoints` interceptor runs
+        before the `post_read_index_datapoints_with_metadata` interceptor.
         """
         return response
+
+    def post_read_index_datapoints_with_metadata(
+        self,
+        response: match_service.ReadIndexDatapointsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        match_service.ReadIndexDatapointsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for read_index_datapoints
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MatchService server but before it is returned to user code.
+
+        We recommend only using this `post_read_index_datapoints_with_metadata`
+        interceptor in new development instead of the `post_read_index_datapoints` interceptor.
+        When both interceptors are used, this `post_read_index_datapoints_with_metadata` interceptor runs after the
+        `post_read_index_datapoints` interceptor. The (possibly modified) response returned by
+        `post_read_index_datapoints` will be passed to
+        `post_read_index_datapoints_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -609,6 +660,10 @@ class MatchServiceRestTransport(_BaseMatchServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_find_neighbors(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_find_neighbors_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -763,6 +818,10 @@ class MatchServiceRestTransport(_BaseMatchServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_read_index_datapoints(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_read_index_datapoints_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

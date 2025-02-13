@@ -456,6 +456,37 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         return self._stubs["list_model_versions"]
 
     @property
+    def list_model_version_checkpoints(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionCheckpointsRequest],
+        model_service.ListModelVersionCheckpointsResponse,
+    ]:
+        r"""Return a callable for the list model version checkpoints method over gRPC.
+
+        Lists checkpoints of the specified model version.
+
+        Returns:
+            Callable[[~.ListModelVersionCheckpointsRequest],
+                    ~.ListModelVersionCheckpointsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_model_version_checkpoints" not in self._stubs:
+            self._stubs[
+                "list_model_version_checkpoints"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/ListModelVersionCheckpoints",
+                request_serializer=model_service.ListModelVersionCheckpointsRequest.serialize,
+                response_deserializer=model_service.ListModelVersionCheckpointsResponse.deserialize,
+            )
+        return self._stubs["list_model_version_checkpoints"]
+
+    @property
     def update_model(
         self,
     ) -> Callable[[model_service.UpdateModelRequest], gca_model.Model]:

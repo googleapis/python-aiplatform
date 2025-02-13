@@ -93,6 +93,14 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -365,6 +373,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         ReasoningEngineServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = ReasoningEngineServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = ReasoningEngineServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -4679,10 +4730,14 @@ def test_create_reasoning_engine_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_create_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_create_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_create_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.CreateReasoningEngineRequest.pb(
             reasoning_engine_service.CreateReasoningEngineRequest()
         )
@@ -4706,6 +4761,7 @@ def test_create_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_reasoning_engine(
             request,
@@ -4717,6 +4773,7 @@ def test_create_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_reasoning_engine_rest_bad_request(
@@ -4811,10 +4868,14 @@ def test_get_reasoning_engine_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_get_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_get_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_get_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.GetReasoningEngineRequest.pb(
             reasoning_engine_service.GetReasoningEngineRequest()
         )
@@ -4840,6 +4901,7 @@ def test_get_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine.ReasoningEngine()
+        post_with_metadata.return_value = reasoning_engine.ReasoningEngine(), metadata
 
         client.get_reasoning_engine(
             request,
@@ -4851,6 +4913,7 @@ def test_get_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_reasoning_engines_rest_bad_request(
@@ -4937,10 +5000,14 @@ def test_list_reasoning_engines_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_list_reasoning_engines"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_list_reasoning_engines_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_list_reasoning_engines"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.ListReasoningEnginesRequest.pb(
             reasoning_engine_service.ListReasoningEnginesRequest()
         )
@@ -4966,6 +5033,10 @@ def test_list_reasoning_engines_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine_service.ListReasoningEnginesResponse()
+        post_with_metadata.return_value = (
+            reasoning_engine_service.ListReasoningEnginesResponse(),
+            metadata,
+        )
 
         client.list_reasoning_engines(
             request,
@@ -4977,6 +5048,7 @@ def test_list_reasoning_engines_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_reasoning_engine_rest_bad_request(
@@ -5151,10 +5223,14 @@ def test_update_reasoning_engine_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_update_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_update_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_update_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.UpdateReasoningEngineRequest.pb(
             reasoning_engine_service.UpdateReasoningEngineRequest()
         )
@@ -5178,6 +5254,7 @@ def test_update_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_reasoning_engine(
             request,
@@ -5189,6 +5266,7 @@ def test_update_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_reasoning_engine_rest_bad_request(
@@ -5273,10 +5351,14 @@ def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "post_delete_reasoning_engine"
     ) as post, mock.patch.object(
+        transports.ReasoningEngineServiceRestInterceptor,
+        "post_delete_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ReasoningEngineServiceRestInterceptor, "pre_delete_reasoning_engine"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.DeleteReasoningEngineRequest.pb(
             reasoning_engine_service.DeleteReasoningEngineRequest()
         )
@@ -5300,6 +5382,7 @@ def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_reasoning_engine(
             request,
@@ -5311,6 +5394,7 @@ def test_delete_reasoning_engine_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -6265,10 +6349,14 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         "post_create_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_create_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_create_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.CreateReasoningEngineRequest.pb(
             reasoning_engine_service.CreateReasoningEngineRequest()
         )
@@ -6292,6 +6380,7 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_reasoning_engine(
             request,
@@ -6303,6 +6392,7 @@ async def test_create_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6415,10 +6505,14 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
         "post_get_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_get_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_get_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.GetReasoningEngineRequest.pb(
             reasoning_engine_service.GetReasoningEngineRequest()
         )
@@ -6444,6 +6538,7 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine.ReasoningEngine()
+        post_with_metadata.return_value = reasoning_engine.ReasoningEngine(), metadata
 
         await client.get_reasoning_engine(
             request,
@@ -6455,6 +6550,7 @@ async def test_get_reasoning_engine_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6559,10 +6655,14 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
         "post_list_reasoning_engines",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_list_reasoning_engines_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_list_reasoning_engines",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.ListReasoningEnginesRequest.pb(
             reasoning_engine_service.ListReasoningEnginesRequest()
         )
@@ -6588,6 +6688,10 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = reasoning_engine_service.ListReasoningEnginesResponse()
+        post_with_metadata.return_value = (
+            reasoning_engine_service.ListReasoningEnginesResponse(),
+            metadata,
+        )
 
         await client.list_reasoning_engines(
             request,
@@ -6599,6 +6703,7 @@ async def test_list_reasoning_engines_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6791,10 +6896,14 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         "post_update_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_update_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_update_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.UpdateReasoningEngineRequest.pb(
             reasoning_engine_service.UpdateReasoningEngineRequest()
         )
@@ -6818,6 +6927,7 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_reasoning_engine(
             request,
@@ -6829,6 +6939,7 @@ async def test_update_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6931,10 +7042,14 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         "post_delete_reasoning_engine",
     ) as post, mock.patch.object(
         transports.AsyncReasoningEngineServiceRestInterceptor,
+        "post_delete_reasoning_engine_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncReasoningEngineServiceRestInterceptor,
         "pre_delete_reasoning_engine",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = reasoning_engine_service.DeleteReasoningEngineRequest.pb(
             reasoning_engine_service.DeleteReasoningEngineRequest()
         )
@@ -6958,6 +7073,7 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_reasoning_engine(
             request,
@@ -6969,6 +7085,7 @@ async def test_delete_reasoning_engine_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

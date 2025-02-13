@@ -120,11 +120,37 @@ class FeatureOnlineStoreServiceRestInterceptor:
     ) -> feature_online_store_service.FetchFeatureValuesResponse:
         """Post-rpc interceptor for fetch_feature_values
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_fetch_feature_values_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_fetch_feature_values` interceptor runs
+        before the `post_fetch_feature_values_with_metadata` interceptor.
         """
         return response
+
+    def post_fetch_feature_values_with_metadata(
+        self,
+        response: feature_online_store_service.FetchFeatureValuesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_online_store_service.FetchFeatureValuesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for fetch_feature_values
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreService server but before it is returned to user code.
+
+        We recommend only using this `post_fetch_feature_values_with_metadata`
+        interceptor in new development instead of the `post_fetch_feature_values` interceptor.
+        When both interceptors are used, this `post_fetch_feature_values_with_metadata` interceptor runs after the
+        `post_fetch_feature_values` interceptor. The (possibly modified) response returned by
+        `post_fetch_feature_values` will be passed to
+        `post_fetch_feature_values_with_metadata`.
+        """
+        return response, metadata
 
     def pre_search_nearest_entities(
         self,
@@ -146,11 +172,37 @@ class FeatureOnlineStoreServiceRestInterceptor:
     ) -> feature_online_store_service.SearchNearestEntitiesResponse:
         """Post-rpc interceptor for search_nearest_entities
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_search_nearest_entities_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_search_nearest_entities` interceptor runs
+        before the `post_search_nearest_entities_with_metadata` interceptor.
         """
         return response
+
+    def post_search_nearest_entities_with_metadata(
+        self,
+        response: feature_online_store_service.SearchNearestEntitiesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_online_store_service.SearchNearestEntitiesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for search_nearest_entities
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreService server but before it is returned to user code.
+
+        We recommend only using this `post_search_nearest_entities_with_metadata`
+        interceptor in new development instead of the `post_search_nearest_entities` interceptor.
+        When both interceptors are used, this `post_search_nearest_entities_with_metadata` interceptor runs after the
+        `post_search_nearest_entities` interceptor. The (possibly modified) response returned by
+        `post_search_nearest_entities` will be passed to
+        `post_search_nearest_entities_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -616,6 +668,10 @@ class FeatureOnlineStoreServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_fetch_feature_values(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_fetch_feature_values_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -775,6 +831,10 @@ class FeatureOnlineStoreServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_search_nearest_entities(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_search_nearest_entities_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

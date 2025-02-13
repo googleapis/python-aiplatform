@@ -146,11 +146,34 @@ class SpecialistPoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_specialist_pool` interceptor runs
+        before the `post_create_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_create_specialist_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_create_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_create_specialist_pool` interceptor.
+        When both interceptors are used, this `post_create_specialist_pool_with_metadata` interceptor runs after the
+        `post_create_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_create_specialist_pool` will be passed to
+        `post_create_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_specialist_pool(
         self,
@@ -172,11 +195,34 @@ class SpecialistPoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_specialist_pool` interceptor runs
+        before the `post_delete_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_specialist_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_delete_specialist_pool` interceptor.
+        When both interceptors are used, this `post_delete_specialist_pool_with_metadata` interceptor runs after the
+        `post_delete_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_delete_specialist_pool` will be passed to
+        `post_delete_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_specialist_pool(
         self,
@@ -198,11 +244,34 @@ class SpecialistPoolServiceRestInterceptor:
     ) -> specialist_pool.SpecialistPool:
         """Post-rpc interceptor for get_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_specialist_pool` interceptor runs
+        before the `post_get_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_get_specialist_pool_with_metadata(
+        self,
+        response: specialist_pool.SpecialistPool,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[specialist_pool.SpecialistPool, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_get_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_get_specialist_pool` interceptor.
+        When both interceptors are used, this `post_get_specialist_pool_with_metadata` interceptor runs after the
+        `post_get_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_get_specialist_pool` will be passed to
+        `post_get_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_specialist_pools(
         self,
@@ -224,11 +293,37 @@ class SpecialistPoolServiceRestInterceptor:
     ) -> specialist_pool_service.ListSpecialistPoolsResponse:
         """Post-rpc interceptor for list_specialist_pools
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_specialist_pools_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_specialist_pools` interceptor runs
+        before the `post_list_specialist_pools_with_metadata` interceptor.
         """
         return response
+
+    def post_list_specialist_pools_with_metadata(
+        self,
+        response: specialist_pool_service.ListSpecialistPoolsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        specialist_pool_service.ListSpecialistPoolsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_specialist_pools
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_list_specialist_pools_with_metadata`
+        interceptor in new development instead of the `post_list_specialist_pools` interceptor.
+        When both interceptors are used, this `post_list_specialist_pools_with_metadata` interceptor runs after the
+        `post_list_specialist_pools` interceptor. The (possibly modified) response returned by
+        `post_list_specialist_pools` will be passed to
+        `post_list_specialist_pools_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_specialist_pool(
         self,
@@ -250,11 +345,34 @@ class SpecialistPoolServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_specialist_pool
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_specialist_pool_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the SpecialistPoolService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_specialist_pool` interceptor runs
+        before the `post_update_specialist_pool_with_metadata` interceptor.
         """
         return response
+
+    def post_update_specialist_pool_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_specialist_pool
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the SpecialistPoolService server but before it is returned to user code.
+
+        We recommend only using this `post_update_specialist_pool_with_metadata`
+        interceptor in new development instead of the `post_update_specialist_pool` interceptor.
+        When both interceptors are used, this `post_update_specialist_pool_with_metadata` interceptor runs after the
+        `post_update_specialist_pool` interceptor. The (possibly modified) response returned by
+        `post_update_specialist_pool` will be passed to
+        `post_update_specialist_pool_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -2637,6 +2755,10 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2785,6 +2907,10 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2944,6 +3070,10 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3093,6 +3223,10 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_specialist_pools(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_specialist_pools_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3251,6 +3385,10 @@ class SpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTransport
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_specialist_pool(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_specialist_pool_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

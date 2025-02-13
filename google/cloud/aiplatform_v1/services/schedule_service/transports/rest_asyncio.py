@@ -173,11 +173,34 @@ class AsyncScheduleServiceRestInterceptor:
     ) -> gca_schedule.Schedule:
         """Post-rpc interceptor for create_schedule
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_schedule_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ScheduleService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_schedule` interceptor runs
+        before the `post_create_schedule_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_schedule_with_metadata(
+        self,
+        response: gca_schedule.Schedule,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_schedule.Schedule, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_schedule
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ScheduleService server but before it is returned to user code.
+
+        We recommend only using this `post_create_schedule_with_metadata`
+        interceptor in new development instead of the `post_create_schedule` interceptor.
+        When both interceptors are used, this `post_create_schedule_with_metadata` interceptor runs after the
+        `post_create_schedule` interceptor. The (possibly modified) response returned by
+        `post_create_schedule` will be passed to
+        `post_create_schedule_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_schedule(
         self,
@@ -198,11 +221,34 @@ class AsyncScheduleServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_schedule
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_schedule_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ScheduleService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_schedule` interceptor runs
+        before the `post_delete_schedule_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_schedule_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_schedule
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ScheduleService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_schedule_with_metadata`
+        interceptor in new development instead of the `post_delete_schedule` interceptor.
+        When both interceptors are used, this `post_delete_schedule_with_metadata` interceptor runs after the
+        `post_delete_schedule` interceptor. The (possibly modified) response returned by
+        `post_delete_schedule` will be passed to
+        `post_delete_schedule_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_schedule(
         self,
@@ -221,11 +267,34 @@ class AsyncScheduleServiceRestInterceptor:
     async def post_get_schedule(self, response: schedule.Schedule) -> schedule.Schedule:
         """Post-rpc interceptor for get_schedule
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_schedule_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ScheduleService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_schedule` interceptor runs
+        before the `post_get_schedule_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_schedule_with_metadata(
+        self,
+        response: schedule.Schedule,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[schedule.Schedule, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_schedule
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ScheduleService server but before it is returned to user code.
+
+        We recommend only using this `post_get_schedule_with_metadata`
+        interceptor in new development instead of the `post_get_schedule` interceptor.
+        When both interceptors are used, this `post_get_schedule_with_metadata` interceptor runs after the
+        `post_get_schedule` interceptor. The (possibly modified) response returned by
+        `post_get_schedule` will be passed to
+        `post_get_schedule_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_schedules(
         self,
@@ -246,11 +315,36 @@ class AsyncScheduleServiceRestInterceptor:
     ) -> schedule_service.ListSchedulesResponse:
         """Post-rpc interceptor for list_schedules
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_schedules_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ScheduleService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_schedules` interceptor runs
+        before the `post_list_schedules_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_schedules_with_metadata(
+        self,
+        response: schedule_service.ListSchedulesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        schedule_service.ListSchedulesResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_schedules
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ScheduleService server but before it is returned to user code.
+
+        We recommend only using this `post_list_schedules_with_metadata`
+        interceptor in new development instead of the `post_list_schedules` interceptor.
+        When both interceptors are used, this `post_list_schedules_with_metadata` interceptor runs after the
+        `post_list_schedules` interceptor. The (possibly modified) response returned by
+        `post_list_schedules` will be passed to
+        `post_list_schedules_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_pause_schedule(
         self,
@@ -299,11 +393,34 @@ class AsyncScheduleServiceRestInterceptor:
     ) -> gca_schedule.Schedule:
         """Post-rpc interceptor for update_schedule
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_schedule_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ScheduleService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_schedule` interceptor runs
+        before the `post_update_schedule_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_schedule_with_metadata(
+        self,
+        response: gca_schedule.Schedule,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_schedule.Schedule, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_schedule
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ScheduleService server but before it is returned to user code.
+
+        We recommend only using this `post_update_schedule_with_metadata`
+        interceptor in new development instead of the `post_update_schedule` interceptor.
+        When both interceptors are used, this `post_update_schedule_with_metadata` interceptor runs after the
+        `post_update_schedule` interceptor. The (possibly modified) response returned by
+        `post_update_schedule` will be passed to
+        `post_update_schedule_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -853,6 +970,10 @@ class AsyncScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_schedule(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_schedule_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1009,6 +1130,10 @@ class AsyncScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_schedule(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_schedule_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1165,6 +1290,10 @@ class AsyncScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_schedule(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_schedule_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1320,6 +1449,10 @@ class AsyncScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_schedules(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_schedules_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1735,6 +1868,10 @@ class AsyncScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_schedule(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_schedule_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

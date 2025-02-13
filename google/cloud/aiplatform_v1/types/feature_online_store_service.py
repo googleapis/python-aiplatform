@@ -318,11 +318,11 @@ class NearestNeighborQuery(proto.Message):
     class NumericFilter(proto.Message):
         r"""Numeric filter is used to search a subset of the entities by using
         boolean rules on numeric columns. For example: Database Point 0:
-        {name: “a” value_int: 42} {name: “b” value_float: 1.0} Database
-        Point 1: {name: “a” value_int: 10} {name: “b” value_float: 2.0}
-        Database Point 2: {name: “a” value_int: -1} {name: “b” value_float:
-        3.0} Query: {name: “a” value_int: 12 operator: LESS} // Matches
-        Point 1, 2 {name: “b” value_float: 2.0 operator: EQUAL} // Matches
+        {name: "a" value_int: 42} {name: "b" value_float: 1.0} Database
+        Point 1: {name: "a" value_int: 10} {name: "b" value_float: 2.0}
+        Database Point 2: {name: "a" value_int: -1} {name: "b" value_float:
+        3.0} Query: {name: "a" value_int: 12 operator: LESS} // Matches
+        Point 1, 2 {name: "b" value_float: 2.0 operator: EQUAL} // Matches
         Point 1
 
         This message has `oneof`_ fields (mutually exclusive fields).
@@ -356,7 +356,7 @@ class NearestNeighborQuery(proto.Message):
         """
 
         class Operator(proto.Enum):
-            r"""Datapoints for which Operator is true relative to the query’s
+            r"""Datapoints for which Operator is true relative to the query's
             Value field will be allowlisted.
 
             Values:

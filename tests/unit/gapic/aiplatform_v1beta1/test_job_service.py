@@ -127,6 +127,14 @@ from google.type import money_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -359,6 +367,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         JobServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = JobServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = JobServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -24543,10 +24594,13 @@ def test_create_custom_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_custom_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateCustomJobRequest.pb(
             job_service.CreateCustomJobRequest()
         )
@@ -24570,6 +24624,7 @@ def test_create_custom_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_custom_job.CustomJob()
+        post_with_metadata.return_value = gca_custom_job.CustomJob(), metadata
 
         client.create_custom_job(
             request,
@@ -24581,6 +24636,7 @@ def test_create_custom_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_custom_job_rest_bad_request(request_type=job_service.GetCustomJobRequest):
@@ -24671,10 +24727,13 @@ def test_get_custom_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_custom_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetCustomJobRequest.pb(
             job_service.GetCustomJobRequest()
         )
@@ -24698,6 +24757,7 @@ def test_get_custom_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = custom_job.CustomJob()
+        post_with_metadata.return_value = custom_job.CustomJob(), metadata
 
         client.get_custom_job(
             request,
@@ -24709,6 +24769,7 @@ def test_get_custom_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_custom_jobs_rest_bad_request(
@@ -24793,10 +24854,13 @@ def test_list_custom_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_custom_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_custom_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_custom_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListCustomJobsRequest.pb(
             job_service.ListCustomJobsRequest()
         )
@@ -24822,6 +24886,7 @@ def test_list_custom_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListCustomJobsResponse()
+        post_with_metadata.return_value = job_service.ListCustomJobsResponse(), metadata
 
         client.list_custom_jobs(
             request,
@@ -24833,6 +24898,7 @@ def test_list_custom_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_custom_job_rest_bad_request(
@@ -24913,10 +24979,13 @@ def test_delete_custom_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_custom_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteCustomJobRequest.pb(
             job_service.DeleteCustomJobRequest()
         )
@@ -24940,6 +25009,7 @@ def test_delete_custom_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_custom_job(
             request,
@@ -24951,6 +25021,7 @@ def test_delete_custom_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_custom_job_rest_bad_request(
@@ -25278,10 +25349,14 @@ def test_create_data_labeling_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_create_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateDataLabelingJobRequest.pb(
             job_service.CreateDataLabelingJobRequest()
         )
@@ -25307,6 +25382,10 @@ def test_create_data_labeling_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = (
+            gca_data_labeling_job.DataLabelingJob(),
+            metadata,
+        )
 
         client.create_data_labeling_job(
             request,
@@ -25318,6 +25397,7 @@ def test_create_data_labeling_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_data_labeling_job_rest_bad_request(
@@ -25422,10 +25502,13 @@ def test_get_data_labeling_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_data_labeling_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetDataLabelingJobRequest.pb(
             job_service.GetDataLabelingJobRequest()
         )
@@ -25451,6 +25534,7 @@ def test_get_data_labeling_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = data_labeling_job.DataLabelingJob(), metadata
 
         client.get_data_labeling_job(
             request,
@@ -25462,6 +25546,7 @@ def test_get_data_labeling_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_data_labeling_jobs_rest_bad_request(
@@ -25546,10 +25631,14 @@ def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_data_labeling_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_data_labeling_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_data_labeling_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListDataLabelingJobsRequest.pb(
             job_service.ListDataLabelingJobsRequest()
         )
@@ -25575,6 +25664,10 @@ def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListDataLabelingJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListDataLabelingJobsResponse(),
+            metadata,
+        )
 
         client.list_data_labeling_jobs(
             request,
@@ -25586,6 +25679,7 @@ def test_list_data_labeling_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_data_labeling_job_rest_bad_request(
@@ -25670,10 +25764,14 @@ def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_delete_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteDataLabelingJobRequest.pb(
             job_service.DeleteDataLabelingJobRequest()
         )
@@ -25697,6 +25795,7 @@ def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_data_labeling_job(
             request,
@@ -25708,6 +25807,7 @@ def test_delete_data_labeling_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_data_labeling_job_rest_bad_request(
@@ -26202,10 +26302,14 @@ def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_create_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateHyperparameterTuningJobRequest.pb(
             job_service.CreateHyperparameterTuningJobRequest()
         )
@@ -26231,6 +26335,10 @@ def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         client.create_hyperparameter_tuning_job(
             request,
@@ -26242,6 +26350,7 @@ def test_create_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_hyperparameter_tuning_job_rest_bad_request(
@@ -26346,10 +26455,14 @@ def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_get_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetHyperparameterTuningJobRequest.pb(
             job_service.GetHyperparameterTuningJobRequest()
         )
@@ -26375,6 +26488,10 @@ def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         client.get_hyperparameter_tuning_job(
             request,
@@ -26386,6 +26503,7 @@ def test_get_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_hyperparameter_tuning_jobs_rest_bad_request(
@@ -26470,10 +26588,14 @@ def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_hyperparameter_tuning_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_hyperparameter_tuning_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_hyperparameter_tuning_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListHyperparameterTuningJobsRequest.pb(
             job_service.ListHyperparameterTuningJobsRequest()
         )
@@ -26499,6 +26621,10 @@ def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListHyperparameterTuningJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListHyperparameterTuningJobsResponse(),
+            metadata,
+        )
 
         client.list_hyperparameter_tuning_jobs(
             request,
@@ -26510,6 +26636,7 @@ def test_list_hyperparameter_tuning_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_hyperparameter_tuning_job_rest_bad_request(
@@ -26594,10 +26721,14 @@ def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_delete_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteHyperparameterTuningJobRequest.pb(
             job_service.DeleteHyperparameterTuningJobRequest()
         )
@@ -26621,6 +26752,7 @@ def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_hyperparameter_tuning_job(
             request,
@@ -26632,6 +26764,7 @@ def test_delete_hyperparameter_tuning_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_hyperparameter_tuning_job_rest_bad_request(
@@ -27040,10 +27173,13 @@ def test_create_nas_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_nas_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_create_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateNasJobRequest.pb(
             job_service.CreateNasJobRequest()
         )
@@ -27067,6 +27203,7 @@ def test_create_nas_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_nas_job.NasJob()
+        post_with_metadata.return_value = gca_nas_job.NasJob(), metadata
 
         client.create_nas_job(
             request,
@@ -27078,6 +27215,7 @@ def test_create_nas_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_nas_job_rest_bad_request(request_type=job_service.GetNasJobRequest):
@@ -27170,10 +27308,13 @@ def test_get_nas_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_nas_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasJobRequest.pb(job_service.GetNasJobRequest())
         transcode.return_value = {
             "method": "post",
@@ -27195,6 +27336,7 @@ def test_get_nas_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasJob()
+        post_with_metadata.return_value = nas_job.NasJob(), metadata
 
         client.get_nas_job(
             request,
@@ -27206,6 +27348,7 @@ def test_get_nas_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_nas_jobs_rest_bad_request(request_type=job_service.ListNasJobsRequest):
@@ -27288,10 +27431,13 @@ def test_list_nas_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_nas_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_list_nas_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_nas_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasJobsRequest.pb(job_service.ListNasJobsRequest())
         transcode.return_value = {
             "method": "post",
@@ -27315,6 +27461,7 @@ def test_list_nas_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasJobsResponse()
+        post_with_metadata.return_value = job_service.ListNasJobsResponse(), metadata
 
         client.list_nas_jobs(
             request,
@@ -27326,6 +27473,7 @@ def test_list_nas_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_nas_job_rest_bad_request(request_type=job_service.DeleteNasJobRequest):
@@ -27404,10 +27552,13 @@ def test_delete_nas_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_nas_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_delete_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteNasJobRequest.pb(
             job_service.DeleteNasJobRequest()
         )
@@ -27431,6 +27582,7 @@ def test_delete_nas_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_nas_job(
             request,
@@ -27442,6 +27594,7 @@ def test_delete_nas_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_nas_job_rest_bad_request(request_type=job_service.CancelNasJobRequest):
@@ -27639,10 +27792,13 @@ def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_nas_trial_detail"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor, "post_get_nas_trial_detail_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_nas_trial_detail"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasTrialDetailRequest.pb(
             job_service.GetNasTrialDetailRequest()
         )
@@ -27666,6 +27822,7 @@ def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasTrialDetail()
+        post_with_metadata.return_value = nas_job.NasTrialDetail(), metadata
 
         client.get_nas_trial_detail(
             request,
@@ -27677,6 +27834,7 @@ def test_get_nas_trial_detail_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_nas_trial_details_rest_bad_request(
@@ -27761,10 +27919,14 @@ def test_list_nas_trial_details_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_nas_trial_details"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_nas_trial_details_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_nas_trial_details"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasTrialDetailsRequest.pb(
             job_service.ListNasTrialDetailsRequest()
         )
@@ -27790,6 +27952,10 @@ def test_list_nas_trial_details_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasTrialDetailsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListNasTrialDetailsResponse(),
+            metadata,
+        )
 
         client.list_nas_trial_details(
             request,
@@ -27801,6 +27967,7 @@ def test_list_nas_trial_details_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_batch_prediction_job_rest_bad_request(
@@ -27867,10 +28034,25 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
                 "shared_memory_size_mb": 2231,
                 "startup_probe": {
                     "exec_": {"command": ["command_value1", "command_value2"]},
+                    "http_get": {
+                        "path": "path_value",
+                        "port": 453,
+                        "host": "host_value",
+                        "scheme": "scheme_value",
+                        "http_headers": [
+                            {"name": "name_value", "value": "value_value"}
+                        ],
+                    },
+                    "grpc": {"port": 453, "service": "service_value"},
+                    "tcp_socket": {"port": 453, "host": "host_value"},
                     "period_seconds": 1489,
                     "timeout_seconds": 1621,
+                    "failure_threshold": 1812,
+                    "success_threshold": 1829,
+                    "initial_delay_seconds": 2214,
                 },
                 "health_probe": {},
+                "liveness_probe": {},
             },
         },
         "input_config": {
@@ -28187,10 +28369,14 @@ def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_create_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_create_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_create_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateBatchPredictionJobRequest.pb(
             job_service.CreateBatchPredictionJobRequest()
         )
@@ -28216,6 +28402,10 @@ def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            gca_batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         client.create_batch_prediction_job(
             request,
@@ -28227,6 +28417,7 @@ def test_create_batch_prediction_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_batch_prediction_job_rest_bad_request(
@@ -28333,10 +28524,14 @@ def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_get_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetBatchPredictionJobRequest.pb(
             job_service.GetBatchPredictionJobRequest()
         )
@@ -28362,6 +28557,10 @@ def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         client.get_batch_prediction_job(
             request,
@@ -28373,6 +28572,7 @@ def test_get_batch_prediction_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_batch_prediction_jobs_rest_bad_request(
@@ -28457,10 +28657,14 @@ def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_list_batch_prediction_jobs"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_list_batch_prediction_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_list_batch_prediction_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListBatchPredictionJobsRequest.pb(
             job_service.ListBatchPredictionJobsRequest()
         )
@@ -28486,6 +28690,10 @@ def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListBatchPredictionJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListBatchPredictionJobsResponse(),
+            metadata,
+        )
 
         client.list_batch_prediction_jobs(
             request,
@@ -28497,6 +28705,7 @@ def test_list_batch_prediction_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_batch_prediction_job_rest_bad_request(
@@ -28581,10 +28790,14 @@ def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.JobServiceRestInterceptor, "post_delete_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_delete_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_delete_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteBatchPredictionJobRequest.pb(
             job_service.DeleteBatchPredictionJobRequest()
         )
@@ -28608,6 +28821,7 @@ def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_batch_prediction_job(
             request,
@@ -28619,6 +28833,7 @@ def test_delete_batch_prediction_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_batch_prediction_job_rest_bad_request(
@@ -29019,10 +29234,14 @@ def test_create_model_deployment_monitoring_job_rest_interceptors(null_intercept
         "post_create_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_create_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_create_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateModelDeploymentMonitoringJobRequest.pb(
             job_service.CreateModelDeploymentMonitoringJobRequest()
         )
@@ -29052,6 +29271,10 @@ def test_create_model_deployment_monitoring_job_rest_interceptors(null_intercept
         post.return_value = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         client.create_model_deployment_monitoring_job(
             request,
@@ -29063,6 +29286,7 @@ def test_create_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_search_model_deployment_monitoring_stats_anomalies_rest_bad_request(
@@ -29165,10 +29389,14 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
         "post_search_model_deployment_monitoring_stats_anomalies",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_search_model_deployment_monitoring_stats_anomalies_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_search_model_deployment_monitoring_stats_anomalies",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.pb(
                 job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
@@ -29200,6 +29428,10 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
         post.return_value = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
         )
+        post_with_metadata.return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(),
+            metadata,
+        )
 
         client.search_model_deployment_monitoring_stats_anomalies(
             request,
@@ -29211,6 +29443,7 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_model_deployment_monitoring_job_rest_bad_request(
@@ -29324,10 +29557,14 @@ def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.JobServiceRestInterceptor, "post_get_model_deployment_monitoring_job"
     ) as post, mock.patch.object(
+        transports.JobServiceRestInterceptor,
+        "post_get_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.JobServiceRestInterceptor, "pre_get_model_deployment_monitoring_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetModelDeploymentMonitoringJobRequest.pb(
             job_service.GetModelDeploymentMonitoringJobRequest()
         )
@@ -29357,6 +29594,10 @@ def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor)
         post.return_value = (
             model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         client.get_model_deployment_monitoring_job(
             request,
@@ -29368,6 +29609,7 @@ def test_get_model_deployment_monitoring_job_rest_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_model_deployment_monitoring_jobs_rest_bad_request(
@@ -29456,10 +29698,14 @@ def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_intercepto
         "post_list_model_deployment_monitoring_jobs",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_list_model_deployment_monitoring_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_list_model_deployment_monitoring_jobs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListModelDeploymentMonitoringJobsRequest.pb(
             job_service.ListModelDeploymentMonitoringJobsRequest()
         )
@@ -29485,6 +29731,10 @@ def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListModelDeploymentMonitoringJobsResponse(),
+            metadata,
+        )
 
         client.list_model_deployment_monitoring_jobs(
             request,
@@ -29496,6 +29746,7 @@ def test_list_model_deployment_monitoring_jobs_rest_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_model_deployment_monitoring_job_rest_bad_request(
@@ -29760,10 +30011,14 @@ def test_update_model_deployment_monitoring_job_rest_interceptors(null_intercept
         "post_update_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_update_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_update_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.UpdateModelDeploymentMonitoringJobRequest.pb(
             job_service.UpdateModelDeploymentMonitoringJobRequest()
         )
@@ -29787,6 +30042,7 @@ def test_update_model_deployment_monitoring_job_rest_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_model_deployment_monitoring_job(
             request,
@@ -29798,6 +30054,7 @@ def test_update_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_model_deployment_monitoring_job_rest_bad_request(
@@ -29884,10 +30141,14 @@ def test_delete_model_deployment_monitoring_job_rest_interceptors(null_intercept
         "post_delete_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.JobServiceRestInterceptor,
+        "post_delete_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.JobServiceRestInterceptor,
         "pre_delete_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteModelDeploymentMonitoringJobRequest.pb(
             job_service.DeleteModelDeploymentMonitoringJobRequest()
         )
@@ -29911,6 +30172,7 @@ def test_delete_model_deployment_monitoring_job_rest_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_model_deployment_monitoring_job(
             request,
@@ -29922,6 +30184,7 @@ def test_delete_model_deployment_monitoring_job_rest_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_pause_model_deployment_monitoring_job_rest_bad_request(
@@ -31831,10 +32094,14 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_custom_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_create_custom_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateCustomJobRequest.pb(
             job_service.CreateCustomJobRequest()
         )
@@ -31858,6 +32125,7 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_custom_job.CustomJob()
+        post_with_metadata.return_value = gca_custom_job.CustomJob(), metadata
 
         await client.create_custom_job(
             request,
@@ -31869,6 +32137,7 @@ async def test_create_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31977,10 +32246,13 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_custom_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_get_custom_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetCustomJobRequest.pb(
             job_service.GetCustomJobRequest()
         )
@@ -32004,6 +32276,7 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = custom_job.CustomJob()
+        post_with_metadata.return_value = custom_job.CustomJob(), metadata
 
         await client.get_custom_job(
             request,
@@ -32015,6 +32288,7 @@ async def test_get_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32115,10 +32389,13 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_custom_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_list_custom_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_custom_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListCustomJobsRequest.pb(
             job_service.ListCustomJobsRequest()
         )
@@ -32144,6 +32421,7 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListCustomJobsResponse()
+        post_with_metadata.return_value = job_service.ListCustomJobsResponse(), metadata
 
         await client.list_custom_jobs(
             request,
@@ -32155,6 +32433,7 @@ async def test_list_custom_jobs_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32251,10 +32530,14 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_custom_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_delete_custom_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_custom_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteCustomJobRequest.pb(
             job_service.DeleteCustomJobRequest()
         )
@@ -32278,6 +32561,7 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_custom_job(
             request,
@@ -32289,6 +32573,7 @@ async def test_delete_custom_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32648,10 +32933,14 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_create_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateDataLabelingJobRequest.pb(
             job_service.CreateDataLabelingJobRequest()
         )
@@ -32677,6 +32966,10 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = gca_data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = (
+            gca_data_labeling_job.DataLabelingJob(),
+            metadata,
+        )
 
         await client.create_data_labeling_job(
             request,
@@ -32688,6 +32981,7 @@ async def test_create_data_labeling_job_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32808,10 +33102,14 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetDataLabelingJobRequest.pb(
             job_service.GetDataLabelingJobRequest()
         )
@@ -32837,6 +33135,7 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = data_labeling_job.DataLabelingJob()
+        post_with_metadata.return_value = data_labeling_job.DataLabelingJob(), metadata
 
         await client.get_data_labeling_job(
             request,
@@ -32848,6 +33147,7 @@ async def test_get_data_labeling_job_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32948,10 +33248,14 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_data_labeling_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_data_labeling_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_data_labeling_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListDataLabelingJobsRequest.pb(
             job_service.ListDataLabelingJobsRequest()
         )
@@ -32977,6 +33281,10 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListDataLabelingJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListDataLabelingJobsResponse(),
+            metadata,
+        )
 
         await client.list_data_labeling_jobs(
             request,
@@ -32988,6 +33296,7 @@ async def test_list_data_labeling_jobs_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33088,10 +33397,14 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_data_labeling_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_delete_data_labeling_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_data_labeling_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteDataLabelingJobRequest.pb(
             job_service.DeleteDataLabelingJobRequest()
         )
@@ -33115,6 +33428,7 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_data_labeling_job(
             request,
@@ -33126,6 +33440,7 @@ async def test_delete_data_labeling_job_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33656,10 +33971,14 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
         "post_create_hyperparameter_tuning_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_create_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_create_hyperparameter_tuning_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateHyperparameterTuningJobRequest.pb(
             job_service.CreateHyperparameterTuningJobRequest()
         )
@@ -33685,6 +34004,10 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         await client.create_hyperparameter_tuning_job(
             request,
@@ -33696,6 +34019,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33818,10 +34142,14 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_hyperparameter_tuning_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_hyperparameter_tuning_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetHyperparameterTuningJobRequest.pb(
             job_service.GetHyperparameterTuningJobRequest()
         )
@@ -33847,6 +34175,10 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+        post_with_metadata.return_value = (
+            hyperparameter_tuning_job.HyperparameterTuningJob(),
+            metadata,
+        )
 
         await client.get_hyperparameter_tuning_job(
             request,
@@ -33858,6 +34190,7 @@ async def test_get_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -33961,10 +34294,14 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
         transports.AsyncJobServiceRestInterceptor,
         "post_list_hyperparameter_tuning_jobs",
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_hyperparameter_tuning_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_hyperparameter_tuning_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListHyperparameterTuningJobsRequest.pb(
             job_service.ListHyperparameterTuningJobsRequest()
         )
@@ -33990,6 +34327,10 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListHyperparameterTuningJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListHyperparameterTuningJobsResponse(),
+            metadata,
+        )
 
         await client.list_hyperparameter_tuning_jobs(
             request,
@@ -34001,6 +34342,7 @@ async def test_list_hyperparameter_tuning_jobs_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34105,10 +34447,14 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
         "post_delete_hyperparameter_tuning_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_delete_hyperparameter_tuning_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_delete_hyperparameter_tuning_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteHyperparameterTuningJobRequest.pb(
             job_service.DeleteHyperparameterTuningJobRequest()
         )
@@ -34132,6 +34478,7 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_hyperparameter_tuning_job(
             request,
@@ -34143,6 +34490,7 @@ async def test_delete_hyperparameter_tuning_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34588,10 +34936,13 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_nas_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_create_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateNasJobRequest.pb(
             job_service.CreateNasJobRequest()
         )
@@ -34615,6 +34966,7 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_nas_job.NasJob()
+        post_with_metadata.return_value = gca_nas_job.NasJob(), metadata
 
         await client.create_nas_job(
             request,
@@ -34626,6 +34978,7 @@ async def test_create_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34736,10 +35089,13 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_nas_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_get_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasJobRequest.pb(job_service.GetNasJobRequest())
         transcode.return_value = {
             "method": "post",
@@ -34761,6 +35117,7 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasJob()
+        post_with_metadata.return_value = nas_job.NasJob(), metadata
 
         await client.get_nas_job(
             request,
@@ -34772,6 +35129,7 @@ async def test_get_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -34872,10 +35230,13 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_nas_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_list_nas_jobs_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_nas_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasJobsRequest.pb(job_service.ListNasJobsRequest())
         transcode.return_value = {
             "method": "post",
@@ -34899,6 +35260,7 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasJobsResponse()
+        post_with_metadata.return_value = job_service.ListNasJobsResponse(), metadata
 
         await client.list_nas_jobs(
             request,
@@ -34910,6 +35272,7 @@ async def test_list_nas_jobs_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35006,10 +35369,13 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_nas_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor, "post_delete_nas_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_nas_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteNasJobRequest.pb(
             job_service.DeleteNasJobRequest()
         )
@@ -35033,6 +35399,7 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_nas_job(
             request,
@@ -35044,6 +35411,7 @@ async def test_delete_nas_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35275,10 +35643,14 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_nas_trial_detail"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_nas_trial_detail_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_nas_trial_detail"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetNasTrialDetailRequest.pb(
             job_service.GetNasTrialDetailRequest()
         )
@@ -35302,6 +35674,7 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = nas_job.NasTrialDetail()
+        post_with_metadata.return_value = nas_job.NasTrialDetail(), metadata
 
         await client.get_nas_trial_detail(
             request,
@@ -35313,6 +35686,7 @@ async def test_get_nas_trial_detail_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35413,10 +35787,14 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_nas_trial_details"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_nas_trial_details_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_nas_trial_details"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListNasTrialDetailsRequest.pb(
             job_service.ListNasTrialDetailsRequest()
         )
@@ -35442,6 +35820,10 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListNasTrialDetailsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListNasTrialDetailsResponse(),
+            metadata,
+        )
 
         await client.list_nas_trial_details(
             request,
@@ -35453,6 +35835,7 @@ async def test_list_nas_trial_details_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -35528,10 +35911,25 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
                 "shared_memory_size_mb": 2231,
                 "startup_probe": {
                     "exec_": {"command": ["command_value1", "command_value2"]},
+                    "http_get": {
+                        "path": "path_value",
+                        "port": 453,
+                        "host": "host_value",
+                        "scheme": "scheme_value",
+                        "http_headers": [
+                            {"name": "name_value", "value": "value_value"}
+                        ],
+                    },
+                    "grpc": {"port": 453, "service": "service_value"},
+                    "tcp_socket": {"port": 453, "host": "host_value"},
                     "period_seconds": 1489,
                     "timeout_seconds": 1621,
+                    "failure_threshold": 1812,
+                    "success_threshold": 1829,
+                    "initial_delay_seconds": 2214,
                 },
                 "health_probe": {},
+                "liveness_probe": {},
             },
         },
         "input_config": {
@@ -35855,10 +36253,14 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_create_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_create_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_create_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateBatchPredictionJobRequest.pb(
             job_service.CreateBatchPredictionJobRequest()
         )
@@ -35884,6 +36286,10 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = gca_batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            gca_batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         await client.create_batch_prediction_job(
             request,
@@ -35895,6 +36301,7 @@ async def test_create_batch_prediction_job_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36017,10 +36424,14 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_get_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_get_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_get_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetBatchPredictionJobRequest.pb(
             job_service.GetBatchPredictionJobRequest()
         )
@@ -36046,6 +36457,10 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = batch_prediction_job.BatchPredictionJob()
+        post_with_metadata.return_value = (
+            batch_prediction_job.BatchPredictionJob(),
+            metadata,
+        )
 
         await client.get_batch_prediction_job(
             request,
@@ -36057,6 +36472,7 @@ async def test_get_batch_prediction_job_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36157,10 +36573,14 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
     ) as transcode, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_list_batch_prediction_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_list_batch_prediction_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_list_batch_prediction_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListBatchPredictionJobsRequest.pb(
             job_service.ListBatchPredictionJobsRequest()
         )
@@ -36186,6 +36606,10 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListBatchPredictionJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListBatchPredictionJobsResponse(),
+            metadata,
+        )
 
         await client.list_batch_prediction_jobs(
             request,
@@ -36197,6 +36621,7 @@ async def test_list_batch_prediction_jobs_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36297,10 +36722,14 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
     ), mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "post_delete_batch_prediction_job"
     ) as post, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
+        "post_delete_batch_prediction_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor, "pre_delete_batch_prediction_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteBatchPredictionJobRequest.pb(
             job_service.DeleteBatchPredictionJobRequest()
         )
@@ -36324,6 +36753,7 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_batch_prediction_job(
             request,
@@ -36335,6 +36765,7 @@ async def test_delete_batch_prediction_job_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36771,10 +37202,14 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_create_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_create_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_create_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.CreateModelDeploymentMonitoringJobRequest.pb(
             job_service.CreateModelDeploymentMonitoringJobRequest()
         )
@@ -36804,6 +37239,10 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
         post.return_value = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         await client.create_model_deployment_monitoring_job(
             request,
@@ -36815,6 +37254,7 @@ async def test_create_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -36935,10 +37375,14 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
         "post_search_model_deployment_monitoring_stats_anomalies",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_search_model_deployment_monitoring_stats_anomalies_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_search_model_deployment_monitoring_stats_anomalies",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.pb(
                 job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest()
@@ -36970,6 +37414,10 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
         post.return_value = (
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse()
         )
+        post_with_metadata.return_value = (
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse(),
+            metadata,
+        )
 
         await client.search_model_deployment_monitoring_stats_anomalies(
             request,
@@ -36981,6 +37429,7 @@ async def test_search_model_deployment_monitoring_stats_anomalies_rest_asyncio_i
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -37116,10 +37565,14 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_get_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_get_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_get_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.GetModelDeploymentMonitoringJobRequest.pb(
             job_service.GetModelDeploymentMonitoringJobRequest()
         )
@@ -37149,6 +37602,10 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
         post.return_value = (
             model_deployment_monitoring_job.ModelDeploymentMonitoringJob()
         )
+        post_with_metadata.return_value = (
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob(),
+            metadata,
+        )
 
         await client.get_model_deployment_monitoring_job(
             request,
@@ -37160,6 +37617,7 @@ async def test_get_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -37268,10 +37726,14 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
         "post_list_model_deployment_monitoring_jobs",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_list_model_deployment_monitoring_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_list_model_deployment_monitoring_jobs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.ListModelDeploymentMonitoringJobsRequest.pb(
             job_service.ListModelDeploymentMonitoringJobsRequest()
         )
@@ -37297,6 +37759,10 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = job_service.ListModelDeploymentMonitoringJobsResponse()
+        post_with_metadata.return_value = (
+            job_service.ListModelDeploymentMonitoringJobsResponse(),
+            metadata,
+        )
 
         await client.list_model_deployment_monitoring_jobs(
             request,
@@ -37308,6 +37774,7 @@ async def test_list_model_deployment_monitoring_jobs_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -37592,10 +38059,14 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_update_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_update_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_update_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.UpdateModelDeploymentMonitoringJobRequest.pb(
             job_service.UpdateModelDeploymentMonitoringJobRequest()
         )
@@ -37619,6 +38090,7 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_model_deployment_monitoring_job(
             request,
@@ -37630,6 +38102,7 @@ async def test_update_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -37736,10 +38209,14 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
         "post_delete_model_deployment_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncJobServiceRestInterceptor,
+        "post_delete_model_deployment_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncJobServiceRestInterceptor,
         "pre_delete_model_deployment_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = job_service.DeleteModelDeploymentMonitoringJobRequest.pb(
             job_service.DeleteModelDeploymentMonitoringJobRequest()
         )
@@ -37763,6 +38240,7 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_model_deployment_monitoring_job(
             request,
@@ -37774,6 +38252,7 @@ async def test_delete_model_deployment_monitoring_job_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

@@ -101,6 +101,14 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -385,6 +393,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         DeploymentResourcePoolServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = DeploymentResourcePoolServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = DeploymentResourcePoolServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -5659,10 +5710,14 @@ def test_create_deployment_resource_pool_rest_interceptors(null_interceptor):
         "post_create_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_create_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
         "pre_create_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.CreateDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
@@ -5688,6 +5743,7 @@ def test_create_deployment_resource_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_deployment_resource_pool(
             request,
@@ -5699,6 +5755,7 @@ def test_create_deployment_resource_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_deployment_resource_pool_rest_bad_request(
@@ -5797,10 +5854,14 @@ def test_get_deployment_resource_pool_rest_interceptors(null_interceptor):
         "post_get_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_get_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
         "pre_get_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.GetDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
@@ -5828,6 +5889,10 @@ def test_get_deployment_resource_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = deployment_resource_pool.DeploymentResourcePool()
+        post_with_metadata.return_value = (
+            deployment_resource_pool.DeploymentResourcePool(),
+            metadata,
+        )
 
         client.get_deployment_resource_pool(
             request,
@@ -5839,6 +5904,7 @@ def test_get_deployment_resource_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_deployment_resource_pools_rest_bad_request(
@@ -5931,10 +5997,14 @@ def test_list_deployment_resource_pools_rest_interceptors(null_interceptor):
         "post_list_deployment_resource_pools",
     ) as post, mock.patch.object(
         transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_list_deployment_resource_pools_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
         "pre_list_deployment_resource_pools",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.ListDeploymentResourcePoolsRequest.pb(
                 deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
@@ -5964,6 +6034,10 @@ def test_list_deployment_resource_pools_rest_interceptors(null_interceptor):
         post.return_value = (
             deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
         )
+        post_with_metadata.return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(),
+            metadata,
+        )
 
         client.list_deployment_resource_pools(
             request,
@@ -5975,6 +6049,7 @@ def test_list_deployment_resource_pools_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_deployment_resource_pool_rest_bad_request(
@@ -6165,10 +6240,14 @@ def test_update_deployment_resource_pool_rest_interceptors(null_interceptor):
         "post_update_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_update_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
         "pre_update_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest()
@@ -6194,6 +6273,7 @@ def test_update_deployment_resource_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_deployment_resource_pool(
             request,
@@ -6205,6 +6285,7 @@ def test_update_deployment_resource_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_deployment_resource_pool_rest_bad_request(
@@ -6291,10 +6372,14 @@ def test_delete_deployment_resource_pool_rest_interceptors(null_interceptor):
         "post_delete_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_delete_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
         "pre_delete_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
@@ -6320,6 +6405,7 @@ def test_delete_deployment_resource_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_deployment_resource_pool(
             request,
@@ -6331,6 +6417,7 @@ def test_delete_deployment_resource_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_query_deployed_models_rest_bad_request(
@@ -6427,10 +6514,14 @@ def test_query_deployed_models_rest_interceptors(null_interceptor):
         "post_query_deployed_models",
     ) as post, mock.patch.object(
         transports.DeploymentResourcePoolServiceRestInterceptor,
+        "post_query_deployed_models_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.DeploymentResourcePoolServiceRestInterceptor,
         "pre_query_deployed_models",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = deployment_resource_pool_service.QueryDeployedModelsRequest.pb(
             deployment_resource_pool_service.QueryDeployedModelsRequest()
         )
@@ -6460,6 +6551,10 @@ def test_query_deployed_models_rest_interceptors(null_interceptor):
         post.return_value = (
             deployment_resource_pool_service.QueryDeployedModelsResponse()
         )
+        post_with_metadata.return_value = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(),
+            metadata,
+        )
 
         client.query_deployed_models(
             request,
@@ -6471,6 +6566,7 @@ def test_query_deployed_models_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -7373,10 +7469,14 @@ async def test_create_deployment_resource_pool_rest_asyncio_interceptors(
         "post_create_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
+        "post_create_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
         "pre_create_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.CreateDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
@@ -7402,6 +7502,7 @@ async def test_create_deployment_resource_pool_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_deployment_resource_pool(
             request,
@@ -7413,6 +7514,7 @@ async def test_create_deployment_resource_pool_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7527,10 +7629,14 @@ async def test_get_deployment_resource_pool_rest_asyncio_interceptors(null_inter
         "post_get_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
+        "post_get_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
         "pre_get_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.GetDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
@@ -7558,6 +7664,10 @@ async def test_get_deployment_resource_pool_rest_asyncio_interceptors(null_inter
         ]
         pre.return_value = request, metadata
         post.return_value = deployment_resource_pool.DeploymentResourcePool()
+        post_with_metadata.return_value = (
+            deployment_resource_pool.DeploymentResourcePool(),
+            metadata,
+        )
 
         await client.get_deployment_resource_pool(
             request,
@@ -7569,6 +7679,7 @@ async def test_get_deployment_resource_pool_rest_asyncio_interceptors(null_inter
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7679,10 +7790,14 @@ async def test_list_deployment_resource_pools_rest_asyncio_interceptors(
         "post_list_deployment_resource_pools",
     ) as post, mock.patch.object(
         transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
+        "post_list_deployment_resource_pools_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
         "pre_list_deployment_resource_pools",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.ListDeploymentResourcePoolsRequest.pb(
                 deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
@@ -7712,6 +7827,10 @@ async def test_list_deployment_resource_pools_rest_asyncio_interceptors(
         post.return_value = (
             deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
         )
+        post_with_metadata.return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(),
+            metadata,
+        )
 
         await client.list_deployment_resource_pools(
             request,
@@ -7723,6 +7842,7 @@ async def test_list_deployment_resource_pools_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7931,10 +8051,14 @@ async def test_update_deployment_resource_pool_rest_asyncio_interceptors(
         "post_update_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
+        "post_update_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
         "pre_update_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.UpdateDeploymentResourcePoolRequest()
@@ -7960,6 +8084,7 @@ async def test_update_deployment_resource_pool_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_deployment_resource_pool(
             request,
@@ -7971,6 +8096,7 @@ async def test_update_deployment_resource_pool_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8075,10 +8201,14 @@ async def test_delete_deployment_resource_pool_rest_asyncio_interceptors(
         "post_delete_deployment_resource_pool",
     ) as post, mock.patch.object(
         transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
+        "post_delete_deployment_resource_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
         "pre_delete_deployment_resource_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = (
             deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest.pb(
                 deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
@@ -8104,6 +8234,7 @@ async def test_delete_deployment_resource_pool_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_deployment_resource_pool(
             request,
@@ -8115,6 +8246,7 @@ async def test_delete_deployment_resource_pool_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8227,10 +8359,14 @@ async def test_query_deployed_models_rest_asyncio_interceptors(null_interceptor)
         "post_query_deployed_models",
     ) as post, mock.patch.object(
         transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
+        "post_query_deployed_models_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncDeploymentResourcePoolServiceRestInterceptor,
         "pre_query_deployed_models",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = deployment_resource_pool_service.QueryDeployedModelsRequest.pb(
             deployment_resource_pool_service.QueryDeployedModelsRequest()
         )
@@ -8260,6 +8396,10 @@ async def test_query_deployed_models_rest_asyncio_interceptors(null_interceptor)
         post.return_value = (
             deployment_resource_pool_service.QueryDeployedModelsResponse()
         )
+        post_with_metadata.return_value = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(),
+            metadata,
+        )
 
         await client.query_deployed_models(
             request,
@@ -8271,6 +8411,7 @@ async def test_query_deployed_models_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

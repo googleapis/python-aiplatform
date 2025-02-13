@@ -80,6 +80,14 @@ from google.protobuf import struct_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -356,6 +364,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         FeatureOnlineStoreServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = FeatureOnlineStoreServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = FeatureOnlineStoreServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -2397,10 +2448,14 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeatureOnlineStoreServiceRestInterceptor, "post_fetch_feature_values"
     ) as post, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor,
+        "post_fetch_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeatureOnlineStoreServiceRestInterceptor, "pre_fetch_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.FetchFeatureValuesRequest.pb(
             feature_online_store_service.FetchFeatureValuesRequest()
         )
@@ -2426,6 +2481,10 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.FetchFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.FetchFeatureValuesResponse(),
+            metadata,
+        )
 
         client.fetch_feature_values(
             request,
@@ -2437,6 +2496,7 @@ def test_fetch_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_search_nearest_entities_rest_bad_request(
@@ -2528,10 +2588,14 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
         "post_search_nearest_entities",
     ) as post, mock.patch.object(
         transports.FeatureOnlineStoreServiceRestInterceptor,
+        "post_search_nearest_entities_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeatureOnlineStoreServiceRestInterceptor,
         "pre_search_nearest_entities",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.SearchNearestEntitiesRequest.pb(
             feature_online_store_service.SearchNearestEntitiesRequest()
         )
@@ -2559,6 +2623,10 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.SearchNearestEntitiesResponse(),
+            metadata,
+        )
 
         client.search_nearest_entities(
             request,
@@ -2570,6 +2638,7 @@ def test_search_nearest_entities_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -3362,10 +3431,14 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
         "post_fetch_feature_values",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
+        "post_fetch_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
         "pre_fetch_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.FetchFeatureValuesRequest.pb(
             feature_online_store_service.FetchFeatureValuesRequest()
         )
@@ -3391,6 +3464,10 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.FetchFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.FetchFeatureValuesResponse(),
+            metadata,
+        )
 
         await client.fetch_feature_values(
             request,
@@ -3402,6 +3479,7 @@ async def test_fetch_feature_values_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -3509,10 +3587,14 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
         "post_search_nearest_entities",
     ) as post, mock.patch.object(
         transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
+        "post_search_nearest_entities_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeatureOnlineStoreServiceRestInterceptor,
         "pre_search_nearest_entities",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = feature_online_store_service.SearchNearestEntitiesRequest.pb(
             feature_online_store_service.SearchNearestEntitiesRequest()
         )
@@ -3540,6 +3622,10 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = feature_online_store_service.SearchNearestEntitiesResponse()
+        post_with_metadata.return_value = (
+            feature_online_store_service.SearchNearestEntitiesResponse(),
+            metadata,
+        )
 
         await client.search_nearest_entities(
             request,
@@ -3551,6 +3637,7 @@ async def test_search_nearest_entities_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

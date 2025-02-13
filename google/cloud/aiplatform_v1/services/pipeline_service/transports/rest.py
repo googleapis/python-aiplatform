@@ -198,11 +198,34 @@ class PipelineServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for batch_cancel_pipeline_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_cancel_pipeline_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_cancel_pipeline_jobs` interceptor runs
+        before the `post_batch_cancel_pipeline_jobs_with_metadata` interceptor.
         """
         return response
+
+    def post_batch_cancel_pipeline_jobs_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for batch_cancel_pipeline_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_cancel_pipeline_jobs_with_metadata`
+        interceptor in new development instead of the `post_batch_cancel_pipeline_jobs` interceptor.
+        When both interceptors are used, this `post_batch_cancel_pipeline_jobs_with_metadata` interceptor runs after the
+        `post_batch_cancel_pipeline_jobs` interceptor. The (possibly modified) response returned by
+        `post_batch_cancel_pipeline_jobs` will be passed to
+        `post_batch_cancel_pipeline_jobs_with_metadata`.
+        """
+        return response, metadata
 
     def pre_batch_delete_pipeline_jobs(
         self,
@@ -224,11 +247,34 @@ class PipelineServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for batch_delete_pipeline_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_delete_pipeline_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_delete_pipeline_jobs` interceptor runs
+        before the `post_batch_delete_pipeline_jobs_with_metadata` interceptor.
         """
         return response
+
+    def post_batch_delete_pipeline_jobs_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for batch_delete_pipeline_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_delete_pipeline_jobs_with_metadata`
+        interceptor in new development instead of the `post_batch_delete_pipeline_jobs` interceptor.
+        When both interceptors are used, this `post_batch_delete_pipeline_jobs_with_metadata` interceptor runs after the
+        `post_batch_delete_pipeline_jobs` interceptor. The (possibly modified) response returned by
+        `post_batch_delete_pipeline_jobs` will be passed to
+        `post_batch_delete_pipeline_jobs_with_metadata`.
+        """
+        return response, metadata
 
     def pre_cancel_pipeline_job(
         self,
@@ -280,11 +326,34 @@ class PipelineServiceRestInterceptor:
     ) -> gca_pipeline_job.PipelineJob:
         """Post-rpc interceptor for create_pipeline_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_pipeline_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_pipeline_job` interceptor runs
+        before the `post_create_pipeline_job_with_metadata` interceptor.
         """
         return response
+
+    def post_create_pipeline_job_with_metadata(
+        self,
+        response: gca_pipeline_job.PipelineJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_pipeline_job.PipelineJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_pipeline_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_create_pipeline_job_with_metadata`
+        interceptor in new development instead of the `post_create_pipeline_job` interceptor.
+        When both interceptors are used, this `post_create_pipeline_job_with_metadata` interceptor runs after the
+        `post_create_pipeline_job` interceptor. The (possibly modified) response returned by
+        `post_create_pipeline_job` will be passed to
+        `post_create_pipeline_job_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_training_pipeline(
         self,
@@ -306,11 +375,36 @@ class PipelineServiceRestInterceptor:
     ) -> gca_training_pipeline.TrainingPipeline:
         """Post-rpc interceptor for create_training_pipeline
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_training_pipeline_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_training_pipeline` interceptor runs
+        before the `post_create_training_pipeline_with_metadata` interceptor.
         """
         return response
+
+    def post_create_training_pipeline_with_metadata(
+        self,
+        response: gca_training_pipeline.TrainingPipeline,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_training_pipeline.TrainingPipeline, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for create_training_pipeline
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_create_training_pipeline_with_metadata`
+        interceptor in new development instead of the `post_create_training_pipeline` interceptor.
+        When both interceptors are used, this `post_create_training_pipeline_with_metadata` interceptor runs after the
+        `post_create_training_pipeline` interceptor. The (possibly modified) response returned by
+        `post_create_training_pipeline` will be passed to
+        `post_create_training_pipeline_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_pipeline_job(
         self,
@@ -332,11 +426,34 @@ class PipelineServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_pipeline_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_pipeline_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_pipeline_job` interceptor runs
+        before the `post_delete_pipeline_job_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_pipeline_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_pipeline_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_pipeline_job_with_metadata`
+        interceptor in new development instead of the `post_delete_pipeline_job` interceptor.
+        When both interceptors are used, this `post_delete_pipeline_job_with_metadata` interceptor runs after the
+        `post_delete_pipeline_job` interceptor. The (possibly modified) response returned by
+        `post_delete_pipeline_job` will be passed to
+        `post_delete_pipeline_job_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_training_pipeline(
         self,
@@ -358,11 +475,34 @@ class PipelineServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_training_pipeline
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_training_pipeline_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_training_pipeline` interceptor runs
+        before the `post_delete_training_pipeline_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_training_pipeline_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_training_pipeline
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_training_pipeline_with_metadata`
+        interceptor in new development instead of the `post_delete_training_pipeline` interceptor.
+        When both interceptors are used, this `post_delete_training_pipeline_with_metadata` interceptor runs after the
+        `post_delete_training_pipeline` interceptor. The (possibly modified) response returned by
+        `post_delete_training_pipeline` will be passed to
+        `post_delete_training_pipeline_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_pipeline_job(
         self,
@@ -383,11 +523,34 @@ class PipelineServiceRestInterceptor:
     ) -> pipeline_job.PipelineJob:
         """Post-rpc interceptor for get_pipeline_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_pipeline_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_pipeline_job` interceptor runs
+        before the `post_get_pipeline_job_with_metadata` interceptor.
         """
         return response
+
+    def post_get_pipeline_job_with_metadata(
+        self,
+        response: pipeline_job.PipelineJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[pipeline_job.PipelineJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_pipeline_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_get_pipeline_job_with_metadata`
+        interceptor in new development instead of the `post_get_pipeline_job` interceptor.
+        When both interceptors are used, this `post_get_pipeline_job_with_metadata` interceptor runs after the
+        `post_get_pipeline_job` interceptor. The (possibly modified) response returned by
+        `post_get_pipeline_job` will be passed to
+        `post_get_pipeline_job_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_training_pipeline(
         self,
@@ -409,11 +572,36 @@ class PipelineServiceRestInterceptor:
     ) -> training_pipeline.TrainingPipeline:
         """Post-rpc interceptor for get_training_pipeline
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_training_pipeline_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_training_pipeline` interceptor runs
+        before the `post_get_training_pipeline_with_metadata` interceptor.
         """
         return response
+
+    def post_get_training_pipeline_with_metadata(
+        self,
+        response: training_pipeline.TrainingPipeline,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        training_pipeline.TrainingPipeline, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_training_pipeline
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_get_training_pipeline_with_metadata`
+        interceptor in new development instead of the `post_get_training_pipeline` interceptor.
+        When both interceptors are used, this `post_get_training_pipeline_with_metadata` interceptor runs after the
+        `post_get_training_pipeline` interceptor. The (possibly modified) response returned by
+        `post_get_training_pipeline` will be passed to
+        `post_get_training_pipeline_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_pipeline_jobs(
         self,
@@ -435,11 +623,37 @@ class PipelineServiceRestInterceptor:
     ) -> pipeline_service.ListPipelineJobsResponse:
         """Post-rpc interceptor for list_pipeline_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_pipeline_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_pipeline_jobs` interceptor runs
+        before the `post_list_pipeline_jobs_with_metadata` interceptor.
         """
         return response
+
+    def post_list_pipeline_jobs_with_metadata(
+        self,
+        response: pipeline_service.ListPipelineJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.ListPipelineJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_pipeline_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_list_pipeline_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_pipeline_jobs` interceptor.
+        When both interceptors are used, this `post_list_pipeline_jobs_with_metadata` interceptor runs after the
+        `post_list_pipeline_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_pipeline_jobs` will be passed to
+        `post_list_pipeline_jobs_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_training_pipelines(
         self,
@@ -461,11 +675,37 @@ class PipelineServiceRestInterceptor:
     ) -> pipeline_service.ListTrainingPipelinesResponse:
         """Post-rpc interceptor for list_training_pipelines
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_training_pipelines_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PipelineService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_training_pipelines` interceptor runs
+        before the `post_list_training_pipelines_with_metadata` interceptor.
         """
         return response
+
+    def post_list_training_pipelines_with_metadata(
+        self,
+        response: pipeline_service.ListTrainingPipelinesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        pipeline_service.ListTrainingPipelinesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_training_pipelines
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PipelineService server but before it is returned to user code.
+
+        We recommend only using this `post_list_training_pipelines_with_metadata`
+        interceptor in new development instead of the `post_list_training_pipelines` interceptor.
+        When both interceptors are used, this `post_list_training_pipelines_with_metadata` interceptor runs after the
+        `post_list_training_pipelines` interceptor. The (possibly modified) response returned by
+        `post_list_training_pipelines` will be passed to
+        `post_list_training_pipelines_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -2847,6 +3087,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_batch_cancel_pipeline_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_batch_cancel_pipeline_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3002,6 +3246,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_batch_delete_pipeline_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_batch_delete_pipeline_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3391,6 +3639,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_pipeline_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_pipeline_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3550,6 +3802,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_training_pipeline(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_training_pipeline_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3698,6 +3954,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_pipeline_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_pipeline_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3846,6 +4106,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_training_pipeline(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_training_pipeline_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3992,6 +4256,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_pipeline_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_pipeline_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4143,6 +4411,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_training_pipeline(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_training_pipeline_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4291,6 +4563,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_pipeline_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_pipeline_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4442,6 +4718,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_training_pipelines(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_training_pipelines_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

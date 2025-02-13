@@ -130,11 +130,34 @@ class ModelGardenServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for deploy_publisher_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_deploy_publisher_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelGardenService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_deploy_publisher_model` interceptor runs
+        before the `post_deploy_publisher_model_with_metadata` interceptor.
         """
         return response
+
+    def post_deploy_publisher_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for deploy_publisher_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelGardenService server but before it is returned to user code.
+
+        We recommend only using this `post_deploy_publisher_model_with_metadata`
+        interceptor in new development instead of the `post_deploy_publisher_model` interceptor.
+        When both interceptors are used, this `post_deploy_publisher_model_with_metadata` interceptor runs after the
+        `post_deploy_publisher_model` interceptor. The (possibly modified) response returned by
+        `post_deploy_publisher_model` will be passed to
+        `post_deploy_publisher_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_publisher_model(
         self,
@@ -156,11 +179,34 @@ class ModelGardenServiceRestInterceptor:
     ) -> publisher_model.PublisherModel:
         """Post-rpc interceptor for get_publisher_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_publisher_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelGardenService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_publisher_model` interceptor runs
+        before the `post_get_publisher_model_with_metadata` interceptor.
         """
         return response
+
+    def post_get_publisher_model_with_metadata(
+        self,
+        response: publisher_model.PublisherModel,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[publisher_model.PublisherModel, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_publisher_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelGardenService server but before it is returned to user code.
+
+        We recommend only using this `post_get_publisher_model_with_metadata`
+        interceptor in new development instead of the `post_get_publisher_model` interceptor.
+        When both interceptors are used, this `post_get_publisher_model_with_metadata` interceptor runs after the
+        `post_get_publisher_model` interceptor. The (possibly modified) response returned by
+        `post_get_publisher_model` will be passed to
+        `post_get_publisher_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_publisher_models(
         self,
@@ -182,11 +228,37 @@ class ModelGardenServiceRestInterceptor:
     ) -> model_garden_service.ListPublisherModelsResponse:
         """Post-rpc interceptor for list_publisher_models
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_publisher_models_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelGardenService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_publisher_models` interceptor runs
+        before the `post_list_publisher_models_with_metadata` interceptor.
         """
         return response
+
+    def post_list_publisher_models_with_metadata(
+        self,
+        response: model_garden_service.ListPublisherModelsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.ListPublisherModelsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_publisher_models
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelGardenService server but before it is returned to user code.
+
+        We recommend only using this `post_list_publisher_models_with_metadata`
+        interceptor in new development instead of the `post_list_publisher_models` interceptor.
+        When both interceptors are used, this `post_list_publisher_models_with_metadata` interceptor runs after the
+        `post_list_publisher_models` interceptor. The (possibly modified) response returned by
+        `post_list_publisher_models` will be passed to
+        `post_list_publisher_models_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -2736,6 +2808,10 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_deploy_publisher_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_deploy_publisher_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2881,6 +2957,10 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_publisher_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_publisher_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3030,6 +3110,10 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_publisher_models(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_publisher_models_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

@@ -27,6 +27,7 @@ from google.cloud.aiplatform_v1.types import notebook_idle_shutdown_config
 from google.cloud.aiplatform_v1.types import (
     notebook_runtime_template_ref as gca_notebook_runtime_template_ref,
 )
+from google.cloud.aiplatform_v1.types import notebook_software_config
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -150,6 +151,9 @@ class NotebookRuntimeTemplate(proto.Message):
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Customer-managed encryption key spec for the
             notebook runtime.
+        software_config (google.cloud.aiplatform_v1.types.NotebookSoftwareConfig):
+            Optional. The notebook software configuration
+            of the notebook runtime.
     """
 
     name: str = proto.Field(
@@ -236,6 +240,11 @@ class NotebookRuntimeTemplate(proto.Message):
         proto.MESSAGE,
         number=23,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    software_config: notebook_software_config.NotebookSoftwareConfig = proto.Field(
+        proto.MESSAGE,
+        number=24,
+        message=notebook_software_config.NotebookSoftwareConfig,
     )
 
 
@@ -351,6 +360,9 @@ class NotebookRuntime(proto.Message):
             Optional. The Compute Engine tags to add to runtime (see
             `Tagging
             instances <https://cloud.google.com/vpc/docs/add-remove-network-tags>`__).
+        software_config (google.cloud.aiplatform_v1.types.NotebookSoftwareConfig):
+            Output only. Software config of the notebook
+            runtime.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
             Output only. Customer-managed encryption key
             spec for the notebook runtime.
@@ -520,6 +532,11 @@ class NotebookRuntime(proto.Message):
     network_tags: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=25,
+    )
+    software_config: notebook_software_config.NotebookSoftwareConfig = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=notebook_software_config.NotebookSoftwareConfig,
     )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,

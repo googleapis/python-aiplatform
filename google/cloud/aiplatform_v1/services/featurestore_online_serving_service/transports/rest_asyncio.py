@@ -145,11 +145,37 @@ class AsyncFeaturestoreOnlineServingServiceRestInterceptor:
     ) -> featurestore_online_service.ReadFeatureValuesResponse:
         """Post-rpc interceptor for read_feature_values
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_read_feature_values_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeaturestoreOnlineServingService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_read_feature_values` interceptor runs
+        before the `post_read_feature_values_with_metadata` interceptor.
         """
         return response
+
+    async def post_read_feature_values_with_metadata(
+        self,
+        response: featurestore_online_service.ReadFeatureValuesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        featurestore_online_service.ReadFeatureValuesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for read_feature_values
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeaturestoreOnlineServingService server but before it is returned to user code.
+
+        We recommend only using this `post_read_feature_values_with_metadata`
+        interceptor in new development instead of the `post_read_feature_values` interceptor.
+        When both interceptors are used, this `post_read_feature_values_with_metadata` interceptor runs after the
+        `post_read_feature_values` interceptor. The (possibly modified) response returned by
+        `post_read_feature_values` will be passed to
+        `post_read_feature_values_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_streaming_read_feature_values(
         self,
@@ -171,11 +197,37 @@ class AsyncFeaturestoreOnlineServingServiceRestInterceptor:
     ) -> rest_streaming_async.AsyncResponseIterator:
         """Post-rpc interceptor for streaming_read_feature_values
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_streaming_read_feature_values_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeaturestoreOnlineServingService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_streaming_read_feature_values` interceptor runs
+        before the `post_streaming_read_feature_values_with_metadata` interceptor.
         """
         return response
+
+    async def post_streaming_read_feature_values_with_metadata(
+        self,
+        response: rest_streaming_async.AsyncResponseIterator,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        rest_streaming_async.AsyncResponseIterator,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for streaming_read_feature_values
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeaturestoreOnlineServingService server but before it is returned to user code.
+
+        We recommend only using this `post_streaming_read_feature_values_with_metadata`
+        interceptor in new development instead of the `post_streaming_read_feature_values` interceptor.
+        When both interceptors are used, this `post_streaming_read_feature_values_with_metadata` interceptor runs after the
+        `post_streaming_read_feature_values` interceptor. The (possibly modified) response returned by
+        `post_streaming_read_feature_values` will be passed to
+        `post_streaming_read_feature_values_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_write_feature_values(
         self,
@@ -197,11 +249,37 @@ class AsyncFeaturestoreOnlineServingServiceRestInterceptor:
     ) -> featurestore_online_service.WriteFeatureValuesResponse:
         """Post-rpc interceptor for write_feature_values
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_write_feature_values_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeaturestoreOnlineServingService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_write_feature_values` interceptor runs
+        before the `post_write_feature_values_with_metadata` interceptor.
         """
         return response
+
+    async def post_write_feature_values_with_metadata(
+        self,
+        response: featurestore_online_service.WriteFeatureValuesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        featurestore_online_service.WriteFeatureValuesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for write_feature_values
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeaturestoreOnlineServingService server but before it is returned to user code.
+
+        We recommend only using this `post_write_feature_values_with_metadata`
+        interceptor in new development instead of the `post_write_feature_values` interceptor.
+        When both interceptors are used, this `post_write_feature_values_with_metadata` interceptor runs after the
+        `post_write_feature_values` interceptor. The (possibly modified) response returned by
+        `post_write_feature_values` will be passed to
+        `post_write_feature_values_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -730,6 +808,10 @@ class AsyncFeaturestoreOnlineServingServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_read_feature_values(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_read_feature_values_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -898,6 +980,13 @@ class AsyncFeaturestoreOnlineServingServiceRestTransport(
                 response, featurestore_online_service.ReadFeatureValuesResponse
             )
             resp = await self._interceptor.post_streaming_read_feature_values(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_streaming_read_feature_values_with_metadata(
+                resp, response_metadata
+            )
             return resp
 
     class _WriteFeatureValues(
@@ -1037,6 +1126,10 @@ class AsyncFeaturestoreOnlineServingServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_write_feature_values(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_write_feature_values_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

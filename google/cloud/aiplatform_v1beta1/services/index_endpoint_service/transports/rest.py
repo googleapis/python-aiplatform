@@ -171,11 +171,34 @@ class IndexEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_index_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_index_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_index_endpoint` interceptor runs
+        before the `post_create_index_endpoint_with_metadata` interceptor.
         """
         return response
+
+    def post_create_index_endpoint_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_index_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_create_index_endpoint_with_metadata`
+        interceptor in new development instead of the `post_create_index_endpoint` interceptor.
+        When both interceptors are used, this `post_create_index_endpoint_with_metadata` interceptor runs after the
+        `post_create_index_endpoint` interceptor. The (possibly modified) response returned by
+        `post_create_index_endpoint` will be passed to
+        `post_create_index_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_index_endpoint(
         self,
@@ -197,11 +220,34 @@ class IndexEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_index_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_index_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_index_endpoint` interceptor runs
+        before the `post_delete_index_endpoint_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_index_endpoint_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_index_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_index_endpoint_with_metadata`
+        interceptor in new development instead of the `post_delete_index_endpoint` interceptor.
+        When both interceptors are used, this `post_delete_index_endpoint_with_metadata` interceptor runs after the
+        `post_delete_index_endpoint` interceptor. The (possibly modified) response returned by
+        `post_delete_index_endpoint` will be passed to
+        `post_delete_index_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     def pre_deploy_index(
         self,
@@ -223,11 +269,34 @@ class IndexEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for deploy_index
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_deploy_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_deploy_index` interceptor runs
+        before the `post_deploy_index_with_metadata` interceptor.
         """
         return response
+
+    def post_deploy_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for deploy_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_deploy_index_with_metadata`
+        interceptor in new development instead of the `post_deploy_index` interceptor.
+        When both interceptors are used, this `post_deploy_index_with_metadata` interceptor runs after the
+        `post_deploy_index` interceptor. The (possibly modified) response returned by
+        `post_deploy_index` will be passed to
+        `post_deploy_index_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_index_endpoint(
         self,
@@ -249,11 +318,34 @@ class IndexEndpointServiceRestInterceptor:
     ) -> index_endpoint.IndexEndpoint:
         """Post-rpc interceptor for get_index_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_index_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_index_endpoint` interceptor runs
+        before the `post_get_index_endpoint_with_metadata` interceptor.
         """
         return response
+
+    def post_get_index_endpoint_with_metadata(
+        self,
+        response: index_endpoint.IndexEndpoint,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[index_endpoint.IndexEndpoint, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_index_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_get_index_endpoint_with_metadata`
+        interceptor in new development instead of the `post_get_index_endpoint` interceptor.
+        When both interceptors are used, this `post_get_index_endpoint_with_metadata` interceptor runs after the
+        `post_get_index_endpoint` interceptor. The (possibly modified) response returned by
+        `post_get_index_endpoint` will be passed to
+        `post_get_index_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_index_endpoints(
         self,
@@ -275,11 +367,37 @@ class IndexEndpointServiceRestInterceptor:
     ) -> index_endpoint_service.ListIndexEndpointsResponse:
         """Post-rpc interceptor for list_index_endpoints
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_index_endpoints_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_index_endpoints` interceptor runs
+        before the `post_list_index_endpoints_with_metadata` interceptor.
         """
         return response
+
+    def post_list_index_endpoints_with_metadata(
+        self,
+        response: index_endpoint_service.ListIndexEndpointsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_endpoint_service.ListIndexEndpointsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_index_endpoints
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_list_index_endpoints_with_metadata`
+        interceptor in new development instead of the `post_list_index_endpoints` interceptor.
+        When both interceptors are used, this `post_list_index_endpoints_with_metadata` interceptor runs after the
+        `post_list_index_endpoints` interceptor. The (possibly modified) response returned by
+        `post_list_index_endpoints` will be passed to
+        `post_list_index_endpoints_with_metadata`.
+        """
+        return response, metadata
 
     def pre_mutate_deployed_index(
         self,
@@ -301,11 +419,34 @@ class IndexEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for mutate_deployed_index
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_mutate_deployed_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_mutate_deployed_index` interceptor runs
+        before the `post_mutate_deployed_index_with_metadata` interceptor.
         """
         return response
+
+    def post_mutate_deployed_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for mutate_deployed_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_mutate_deployed_index_with_metadata`
+        interceptor in new development instead of the `post_mutate_deployed_index` interceptor.
+        When both interceptors are used, this `post_mutate_deployed_index_with_metadata` interceptor runs after the
+        `post_mutate_deployed_index` interceptor. The (possibly modified) response returned by
+        `post_mutate_deployed_index` will be passed to
+        `post_mutate_deployed_index_with_metadata`.
+        """
+        return response, metadata
 
     def pre_undeploy_index(
         self,
@@ -327,11 +468,34 @@ class IndexEndpointServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for undeploy_index
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_undeploy_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_undeploy_index` interceptor runs
+        before the `post_undeploy_index_with_metadata` interceptor.
         """
         return response
+
+    def post_undeploy_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for undeploy_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_undeploy_index_with_metadata`
+        interceptor in new development instead of the `post_undeploy_index` interceptor.
+        When both interceptors are used, this `post_undeploy_index_with_metadata` interceptor runs after the
+        `post_undeploy_index` interceptor. The (possibly modified) response returned by
+        `post_undeploy_index` will be passed to
+        `post_undeploy_index_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_index_endpoint(
         self,
@@ -353,11 +517,36 @@ class IndexEndpointServiceRestInterceptor:
     ) -> gca_index_endpoint.IndexEndpoint:
         """Post-rpc interceptor for update_index_endpoint
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_index_endpoint_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the IndexEndpointService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_index_endpoint` interceptor runs
+        before the `post_update_index_endpoint_with_metadata` interceptor.
         """
         return response
+
+    def post_update_index_endpoint_with_metadata(
+        self,
+        response: gca_index_endpoint.IndexEndpoint,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_index_endpoint.IndexEndpoint, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for update_index_endpoint
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexEndpointService server but before it is returned to user code.
+
+        We recommend only using this `post_update_index_endpoint_with_metadata`
+        interceptor in new development instead of the `post_update_index_endpoint` interceptor.
+        When both interceptors are used, this `post_update_index_endpoint_with_metadata` interceptor runs after the
+        `post_update_index_endpoint` interceptor. The (possibly modified) response returned by
+        `post_update_index_endpoint` will be passed to
+        `post_update_index_endpoint_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -2907,6 +3096,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_index_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_index_endpoint_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3055,6 +3248,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_index_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_index_endpoint_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3205,6 +3402,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_deploy_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_deploy_index_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3355,6 +3556,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_index_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_index_endpoint_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3504,6 +3709,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_index_endpoints(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_index_endpoints_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3662,6 +3871,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_mutate_deployed_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_mutate_deployed_index_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3812,6 +4025,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_undeploy_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_undeploy_index_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3968,6 +4185,10 @@ class IndexEndpointServiceRestTransport(_BaseIndexEndpointServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_index_endpoint(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_index_endpoint_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

@@ -88,6 +88,14 @@ from google.protobuf import wrappers_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -339,6 +347,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         VizierServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = VizierServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = VizierServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -9807,10 +9858,13 @@ def test_create_study_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_create_study"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_create_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_create_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateStudyRequest.pb(
             vizier_service.CreateStudyRequest()
         )
@@ -9834,6 +9888,7 @@ def test_create_study_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_study.Study()
+        post_with_metadata.return_value = gca_study.Study(), metadata
 
         client.create_study(
             request,
@@ -9845,6 +9900,7 @@ def test_create_study_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_study_rest_bad_request(request_type=vizier_service.GetStudyRequest):
@@ -9933,10 +9989,13 @@ def test_get_study_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_get_study"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_get_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_get_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetStudyRequest.pb(vizier_service.GetStudyRequest())
         transcode.return_value = {
             "method": "post",
@@ -9958,6 +10017,7 @@ def test_get_study_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         client.get_study(
             request,
@@ -9969,6 +10029,7 @@ def test_get_study_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_studies_rest_bad_request(request_type=vizier_service.ListStudiesRequest):
@@ -10051,10 +10112,13 @@ def test_list_studies_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_list_studies"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_list_studies_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_list_studies"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListStudiesRequest.pb(
             vizier_service.ListStudiesRequest()
         )
@@ -10080,6 +10144,7 @@ def test_list_studies_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListStudiesResponse()
+        post_with_metadata.return_value = vizier_service.ListStudiesResponse(), metadata
 
         client.list_studies(
             request,
@@ -10091,6 +10156,7 @@ def test_list_studies_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_study_rest_bad_request(request_type=vizier_service.DeleteStudyRequest):
@@ -10286,10 +10352,13 @@ def test_lookup_study_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_lookup_study"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_lookup_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_lookup_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.LookupStudyRequest.pb(
             vizier_service.LookupStudyRequest()
         )
@@ -10313,6 +10382,7 @@ def test_lookup_study_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         client.lookup_study(
             request,
@@ -10324,6 +10394,7 @@ def test_lookup_study_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_suggest_trials_rest_bad_request(
@@ -10404,10 +10475,13 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_suggest_trials"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_suggest_trials_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_suggest_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.SuggestTrialsRequest.pb(
             vizier_service.SuggestTrialsRequest()
         )
@@ -10431,6 +10505,7 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.suggest_trials(
             request,
@@ -10442,6 +10517,7 @@ def test_suggest_trials_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_trial_rest_bad_request(request_type=vizier_service.CreateTrialRequest):
@@ -10631,10 +10707,13 @@ def test_create_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_create_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_create_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_create_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateTrialRequest.pb(
             vizier_service.CreateTrialRequest()
         )
@@ -10658,6 +10737,7 @@ def test_create_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.create_trial(
             request,
@@ -10669,6 +10749,7 @@ def test_create_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_trial_rest_bad_request(request_type=vizier_service.GetTrialRequest):
@@ -10765,10 +10846,13 @@ def test_get_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_get_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_get_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_get_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetTrialRequest.pb(vizier_service.GetTrialRequest())
         transcode.return_value = {
             "method": "post",
@@ -10790,6 +10874,7 @@ def test_get_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.get_trial(
             request,
@@ -10801,6 +10886,7 @@ def test_get_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_trials_rest_bad_request(request_type=vizier_service.ListTrialsRequest):
@@ -10883,10 +10969,13 @@ def test_list_trials_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_list_trials"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_list_trials_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_list_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListTrialsRequest.pb(
             vizier_service.ListTrialsRequest()
         )
@@ -10912,6 +11001,7 @@ def test_list_trials_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListTrialsResponse()
+        post_with_metadata.return_value = vizier_service.ListTrialsResponse(), metadata
 
         client.list_trials(
             request,
@@ -10923,6 +11013,7 @@ def test_list_trials_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_trial_measurement_rest_bad_request(
@@ -11021,10 +11112,14 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_add_trial_measurement"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor,
+        "post_add_trial_measurement_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_add_trial_measurement"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.AddTrialMeasurementRequest.pb(
             vizier_service.AddTrialMeasurementRequest()
         )
@@ -11048,6 +11143,7 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.add_trial_measurement(
             request,
@@ -11059,6 +11155,7 @@ def test_add_trial_measurement_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_complete_trial_rest_bad_request(
@@ -11157,10 +11254,13 @@ def test_complete_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_complete_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_complete_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_complete_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CompleteTrialRequest.pb(
             vizier_service.CompleteTrialRequest()
         )
@@ -11184,6 +11284,7 @@ def test_complete_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.complete_trial(
             request,
@@ -11195,6 +11296,7 @@ def test_complete_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_trial_rest_bad_request(request_type=vizier_service.DeleteTrialRequest):
@@ -11390,10 +11492,14 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_check_trial_early_stopping_state"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor,
+        "post_check_trial_early_stopping_state_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_check_trial_early_stopping_state"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CheckTrialEarlyStoppingStateRequest.pb(
             vizier_service.CheckTrialEarlyStoppingStateRequest()
         )
@@ -11417,6 +11523,7 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.check_trial_early_stopping_state(
             request,
@@ -11428,6 +11535,7 @@ def test_check_trial_early_stopping_state_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stop_trial_rest_bad_request(request_type=vizier_service.StopTrialRequest):
@@ -11524,10 +11632,13 @@ def test_stop_trial_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_stop_trial"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor, "post_stop_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_stop_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.StopTrialRequest.pb(
             vizier_service.StopTrialRequest()
         )
@@ -11551,6 +11662,7 @@ def test_stop_trial_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         client.stop_trial(
             request,
@@ -11562,6 +11674,7 @@ def test_stop_trial_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_optimal_trials_rest_bad_request(
@@ -11643,10 +11756,14 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VizierServiceRestInterceptor, "post_list_optimal_trials"
     ) as post, mock.patch.object(
+        transports.VizierServiceRestInterceptor,
+        "post_list_optimal_trials_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VizierServiceRestInterceptor, "pre_list_optimal_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListOptimalTrialsRequest.pb(
             vizier_service.ListOptimalTrialsRequest()
         )
@@ -11672,6 +11789,10 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListOptimalTrialsResponse()
+        post_with_metadata.return_value = (
+            vizier_service.ListOptimalTrialsResponse(),
+            metadata,
+        )
 
         client.list_optimal_trials(
             request,
@@ -11683,6 +11804,7 @@ def test_list_optimal_trials_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -12914,10 +13036,13 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_create_study"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_create_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_create_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateStudyRequest.pb(
             vizier_service.CreateStudyRequest()
         )
@@ -12941,6 +13066,7 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_study.Study()
+        post_with_metadata.return_value = gca_study.Study(), metadata
 
         await client.create_study(
             request,
@@ -12952,6 +13078,7 @@ async def test_create_study_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13058,10 +13185,13 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_get_study"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_get_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_get_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetStudyRequest.pb(vizier_service.GetStudyRequest())
         transcode.return_value = {
             "method": "post",
@@ -13083,6 +13213,7 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         await client.get_study(
             request,
@@ -13094,6 +13225,7 @@ async def test_get_study_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13194,10 +13326,13 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_list_studies"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_list_studies_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_list_studies"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListStudiesRequest.pb(
             vizier_service.ListStudiesRequest()
         )
@@ -13223,6 +13358,7 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListStudiesResponse()
+        post_with_metadata.return_value = vizier_service.ListStudiesResponse(), metadata
 
         await client.list_studies(
             request,
@@ -13234,6 +13370,7 @@ async def test_list_studies_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13465,10 +13602,13 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_lookup_study"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_lookup_study_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_lookup_study"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.LookupStudyRequest.pb(
             vizier_service.LookupStudyRequest()
         )
@@ -13492,6 +13632,7 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Study()
+        post_with_metadata.return_value = study.Study(), metadata
 
         await client.lookup_study(
             request,
@@ -13503,6 +13644,7 @@ async def test_lookup_study_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13599,10 +13741,14 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_suggest_trials"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_suggest_trials_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_suggest_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.SuggestTrialsRequest.pb(
             vizier_service.SuggestTrialsRequest()
         )
@@ -13626,6 +13772,7 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.suggest_trials(
             request,
@@ -13637,6 +13784,7 @@ async def test_suggest_trials_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13844,10 +13992,13 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_create_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_create_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_create_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CreateTrialRequest.pb(
             vizier_service.CreateTrialRequest()
         )
@@ -13871,6 +14022,7 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.create_trial(
             request,
@@ -13882,6 +14034,7 @@ async def test_create_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13996,10 +14149,13 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_get_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_get_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_get_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.GetTrialRequest.pb(vizier_service.GetTrialRequest())
         transcode.return_value = {
             "method": "post",
@@ -14021,6 +14177,7 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.get_trial(
             request,
@@ -14032,6 +14189,7 @@ async def test_get_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14132,10 +14290,13 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_list_trials"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_list_trials_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_list_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListTrialsRequest.pb(
             vizier_service.ListTrialsRequest()
         )
@@ -14161,6 +14322,7 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListTrialsResponse()
+        post_with_metadata.return_value = vizier_service.ListTrialsResponse(), metadata
 
         await client.list_trials(
             request,
@@ -14172,6 +14334,7 @@ async def test_list_trials_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14286,10 +14449,14 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_add_trial_measurement"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_add_trial_measurement_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_add_trial_measurement"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.AddTrialMeasurementRequest.pb(
             vizier_service.AddTrialMeasurementRequest()
         )
@@ -14313,6 +14480,7 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.add_trial_measurement(
             request,
@@ -14324,6 +14492,7 @@ async def test_add_trial_measurement_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14438,10 +14607,14 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_complete_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_complete_trial_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_complete_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CompleteTrialRequest.pb(
             vizier_service.CompleteTrialRequest()
         )
@@ -14465,6 +14638,7 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.complete_trial(
             request,
@@ -14476,6 +14650,7 @@ async def test_complete_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14709,10 +14884,14 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
         "post_check_trial_early_stopping_state",
     ) as post, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor,
+        "post_check_trial_early_stopping_state_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
         "pre_check_trial_early_stopping_state",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.CheckTrialEarlyStoppingStateRequest.pb(
             vizier_service.CheckTrialEarlyStoppingStateRequest()
         )
@@ -14736,6 +14915,7 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.check_trial_early_stopping_state(
             request,
@@ -14747,6 +14927,7 @@ async def test_check_trial_early_stopping_state_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14861,10 +15042,13 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_stop_trial"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor, "post_stop_trial_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_stop_trial"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.StopTrialRequest.pb(
             vizier_service.StopTrialRequest()
         )
@@ -14888,6 +15072,7 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = study.Trial()
+        post_with_metadata.return_value = study.Trial(), metadata
 
         await client.stop_trial(
             request,
@@ -14899,6 +15084,7 @@ async def test_stop_trial_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14996,10 +15182,14 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "post_list_optimal_trials"
     ) as post, mock.patch.object(
+        transports.AsyncVizierServiceRestInterceptor,
+        "post_list_optimal_trials_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVizierServiceRestInterceptor, "pre_list_optimal_trials"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vizier_service.ListOptimalTrialsRequest.pb(
             vizier_service.ListOptimalTrialsRequest()
         )
@@ -15025,6 +15215,10 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vizier_service.ListOptimalTrialsResponse()
+        post_with_metadata.return_value = (
+            vizier_service.ListOptimalTrialsResponse(),
+            metadata,
+        )
 
         await client.list_optimal_trials(
             request,
@@ -15036,6 +15230,7 @@ async def test_list_optimal_trials_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

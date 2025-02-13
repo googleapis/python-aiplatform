@@ -100,6 +100,14 @@ from google.type import interval_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -370,6 +378,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         FeaturestoreServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = FeaturestoreServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = FeaturestoreServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -14950,10 +15001,14 @@ def test_create_featurestore_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_create_featurestore"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_create_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_create_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.CreateFeaturestoreRequest.pb(
             featurestore_service.CreateFeaturestoreRequest()
         )
@@ -14977,6 +15032,7 @@ def test_create_featurestore_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_featurestore(
             request,
@@ -14988,6 +15044,7 @@ def test_create_featurestore_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_featurestore_rest_bad_request(
@@ -15082,10 +15139,14 @@ def test_get_featurestore_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_get_featurestore"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_get_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_get_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.GetFeaturestoreRequest.pb(
             featurestore_service.GetFeaturestoreRequest()
         )
@@ -15109,6 +15170,7 @@ def test_get_featurestore_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore.Featurestore()
+        post_with_metadata.return_value = featurestore.Featurestore(), metadata
 
         client.get_featurestore(
             request,
@@ -15120,6 +15182,7 @@ def test_get_featurestore_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_featurestores_rest_bad_request(
@@ -15204,10 +15267,14 @@ def test_list_featurestores_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_list_featurestores"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_list_featurestores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_list_featurestores"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ListFeaturestoresRequest.pb(
             featurestore_service.ListFeaturestoresRequest()
         )
@@ -15233,6 +15300,10 @@ def test_list_featurestores_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.ListFeaturestoresResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.ListFeaturestoresResponse(),
+            metadata,
+        )
 
         client.list_featurestores(
             request,
@@ -15244,6 +15315,7 @@ def test_list_featurestores_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_featurestore_rest_bad_request(
@@ -15421,10 +15493,14 @@ def test_update_featurestore_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_update_featurestore"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_update_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_update_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.UpdateFeaturestoreRequest.pb(
             featurestore_service.UpdateFeaturestoreRequest()
         )
@@ -15448,6 +15524,7 @@ def test_update_featurestore_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_featurestore(
             request,
@@ -15459,6 +15536,7 @@ def test_update_featurestore_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_featurestore_rest_bad_request(
@@ -15539,10 +15617,14 @@ def test_delete_featurestore_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_delete_featurestore"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_delete_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_delete_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteFeaturestoreRequest.pb(
             featurestore_service.DeleteFeaturestoreRequest()
         )
@@ -15566,6 +15648,7 @@ def test_delete_featurestore_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_featurestore(
             request,
@@ -15577,6 +15660,7 @@ def test_delete_featurestore_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_entity_type_rest_bad_request(
@@ -15749,10 +15833,14 @@ def test_create_entity_type_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_create_entity_type"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_create_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_create_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.CreateEntityTypeRequest.pb(
             featurestore_service.CreateEntityTypeRequest()
         )
@@ -15776,6 +15864,7 @@ def test_create_entity_type_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_entity_type(
             request,
@@ -15787,6 +15876,7 @@ def test_create_entity_type_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_entity_type_rest_bad_request(
@@ -15885,10 +15975,14 @@ def test_get_entity_type_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_get_entity_type"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_get_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_get_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.GetEntityTypeRequest.pb(
             featurestore_service.GetEntityTypeRequest()
         )
@@ -15912,6 +16006,7 @@ def test_get_entity_type_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = entity_type.EntityType()
+        post_with_metadata.return_value = entity_type.EntityType(), metadata
 
         client.get_entity_type(
             request,
@@ -15923,6 +16018,7 @@ def test_get_entity_type_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_entity_types_rest_bad_request(
@@ -16011,10 +16107,14 @@ def test_list_entity_types_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_list_entity_types"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_list_entity_types_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_list_entity_types"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ListEntityTypesRequest.pb(
             featurestore_service.ListEntityTypesRequest()
         )
@@ -16040,6 +16140,10 @@ def test_list_entity_types_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.ListEntityTypesResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.ListEntityTypesResponse(),
+            metadata,
+        )
 
         client.list_entity_types(
             request,
@@ -16051,6 +16155,7 @@ def test_list_entity_types_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_entity_type_rest_bad_request(
@@ -16241,10 +16346,14 @@ def test_update_entity_type_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_update_entity_type"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_update_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_update_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.UpdateEntityTypeRequest.pb(
             featurestore_service.UpdateEntityTypeRequest()
         )
@@ -16268,6 +16377,7 @@ def test_update_entity_type_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_entity_type.EntityType()
+        post_with_metadata.return_value = gca_entity_type.EntityType(), metadata
 
         client.update_entity_type(
             request,
@@ -16279,6 +16389,7 @@ def test_update_entity_type_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_entity_type_rest_bad_request(
@@ -16363,10 +16474,14 @@ def test_delete_entity_type_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_delete_entity_type"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_delete_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_delete_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteEntityTypeRequest.pb(
             featurestore_service.DeleteEntityTypeRequest()
         )
@@ -16390,6 +16505,7 @@ def test_delete_entity_type_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_entity_type(
             request,
@@ -16401,6 +16517,7 @@ def test_delete_entity_type_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_feature_rest_bad_request(
@@ -16578,10 +16695,14 @@ def test_create_feature_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_create_feature"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_create_feature_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_create_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.CreateFeatureRequest.pb(
             featurestore_service.CreateFeatureRequest()
         )
@@ -16605,6 +16726,7 @@ def test_create_feature_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_feature(
             request,
@@ -16616,6 +16738,7 @@ def test_create_feature_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_create_features_rest_bad_request(
@@ -16700,10 +16823,14 @@ def test_batch_create_features_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_batch_create_features"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_batch_create_features_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_batch_create_features"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.BatchCreateFeaturesRequest.pb(
             featurestore_service.BatchCreateFeaturesRequest()
         )
@@ -16727,6 +16854,7 @@ def test_batch_create_features_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.batch_create_features(
             request,
@@ -16738,6 +16866,7 @@ def test_batch_create_features_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_feature_rest_bad_request(
@@ -16838,10 +16967,13 @@ def test_get_feature_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_get_feature"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor, "post_get_feature_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_get_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.GetFeatureRequest.pb(
             featurestore_service.GetFeatureRequest()
         )
@@ -16865,6 +16997,7 @@ def test_get_feature_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature.Feature()
+        post_with_metadata.return_value = feature.Feature(), metadata
 
         client.get_feature(
             request,
@@ -16876,6 +17009,7 @@ def test_get_feature_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_features_rest_bad_request(
@@ -16964,10 +17098,14 @@ def test_list_features_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_list_features"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_list_features_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_list_features"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ListFeaturesRequest.pb(
             featurestore_service.ListFeaturesRequest()
         )
@@ -16993,6 +17131,10 @@ def test_list_features_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.ListFeaturesResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.ListFeaturesResponse(),
+            metadata,
+        )
 
         client.list_features(
             request,
@@ -17004,6 +17146,7 @@ def test_list_features_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_feature_rest_bad_request(
@@ -17201,10 +17344,14 @@ def test_update_feature_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_update_feature"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_update_feature_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_update_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.UpdateFeatureRequest.pb(
             featurestore_service.UpdateFeatureRequest()
         )
@@ -17228,6 +17375,7 @@ def test_update_feature_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_feature.Feature()
+        post_with_metadata.return_value = gca_feature.Feature(), metadata
 
         client.update_feature(
             request,
@@ -17239,6 +17387,7 @@ def test_update_feature_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_feature_rest_bad_request(
@@ -17323,10 +17472,14 @@ def test_delete_feature_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_delete_feature"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_delete_feature_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_delete_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteFeatureRequest.pb(
             featurestore_service.DeleteFeatureRequest()
         )
@@ -17350,6 +17503,7 @@ def test_delete_feature_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_feature(
             request,
@@ -17361,6 +17515,7 @@ def test_delete_feature_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_import_feature_values_rest_bad_request(
@@ -17445,10 +17600,14 @@ def test_import_feature_values_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_import_feature_values"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_import_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_import_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ImportFeatureValuesRequest.pb(
             featurestore_service.ImportFeatureValuesRequest()
         )
@@ -17472,6 +17631,7 @@ def test_import_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.import_feature_values(
             request,
@@ -17483,6 +17643,7 @@ def test_import_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_read_feature_values_rest_bad_request(
@@ -17567,10 +17728,14 @@ def test_batch_read_feature_values_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_batch_read_feature_values"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_batch_read_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_batch_read_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.BatchReadFeatureValuesRequest.pb(
             featurestore_service.BatchReadFeatureValuesRequest()
         )
@@ -17594,6 +17759,7 @@ def test_batch_read_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.batch_read_feature_values(
             request,
@@ -17605,6 +17771,7 @@ def test_batch_read_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_export_feature_values_rest_bad_request(
@@ -17689,10 +17856,14 @@ def test_export_feature_values_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_export_feature_values"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_export_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_export_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ExportFeatureValuesRequest.pb(
             featurestore_service.ExportFeatureValuesRequest()
         )
@@ -17716,6 +17887,7 @@ def test_export_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.export_feature_values(
             request,
@@ -17727,6 +17899,7 @@ def test_export_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_feature_values_rest_bad_request(
@@ -17811,10 +17984,14 @@ def test_delete_feature_values_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_delete_feature_values"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_delete_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_delete_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteFeatureValuesRequest.pb(
             featurestore_service.DeleteFeatureValuesRequest()
         )
@@ -17838,6 +18015,7 @@ def test_delete_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_feature_values(
             request,
@@ -17849,6 +18027,7 @@ def test_delete_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_search_features_rest_bad_request(
@@ -17933,10 +18112,14 @@ def test_search_features_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "post_search_features"
     ) as post, mock.patch.object(
+        transports.FeaturestoreServiceRestInterceptor,
+        "post_search_features_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.FeaturestoreServiceRestInterceptor, "pre_search_features"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.SearchFeaturesRequest.pb(
             featurestore_service.SearchFeaturesRequest()
         )
@@ -17962,6 +18145,10 @@ def test_search_features_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.SearchFeaturesResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.SearchFeaturesResponse(),
+            metadata,
+        )
 
         client.search_features(
             request,
@@ -17973,6 +18160,7 @@ def test_search_features_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -19264,10 +19452,14 @@ async def test_create_featurestore_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_create_featurestore"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_create_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_create_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.CreateFeaturestoreRequest.pb(
             featurestore_service.CreateFeaturestoreRequest()
         )
@@ -19291,6 +19483,7 @@ async def test_create_featurestore_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_featurestore(
             request,
@@ -19302,6 +19495,7 @@ async def test_create_featurestore_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19412,10 +19606,14 @@ async def test_get_featurestore_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_get_featurestore"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_get_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_get_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.GetFeaturestoreRequest.pb(
             featurestore_service.GetFeaturestoreRequest()
         )
@@ -19439,6 +19637,7 @@ async def test_get_featurestore_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore.Featurestore()
+        post_with_metadata.return_value = featurestore.Featurestore(), metadata
 
         await client.get_featurestore(
             request,
@@ -19450,6 +19649,7 @@ async def test_get_featurestore_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19550,10 +19750,14 @@ async def test_list_featurestores_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_list_featurestores"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_list_featurestores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_list_featurestores"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ListFeaturestoresRequest.pb(
             featurestore_service.ListFeaturestoresRequest()
         )
@@ -19579,6 +19783,10 @@ async def test_list_featurestores_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.ListFeaturestoresResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.ListFeaturestoresResponse(),
+            metadata,
+        )
 
         await client.list_featurestores(
             request,
@@ -19590,6 +19798,7 @@ async def test_list_featurestores_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19783,10 +19992,14 @@ async def test_update_featurestore_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_update_featurestore"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_update_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_update_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.UpdateFeaturestoreRequest.pb(
             featurestore_service.UpdateFeaturestoreRequest()
         )
@@ -19810,6 +20023,7 @@ async def test_update_featurestore_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_featurestore(
             request,
@@ -19821,6 +20035,7 @@ async def test_update_featurestore_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -19917,10 +20132,14 @@ async def test_delete_featurestore_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_delete_featurestore"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_delete_featurestore_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_delete_featurestore"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteFeaturestoreRequest.pb(
             featurestore_service.DeleteFeaturestoreRequest()
         )
@@ -19944,6 +20163,7 @@ async def test_delete_featurestore_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_featurestore(
             request,
@@ -19955,6 +20175,7 @@ async def test_delete_featurestore_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20143,10 +20364,14 @@ async def test_create_entity_type_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_create_entity_type"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_create_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_create_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.CreateEntityTypeRequest.pb(
             featurestore_service.CreateEntityTypeRequest()
         )
@@ -20170,6 +20395,7 @@ async def test_create_entity_type_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_entity_type(
             request,
@@ -20181,6 +20407,7 @@ async def test_create_entity_type_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20295,10 +20522,14 @@ async def test_get_entity_type_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_get_entity_type"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_get_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_get_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.GetEntityTypeRequest.pb(
             featurestore_service.GetEntityTypeRequest()
         )
@@ -20322,6 +20553,7 @@ async def test_get_entity_type_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = entity_type.EntityType()
+        post_with_metadata.return_value = entity_type.EntityType(), metadata
 
         await client.get_entity_type(
             request,
@@ -20333,6 +20565,7 @@ async def test_get_entity_type_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20437,10 +20670,14 @@ async def test_list_entity_types_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_list_entity_types"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_list_entity_types_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_list_entity_types"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ListEntityTypesRequest.pb(
             featurestore_service.ListEntityTypesRequest()
         )
@@ -20466,6 +20703,10 @@ async def test_list_entity_types_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.ListEntityTypesResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.ListEntityTypesResponse(),
+            metadata,
+        )
 
         await client.list_entity_types(
             request,
@@ -20477,6 +20718,7 @@ async def test_list_entity_types_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20683,10 +20925,14 @@ async def test_update_entity_type_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_update_entity_type"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_update_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_update_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.UpdateEntityTypeRequest.pb(
             featurestore_service.UpdateEntityTypeRequest()
         )
@@ -20710,6 +20956,7 @@ async def test_update_entity_type_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_entity_type.EntityType()
+        post_with_metadata.return_value = gca_entity_type.EntityType(), metadata
 
         await client.update_entity_type(
             request,
@@ -20721,6 +20968,7 @@ async def test_update_entity_type_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -20821,10 +21069,14 @@ async def test_delete_entity_type_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_delete_entity_type"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_delete_entity_type_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_delete_entity_type"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteEntityTypeRequest.pb(
             featurestore_service.DeleteEntityTypeRequest()
         )
@@ -20848,6 +21100,7 @@ async def test_delete_entity_type_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_entity_type(
             request,
@@ -20859,6 +21112,7 @@ async def test_delete_entity_type_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -21052,10 +21306,14 @@ async def test_create_feature_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_create_feature"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_create_feature_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_create_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.CreateFeatureRequest.pb(
             featurestore_service.CreateFeatureRequest()
         )
@@ -21079,6 +21337,7 @@ async def test_create_feature_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_feature(
             request,
@@ -21090,6 +21349,7 @@ async def test_create_feature_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -21190,10 +21450,14 @@ async def test_batch_create_features_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_batch_create_features"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_batch_create_features_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_batch_create_features"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.BatchCreateFeaturesRequest.pb(
             featurestore_service.BatchCreateFeaturesRequest()
         )
@@ -21217,6 +21481,7 @@ async def test_batch_create_features_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.batch_create_features(
             request,
@@ -21228,6 +21493,7 @@ async def test_batch_create_features_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -21344,10 +21610,14 @@ async def test_get_feature_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_get_feature"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_get_feature_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_get_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.GetFeatureRequest.pb(
             featurestore_service.GetFeatureRequest()
         )
@@ -21371,6 +21641,7 @@ async def test_get_feature_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = feature.Feature()
+        post_with_metadata.return_value = feature.Feature(), metadata
 
         await client.get_feature(
             request,
@@ -21382,6 +21653,7 @@ async def test_get_feature_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -21486,10 +21758,14 @@ async def test_list_features_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_list_features"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_list_features_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_list_features"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ListFeaturesRequest.pb(
             featurestore_service.ListFeaturesRequest()
         )
@@ -21515,6 +21791,10 @@ async def test_list_features_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.ListFeaturesResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.ListFeaturesResponse(),
+            metadata,
+        )
 
         await client.list_features(
             request,
@@ -21526,6 +21806,7 @@ async def test_list_features_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -21739,10 +22020,14 @@ async def test_update_feature_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_update_feature"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_update_feature_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_update_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.UpdateFeatureRequest.pb(
             featurestore_service.UpdateFeatureRequest()
         )
@@ -21766,6 +22051,7 @@ async def test_update_feature_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_feature.Feature()
+        post_with_metadata.return_value = gca_feature.Feature(), metadata
 
         await client.update_feature(
             request,
@@ -21777,6 +22063,7 @@ async def test_update_feature_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -21877,10 +22164,14 @@ async def test_delete_feature_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_delete_feature"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_delete_feature_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_delete_feature"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteFeatureRequest.pb(
             featurestore_service.DeleteFeatureRequest()
         )
@@ -21904,6 +22195,7 @@ async def test_delete_feature_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_feature(
             request,
@@ -21915,6 +22207,7 @@ async def test_delete_feature_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -22015,10 +22308,14 @@ async def test_import_feature_values_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_import_feature_values"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_import_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_import_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ImportFeatureValuesRequest.pb(
             featurestore_service.ImportFeatureValuesRequest()
         )
@@ -22042,6 +22339,7 @@ async def test_import_feature_values_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.import_feature_values(
             request,
@@ -22053,6 +22351,7 @@ async def test_import_feature_values_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -22155,10 +22454,14 @@ async def test_batch_read_feature_values_rest_asyncio_interceptors(null_intercep
         "post_batch_read_feature_values",
     ) as post, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_batch_read_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
         "pre_batch_read_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.BatchReadFeatureValuesRequest.pb(
             featurestore_service.BatchReadFeatureValuesRequest()
         )
@@ -22182,6 +22485,7 @@ async def test_batch_read_feature_values_rest_asyncio_interceptors(null_intercep
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.batch_read_feature_values(
             request,
@@ -22193,6 +22497,7 @@ async def test_batch_read_feature_values_rest_asyncio_interceptors(null_intercep
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -22293,10 +22598,14 @@ async def test_export_feature_values_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_export_feature_values"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_export_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_export_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.ExportFeatureValuesRequest.pb(
             featurestore_service.ExportFeatureValuesRequest()
         )
@@ -22320,6 +22629,7 @@ async def test_export_feature_values_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.export_feature_values(
             request,
@@ -22331,6 +22641,7 @@ async def test_export_feature_values_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -22431,10 +22742,14 @@ async def test_delete_feature_values_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_delete_feature_values"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_delete_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_delete_feature_values"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.DeleteFeatureValuesRequest.pb(
             featurestore_service.DeleteFeatureValuesRequest()
         )
@@ -22458,6 +22773,7 @@ async def test_delete_feature_values_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_feature_values(
             request,
@@ -22469,6 +22785,7 @@ async def test_delete_feature_values_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -22569,10 +22886,14 @@ async def test_search_features_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "post_search_features"
     ) as post, mock.patch.object(
+        transports.AsyncFeaturestoreServiceRestInterceptor,
+        "post_search_features_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncFeaturestoreServiceRestInterceptor, "pre_search_features"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_service.SearchFeaturesRequest.pb(
             featurestore_service.SearchFeaturesRequest()
         )
@@ -22598,6 +22919,10 @@ async def test_search_features_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_service.SearchFeaturesResponse()
+        post_with_metadata.return_value = (
+            featurestore_service.SearchFeaturesResponse(),
+            metadata,
+        )
 
         await client.search_features(
             request,
@@ -22609,6 +22934,7 @@ async def test_search_features_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

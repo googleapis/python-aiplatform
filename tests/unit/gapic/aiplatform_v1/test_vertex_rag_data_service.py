@@ -91,6 +91,14 @@ from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -361,6 +369,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         VertexRagDataServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = VertexRagDataServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = VertexRagDataServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -7773,10 +7824,14 @@ def test_create_rag_corpus_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_create_rag_corpus"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_create_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_create_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.CreateRagCorpusRequest.pb(
             vertex_rag_data_service.CreateRagCorpusRequest()
         )
@@ -7800,6 +7855,7 @@ def test_create_rag_corpus_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_rag_corpus(
             request,
@@ -7811,6 +7867,7 @@ def test_create_rag_corpus_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_rag_corpus_rest_bad_request(
@@ -7992,10 +8049,14 @@ def test_update_rag_corpus_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_update_rag_corpus"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_update_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_update_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.UpdateRagCorpusRequest.pb(
             vertex_rag_data_service.UpdateRagCorpusRequest()
         )
@@ -8019,6 +8080,7 @@ def test_update_rag_corpus_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_rag_corpus(
             request,
@@ -8030,6 +8092,7 @@ def test_update_rag_corpus_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_rag_corpus_rest_bad_request(
@@ -8118,10 +8181,14 @@ def test_get_rag_corpus_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_get_rag_corpus"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_get_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_get_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.GetRagCorpusRequest.pb(
             vertex_rag_data_service.GetRagCorpusRequest()
         )
@@ -8145,6 +8212,7 @@ def test_get_rag_corpus_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data.RagCorpus()
+        post_with_metadata.return_value = vertex_rag_data.RagCorpus(), metadata
 
         client.get_rag_corpus(
             request,
@@ -8156,6 +8224,7 @@ def test_get_rag_corpus_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_rag_corpora_rest_bad_request(
@@ -8240,10 +8309,14 @@ def test_list_rag_corpora_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_list_rag_corpora"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_list_rag_corpora_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_list_rag_corpora"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.ListRagCorporaRequest.pb(
             vertex_rag_data_service.ListRagCorporaRequest()
         )
@@ -8269,6 +8342,10 @@ def test_list_rag_corpora_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data_service.ListRagCorporaResponse()
+        post_with_metadata.return_value = (
+            vertex_rag_data_service.ListRagCorporaResponse(),
+            metadata,
+        )
 
         client.list_rag_corpora(
             request,
@@ -8280,6 +8357,7 @@ def test_list_rag_corpora_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_rag_corpus_rest_bad_request(
@@ -8360,10 +8438,14 @@ def test_delete_rag_corpus_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_delete_rag_corpus"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_delete_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_delete_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.DeleteRagCorpusRequest.pb(
             vertex_rag_data_service.DeleteRagCorpusRequest()
         )
@@ -8387,6 +8469,7 @@ def test_delete_rag_corpus_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_rag_corpus(
             request,
@@ -8398,6 +8481,7 @@ def test_delete_rag_corpus_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_upload_rag_file_rest_bad_request(
@@ -8479,10 +8563,14 @@ def test_upload_rag_file_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_upload_rag_file"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_upload_rag_file_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_upload_rag_file"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.UploadRagFileRequest.pb(
             vertex_rag_data_service.UploadRagFileRequest()
         )
@@ -8508,6 +8596,10 @@ def test_upload_rag_file_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data_service.UploadRagFileResponse()
+        post_with_metadata.return_value = (
+            vertex_rag_data_service.UploadRagFileResponse(),
+            metadata,
+        )
 
         client.upload_rag_file(
             request,
@@ -8519,6 +8611,7 @@ def test_upload_rag_file_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_import_rag_files_rest_bad_request(
@@ -8599,10 +8692,14 @@ def test_import_rag_files_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_import_rag_files"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_import_rag_files_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_import_rag_files"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.ImportRagFilesRequest.pb(
             vertex_rag_data_service.ImportRagFilesRequest()
         )
@@ -8626,6 +8723,7 @@ def test_import_rag_files_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.import_rag_files(
             request,
@@ -8637,6 +8735,7 @@ def test_import_rag_files_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_rag_file_rest_bad_request(
@@ -8729,10 +8828,14 @@ def test_get_rag_file_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_get_rag_file"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_get_rag_file_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_get_rag_file"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.GetRagFileRequest.pb(
             vertex_rag_data_service.GetRagFileRequest()
         )
@@ -8756,6 +8859,7 @@ def test_get_rag_file_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data.RagFile()
+        post_with_metadata.return_value = vertex_rag_data.RagFile(), metadata
 
         client.get_rag_file(
             request,
@@ -8767,6 +8871,7 @@ def test_get_rag_file_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_rag_files_rest_bad_request(
@@ -8851,10 +8956,14 @@ def test_list_rag_files_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_list_rag_files"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_list_rag_files_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_list_rag_files"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.ListRagFilesRequest.pb(
             vertex_rag_data_service.ListRagFilesRequest()
         )
@@ -8880,6 +8989,10 @@ def test_list_rag_files_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data_service.ListRagFilesResponse()
+        post_with_metadata.return_value = (
+            vertex_rag_data_service.ListRagFilesResponse(),
+            metadata,
+        )
 
         client.list_rag_files(
             request,
@@ -8891,6 +9004,7 @@ def test_list_rag_files_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_rag_file_rest_bad_request(
@@ -8975,10 +9089,14 @@ def test_delete_rag_file_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "post_delete_rag_file"
     ) as post, mock.patch.object(
+        transports.VertexRagDataServiceRestInterceptor,
+        "post_delete_rag_file_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.VertexRagDataServiceRestInterceptor, "pre_delete_rag_file"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.DeleteRagFileRequest.pb(
             vertex_rag_data_service.DeleteRagFileRequest()
         )
@@ -9002,6 +9120,7 @@ def test_delete_rag_file_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_rag_file(
             request,
@@ -9013,6 +9132,7 @@ def test_delete_rag_file_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -10072,10 +10192,14 @@ async def test_create_rag_corpus_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_create_rag_corpus"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_create_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_create_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.CreateRagCorpusRequest.pb(
             vertex_rag_data_service.CreateRagCorpusRequest()
         )
@@ -10099,6 +10223,7 @@ async def test_create_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_rag_corpus(
             request,
@@ -10110,6 +10235,7 @@ async def test_create_rag_corpus_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10307,10 +10433,14 @@ async def test_update_rag_corpus_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_update_rag_corpus"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_update_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_update_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.UpdateRagCorpusRequest.pb(
             vertex_rag_data_service.UpdateRagCorpusRequest()
         )
@@ -10334,6 +10464,7 @@ async def test_update_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_rag_corpus(
             request,
@@ -10345,6 +10476,7 @@ async def test_update_rag_corpus_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10449,10 +10581,14 @@ async def test_get_rag_corpus_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_get_rag_corpus"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_get_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_get_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.GetRagCorpusRequest.pb(
             vertex_rag_data_service.GetRagCorpusRequest()
         )
@@ -10476,6 +10612,7 @@ async def test_get_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data.RagCorpus()
+        post_with_metadata.return_value = vertex_rag_data.RagCorpus(), metadata
 
         await client.get_rag_corpus(
             request,
@@ -10487,6 +10624,7 @@ async def test_get_rag_corpus_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10587,10 +10725,14 @@ async def test_list_rag_corpora_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_list_rag_corpora"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_list_rag_corpora_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_list_rag_corpora"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.ListRagCorporaRequest.pb(
             vertex_rag_data_service.ListRagCorporaRequest()
         )
@@ -10616,6 +10758,10 @@ async def test_list_rag_corpora_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data_service.ListRagCorporaResponse()
+        post_with_metadata.return_value = (
+            vertex_rag_data_service.ListRagCorporaResponse(),
+            metadata,
+        )
 
         await client.list_rag_corpora(
             request,
@@ -10627,6 +10773,7 @@ async def test_list_rag_corpora_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10723,10 +10870,14 @@ async def test_delete_rag_corpus_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_delete_rag_corpus"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_delete_rag_corpus_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_delete_rag_corpus"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.DeleteRagCorpusRequest.pb(
             vertex_rag_data_service.DeleteRagCorpusRequest()
         )
@@ -10750,6 +10901,7 @@ async def test_delete_rag_corpus_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_rag_corpus(
             request,
@@ -10761,6 +10913,7 @@ async def test_delete_rag_corpus_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10858,10 +11011,14 @@ async def test_upload_rag_file_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_upload_rag_file"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_upload_rag_file_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_upload_rag_file"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.UploadRagFileRequest.pb(
             vertex_rag_data_service.UploadRagFileRequest()
         )
@@ -10887,6 +11044,10 @@ async def test_upload_rag_file_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data_service.UploadRagFileResponse()
+        post_with_metadata.return_value = (
+            vertex_rag_data_service.UploadRagFileResponse(),
+            metadata,
+        )
 
         await client.upload_rag_file(
             request,
@@ -10898,6 +11059,7 @@ async def test_upload_rag_file_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10994,10 +11156,14 @@ async def test_import_rag_files_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_import_rag_files"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_import_rag_files_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_import_rag_files"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.ImportRagFilesRequest.pb(
             vertex_rag_data_service.ImportRagFilesRequest()
         )
@@ -11021,6 +11187,7 @@ async def test_import_rag_files_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.import_rag_files(
             request,
@@ -11032,6 +11199,7 @@ async def test_import_rag_files_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11140,10 +11308,14 @@ async def test_get_rag_file_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_get_rag_file"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_get_rag_file_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_get_rag_file"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.GetRagFileRequest.pb(
             vertex_rag_data_service.GetRagFileRequest()
         )
@@ -11167,6 +11339,7 @@ async def test_get_rag_file_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data.RagFile()
+        post_with_metadata.return_value = vertex_rag_data.RagFile(), metadata
 
         await client.get_rag_file(
             request,
@@ -11178,6 +11351,7 @@ async def test_get_rag_file_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11278,10 +11452,14 @@ async def test_list_rag_files_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_list_rag_files"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_list_rag_files_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_list_rag_files"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.ListRagFilesRequest.pb(
             vertex_rag_data_service.ListRagFilesRequest()
         )
@@ -11307,6 +11485,10 @@ async def test_list_rag_files_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = vertex_rag_data_service.ListRagFilesResponse()
+        post_with_metadata.return_value = (
+            vertex_rag_data_service.ListRagFilesResponse(),
+            metadata,
+        )
 
         await client.list_rag_files(
             request,
@@ -11318,6 +11500,7 @@ async def test_list_rag_files_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11418,10 +11601,14 @@ async def test_delete_rag_file_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "post_delete_rag_file"
     ) as post, mock.patch.object(
+        transports.AsyncVertexRagDataServiceRestInterceptor,
+        "post_delete_rag_file_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncVertexRagDataServiceRestInterceptor, "pre_delete_rag_file"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = vertex_rag_data_service.DeleteRagFileRequest.pb(
             vertex_rag_data_service.DeleteRagFileRequest()
         )
@@ -11445,6 +11632,7 @@ async def test_delete_rag_file_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_rag_file(
             request,
@@ -11456,6 +11644,7 @@ async def test_delete_rag_file_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

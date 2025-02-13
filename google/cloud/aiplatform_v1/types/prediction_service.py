@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import types
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -904,6 +905,12 @@ class GenerateContentResponse(proto.Message):
         model_version (str):
             Output only. The model version used to
             generate the response.
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when the request is
+            made to the server.
+        response_id (str):
+            Output only. response_id is used to identify each response.
+            It is the encoding of the event_id.
         prompt_feedback (google.cloud.aiplatform_v1.types.GenerateContentResponse.PromptFeedback):
             Output only. Content filter results for a
             prompt sent in the request. Note: Sent only in
@@ -1038,6 +1045,15 @@ class GenerateContentResponse(proto.Message):
     model_version: str = proto.Field(
         proto.STRING,
         number=11,
+    )
+    create_time: timestamp_pb2.Timestamp = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=timestamp_pb2.Timestamp,
+    )
+    response_id: str = proto.Field(
+        proto.STRING,
+        number=13,
     )
     prompt_feedback: PromptFeedback = proto.Field(
         proto.MESSAGE,

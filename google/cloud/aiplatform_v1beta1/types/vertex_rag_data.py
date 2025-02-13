@@ -503,6 +503,9 @@ class RagCorpus(proto.Message):
             Vertex AI Search.
 
             This field is a member of `oneof`_ ``backend_config``.
+        rag_files_count (int):
+            Output only. The number of RagFiles in the
+            RagCorpus.
     """
 
     name: str = proto.Field(
@@ -553,6 +556,10 @@ class RagCorpus(proto.Message):
         number=10,
         oneof="backend_config",
         message="VertexAiSearchConfig",
+    )
+    rag_files_count: int = proto.Field(
+        proto.INT32,
+        number=11,
     )
 
 

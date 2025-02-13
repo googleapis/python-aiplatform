@@ -101,6 +101,14 @@ from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -377,6 +385,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         PersistentResourceServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = PersistentResourceServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = PersistentResourceServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -5442,10 +5493,14 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
         "post_create_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_create_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_create_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.CreatePersistentResourceRequest.pb(
             persistent_resource_service.CreatePersistentResourceRequest()
         )
@@ -5469,6 +5524,7 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_persistent_resource(
             request,
@@ -5480,6 +5536,7 @@ def test_create_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_persistent_resource_rest_bad_request(
@@ -5582,10 +5639,14 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
         "post_get_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_get_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_get_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.GetPersistentResourceRequest.pb(
             persistent_resource_service.GetPersistentResourceRequest()
         )
@@ -5611,6 +5672,10 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = persistent_resource.PersistentResource()
+        post_with_metadata.return_value = (
+            persistent_resource.PersistentResource(),
+            metadata,
+        )
 
         client.get_persistent_resource(
             request,
@@ -5622,6 +5687,7 @@ def test_get_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_persistent_resources_rest_bad_request(
@@ -5710,10 +5776,14 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
         "post_list_persistent_resources",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_list_persistent_resources_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_list_persistent_resources",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.ListPersistentResourcesRequest.pb(
             persistent_resource_service.ListPersistentResourcesRequest()
         )
@@ -5743,6 +5813,10 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
         post.return_value = (
             persistent_resource_service.ListPersistentResourcesResponse()
         )
+        post_with_metadata.return_value = (
+            persistent_resource_service.ListPersistentResourcesResponse(),
+            metadata,
+        )
 
         client.list_persistent_resources(
             request,
@@ -5754,6 +5828,7 @@ def test_list_persistent_resources_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_persistent_resource_rest_bad_request(
@@ -5840,10 +5915,14 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
         "post_delete_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_delete_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_delete_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.DeletePersistentResourceRequest.pb(
             persistent_resource_service.DeletePersistentResourceRequest()
         )
@@ -5867,6 +5946,7 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_persistent_resource(
             request,
@@ -5878,6 +5958,7 @@ def test_delete_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_persistent_resource_rest_bad_request(
@@ -6117,10 +6198,14 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
         "post_update_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_update_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_update_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.UpdatePersistentResourceRequest.pb(
             persistent_resource_service.UpdatePersistentResourceRequest()
         )
@@ -6144,6 +6229,7 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_persistent_resource(
             request,
@@ -6155,6 +6241,7 @@ def test_update_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_reboot_persistent_resource_rest_bad_request(
@@ -6241,10 +6328,14 @@ def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
         "post_reboot_persistent_resource",
     ) as post, mock.patch.object(
         transports.PersistentResourceServiceRestInterceptor,
+        "post_reboot_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.PersistentResourceServiceRestInterceptor,
         "pre_reboot_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.RebootPersistentResourceRequest.pb(
             persistent_resource_service.RebootPersistentResourceRequest()
         )
@@ -6268,6 +6359,7 @@ def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.reboot_persistent_resource(
             request,
@@ -6279,6 +6371,7 @@ def test_reboot_persistent_resource_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -7318,10 +7411,14 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_create_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_create_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_create_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.CreatePersistentResourceRequest.pb(
             persistent_resource_service.CreatePersistentResourceRequest()
         )
@@ -7345,6 +7442,7 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_persistent_resource(
             request,
@@ -7356,6 +7454,7 @@ async def test_create_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7474,10 +7573,14 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
         "post_get_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_get_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_get_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.GetPersistentResourceRequest.pb(
             persistent_resource_service.GetPersistentResourceRequest()
         )
@@ -7503,6 +7606,10 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = persistent_resource.PersistentResource()
+        post_with_metadata.return_value = (
+            persistent_resource.PersistentResource(),
+            metadata,
+        )
 
         await client.get_persistent_resource(
             request,
@@ -7514,6 +7621,7 @@ async def test_get_persistent_resource_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7618,10 +7726,14 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
         "post_list_persistent_resources",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_list_persistent_resources_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_list_persistent_resources",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.ListPersistentResourcesRequest.pb(
             persistent_resource_service.ListPersistentResourcesRequest()
         )
@@ -7651,6 +7763,10 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
         post.return_value = (
             persistent_resource_service.ListPersistentResourcesResponse()
         )
+        post_with_metadata.return_value = (
+            persistent_resource_service.ListPersistentResourcesResponse(),
+            metadata,
+        )
 
         await client.list_persistent_resources(
             request,
@@ -7662,6 +7778,7 @@ async def test_list_persistent_resources_rest_asyncio_interceptors(null_intercep
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -7764,10 +7881,14 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_delete_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_delete_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_delete_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.DeletePersistentResourceRequest.pb(
             persistent_resource_service.DeletePersistentResourceRequest()
         )
@@ -7791,6 +7912,7 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_persistent_resource(
             request,
@@ -7802,6 +7924,7 @@ async def test_delete_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8057,10 +8180,14 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_update_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_update_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_update_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.UpdatePersistentResourceRequest.pb(
             persistent_resource_service.UpdatePersistentResourceRequest()
         )
@@ -8084,6 +8211,7 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_persistent_resource(
             request,
@@ -8095,6 +8223,7 @@ async def test_update_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -8197,10 +8326,14 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
         "post_reboot_persistent_resource",
     ) as post, mock.patch.object(
         transports.AsyncPersistentResourceServiceRestInterceptor,
+        "post_reboot_persistent_resource_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncPersistentResourceServiceRestInterceptor,
         "pre_reboot_persistent_resource",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = persistent_resource_service.RebootPersistentResourceRequest.pb(
             persistent_resource_service.RebootPersistentResourceRequest()
         )
@@ -8224,6 +8357,7 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.reboot_persistent_resource(
             request,
@@ -8235,6 +8369,7 @@ async def test_reboot_persistent_resource_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

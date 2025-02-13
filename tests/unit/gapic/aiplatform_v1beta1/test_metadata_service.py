@@ -102,6 +102,14 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -357,6 +365,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         MetadataServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = MetadataServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = MetadataServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -21571,10 +21622,14 @@ def test_create_metadata_store_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_metadata_store"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_create_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataStoreRequest.pb(
             metadata_service.CreateMetadataStoreRequest()
         )
@@ -21598,6 +21653,7 @@ def test_create_metadata_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_metadata_store(
             request,
@@ -21609,6 +21665,7 @@ def test_create_metadata_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_metadata_store_rest_bad_request(
@@ -21695,10 +21752,14 @@ def test_get_metadata_store_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_metadata_store"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_get_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataStoreRequest.pb(
             metadata_service.GetMetadataStoreRequest()
         )
@@ -21724,6 +21785,7 @@ def test_get_metadata_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_store.MetadataStore()
+        post_with_metadata.return_value = metadata_store.MetadataStore(), metadata
 
         client.get_metadata_store(
             request,
@@ -21735,6 +21797,7 @@ def test_get_metadata_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_metadata_stores_rest_bad_request(
@@ -21819,10 +21882,14 @@ def test_list_metadata_stores_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_metadata_stores"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_list_metadata_stores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_metadata_stores"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataStoresRequest.pb(
             metadata_service.ListMetadataStoresRequest()
         )
@@ -21848,6 +21915,10 @@ def test_list_metadata_stores_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataStoresResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataStoresResponse(),
+            metadata,
+        )
 
         client.list_metadata_stores(
             request,
@@ -21859,6 +21930,7 @@ def test_list_metadata_stores_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_metadata_store_rest_bad_request(
@@ -21939,10 +22011,14 @@ def test_delete_metadata_store_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_metadata_store"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_delete_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteMetadataStoreRequest.pb(
             metadata_service.DeleteMetadataStoreRequest()
         )
@@ -21966,6 +22042,7 @@ def test_delete_metadata_store_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_metadata_store(
             request,
@@ -21977,6 +22054,7 @@ def test_delete_metadata_store_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_artifact_rest_bad_request(
@@ -22160,10 +22238,13 @@ def test_create_artifact_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateArtifactRequest.pb(
             metadata_service.CreateArtifactRequest()
         )
@@ -22187,6 +22268,7 @@ def test_create_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         client.create_artifact(
             request,
@@ -22198,6 +22280,7 @@ def test_create_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_artifact_rest_bad_request(
@@ -22300,10 +22383,13 @@ def test_get_artifact_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetArtifactRequest.pb(
             metadata_service.GetArtifactRequest()
         )
@@ -22327,6 +22413,7 @@ def test_get_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = artifact.Artifact()
+        post_with_metadata.return_value = artifact.Artifact(), metadata
 
         client.get_artifact(
             request,
@@ -22338,6 +22425,7 @@ def test_get_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_artifacts_rest_bad_request(
@@ -22426,10 +22514,13 @@ def test_list_artifacts_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_artifacts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_artifacts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListArtifactsRequest.pb(
             metadata_service.ListArtifactsRequest()
         )
@@ -22455,6 +22546,10 @@ def test_list_artifacts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListArtifactsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListArtifactsResponse(),
+            metadata,
+        )
 
         client.list_artifacts(
             request,
@@ -22466,6 +22561,7 @@ def test_list_artifacts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_artifact_rest_bad_request(
@@ -22653,10 +22749,13 @@ def test_update_artifact_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_update_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_update_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateArtifactRequest.pb(
             metadata_service.UpdateArtifactRequest()
         )
@@ -22680,6 +22779,7 @@ def test_update_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         client.update_artifact(
             request,
@@ -22691,6 +22791,7 @@ def test_update_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_artifact_rest_bad_request(
@@ -22775,10 +22876,13 @@ def test_delete_artifact_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_artifact"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_artifact_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteArtifactRequest.pb(
             metadata_service.DeleteArtifactRequest()
         )
@@ -22802,6 +22906,7 @@ def test_delete_artifact_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_artifact(
             request,
@@ -22813,6 +22918,7 @@ def test_delete_artifact_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_purge_artifacts_rest_bad_request(
@@ -22897,10 +23003,13 @@ def test_purge_artifacts_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_purge_artifacts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_artifacts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_purge_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeArtifactsRequest.pb(
             metadata_service.PurgeArtifactsRequest()
         )
@@ -22924,6 +23033,7 @@ def test_purge_artifacts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.purge_artifacts(
             request,
@@ -22935,6 +23045,7 @@ def test_purge_artifacts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_context_rest_bad_request(
@@ -23115,10 +23226,13 @@ def test_create_context_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateContextRequest.pb(
             metadata_service.CreateContextRequest()
         )
@@ -23142,6 +23256,7 @@ def test_create_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         client.create_context(
             request,
@@ -23153,6 +23268,7 @@ def test_create_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_context_rest_bad_request(request_type=metadata_service.GetContextRequest):
@@ -23251,10 +23367,13 @@ def test_get_context_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetContextRequest.pb(
             metadata_service.GetContextRequest()
         )
@@ -23278,6 +23397,7 @@ def test_get_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = context.Context()
+        post_with_metadata.return_value = context.Context(), metadata
 
         client.get_context(
             request,
@@ -23289,6 +23409,7 @@ def test_get_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_contexts_rest_bad_request(
@@ -23377,10 +23498,13 @@ def test_list_contexts_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_contexts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_contexts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListContextsRequest.pb(
             metadata_service.ListContextsRequest()
         )
@@ -23406,6 +23530,10 @@ def test_list_contexts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListContextsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListContextsResponse(),
+            metadata,
+        )
 
         client.list_contexts(
             request,
@@ -23417,6 +23545,7 @@ def test_list_contexts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_context_rest_bad_request(
@@ -23601,10 +23730,13 @@ def test_update_context_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_update_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_update_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateContextRequest.pb(
             metadata_service.UpdateContextRequest()
         )
@@ -23628,6 +23760,7 @@ def test_update_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         client.update_context(
             request,
@@ -23639,6 +23772,7 @@ def test_update_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_context_rest_bad_request(
@@ -23723,10 +23857,13 @@ def test_delete_context_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_context"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteContextRequest.pb(
             metadata_service.DeleteContextRequest()
         )
@@ -23750,6 +23887,7 @@ def test_delete_context_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_context(
             request,
@@ -23761,6 +23899,7 @@ def test_delete_context_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_purge_contexts_rest_bad_request(
@@ -23845,10 +23984,13 @@ def test_purge_contexts_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_purge_contexts"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_contexts_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_purge_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeContextsRequest.pb(
             metadata_service.PurgeContextsRequest()
         )
@@ -23872,6 +24014,7 @@ def test_purge_contexts_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.purge_contexts(
             request,
@@ -23883,6 +24026,7 @@ def test_purge_contexts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_context_artifacts_and_executions_rest_bad_request(
@@ -23974,10 +24118,14 @@ def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor
         "post_add_context_artifacts_and_executions",
     ) as post, mock.patch.object(
         transports.MetadataServiceRestInterceptor,
+        "post_add_context_artifacts_and_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
         "pre_add_context_artifacts_and_executions",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
             metadata_service.AddContextArtifactsAndExecutionsRequest()
         )
@@ -24005,6 +24153,10 @@ def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextArtifactsAndExecutionsResponse(),
+            metadata,
+        )
 
         client.add_context_artifacts_and_executions(
             request,
@@ -24016,6 +24168,7 @@ def test_add_context_artifacts_and_executions_rest_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_context_children_rest_bad_request(
@@ -24101,10 +24254,14 @@ def test_add_context_children_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_add_context_children"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_add_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_add_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextChildrenRequest.pb(
             metadata_service.AddContextChildrenRequest()
         )
@@ -24130,6 +24287,10 @@ def test_add_context_children_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextChildrenResponse(),
+            metadata,
+        )
 
         client.add_context_children(
             request,
@@ -24141,6 +24302,7 @@ def test_add_context_children_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_remove_context_children_rest_bad_request(
@@ -24226,10 +24388,14 @@ def test_remove_context_children_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_remove_context_children"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_remove_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_remove_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.RemoveContextChildrenRequest.pb(
             metadata_service.RemoveContextChildrenRequest()
         )
@@ -24255,6 +24421,10 @@ def test_remove_context_children_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.RemoveContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.RemoveContextChildrenResponse(),
+            metadata,
+        )
 
         client.remove_context_children(
             request,
@@ -24266,6 +24436,7 @@ def test_remove_context_children_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_query_context_lineage_subgraph_rest_bad_request(
@@ -24351,10 +24522,14 @@ def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_query_context_lineage_subgraph"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_query_context_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_query_context_lineage_subgraph"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryContextLineageSubgraphRequest.pb(
             metadata_service.QueryContextLineageSubgraphRequest()
         )
@@ -24380,6 +24555,7 @@ def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         client.query_context_lineage_subgraph(
             request,
@@ -24391,6 +24567,7 @@ def test_query_context_lineage_subgraph_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_execution_rest_bad_request(
@@ -24571,10 +24748,13 @@ def test_create_execution_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_create_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateExecutionRequest.pb(
             metadata_service.CreateExecutionRequest()
         )
@@ -24598,6 +24778,7 @@ def test_create_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         client.create_execution(
             request,
@@ -24609,6 +24790,7 @@ def test_create_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_execution_rest_bad_request(
@@ -24709,10 +24891,13 @@ def test_get_execution_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_get_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetExecutionRequest.pb(
             metadata_service.GetExecutionRequest()
         )
@@ -24736,6 +24921,7 @@ def test_get_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = execution.Execution()
+        post_with_metadata.return_value = execution.Execution(), metadata
 
         client.get_execution(
             request,
@@ -24747,6 +24933,7 @@ def test_get_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_executions_rest_bad_request(
@@ -24835,10 +25022,13 @@ def test_list_executions_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_executions"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_list_executions_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListExecutionsRequest.pb(
             metadata_service.ListExecutionsRequest()
         )
@@ -24864,6 +25054,10 @@ def test_list_executions_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListExecutionsResponse(),
+            metadata,
+        )
 
         client.list_executions(
             request,
@@ -24875,6 +25069,7 @@ def test_list_executions_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_execution_rest_bad_request(
@@ -25059,10 +25254,13 @@ def test_update_execution_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_update_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_update_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_update_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateExecutionRequest.pb(
             metadata_service.UpdateExecutionRequest()
         )
@@ -25086,6 +25284,7 @@ def test_update_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         client.update_execution(
             request,
@@ -25097,6 +25296,7 @@ def test_update_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_execution_rest_bad_request(
@@ -25181,10 +25381,13 @@ def test_delete_execution_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_delete_execution"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_delete_execution_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_delete_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteExecutionRequest.pb(
             metadata_service.DeleteExecutionRequest()
         )
@@ -25208,6 +25411,7 @@ def test_delete_execution_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_execution(
             request,
@@ -25219,6 +25423,7 @@ def test_delete_execution_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_purge_executions_rest_bad_request(
@@ -25303,10 +25508,13 @@ def test_purge_executions_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_purge_executions"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor, "post_purge_executions_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_purge_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeExecutionsRequest.pb(
             metadata_service.PurgeExecutionsRequest()
         )
@@ -25330,6 +25538,7 @@ def test_purge_executions_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.purge_executions(
             request,
@@ -25341,6 +25550,7 @@ def test_purge_executions_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_add_execution_events_rest_bad_request(
@@ -25426,10 +25636,14 @@ def test_add_execution_events_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_add_execution_events"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_add_execution_events_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_add_execution_events"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddExecutionEventsRequest.pb(
             metadata_service.AddExecutionEventsRequest()
         )
@@ -25455,6 +25669,10 @@ def test_add_execution_events_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddExecutionEventsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddExecutionEventsResponse(),
+            metadata,
+        )
 
         client.add_execution_events(
             request,
@@ -25466,6 +25684,7 @@ def test_add_execution_events_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_query_execution_inputs_and_outputs_rest_bad_request(
@@ -25553,10 +25772,14 @@ def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
         "post_query_execution_inputs_and_outputs",
     ) as post, mock.patch.object(
         transports.MetadataServiceRestInterceptor,
+        "post_query_execution_inputs_and_outputs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
         "pre_query_execution_inputs_and_outputs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
             metadata_service.QueryExecutionInputsAndOutputsRequest()
         )
@@ -25582,6 +25805,7 @@ def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         client.query_execution_inputs_and_outputs(
             request,
@@ -25593,6 +25817,7 @@ def test_query_execution_inputs_and_outputs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_metadata_schema_rest_bad_request(
@@ -25769,10 +25994,14 @@ def test_create_metadata_schema_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_create_metadata_schema"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_create_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_create_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataSchemaRequest.pb(
             metadata_service.CreateMetadataSchemaRequest()
         )
@@ -25798,6 +26027,7 @@ def test_create_metadata_schema_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = gca_metadata_schema.MetadataSchema(), metadata
 
         client.create_metadata_schema(
             request,
@@ -25809,6 +26039,7 @@ def test_create_metadata_schema_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_metadata_schema_rest_bad_request(
@@ -25908,10 +26139,14 @@ def test_get_metadata_schema_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_get_metadata_schema"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_get_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_get_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataSchemaRequest.pb(
             metadata_service.GetMetadataSchemaRequest()
         )
@@ -25937,6 +26172,7 @@ def test_get_metadata_schema_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = metadata_schema.MetadataSchema(), metadata
 
         client.get_metadata_schema(
             request,
@@ -25948,6 +26184,7 @@ def test_get_metadata_schema_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_metadata_schemas_rest_bad_request(
@@ -26036,10 +26273,14 @@ def test_list_metadata_schemas_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "post_list_metadata_schemas"
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_list_metadata_schemas_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_list_metadata_schemas"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataSchemasRequest.pb(
             metadata_service.ListMetadataSchemasRequest()
         )
@@ -26065,6 +26306,10 @@ def test_list_metadata_schemas_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataSchemasResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataSchemasResponse(),
+            metadata,
+        )
 
         client.list_metadata_schemas(
             request,
@@ -26076,6 +26321,7 @@ def test_list_metadata_schemas_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_query_artifact_lineage_subgraph_rest_bad_request(
@@ -26162,10 +26408,14 @@ def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
         transports.MetadataServiceRestInterceptor,
         "post_query_artifact_lineage_subgraph",
     ) as post, mock.patch.object(
+        transports.MetadataServiceRestInterceptor,
+        "post_query_artifact_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.MetadataServiceRestInterceptor, "pre_query_artifact_lineage_subgraph"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
             metadata_service.QueryArtifactLineageSubgraphRequest()
         )
@@ -26191,6 +26441,7 @@ def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         client.query_artifact_lineage_subgraph(
             request,
@@ -26202,6 +26453,7 @@ def test_query_artifact_lineage_subgraph_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -27704,10 +27956,14 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_metadata_store"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataStoreRequest.pb(
             metadata_service.CreateMetadataStoreRequest()
         )
@@ -27731,6 +27987,7 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_metadata_store(
             request,
@@ -27742,6 +27999,7 @@ async def test_create_metadata_store_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27844,10 +28102,14 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_metadata_store"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataStoreRequest.pb(
             metadata_service.GetMetadataStoreRequest()
         )
@@ -27873,6 +28135,7 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_store.MetadataStore()
+        post_with_metadata.return_value = metadata_store.MetadataStore(), metadata
 
         await client.get_metadata_store(
             request,
@@ -27884,6 +28147,7 @@ async def test_get_metadata_store_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -27984,10 +28248,14 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_metadata_stores"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_metadata_stores_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_metadata_stores"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataStoresRequest.pb(
             metadata_service.ListMetadataStoresRequest()
         )
@@ -28013,6 +28281,10 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataStoresResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataStoresResponse(),
+            metadata,
+        )
 
         await client.list_metadata_stores(
             request,
@@ -28024,6 +28296,7 @@ async def test_list_metadata_stores_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28120,10 +28393,14 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_metadata_store"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_metadata_store_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_metadata_store"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteMetadataStoreRequest.pb(
             metadata_service.DeleteMetadataStoreRequest()
         )
@@ -28147,6 +28424,7 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_metadata_store(
             request,
@@ -28158,6 +28436,7 @@ async def test_delete_metadata_store_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28357,10 +28636,14 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateArtifactRequest.pb(
             metadata_service.CreateArtifactRequest()
         )
@@ -28384,6 +28667,7 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         await client.create_artifact(
             request,
@@ -28395,6 +28679,7 @@ async def test_create_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28513,10 +28798,14 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetArtifactRequest.pb(
             metadata_service.GetArtifactRequest()
         )
@@ -28540,6 +28829,7 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = artifact.Artifact()
+        post_with_metadata.return_value = artifact.Artifact(), metadata
 
         await client.get_artifact(
             request,
@@ -28551,6 +28841,7 @@ async def test_get_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28655,10 +28946,14 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_artifacts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_artifacts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListArtifactsRequest.pb(
             metadata_service.ListArtifactsRequest()
         )
@@ -28684,6 +28979,10 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListArtifactsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListArtifactsResponse(),
+            metadata,
+        )
 
         await client.list_artifacts(
             request,
@@ -28695,6 +28994,7 @@ async def test_list_artifacts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -28898,10 +29198,14 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_update_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_update_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_update_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateArtifactRequest.pb(
             metadata_service.UpdateArtifactRequest()
         )
@@ -28925,6 +29229,7 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_artifact.Artifact()
+        post_with_metadata.return_value = gca_artifact.Artifact(), metadata
 
         await client.update_artifact(
             request,
@@ -28936,6 +29241,7 @@ async def test_update_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29036,10 +29342,14 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_artifact"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_artifact_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_artifact"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteArtifactRequest.pb(
             metadata_service.DeleteArtifactRequest()
         )
@@ -29063,6 +29373,7 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_artifact(
             request,
@@ -29074,6 +29385,7 @@ async def test_delete_artifact_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29174,10 +29486,14 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_purge_artifacts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_purge_artifacts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_purge_artifacts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeArtifactsRequest.pb(
             metadata_service.PurgeArtifactsRequest()
         )
@@ -29201,6 +29517,7 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.purge_artifacts(
             request,
@@ -29212,6 +29529,7 @@ async def test_purge_artifacts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29408,10 +29726,14 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_context_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateContextRequest.pb(
             metadata_service.CreateContextRequest()
         )
@@ -29435,6 +29757,7 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         await client.create_context(
             request,
@@ -29446,6 +29769,7 @@ async def test_create_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29562,10 +29886,13 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor, "post_get_context_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetContextRequest.pb(
             metadata_service.GetContextRequest()
         )
@@ -29589,6 +29916,7 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = context.Context()
+        post_with_metadata.return_value = context.Context(), metadata
 
         await client.get_context(
             request,
@@ -29600,6 +29928,7 @@ async def test_get_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29704,10 +30033,14 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_contexts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_contexts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListContextsRequest.pb(
             metadata_service.ListContextsRequest()
         )
@@ -29733,6 +30066,10 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListContextsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListContextsResponse(),
+            metadata,
+        )
 
         await client.list_contexts(
             request,
@@ -29744,6 +30081,7 @@ async def test_list_contexts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29944,10 +30282,14 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_update_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_update_context_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_update_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateContextRequest.pb(
             metadata_service.UpdateContextRequest()
         )
@@ -29971,6 +30313,7 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_context.Context()
+        post_with_metadata.return_value = gca_context.Context(), metadata
 
         await client.update_context(
             request,
@@ -29982,6 +30325,7 @@ async def test_update_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30082,10 +30426,14 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_context"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_context_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_context"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteContextRequest.pb(
             metadata_service.DeleteContextRequest()
         )
@@ -30109,6 +30457,7 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_context(
             request,
@@ -30120,6 +30469,7 @@ async def test_delete_context_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30220,10 +30570,14 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_purge_contexts"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_purge_contexts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_purge_contexts"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeContextsRequest.pb(
             metadata_service.PurgeContextsRequest()
         )
@@ -30247,6 +30601,7 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.purge_contexts(
             request,
@@ -30258,6 +30613,7 @@ async def test_purge_contexts_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30369,10 +30725,14 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
         "post_add_context_artifacts_and_executions",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_add_context_artifacts_and_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_add_context_artifacts_and_executions",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextArtifactsAndExecutionsRequest.pb(
             metadata_service.AddContextArtifactsAndExecutionsRequest()
         )
@@ -30400,6 +30760,10 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextArtifactsAndExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextArtifactsAndExecutionsResponse(),
+            metadata,
+        )
 
         await client.add_context_artifacts_and_executions(
             request,
@@ -30411,6 +30775,7 @@ async def test_add_context_artifacts_and_executions_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30512,10 +30877,14 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_add_context_children"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_add_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_add_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddContextChildrenRequest.pb(
             metadata_service.AddContextChildrenRequest()
         )
@@ -30541,6 +30910,10 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddContextChildrenResponse(),
+            metadata,
+        )
 
         await client.add_context_children(
             request,
@@ -30552,6 +30925,7 @@ async def test_add_context_children_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30653,10 +31027,14 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_remove_context_children"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_remove_context_children_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_remove_context_children"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.RemoveContextChildrenRequest.pb(
             metadata_service.RemoveContextChildrenRequest()
         )
@@ -30682,6 +31060,10 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.RemoveContextChildrenResponse()
+        post_with_metadata.return_value = (
+            metadata_service.RemoveContextChildrenResponse(),
+            metadata,
+        )
 
         await client.remove_context_children(
             request,
@@ -30693,6 +31075,7 @@ async def test_remove_context_children_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -30798,10 +31181,14 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
         "post_query_context_lineage_subgraph",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_query_context_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_query_context_lineage_subgraph",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryContextLineageSubgraphRequest.pb(
             metadata_service.QueryContextLineageSubgraphRequest()
         )
@@ -30827,6 +31214,7 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         await client.query_context_lineage_subgraph(
             request,
@@ -30838,6 +31226,7 @@ async def test_query_context_lineage_subgraph_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31034,10 +31423,14 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateExecutionRequest.pb(
             metadata_service.CreateExecutionRequest()
         )
@@ -31061,6 +31454,7 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         await client.create_execution(
             request,
@@ -31072,6 +31466,7 @@ async def test_create_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31188,10 +31583,14 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetExecutionRequest.pb(
             metadata_service.GetExecutionRequest()
         )
@@ -31215,6 +31614,7 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = execution.Execution()
+        post_with_metadata.return_value = execution.Execution(), metadata
 
         await client.get_execution(
             request,
@@ -31226,6 +31626,7 @@ async def test_get_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31330,10 +31731,14 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_executions"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListExecutionsRequest.pb(
             metadata_service.ListExecutionsRequest()
         )
@@ -31359,6 +31764,10 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListExecutionsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListExecutionsResponse(),
+            metadata,
+        )
 
         await client.list_executions(
             request,
@@ -31370,6 +31779,7 @@ async def test_list_executions_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31570,10 +31980,14 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_update_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_update_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_update_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.UpdateExecutionRequest.pb(
             metadata_service.UpdateExecutionRequest()
         )
@@ -31597,6 +32011,7 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_execution.Execution()
+        post_with_metadata.return_value = gca_execution.Execution(), metadata
 
         await client.update_execution(
             request,
@@ -31608,6 +32023,7 @@ async def test_update_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31708,10 +32124,14 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_delete_execution"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_delete_execution_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_delete_execution"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.DeleteExecutionRequest.pb(
             metadata_service.DeleteExecutionRequest()
         )
@@ -31735,6 +32155,7 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_execution(
             request,
@@ -31746,6 +32167,7 @@ async def test_delete_execution_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31846,10 +32268,14 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_purge_executions"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_purge_executions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_purge_executions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.PurgeExecutionsRequest.pb(
             metadata_service.PurgeExecutionsRequest()
         )
@@ -31873,6 +32299,7 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.purge_executions(
             request,
@@ -31884,6 +32311,7 @@ async def test_purge_executions_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -31985,10 +32413,14 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_add_execution_events"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_add_execution_events_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_add_execution_events"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.AddExecutionEventsRequest.pb(
             metadata_service.AddExecutionEventsRequest()
         )
@@ -32014,6 +32446,10 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.AddExecutionEventsResponse()
+        post_with_metadata.return_value = (
+            metadata_service.AddExecutionEventsResponse(),
+            metadata,
+        )
 
         await client.add_execution_events(
             request,
@@ -32025,6 +32461,7 @@ async def test_add_execution_events_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32132,10 +32569,14 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
         "post_query_execution_inputs_and_outputs",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_query_execution_inputs_and_outputs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_query_execution_inputs_and_outputs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryExecutionInputsAndOutputsRequest.pb(
             metadata_service.QueryExecutionInputsAndOutputsRequest()
         )
@@ -32161,6 +32602,7 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         await client.query_execution_inputs_and_outputs(
             request,
@@ -32172,6 +32614,7 @@ async def test_query_execution_inputs_and_outputs_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32364,10 +32807,14 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_create_metadata_schema"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_create_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_create_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.CreateMetadataSchemaRequest.pb(
             metadata_service.CreateMetadataSchemaRequest()
         )
@@ -32393,6 +32840,7 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = gca_metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = gca_metadata_schema.MetadataSchema(), metadata
 
         await client.create_metadata_schema(
             request,
@@ -32404,6 +32852,7 @@ async def test_create_metadata_schema_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32519,10 +32968,14 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_get_metadata_schema"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_get_metadata_schema_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_get_metadata_schema"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.GetMetadataSchemaRequest.pb(
             metadata_service.GetMetadataSchemaRequest()
         )
@@ -32548,6 +33001,7 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_schema.MetadataSchema()
+        post_with_metadata.return_value = metadata_schema.MetadataSchema(), metadata
 
         await client.get_metadata_schema(
             request,
@@ -32559,6 +33013,7 @@ async def test_get_metadata_schema_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32663,10 +33118,14 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "post_list_metadata_schemas"
     ) as post, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
+        "post_list_metadata_schemas_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor, "pre_list_metadata_schemas"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.ListMetadataSchemasRequest.pb(
             metadata_service.ListMetadataSchemasRequest()
         )
@@ -32692,6 +33151,10 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = metadata_service.ListMetadataSchemasResponse()
+        post_with_metadata.return_value = (
+            metadata_service.ListMetadataSchemasResponse(),
+            metadata,
+        )
 
         await client.list_metadata_schemas(
             request,
@@ -32703,6 +33166,7 @@ async def test_list_metadata_schemas_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -32808,10 +33272,14 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
         "post_query_artifact_lineage_subgraph",
     ) as post, mock.patch.object(
         transports.AsyncMetadataServiceRestInterceptor,
+        "post_query_artifact_lineage_subgraph_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncMetadataServiceRestInterceptor,
         "pre_query_artifact_lineage_subgraph",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = metadata_service.QueryArtifactLineageSubgraphRequest.pb(
             metadata_service.QueryArtifactLineageSubgraphRequest()
         )
@@ -32837,6 +33305,7 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = lineage_subgraph.LineageSubgraph()
+        post_with_metadata.return_value = lineage_subgraph.LineageSubgraph(), metadata
 
         await client.query_artifact_lineage_subgraph(
             request,
@@ -32848,6 +33317,7 @@ async def test_query_artifact_lineage_subgraph_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

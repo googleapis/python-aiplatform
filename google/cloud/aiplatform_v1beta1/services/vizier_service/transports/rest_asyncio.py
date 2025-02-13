@@ -236,11 +236,32 @@ class AsyncVizierServiceRestInterceptor:
     async def post_add_trial_measurement(self, response: study.Trial) -> study.Trial:
         """Post-rpc interceptor for add_trial_measurement
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_add_trial_measurement_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_add_trial_measurement` interceptor runs
+        before the `post_add_trial_measurement_with_metadata` interceptor.
         """
         return response
+
+    async def post_add_trial_measurement_with_metadata(
+        self, response: study.Trial, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[study.Trial, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for add_trial_measurement
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_add_trial_measurement_with_metadata`
+        interceptor in new development instead of the `post_add_trial_measurement` interceptor.
+        When both interceptors are used, this `post_add_trial_measurement_with_metadata` interceptor runs after the
+        `post_add_trial_measurement` interceptor. The (possibly modified) response returned by
+        `post_add_trial_measurement` will be passed to
+        `post_add_trial_measurement_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_check_trial_early_stopping_state(
         self,
@@ -262,11 +283,34 @@ class AsyncVizierServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for check_trial_early_stopping_state
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_check_trial_early_stopping_state_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_check_trial_early_stopping_state` interceptor runs
+        before the `post_check_trial_early_stopping_state_with_metadata` interceptor.
         """
         return response
+
+    async def post_check_trial_early_stopping_state_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for check_trial_early_stopping_state
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_check_trial_early_stopping_state_with_metadata`
+        interceptor in new development instead of the `post_check_trial_early_stopping_state` interceptor.
+        When both interceptors are used, this `post_check_trial_early_stopping_state_with_metadata` interceptor runs after the
+        `post_check_trial_early_stopping_state` interceptor. The (possibly modified) response returned by
+        `post_check_trial_early_stopping_state` will be passed to
+        `post_check_trial_early_stopping_state_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_complete_trial(
         self,
@@ -285,11 +329,32 @@ class AsyncVizierServiceRestInterceptor:
     async def post_complete_trial(self, response: study.Trial) -> study.Trial:
         """Post-rpc interceptor for complete_trial
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_complete_trial_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_complete_trial` interceptor runs
+        before the `post_complete_trial_with_metadata` interceptor.
         """
         return response
+
+    async def post_complete_trial_with_metadata(
+        self, response: study.Trial, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[study.Trial, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for complete_trial
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_complete_trial_with_metadata`
+        interceptor in new development instead of the `post_complete_trial` interceptor.
+        When both interceptors are used, this `post_complete_trial_with_metadata` interceptor runs after the
+        `post_complete_trial` interceptor. The (possibly modified) response returned by
+        `post_complete_trial` will be passed to
+        `post_complete_trial_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_study(
         self,
@@ -308,11 +373,34 @@ class AsyncVizierServiceRestInterceptor:
     async def post_create_study(self, response: gca_study.Study) -> gca_study.Study:
         """Post-rpc interceptor for create_study
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_study_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_study` interceptor runs
+        before the `post_create_study_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_study_with_metadata(
+        self,
+        response: gca_study.Study,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_study.Study, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_study
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_create_study_with_metadata`
+        interceptor in new development instead of the `post_create_study` interceptor.
+        When both interceptors are used, this `post_create_study_with_metadata` interceptor runs after the
+        `post_create_study` interceptor. The (possibly modified) response returned by
+        `post_create_study` will be passed to
+        `post_create_study_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_trial(
         self,
@@ -331,11 +419,32 @@ class AsyncVizierServiceRestInterceptor:
     async def post_create_trial(self, response: study.Trial) -> study.Trial:
         """Post-rpc interceptor for create_trial
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_trial_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_trial` interceptor runs
+        before the `post_create_trial_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_trial_with_metadata(
+        self, response: study.Trial, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[study.Trial, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_trial
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_create_trial_with_metadata`
+        interceptor in new development instead of the `post_create_trial` interceptor.
+        When both interceptors are used, this `post_create_trial_with_metadata` interceptor runs after the
+        `post_create_trial` interceptor. The (possibly modified) response returned by
+        `post_create_trial` will be passed to
+        `post_create_trial_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_study(
         self,
@@ -380,11 +489,32 @@ class AsyncVizierServiceRestInterceptor:
     async def post_get_study(self, response: study.Study) -> study.Study:
         """Post-rpc interceptor for get_study
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_study_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_study` interceptor runs
+        before the `post_get_study_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_study_with_metadata(
+        self, response: study.Study, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[study.Study, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_study
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_get_study_with_metadata`
+        interceptor in new development instead of the `post_get_study` interceptor.
+        When both interceptors are used, this `post_get_study_with_metadata` interceptor runs after the
+        `post_get_study` interceptor. The (possibly modified) response returned by
+        `post_get_study` will be passed to
+        `post_get_study_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_trial(
         self,
@@ -401,11 +531,32 @@ class AsyncVizierServiceRestInterceptor:
     async def post_get_trial(self, response: study.Trial) -> study.Trial:
         """Post-rpc interceptor for get_trial
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_trial_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_trial` interceptor runs
+        before the `post_get_trial_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_trial_with_metadata(
+        self, response: study.Trial, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[study.Trial, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_trial
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_get_trial_with_metadata`
+        interceptor in new development instead of the `post_get_trial` interceptor.
+        When both interceptors are used, this `post_get_trial_with_metadata` interceptor runs after the
+        `post_get_trial` interceptor. The (possibly modified) response returned by
+        `post_get_trial` will be passed to
+        `post_get_trial_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_optimal_trials(
         self,
@@ -426,11 +577,37 @@ class AsyncVizierServiceRestInterceptor:
     ) -> vizier_service.ListOptimalTrialsResponse:
         """Post-rpc interceptor for list_optimal_trials
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_optimal_trials_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_optimal_trials` interceptor runs
+        before the `post_list_optimal_trials_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_optimal_trials_with_metadata(
+        self,
+        response: vizier_service.ListOptimalTrialsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vizier_service.ListOptimalTrialsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_optimal_trials
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_list_optimal_trials_with_metadata`
+        interceptor in new development instead of the `post_list_optimal_trials` interceptor.
+        When both interceptors are used, this `post_list_optimal_trials_with_metadata` interceptor runs after the
+        `post_list_optimal_trials` interceptor. The (possibly modified) response returned by
+        `post_list_optimal_trials` will be passed to
+        `post_list_optimal_trials_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_studies(
         self,
@@ -451,11 +628,36 @@ class AsyncVizierServiceRestInterceptor:
     ) -> vizier_service.ListStudiesResponse:
         """Post-rpc interceptor for list_studies
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_studies_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_studies` interceptor runs
+        before the `post_list_studies_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_studies_with_metadata(
+        self,
+        response: vizier_service.ListStudiesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vizier_service.ListStudiesResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_studies
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_list_studies_with_metadata`
+        interceptor in new development instead of the `post_list_studies` interceptor.
+        When both interceptors are used, this `post_list_studies_with_metadata` interceptor runs after the
+        `post_list_studies` interceptor. The (possibly modified) response returned by
+        `post_list_studies` will be passed to
+        `post_list_studies_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_trials(
         self,
@@ -476,11 +678,36 @@ class AsyncVizierServiceRestInterceptor:
     ) -> vizier_service.ListTrialsResponse:
         """Post-rpc interceptor for list_trials
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_trials_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_trials` interceptor runs
+        before the `post_list_trials_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_trials_with_metadata(
+        self,
+        response: vizier_service.ListTrialsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vizier_service.ListTrialsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_trials
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_list_trials_with_metadata`
+        interceptor in new development instead of the `post_list_trials` interceptor.
+        When both interceptors are used, this `post_list_trials_with_metadata` interceptor runs after the
+        `post_list_trials` interceptor. The (possibly modified) response returned by
+        `post_list_trials` will be passed to
+        `post_list_trials_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_lookup_study(
         self,
@@ -499,11 +726,32 @@ class AsyncVizierServiceRestInterceptor:
     async def post_lookup_study(self, response: study.Study) -> study.Study:
         """Post-rpc interceptor for lookup_study
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_lookup_study_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_lookup_study` interceptor runs
+        before the `post_lookup_study_with_metadata` interceptor.
         """
         return response
+
+    async def post_lookup_study_with_metadata(
+        self, response: study.Study, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[study.Study, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for lookup_study
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_lookup_study_with_metadata`
+        interceptor in new development instead of the `post_lookup_study` interceptor.
+        When both interceptors are used, this `post_lookup_study_with_metadata` interceptor runs after the
+        `post_lookup_study` interceptor. The (possibly modified) response returned by
+        `post_lookup_study` will be passed to
+        `post_lookup_study_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_stop_trial(
         self,
@@ -522,11 +770,32 @@ class AsyncVizierServiceRestInterceptor:
     async def post_stop_trial(self, response: study.Trial) -> study.Trial:
         """Post-rpc interceptor for stop_trial
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_stop_trial_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_stop_trial` interceptor runs
+        before the `post_stop_trial_with_metadata` interceptor.
         """
         return response
+
+    async def post_stop_trial_with_metadata(
+        self, response: study.Trial, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[study.Trial, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for stop_trial
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_stop_trial_with_metadata`
+        interceptor in new development instead of the `post_stop_trial` interceptor.
+        When both interceptors are used, this `post_stop_trial_with_metadata` interceptor runs after the
+        `post_stop_trial` interceptor. The (possibly modified) response returned by
+        `post_stop_trial` will be passed to
+        `post_stop_trial_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_suggest_trials(
         self,
@@ -547,11 +816,34 @@ class AsyncVizierServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for suggest_trials
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_suggest_trials_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VizierService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_suggest_trials` interceptor runs
+        before the `post_suggest_trials_with_metadata` interceptor.
         """
         return response
+
+    async def post_suggest_trials_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for suggest_trials
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VizierService server but before it is returned to user code.
+
+        We recommend only using this `post_suggest_trials_with_metadata`
+        interceptor in new development instead of the `post_suggest_trials` interceptor.
+        When both interceptors are used, this `post_suggest_trials_with_metadata` interceptor runs after the
+        `post_suggest_trials` interceptor. The (possibly modified) response returned by
+        `post_suggest_trials` will be passed to
+        `post_suggest_trials_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -1142,6 +1434,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_add_trial_measurement(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_add_trial_measurement_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1306,6 +1602,13 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_check_trial_early_stopping_state(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_check_trial_early_stopping_state_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1469,6 +1772,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_complete_trial(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_complete_trial_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1629,6 +1936,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_study(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_study_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1794,6 +2105,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_trial(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_trial_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2182,6 +2497,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_study(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_study_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2339,6 +2658,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_trial(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_trial_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2500,6 +2823,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_optimal_trials(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_optimal_trials_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2656,6 +2983,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_studies(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_studies_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2814,6 +3145,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_trials(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_trials_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2976,6 +3311,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_lookup_study(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_lookup_study_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3143,6 +3482,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_stop_trial(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_stop_trial_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3304,6 +3647,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_suggest_trials(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_suggest_trials_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

@@ -161,6 +161,11 @@ class ModelServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.list_model_version_checkpoints: gapic_v1.method.wrap_method(
+                self.list_model_version_checkpoints,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.update_model: gapic_v1.method.wrap_method(
                 self.update_model,
                 default_timeout=5.0,
@@ -334,6 +339,18 @@ class ModelServiceTransport(abc.ABC):
         Union[
             model_service.ListModelVersionsResponse,
             Awaitable[model_service.ListModelVersionsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_model_version_checkpoints(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionCheckpointsRequest],
+        Union[
+            model_service.ListModelVersionCheckpointsResponse,
+            Awaitable[model_service.ListModelVersionCheckpointsResponse],
         ],
     ]:
         raise NotImplementedError()

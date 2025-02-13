@@ -129,11 +129,37 @@ class AsyncEvaluationServiceRestInterceptor:
     ) -> evaluation_service.EvaluateInstancesResponse:
         """Post-rpc interceptor for evaluate_instances
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_evaluate_instances_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the EvaluationService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_evaluate_instances` interceptor runs
+        before the `post_evaluate_instances_with_metadata` interceptor.
         """
         return response
+
+    async def post_evaluate_instances_with_metadata(
+        self,
+        response: evaluation_service.EvaluateInstancesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        evaluation_service.EvaluateInstancesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for evaluate_instances
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EvaluationService server but before it is returned to user code.
+
+        We recommend only using this `post_evaluate_instances_with_metadata`
+        interceptor in new development instead of the `post_evaluate_instances` interceptor.
+        When both interceptors are used, this `post_evaluate_instances_with_metadata` interceptor runs after the
+        `post_evaluate_instances` interceptor. The (possibly modified) response returned by
+        `post_evaluate_instances` will be passed to
+        `post_evaluate_instances_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -644,6 +670,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_evaluate_instances(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_evaluate_instances_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

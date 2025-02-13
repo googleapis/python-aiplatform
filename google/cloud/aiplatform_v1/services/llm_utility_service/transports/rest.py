@@ -121,11 +121,37 @@ class LlmUtilityServiceRestInterceptor:
     ) -> llm_utility_service.ComputeTokensResponse:
         """Post-rpc interceptor for compute_tokens
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_compute_tokens_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the LlmUtilityService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_compute_tokens` interceptor runs
+        before the `post_compute_tokens_with_metadata` interceptor.
         """
         return response
+
+    def post_compute_tokens_with_metadata(
+        self,
+        response: llm_utility_service.ComputeTokensResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        llm_utility_service.ComputeTokensResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for compute_tokens
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the LlmUtilityService server but before it is returned to user code.
+
+        We recommend only using this `post_compute_tokens_with_metadata`
+        interceptor in new development instead of the `post_compute_tokens` interceptor.
+        When both interceptors are used, this `post_compute_tokens_with_metadata` interceptor runs after the
+        `post_compute_tokens` interceptor. The (possibly modified) response returned by
+        `post_compute_tokens` will be passed to
+        `post_compute_tokens_with_metadata`.
+        """
+        return response, metadata
 
     def pre_count_tokens(
         self,
@@ -146,11 +172,36 @@ class LlmUtilityServiceRestInterceptor:
     ) -> prediction_service.CountTokensResponse:
         """Post-rpc interceptor for count_tokens
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_count_tokens_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the LlmUtilityService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_count_tokens` interceptor runs
+        before the `post_count_tokens_with_metadata` interceptor.
         """
         return response
+
+    def post_count_tokens_with_metadata(
+        self,
+        response: prediction_service.CountTokensResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.CountTokensResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for count_tokens
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the LlmUtilityService server but before it is returned to user code.
+
+        We recommend only using this `post_count_tokens_with_metadata`
+        interceptor in new development instead of the `post_count_tokens` interceptor.
+        When both interceptors are used, this `post_count_tokens_with_metadata` interceptor runs after the
+        `post_count_tokens` interceptor. The (possibly modified) response returned by
+        `post_count_tokens` will be passed to
+        `post_count_tokens_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -610,6 +661,10 @@ class LlmUtilityServiceRestTransport(_BaseLlmUtilityServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_compute_tokens(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_compute_tokens_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -759,6 +814,10 @@ class LlmUtilityServiceRestTransport(_BaseLlmUtilityServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_count_tokens(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_count_tokens_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
