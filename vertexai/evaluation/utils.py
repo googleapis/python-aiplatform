@@ -336,7 +336,7 @@ def _upload_file_to_gcs(upload_gcs_path: str, filename: str) -> None:
 def upload_evaluation_results(
     eval_result: eval_base.EvalResult,
     destination_uri_prefix: str,
-    file_name: str,
+    file_name: Optional[str] = None,
     candidate_model_name: Optional[str] = None,
     baseline_model_name: Optional[str] = None,
     dataset_uri: Optional[str] = None,
@@ -347,7 +347,7 @@ def upload_evaluation_results(
     Args:
         eval_result: Eval results to upload.
         destination_uri_prefix: GCS folder to store the data.
-        file_name: File name to store the metrics table.
+        file_name: Optional. File name to store the metrics table.
         candidate_model_name: Optional. Candidate model name.
         baseline_model_name: Optional. Baseline model name.
         dataset_uri: Optional. URI pointing to the dataset.
@@ -359,6 +359,8 @@ def upload_evaluation_results(
     if eval_result.metrics_table is None:
         return
     if destination_uri_prefix.startswith(_GCS_PREFIX):
+        if not file_name:
+            file_name = f"eval_results_{utils.timestamped_unique_name()}.csv"
         base_name, extension = os.path.splitext(file_name)
         file_type = extension.lower()[1:]
         output_folder = destination_uri_prefix + "/" + base_name

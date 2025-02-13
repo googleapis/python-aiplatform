@@ -25,6 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils as aiplatform_utils
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform_v1.services import (
     evaluation_service as gapic_evaluation_services,
@@ -2175,4 +2176,19 @@ class TestPromptTemplate:
                 },
             },
             mock.ANY,
+        )
+
+    def test_upload_results_with_default_file_name(self, mock_storage_blob_from_string):
+        with mock.patch.object(
+            aiplatform_utils, "timestamped_unique_name"
+        ) as mock_timestamped_unique_name:
+            mock_timestamped_unique_name.return_value = "2025-02-10-12-00-00-12345"
+            evaluation.utils.upload_evaluation_results(
+                MOCK_EVAL_RESULT,
+                _TEST_BUCKET,
+            )
+
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/eval_results_2025-02-10-12-00-00-12345.csv",
+            client=mock.ANY,
         )
