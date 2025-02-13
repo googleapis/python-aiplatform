@@ -2583,6 +2583,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         timeout: Optional[float] = None,
     ) -> Iterator[requests.models.Response]:
         """Makes a streaming prediction request using arbitrary headers.
+        For custom model, this method is only supported for dedicated endpoint.
 
         Example usage:
             ```
@@ -2632,7 +2633,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         if self.stream_raw_predict_request_url is None:
             self.stream_raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:streamRawPredict"
 
-        url = self.raw_predict_request_url
+        url = self.stream_raw_predict_request_url
 
         if use_dedicated_endpoint:
             self._sync_gca_resource_if_skipped()
