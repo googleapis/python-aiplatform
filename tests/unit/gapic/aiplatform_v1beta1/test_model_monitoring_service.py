@@ -108,6 +108,14 @@ from google.type import interval_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -380,6 +388,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         ModelMonitoringServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = ModelMonitoringServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = ModelMonitoringServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -9367,10 +9418,14 @@ def test_create_model_monitor_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "post_create_model_monitor"
     ) as post, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
+        "post_create_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "pre_create_model_monitor"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.CreateModelMonitorRequest.pb(
             model_monitoring_service.CreateModelMonitorRequest()
         )
@@ -9394,6 +9449,7 @@ def test_create_model_monitor_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_model_monitor(
             request,
@@ -9405,6 +9461,7 @@ def test_create_model_monitor_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_model_monitor_rest_bad_request(
@@ -9694,10 +9751,14 @@ def test_update_model_monitor_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "post_update_model_monitor"
     ) as post, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
+        "post_update_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "pre_update_model_monitor"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.UpdateModelMonitorRequest.pb(
             model_monitoring_service.UpdateModelMonitorRequest()
         )
@@ -9721,6 +9782,7 @@ def test_update_model_monitor_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_model_monitor(
             request,
@@ -9732,6 +9794,7 @@ def test_update_model_monitor_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_model_monitor_rest_bad_request(
@@ -9822,10 +9885,14 @@ def test_get_model_monitor_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "post_get_model_monitor"
     ) as post, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
+        "post_get_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "pre_get_model_monitor"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.GetModelMonitorRequest.pb(
             model_monitoring_service.GetModelMonitorRequest()
         )
@@ -9849,6 +9916,7 @@ def test_get_model_monitor_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitor.ModelMonitor()
+        post_with_metadata.return_value = model_monitor.ModelMonitor(), metadata
 
         client.get_model_monitor(
             request,
@@ -9860,6 +9928,7 @@ def test_get_model_monitor_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_model_monitors_rest_bad_request(
@@ -9946,10 +10015,14 @@ def test_list_model_monitors_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "post_list_model_monitors"
     ) as post, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
+        "post_list_model_monitors_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "pre_list_model_monitors"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.ListModelMonitorsRequest.pb(
             model_monitoring_service.ListModelMonitorsRequest()
         )
@@ -9975,6 +10048,10 @@ def test_list_model_monitors_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitoring_service.ListModelMonitorsResponse()
+        post_with_metadata.return_value = (
+            model_monitoring_service.ListModelMonitorsResponse(),
+            metadata,
+        )
 
         client.list_model_monitors(
             request,
@@ -9986,6 +10063,7 @@ def test_list_model_monitors_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_model_monitor_rest_bad_request(
@@ -10066,10 +10144,14 @@ def test_delete_model_monitor_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "post_delete_model_monitor"
     ) as post, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
+        "post_delete_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "pre_delete_model_monitor"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.DeleteModelMonitorRequest.pb(
             model_monitoring_service.DeleteModelMonitorRequest()
         )
@@ -10093,6 +10175,7 @@ def test_delete_model_monitor_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_model_monitor(
             request,
@@ -10104,6 +10187,7 @@ def test_delete_model_monitor_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_create_model_monitoring_job_rest_bad_request(
@@ -10413,10 +10497,14 @@ def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
         "post_create_model_monitoring_job",
     ) as post, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor,
+        "post_create_model_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
         "pre_create_model_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.CreateModelMonitoringJobRequest.pb(
             model_monitoring_service.CreateModelMonitoringJobRequest()
         )
@@ -10442,6 +10530,10 @@ def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_model_monitoring_job.ModelMonitoringJob()
+        post_with_metadata.return_value = (
+            gca_model_monitoring_job.ModelMonitoringJob(),
+            metadata,
+        )
 
         client.create_model_monitoring_job(
             request,
@@ -10453,6 +10545,7 @@ def test_create_model_monitoring_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_model_monitoring_job_rest_bad_request(
@@ -10548,10 +10641,14 @@ def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
         transports.ModelMonitoringServiceRestInterceptor,
         "post_get_model_monitoring_job",
     ) as post, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
+        "post_get_model_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor, "pre_get_model_monitoring_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.GetModelMonitoringJobRequest.pb(
             model_monitoring_service.GetModelMonitoringJobRequest()
         )
@@ -10577,6 +10674,10 @@ def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitoring_job.ModelMonitoringJob()
+        post_with_metadata.return_value = (
+            model_monitoring_job.ModelMonitoringJob(),
+            metadata,
+        )
 
         client.get_model_monitoring_job(
             request,
@@ -10588,6 +10689,7 @@ def test_get_model_monitoring_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_model_monitoring_jobs_rest_bad_request(
@@ -10680,10 +10782,14 @@ def test_list_model_monitoring_jobs_rest_interceptors(null_interceptor):
         "post_list_model_monitoring_jobs",
     ) as post, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor,
+        "post_list_model_monitoring_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
         "pre_list_model_monitoring_jobs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.ListModelMonitoringJobsRequest.pb(
             model_monitoring_service.ListModelMonitoringJobsRequest()
         )
@@ -10709,6 +10815,10 @@ def test_list_model_monitoring_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitoring_service.ListModelMonitoringJobsResponse()
+        post_with_metadata.return_value = (
+            model_monitoring_service.ListModelMonitoringJobsResponse(),
+            metadata,
+        )
 
         client.list_model_monitoring_jobs(
             request,
@@ -10720,6 +10830,7 @@ def test_list_model_monitoring_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_model_monitoring_job_rest_bad_request(
@@ -10806,10 +10917,14 @@ def test_delete_model_monitoring_job_rest_interceptors(null_interceptor):
         "post_delete_model_monitoring_job",
     ) as post, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor,
+        "post_delete_model_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
         "pre_delete_model_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.DeleteModelMonitoringJobRequest.pb(
             model_monitoring_service.DeleteModelMonitoringJobRequest()
         )
@@ -10833,6 +10948,7 @@ def test_delete_model_monitoring_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_model_monitoring_job(
             request,
@@ -10844,6 +10960,7 @@ def test_delete_model_monitoring_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_search_model_monitoring_stats_rest_bad_request(
@@ -10936,10 +11053,14 @@ def test_search_model_monitoring_stats_rest_interceptors(null_interceptor):
         "post_search_model_monitoring_stats",
     ) as post, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor,
+        "post_search_model_monitoring_stats_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
         "pre_search_model_monitoring_stats",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.SearchModelMonitoringStatsRequest.pb(
             model_monitoring_service.SearchModelMonitoringStatsRequest()
         )
@@ -10969,6 +11090,10 @@ def test_search_model_monitoring_stats_rest_interceptors(null_interceptor):
         post.return_value = (
             model_monitoring_service.SearchModelMonitoringStatsResponse()
         )
+        post_with_metadata.return_value = (
+            model_monitoring_service.SearchModelMonitoringStatsResponse(),
+            metadata,
+        )
 
         client.search_model_monitoring_stats(
             request,
@@ -10980,6 +11105,7 @@ def test_search_model_monitoring_stats_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_search_model_monitoring_alerts_rest_bad_request(
@@ -11074,10 +11200,14 @@ def test_search_model_monitoring_alerts_rest_interceptors(null_interceptor):
         "post_search_model_monitoring_alerts",
     ) as post, mock.patch.object(
         transports.ModelMonitoringServiceRestInterceptor,
+        "post_search_model_monitoring_alerts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.ModelMonitoringServiceRestInterceptor,
         "pre_search_model_monitoring_alerts",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.SearchModelMonitoringAlertsRequest.pb(
             model_monitoring_service.SearchModelMonitoringAlertsRequest()
         )
@@ -11107,6 +11237,10 @@ def test_search_model_monitoring_alerts_rest_interceptors(null_interceptor):
         post.return_value = (
             model_monitoring_service.SearchModelMonitoringAlertsResponse()
         )
+        post_with_metadata.return_value = (
+            model_monitoring_service.SearchModelMonitoringAlertsResponse(),
+            metadata,
+        )
 
         client.search_model_monitoring_alerts(
             request,
@@ -11118,6 +11252,7 @@ def test_search_model_monitoring_alerts_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -12319,10 +12454,14 @@ async def test_create_model_monitor_rest_asyncio_interceptors(null_interceptor):
         "post_create_model_monitor",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_create_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_create_model_monitor",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.CreateModelMonitorRequest.pb(
             model_monitoring_service.CreateModelMonitorRequest()
         )
@@ -12346,6 +12485,7 @@ async def test_create_model_monitor_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_model_monitor(
             request,
@@ -12357,6 +12497,7 @@ async def test_create_model_monitor_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12664,10 +12805,14 @@ async def test_update_model_monitor_rest_asyncio_interceptors(null_interceptor):
         "post_update_model_monitor",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_update_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_update_model_monitor",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.UpdateModelMonitorRequest.pb(
             model_monitoring_service.UpdateModelMonitorRequest()
         )
@@ -12691,6 +12836,7 @@ async def test_update_model_monitor_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_model_monitor(
             request,
@@ -12702,6 +12848,7 @@ async def test_update_model_monitor_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12808,10 +12955,14 @@ async def test_get_model_monitor_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor, "post_get_model_monitor"
     ) as post, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_get_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor, "pre_get_model_monitor"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.GetModelMonitorRequest.pb(
             model_monitoring_service.GetModelMonitorRequest()
         )
@@ -12835,6 +12986,7 @@ async def test_get_model_monitor_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitor.ModelMonitor()
+        post_with_metadata.return_value = model_monitor.ModelMonitor(), metadata
 
         await client.get_model_monitor(
             request,
@@ -12846,6 +12998,7 @@ async def test_get_model_monitor_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12949,10 +13102,14 @@ async def test_list_model_monitors_rest_asyncio_interceptors(null_interceptor):
         transports.AsyncModelMonitoringServiceRestInterceptor,
         "post_list_model_monitors",
     ) as post, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_list_model_monitors_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor, "pre_list_model_monitors"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.ListModelMonitorsRequest.pb(
             model_monitoring_service.ListModelMonitorsRequest()
         )
@@ -12978,6 +13135,10 @@ async def test_list_model_monitors_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitoring_service.ListModelMonitorsResponse()
+        post_with_metadata.return_value = (
+            model_monitoring_service.ListModelMonitorsResponse(),
+            metadata,
+        )
 
         await client.list_model_monitors(
             request,
@@ -12989,6 +13150,7 @@ async def test_list_model_monitors_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13087,10 +13249,14 @@ async def test_delete_model_monitor_rest_asyncio_interceptors(null_interceptor):
         "post_delete_model_monitor",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_delete_model_monitor_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_delete_model_monitor",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.DeleteModelMonitorRequest.pb(
             model_monitoring_service.DeleteModelMonitorRequest()
         )
@@ -13114,6 +13280,7 @@ async def test_delete_model_monitor_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_model_monitor(
             request,
@@ -13125,6 +13292,7 @@ async def test_delete_model_monitor_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13450,10 +13618,14 @@ async def test_create_model_monitoring_job_rest_asyncio_interceptors(null_interc
         "post_create_model_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_create_model_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_create_model_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.CreateModelMonitoringJobRequest.pb(
             model_monitoring_service.CreateModelMonitoringJobRequest()
         )
@@ -13479,6 +13651,10 @@ async def test_create_model_monitoring_job_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = gca_model_monitoring_job.ModelMonitoringJob()
+        post_with_metadata.return_value = (
+            gca_model_monitoring_job.ModelMonitoringJob(),
+            metadata,
+        )
 
         await client.create_model_monitoring_job(
             request,
@@ -13490,6 +13666,7 @@ async def test_create_model_monitoring_job_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13602,10 +13779,14 @@ async def test_get_model_monitoring_job_rest_asyncio_interceptors(null_intercept
         "post_get_model_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_get_model_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_get_model_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.GetModelMonitoringJobRequest.pb(
             model_monitoring_service.GetModelMonitoringJobRequest()
         )
@@ -13631,6 +13812,10 @@ async def test_get_model_monitoring_job_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitoring_job.ModelMonitoringJob()
+        post_with_metadata.return_value = (
+            model_monitoring_job.ModelMonitoringJob(),
+            metadata,
+        )
 
         await client.get_model_monitoring_job(
             request,
@@ -13642,6 +13827,7 @@ async def test_get_model_monitoring_job_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13750,10 +13936,14 @@ async def test_list_model_monitoring_jobs_rest_asyncio_interceptors(null_interce
         "post_list_model_monitoring_jobs",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_list_model_monitoring_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_list_model_monitoring_jobs",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.ListModelMonitoringJobsRequest.pb(
             model_monitoring_service.ListModelMonitoringJobsRequest()
         )
@@ -13779,6 +13969,10 @@ async def test_list_model_monitoring_jobs_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = model_monitoring_service.ListModelMonitoringJobsResponse()
+        post_with_metadata.return_value = (
+            model_monitoring_service.ListModelMonitoringJobsResponse(),
+            metadata,
+        )
 
         await client.list_model_monitoring_jobs(
             request,
@@ -13790,6 +13984,7 @@ async def test_list_model_monitoring_jobs_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13892,10 +14087,14 @@ async def test_delete_model_monitoring_job_rest_asyncio_interceptors(null_interc
         "post_delete_model_monitoring_job",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_delete_model_monitoring_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_delete_model_monitoring_job",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.DeleteModelMonitoringJobRequest.pb(
             model_monitoring_service.DeleteModelMonitoringJobRequest()
         )
@@ -13919,6 +14118,7 @@ async def test_delete_model_monitoring_job_rest_asyncio_interceptors(null_interc
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_model_monitoring_job(
             request,
@@ -13930,6 +14130,7 @@ async def test_delete_model_monitoring_job_rest_asyncio_interceptors(null_interc
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14040,10 +14241,14 @@ async def test_search_model_monitoring_stats_rest_asyncio_interceptors(
         "post_search_model_monitoring_stats",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_search_model_monitoring_stats_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_search_model_monitoring_stats",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.SearchModelMonitoringStatsRequest.pb(
             model_monitoring_service.SearchModelMonitoringStatsRequest()
         )
@@ -14073,6 +14278,10 @@ async def test_search_model_monitoring_stats_rest_asyncio_interceptors(
         post.return_value = (
             model_monitoring_service.SearchModelMonitoringStatsResponse()
         )
+        post_with_metadata.return_value = (
+            model_monitoring_service.SearchModelMonitoringStatsResponse(),
+            metadata,
+        )
 
         await client.search_model_monitoring_stats(
             request,
@@ -14084,6 +14293,7 @@ async def test_search_model_monitoring_stats_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -14196,10 +14406,14 @@ async def test_search_model_monitoring_alerts_rest_asyncio_interceptors(
         "post_search_model_monitoring_alerts",
     ) as post, mock.patch.object(
         transports.AsyncModelMonitoringServiceRestInterceptor,
+        "post_search_model_monitoring_alerts_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncModelMonitoringServiceRestInterceptor,
         "pre_search_model_monitoring_alerts",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = model_monitoring_service.SearchModelMonitoringAlertsRequest.pb(
             model_monitoring_service.SearchModelMonitoringAlertsRequest()
         )
@@ -14229,6 +14443,10 @@ async def test_search_model_monitoring_alerts_rest_asyncio_interceptors(
         post.return_value = (
             model_monitoring_service.SearchModelMonitoringAlertsResponse()
         )
+        post_with_metadata.return_value = (
+            model_monitoring_service.SearchModelMonitoringAlertsResponse(),
+            metadata,
+        )
 
         await client.search_model_monitoring_alerts(
             request,
@@ -14240,6 +14458,7 @@ async def test_search_model_monitoring_alerts_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

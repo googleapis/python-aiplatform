@@ -198,11 +198,34 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_model_monitor` interceptor runs
+        before the `post_create_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    def post_create_model_monitor_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_create_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_create_model_monitor` interceptor.
+        When both interceptors are used, this `post_create_model_monitor_with_metadata` interceptor runs after the
+        `post_create_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_create_model_monitor` will be passed to
+        `post_create_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_model_monitoring_job(
         self,
@@ -224,11 +247,37 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> gca_model_monitoring_job.ModelMonitoringJob:
         """Post-rpc interceptor for create_model_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_model_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_model_monitoring_job` interceptor runs
+        before the `post_create_model_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    def post_create_model_monitoring_job_with_metadata(
+        self,
+        response: gca_model_monitoring_job.ModelMonitoringJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_model_monitoring_job.ModelMonitoringJob,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for create_model_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_create_model_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_create_model_monitoring_job` interceptor.
+        When both interceptors are used, this `post_create_model_monitoring_job_with_metadata` interceptor runs after the
+        `post_create_model_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_create_model_monitoring_job` will be passed to
+        `post_create_model_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_model_monitor(
         self,
@@ -250,11 +299,34 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_model_monitor` interceptor runs
+        before the `post_delete_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_model_monitor_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_delete_model_monitor` interceptor.
+        When both interceptors are used, this `post_delete_model_monitor_with_metadata` interceptor runs after the
+        `post_delete_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_delete_model_monitor` will be passed to
+        `post_delete_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_model_monitoring_job(
         self,
@@ -276,11 +348,34 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_model_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_model_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_model_monitoring_job` interceptor runs
+        before the `post_delete_model_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_model_monitoring_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_model_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_model_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_delete_model_monitoring_job` interceptor.
+        When both interceptors are used, this `post_delete_model_monitoring_job_with_metadata` interceptor runs after the
+        `post_delete_model_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_delete_model_monitoring_job` will be passed to
+        `post_delete_model_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_model_monitor(
         self,
@@ -302,11 +397,34 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> model_monitor.ModelMonitor:
         """Post-rpc interceptor for get_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model_monitor` interceptor runs
+        before the `post_get_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    def post_get_model_monitor_with_metadata(
+        self,
+        response: model_monitor.ModelMonitor,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[model_monitor.ModelMonitor, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_get_model_monitor` interceptor.
+        When both interceptors are used, this `post_get_model_monitor_with_metadata` interceptor runs after the
+        `post_get_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_get_model_monitor` will be passed to
+        `post_get_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_model_monitoring_job(
         self,
@@ -328,11 +446,36 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_job.ModelMonitoringJob:
         """Post-rpc interceptor for get_model_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model_monitoring_job` interceptor runs
+        before the `post_get_model_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    def post_get_model_monitoring_job_with_metadata(
+        self,
+        response: model_monitoring_job.ModelMonitoringJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_job.ModelMonitoringJob, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_model_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_get_model_monitoring_job` interceptor.
+        When both interceptors are used, this `post_get_model_monitoring_job_with_metadata` interceptor runs after the
+        `post_get_model_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_get_model_monitoring_job` will be passed to
+        `post_get_model_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_model_monitoring_jobs(
         self,
@@ -354,11 +497,37 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.ListModelMonitoringJobsResponse:
         """Post-rpc interceptor for list_model_monitoring_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_monitoring_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_monitoring_jobs` interceptor runs
+        before the `post_list_model_monitoring_jobs_with_metadata` interceptor.
         """
         return response
+
+    def post_list_model_monitoring_jobs_with_metadata(
+        self,
+        response: model_monitoring_service.ListModelMonitoringJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.ListModelMonitoringJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_monitoring_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_monitoring_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_model_monitoring_jobs` interceptor.
+        When both interceptors are used, this `post_list_model_monitoring_jobs_with_metadata` interceptor runs after the
+        `post_list_model_monitoring_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_model_monitoring_jobs` will be passed to
+        `post_list_model_monitoring_jobs_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_model_monitors(
         self,
@@ -380,11 +549,37 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.ListModelMonitorsResponse:
         """Post-rpc interceptor for list_model_monitors
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_monitors_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_monitors` interceptor runs
+        before the `post_list_model_monitors_with_metadata` interceptor.
         """
         return response
+
+    def post_list_model_monitors_with_metadata(
+        self,
+        response: model_monitoring_service.ListModelMonitorsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.ListModelMonitorsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_monitors
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_monitors_with_metadata`
+        interceptor in new development instead of the `post_list_model_monitors` interceptor.
+        When both interceptors are used, this `post_list_model_monitors_with_metadata` interceptor runs after the
+        `post_list_model_monitors` interceptor. The (possibly modified) response returned by
+        `post_list_model_monitors` will be passed to
+        `post_list_model_monitors_with_metadata`.
+        """
+        return response, metadata
 
     def pre_search_model_monitoring_alerts(
         self,
@@ -406,11 +601,37 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.SearchModelMonitoringAlertsResponse:
         """Post-rpc interceptor for search_model_monitoring_alerts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_search_model_monitoring_alerts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_search_model_monitoring_alerts` interceptor runs
+        before the `post_search_model_monitoring_alerts_with_metadata` interceptor.
         """
         return response
+
+    def post_search_model_monitoring_alerts_with_metadata(
+        self,
+        response: model_monitoring_service.SearchModelMonitoringAlertsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.SearchModelMonitoringAlertsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for search_model_monitoring_alerts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_search_model_monitoring_alerts_with_metadata`
+        interceptor in new development instead of the `post_search_model_monitoring_alerts` interceptor.
+        When both interceptors are used, this `post_search_model_monitoring_alerts_with_metadata` interceptor runs after the
+        `post_search_model_monitoring_alerts` interceptor. The (possibly modified) response returned by
+        `post_search_model_monitoring_alerts` will be passed to
+        `post_search_model_monitoring_alerts_with_metadata`.
+        """
+        return response, metadata
 
     def pre_search_model_monitoring_stats(
         self,
@@ -432,11 +653,37 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> model_monitoring_service.SearchModelMonitoringStatsResponse:
         """Post-rpc interceptor for search_model_monitoring_stats
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_search_model_monitoring_stats_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_search_model_monitoring_stats` interceptor runs
+        before the `post_search_model_monitoring_stats_with_metadata` interceptor.
         """
         return response
+
+    def post_search_model_monitoring_stats_with_metadata(
+        self,
+        response: model_monitoring_service.SearchModelMonitoringStatsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_monitoring_service.SearchModelMonitoringStatsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for search_model_monitoring_stats
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_search_model_monitoring_stats_with_metadata`
+        interceptor in new development instead of the `post_search_model_monitoring_stats` interceptor.
+        When both interceptors are used, this `post_search_model_monitoring_stats_with_metadata` interceptor runs after the
+        `post_search_model_monitoring_stats` interceptor. The (possibly modified) response returned by
+        `post_search_model_monitoring_stats` will be passed to
+        `post_search_model_monitoring_stats_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_model_monitor(
         self,
@@ -458,11 +705,34 @@ class ModelMonitoringServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_model_monitor
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_model_monitor_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelMonitoringService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_model_monitor` interceptor runs
+        before the `post_update_model_monitor_with_metadata` interceptor.
         """
         return response
+
+    def post_update_model_monitor_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_model_monitor
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelMonitoringService server but before it is returned to user code.
+
+        We recommend only using this `post_update_model_monitor_with_metadata`
+        interceptor in new development instead of the `post_update_model_monitor` interceptor.
+        When both interceptors are used, this `post_update_model_monitor_with_metadata` interceptor runs after the
+        `post_update_model_monitor` interceptor. The (possibly modified) response returned by
+        `post_update_model_monitor` will be passed to
+        `post_update_model_monitor_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -3014,6 +3284,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_model_monitor_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3169,6 +3443,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_model_monitoring_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_model_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3319,6 +3597,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_model_monitor_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3466,6 +3748,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_model_monitoring_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_model_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3620,6 +3906,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_model_monitor_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3768,6 +4058,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_model_monitoring_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_model_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3918,6 +4212,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_model_monitoring_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_model_monitoring_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4069,6 +4367,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_model_monitors(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_model_monitors_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4231,6 +4533,13 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_search_model_monitoring_alerts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_search_model_monitoring_alerts_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4391,6 +4700,13 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_search_model_monitoring_stats(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_search_model_monitoring_stats_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4547,6 +4863,10 @@ class ModelMonitoringServiceRestTransport(_BaseModelMonitoringServiceRestTranspo
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_model_monitor(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_model_monitor_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

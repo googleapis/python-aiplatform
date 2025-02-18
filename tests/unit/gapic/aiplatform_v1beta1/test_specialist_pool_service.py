@@ -89,6 +89,14 @@ from google.protobuf import field_mask_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -361,6 +369,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         SpecialistPoolServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = SpecialistPoolServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = SpecialistPoolServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -4691,10 +4742,14 @@ def test_create_specialist_pool_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "post_create_specialist_pool"
     ) as post, mock.patch.object(
+        transports.SpecialistPoolServiceRestInterceptor,
+        "post_create_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "pre_create_specialist_pool"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.CreateSpecialistPoolRequest.pb(
             specialist_pool_service.CreateSpecialistPoolRequest()
         )
@@ -4718,6 +4773,7 @@ def test_create_specialist_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_specialist_pool(
             request,
@@ -4729,6 +4785,7 @@ def test_create_specialist_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_specialist_pool_rest_bad_request(
@@ -4827,10 +4884,14 @@ def test_get_specialist_pool_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "post_get_specialist_pool"
     ) as post, mock.patch.object(
+        transports.SpecialistPoolServiceRestInterceptor,
+        "post_get_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "pre_get_specialist_pool"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.GetSpecialistPoolRequest.pb(
             specialist_pool_service.GetSpecialistPoolRequest()
         )
@@ -4856,6 +4917,7 @@ def test_get_specialist_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = specialist_pool.SpecialistPool()
+        post_with_metadata.return_value = specialist_pool.SpecialistPool(), metadata
 
         client.get_specialist_pool(
             request,
@@ -4867,6 +4929,7 @@ def test_get_specialist_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_specialist_pools_rest_bad_request(
@@ -4953,10 +5016,14 @@ def test_list_specialist_pools_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "post_list_specialist_pools"
     ) as post, mock.patch.object(
+        transports.SpecialistPoolServiceRestInterceptor,
+        "post_list_specialist_pools_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "pre_list_specialist_pools"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.ListSpecialistPoolsRequest.pb(
             specialist_pool_service.ListSpecialistPoolsRequest()
         )
@@ -4982,6 +5049,10 @@ def test_list_specialist_pools_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = specialist_pool_service.ListSpecialistPoolsResponse()
+        post_with_metadata.return_value = (
+            specialist_pool_service.ListSpecialistPoolsResponse(),
+            metadata,
+        )
 
         client.list_specialist_pools(
             request,
@@ -4993,6 +5064,7 @@ def test_list_specialist_pools_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_specialist_pool_rest_bad_request(
@@ -5077,10 +5149,14 @@ def test_delete_specialist_pool_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "post_delete_specialist_pool"
     ) as post, mock.patch.object(
+        transports.SpecialistPoolServiceRestInterceptor,
+        "post_delete_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "pre_delete_specialist_pool"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.DeleteSpecialistPoolRequest.pb(
             specialist_pool_service.DeleteSpecialistPoolRequest()
         )
@@ -5104,6 +5180,7 @@ def test_delete_specialist_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_specialist_pool(
             request,
@@ -5115,6 +5192,7 @@ def test_delete_specialist_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_specialist_pool_rest_bad_request(
@@ -5289,10 +5367,14 @@ def test_update_specialist_pool_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "post_update_specialist_pool"
     ) as post, mock.patch.object(
+        transports.SpecialistPoolServiceRestInterceptor,
+        "post_update_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.SpecialistPoolServiceRestInterceptor, "pre_update_specialist_pool"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.UpdateSpecialistPoolRequest.pb(
             specialist_pool_service.UpdateSpecialistPoolRequest()
         )
@@ -5316,6 +5398,7 @@ def test_update_specialist_pool_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_specialist_pool(
             request,
@@ -5327,6 +5410,7 @@ def test_update_specialist_pool_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -6281,10 +6365,14 @@ async def test_create_specialist_pool_rest_asyncio_interceptors(null_interceptor
         "post_create_specialist_pool",
     ) as post, mock.patch.object(
         transports.AsyncSpecialistPoolServiceRestInterceptor,
+        "post_create_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncSpecialistPoolServiceRestInterceptor,
         "pre_create_specialist_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.CreateSpecialistPoolRequest.pb(
             specialist_pool_service.CreateSpecialistPoolRequest()
         )
@@ -6308,6 +6396,7 @@ async def test_create_specialist_pool_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_specialist_pool(
             request,
@@ -6319,6 +6408,7 @@ async def test_create_specialist_pool_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6433,10 +6523,14 @@ async def test_get_specialist_pool_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncSpecialistPoolServiceRestInterceptor, "post_get_specialist_pool"
     ) as post, mock.patch.object(
+        transports.AsyncSpecialistPoolServiceRestInterceptor,
+        "post_get_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncSpecialistPoolServiceRestInterceptor, "pre_get_specialist_pool"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.GetSpecialistPoolRequest.pb(
             specialist_pool_service.GetSpecialistPoolRequest()
         )
@@ -6462,6 +6556,7 @@ async def test_get_specialist_pool_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = specialist_pool.SpecialistPool()
+        post_with_metadata.return_value = specialist_pool.SpecialistPool(), metadata
 
         await client.get_specialist_pool(
             request,
@@ -6473,6 +6568,7 @@ async def test_get_specialist_pool_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6577,10 +6673,14 @@ async def test_list_specialist_pools_rest_asyncio_interceptors(null_interceptor)
         "post_list_specialist_pools",
     ) as post, mock.patch.object(
         transports.AsyncSpecialistPoolServiceRestInterceptor,
+        "post_list_specialist_pools_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncSpecialistPoolServiceRestInterceptor,
         "pre_list_specialist_pools",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.ListSpecialistPoolsRequest.pb(
             specialist_pool_service.ListSpecialistPoolsRequest()
         )
@@ -6606,6 +6706,10 @@ async def test_list_specialist_pools_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = specialist_pool_service.ListSpecialistPoolsResponse()
+        post_with_metadata.return_value = (
+            specialist_pool_service.ListSpecialistPoolsResponse(),
+            metadata,
+        )
 
         await client.list_specialist_pools(
             request,
@@ -6617,6 +6721,7 @@ async def test_list_specialist_pools_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6719,10 +6824,14 @@ async def test_delete_specialist_pool_rest_asyncio_interceptors(null_interceptor
         "post_delete_specialist_pool",
     ) as post, mock.patch.object(
         transports.AsyncSpecialistPoolServiceRestInterceptor,
+        "post_delete_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncSpecialistPoolServiceRestInterceptor,
         "pre_delete_specialist_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.DeleteSpecialistPoolRequest.pb(
             specialist_pool_service.DeleteSpecialistPoolRequest()
         )
@@ -6746,6 +6855,7 @@ async def test_delete_specialist_pool_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_specialist_pool(
             request,
@@ -6757,6 +6867,7 @@ async def test_delete_specialist_pool_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -6949,10 +7060,14 @@ async def test_update_specialist_pool_rest_asyncio_interceptors(null_interceptor
         "post_update_specialist_pool",
     ) as post, mock.patch.object(
         transports.AsyncSpecialistPoolServiceRestInterceptor,
+        "post_update_specialist_pool_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncSpecialistPoolServiceRestInterceptor,
         "pre_update_specialist_pool",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = specialist_pool_service.UpdateSpecialistPoolRequest.pb(
             specialist_pool_service.UpdateSpecialistPoolRequest()
         )
@@ -6976,6 +7091,7 @@ async def test_update_specialist_pool_rest_asyncio_interceptors(null_interceptor
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_specialist_pool(
             request,
@@ -6987,6 +7103,7 @@ async def test_update_specialist_pool_rest_asyncio_interceptors(null_interceptor
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

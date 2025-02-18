@@ -63,6 +63,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import notebook_runtime_template_ref
 from google.cloud.aiplatform_v1beta1.types import notebook_service
+from google.cloud.aiplatform_v1beta1.types import notebook_software_config
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore

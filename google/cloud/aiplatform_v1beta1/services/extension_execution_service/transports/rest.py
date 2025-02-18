@@ -120,11 +120,37 @@ class ExtensionExecutionServiceRestInterceptor:
     ) -> extension_execution_service.ExecuteExtensionResponse:
         """Post-rpc interceptor for execute_extension
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_execute_extension_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ExtensionExecutionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_execute_extension` interceptor runs
+        before the `post_execute_extension_with_metadata` interceptor.
         """
         return response
+
+    def post_execute_extension_with_metadata(
+        self,
+        response: extension_execution_service.ExecuteExtensionResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        extension_execution_service.ExecuteExtensionResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for execute_extension
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ExtensionExecutionService server but before it is returned to user code.
+
+        We recommend only using this `post_execute_extension_with_metadata`
+        interceptor in new development instead of the `post_execute_extension` interceptor.
+        When both interceptors are used, this `post_execute_extension_with_metadata` interceptor runs after the
+        `post_execute_extension` interceptor. The (possibly modified) response returned by
+        `post_execute_extension` will be passed to
+        `post_execute_extension_with_metadata`.
+        """
+        return response, metadata
 
     def pre_query_extension(
         self,
@@ -146,11 +172,37 @@ class ExtensionExecutionServiceRestInterceptor:
     ) -> extension_execution_service.QueryExtensionResponse:
         """Post-rpc interceptor for query_extension
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_extension_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ExtensionExecutionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_extension` interceptor runs
+        before the `post_query_extension_with_metadata` interceptor.
         """
         return response
+
+    def post_query_extension_with_metadata(
+        self,
+        response: extension_execution_service.QueryExtensionResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        extension_execution_service.QueryExtensionResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for query_extension
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ExtensionExecutionService server but before it is returned to user code.
+
+        We recommend only using this `post_query_extension_with_metadata`
+        interceptor in new development instead of the `post_query_extension` interceptor.
+        When both interceptors are used, this `post_query_extension_with_metadata` interceptor runs after the
+        `post_query_extension` interceptor. The (possibly modified) response returned by
+        `post_query_extension` will be passed to
+        `post_query_extension_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -616,6 +668,10 @@ class ExtensionExecutionServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_execute_extension(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_execute_extension_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -773,6 +829,10 @@ class ExtensionExecutionServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_query_extension(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_query_extension_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

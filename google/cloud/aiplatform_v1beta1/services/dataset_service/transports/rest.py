@@ -261,11 +261,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_dataset
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_dataset_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_dataset` interceptor runs
+        before the `post_create_dataset_with_metadata` interceptor.
         """
         return response
+
+    def post_create_dataset_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_dataset
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_create_dataset_with_metadata`
+        interceptor in new development instead of the `post_create_dataset` interceptor.
+        When both interceptors are used, this `post_create_dataset_with_metadata` interceptor runs after the
+        `post_create_dataset` interceptor. The (possibly modified) response returned by
+        `post_create_dataset` will be passed to
+        `post_create_dataset_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_dataset_version(
         self,
@@ -287,11 +310,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_dataset_version
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_dataset_version_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_dataset_version` interceptor runs
+        before the `post_create_dataset_version_with_metadata` interceptor.
         """
         return response
+
+    def post_create_dataset_version_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_dataset_version
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_create_dataset_version_with_metadata`
+        interceptor in new development instead of the `post_create_dataset_version` interceptor.
+        When both interceptors are used, this `post_create_dataset_version_with_metadata` interceptor runs after the
+        `post_create_dataset_version` interceptor. The (possibly modified) response returned by
+        `post_create_dataset_version` will be passed to
+        `post_create_dataset_version_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_dataset(
         self,
@@ -312,11 +358,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_dataset
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_dataset_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_dataset` interceptor runs
+        before the `post_delete_dataset_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_dataset_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_dataset
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_dataset_with_metadata`
+        interceptor in new development instead of the `post_delete_dataset` interceptor.
+        When both interceptors are used, this `post_delete_dataset_with_metadata` interceptor runs after the
+        `post_delete_dataset` interceptor. The (possibly modified) response returned by
+        `post_delete_dataset` will be passed to
+        `post_delete_dataset_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_dataset_version(
         self,
@@ -338,11 +407,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_dataset_version
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_dataset_version_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_dataset_version` interceptor runs
+        before the `post_delete_dataset_version_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_dataset_version_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_dataset_version
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_dataset_version_with_metadata`
+        interceptor in new development instead of the `post_delete_dataset_version` interceptor.
+        When both interceptors are used, this `post_delete_dataset_version_with_metadata` interceptor runs after the
+        `post_delete_dataset_version` interceptor. The (possibly modified) response returned by
+        `post_delete_dataset_version` will be passed to
+        `post_delete_dataset_version_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_saved_query(
         self,
@@ -363,11 +455,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_saved_query
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_saved_query_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_saved_query` interceptor runs
+        before the `post_delete_saved_query_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_saved_query_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_saved_query
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_saved_query_with_metadata`
+        interceptor in new development instead of the `post_delete_saved_query` interceptor.
+        When both interceptors are used, this `post_delete_saved_query_with_metadata` interceptor runs after the
+        `post_delete_saved_query` interceptor. The (possibly modified) response returned by
+        `post_delete_saved_query` will be passed to
+        `post_delete_saved_query_with_metadata`.
+        """
+        return response, metadata
 
     def pre_export_data(
         self,
@@ -388,11 +503,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for export_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_export_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_export_data` interceptor runs
+        before the `post_export_data_with_metadata` interceptor.
         """
         return response
+
+    def post_export_data_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for export_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_export_data_with_metadata`
+        interceptor in new development instead of the `post_export_data` interceptor.
+        When both interceptors are used, this `post_export_data_with_metadata` interceptor runs after the
+        `post_export_data` interceptor. The (possibly modified) response returned by
+        `post_export_data` will be passed to
+        `post_export_data_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_annotation_spec(
         self,
@@ -414,11 +552,34 @@ class DatasetServiceRestInterceptor:
     ) -> annotation_spec.AnnotationSpec:
         """Post-rpc interceptor for get_annotation_spec
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_annotation_spec_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_annotation_spec` interceptor runs
+        before the `post_get_annotation_spec_with_metadata` interceptor.
         """
         return response
+
+    def post_get_annotation_spec_with_metadata(
+        self,
+        response: annotation_spec.AnnotationSpec,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[annotation_spec.AnnotationSpec, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_annotation_spec
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_get_annotation_spec_with_metadata`
+        interceptor in new development instead of the `post_get_annotation_spec` interceptor.
+        When both interceptors are used, this `post_get_annotation_spec_with_metadata` interceptor runs after the
+        `post_get_annotation_spec` interceptor. The (possibly modified) response returned by
+        `post_get_annotation_spec` will be passed to
+        `post_get_annotation_spec_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_dataset(
         self,
@@ -437,11 +598,34 @@ class DatasetServiceRestInterceptor:
     def post_get_dataset(self, response: dataset.Dataset) -> dataset.Dataset:
         """Post-rpc interceptor for get_dataset
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_dataset_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_dataset` interceptor runs
+        before the `post_get_dataset_with_metadata` interceptor.
         """
         return response
+
+    def post_get_dataset_with_metadata(
+        self,
+        response: dataset.Dataset,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[dataset.Dataset, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_dataset
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_get_dataset_with_metadata`
+        interceptor in new development instead of the `post_get_dataset` interceptor.
+        When both interceptors are used, this `post_get_dataset_with_metadata` interceptor runs after the
+        `post_get_dataset` interceptor. The (possibly modified) response returned by
+        `post_get_dataset` will be passed to
+        `post_get_dataset_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_dataset_version(
         self,
@@ -463,11 +647,34 @@ class DatasetServiceRestInterceptor:
     ) -> dataset_version.DatasetVersion:
         """Post-rpc interceptor for get_dataset_version
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_dataset_version_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_dataset_version` interceptor runs
+        before the `post_get_dataset_version_with_metadata` interceptor.
         """
         return response
+
+    def post_get_dataset_version_with_metadata(
+        self,
+        response: dataset_version.DatasetVersion,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[dataset_version.DatasetVersion, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_dataset_version
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_get_dataset_version_with_metadata`
+        interceptor in new development instead of the `post_get_dataset_version` interceptor.
+        When both interceptors are used, this `post_get_dataset_version_with_metadata` interceptor runs after the
+        `post_get_dataset_version` interceptor. The (possibly modified) response returned by
+        `post_get_dataset_version` will be passed to
+        `post_get_dataset_version_with_metadata`.
+        """
+        return response, metadata
 
     def pre_import_data(
         self,
@@ -488,11 +695,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for import_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_import_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_import_data` interceptor runs
+        before the `post_import_data_with_metadata` interceptor.
         """
         return response
+
+    def post_import_data_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for import_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_import_data_with_metadata`
+        interceptor in new development instead of the `post_import_data` interceptor.
+        When both interceptors are used, this `post_import_data_with_metadata` interceptor runs after the
+        `post_import_data` interceptor. The (possibly modified) response returned by
+        `post_import_data` will be passed to
+        `post_import_data_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_annotations(
         self,
@@ -513,11 +743,36 @@ class DatasetServiceRestInterceptor:
     ) -> dataset_service.ListAnnotationsResponse:
         """Post-rpc interceptor for list_annotations
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_annotations_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_annotations` interceptor runs
+        before the `post_list_annotations_with_metadata` interceptor.
         """
         return response
+
+    def post_list_annotations_with_metadata(
+        self,
+        response: dataset_service.ListAnnotationsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.ListAnnotationsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_annotations
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_list_annotations_with_metadata`
+        interceptor in new development instead of the `post_list_annotations` interceptor.
+        When both interceptors are used, this `post_list_annotations_with_metadata` interceptor runs after the
+        `post_list_annotations` interceptor. The (possibly modified) response returned by
+        `post_list_annotations` will be passed to
+        `post_list_annotations_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_data_items(
         self,
@@ -538,11 +793,36 @@ class DatasetServiceRestInterceptor:
     ) -> dataset_service.ListDataItemsResponse:
         """Post-rpc interceptor for list_data_items
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_data_items_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_data_items` interceptor runs
+        before the `post_list_data_items_with_metadata` interceptor.
         """
         return response
+
+    def post_list_data_items_with_metadata(
+        self,
+        response: dataset_service.ListDataItemsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.ListDataItemsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_data_items
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_list_data_items_with_metadata`
+        interceptor in new development instead of the `post_list_data_items` interceptor.
+        When both interceptors are used, this `post_list_data_items_with_metadata` interceptor runs after the
+        `post_list_data_items` interceptor. The (possibly modified) response returned by
+        `post_list_data_items` will be passed to
+        `post_list_data_items_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_datasets(
         self,
@@ -563,11 +843,36 @@ class DatasetServiceRestInterceptor:
     ) -> dataset_service.ListDatasetsResponse:
         """Post-rpc interceptor for list_datasets
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_datasets_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_datasets` interceptor runs
+        before the `post_list_datasets_with_metadata` interceptor.
         """
         return response
+
+    def post_list_datasets_with_metadata(
+        self,
+        response: dataset_service.ListDatasetsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.ListDatasetsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_datasets
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_list_datasets_with_metadata`
+        interceptor in new development instead of the `post_list_datasets` interceptor.
+        When both interceptors are used, this `post_list_datasets_with_metadata` interceptor runs after the
+        `post_list_datasets` interceptor. The (possibly modified) response returned by
+        `post_list_datasets` will be passed to
+        `post_list_datasets_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_dataset_versions(
         self,
@@ -589,11 +894,37 @@ class DatasetServiceRestInterceptor:
     ) -> dataset_service.ListDatasetVersionsResponse:
         """Post-rpc interceptor for list_dataset_versions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_dataset_versions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_dataset_versions` interceptor runs
+        before the `post_list_dataset_versions_with_metadata` interceptor.
         """
         return response
+
+    def post_list_dataset_versions_with_metadata(
+        self,
+        response: dataset_service.ListDatasetVersionsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.ListDatasetVersionsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_dataset_versions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_list_dataset_versions_with_metadata`
+        interceptor in new development instead of the `post_list_dataset_versions` interceptor.
+        When both interceptors are used, this `post_list_dataset_versions_with_metadata` interceptor runs after the
+        `post_list_dataset_versions` interceptor. The (possibly modified) response returned by
+        `post_list_dataset_versions` will be passed to
+        `post_list_dataset_versions_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_saved_queries(
         self,
@@ -614,11 +945,37 @@ class DatasetServiceRestInterceptor:
     ) -> dataset_service.ListSavedQueriesResponse:
         """Post-rpc interceptor for list_saved_queries
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_saved_queries_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_saved_queries` interceptor runs
+        before the `post_list_saved_queries_with_metadata` interceptor.
         """
         return response
+
+    def post_list_saved_queries_with_metadata(
+        self,
+        response: dataset_service.ListSavedQueriesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.ListSavedQueriesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_saved_queries
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_list_saved_queries_with_metadata`
+        interceptor in new development instead of the `post_list_saved_queries` interceptor.
+        When both interceptors are used, this `post_list_saved_queries_with_metadata` interceptor runs after the
+        `post_list_saved_queries` interceptor. The (possibly modified) response returned by
+        `post_list_saved_queries` will be passed to
+        `post_list_saved_queries_with_metadata`.
+        """
+        return response, metadata
 
     def pre_restore_dataset_version(
         self,
@@ -640,11 +997,34 @@ class DatasetServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for restore_dataset_version
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_restore_dataset_version_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_restore_dataset_version` interceptor runs
+        before the `post_restore_dataset_version_with_metadata` interceptor.
         """
         return response
+
+    def post_restore_dataset_version_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for restore_dataset_version
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_restore_dataset_version_with_metadata`
+        interceptor in new development instead of the `post_restore_dataset_version` interceptor.
+        When both interceptors are used, this `post_restore_dataset_version_with_metadata` interceptor runs after the
+        `post_restore_dataset_version` interceptor. The (possibly modified) response returned by
+        `post_restore_dataset_version` will be passed to
+        `post_restore_dataset_version_with_metadata`.
+        """
+        return response, metadata
 
     def pre_search_data_items(
         self,
@@ -665,11 +1045,36 @@ class DatasetServiceRestInterceptor:
     ) -> dataset_service.SearchDataItemsResponse:
         """Post-rpc interceptor for search_data_items
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_search_data_items_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_search_data_items` interceptor runs
+        before the `post_search_data_items_with_metadata` interceptor.
         """
         return response
+
+    def post_search_data_items_with_metadata(
+        self,
+        response: dataset_service.SearchDataItemsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.SearchDataItemsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for search_data_items
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_search_data_items_with_metadata`
+        interceptor in new development instead of the `post_search_data_items` interceptor.
+        When both interceptors are used, this `post_search_data_items_with_metadata` interceptor runs after the
+        `post_search_data_items` interceptor. The (possibly modified) response returned by
+        `post_search_data_items` will be passed to
+        `post_search_data_items_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_dataset(
         self,
@@ -688,11 +1093,34 @@ class DatasetServiceRestInterceptor:
     def post_update_dataset(self, response: gca_dataset.Dataset) -> gca_dataset.Dataset:
         """Post-rpc interceptor for update_dataset
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_dataset_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_dataset` interceptor runs
+        before the `post_update_dataset_with_metadata` interceptor.
         """
         return response
+
+    def post_update_dataset_with_metadata(
+        self,
+        response: gca_dataset.Dataset,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_dataset.Dataset, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_dataset
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_update_dataset_with_metadata`
+        interceptor in new development instead of the `post_update_dataset` interceptor.
+        When both interceptors are used, this `post_update_dataset_with_metadata` interceptor runs after the
+        `post_update_dataset` interceptor. The (possibly modified) response returned by
+        `post_update_dataset` will be passed to
+        `post_update_dataset_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_dataset_version(
         self,
@@ -714,11 +1142,36 @@ class DatasetServiceRestInterceptor:
     ) -> gca_dataset_version.DatasetVersion:
         """Post-rpc interceptor for update_dataset_version
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_dataset_version_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the DatasetService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_dataset_version` interceptor runs
+        before the `post_update_dataset_version_with_metadata` interceptor.
         """
         return response
+
+    def post_update_dataset_version_with_metadata(
+        self,
+        response: gca_dataset_version.DatasetVersion,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_dataset_version.DatasetVersion, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for update_dataset_version
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_update_dataset_version_with_metadata`
+        interceptor in new development instead of the `post_update_dataset_version` interceptor.
+        When both interceptors are used, this `post_update_dataset_version_with_metadata` interceptor runs after the
+        `post_update_dataset_version` interceptor. The (possibly modified) response returned by
+        `post_update_dataset_version` will be passed to
+        `post_update_dataset_version_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -3264,6 +3717,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_dataset(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_dataset_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3416,6 +3873,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_dataset_version(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_dataset_version_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3559,6 +4020,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_dataset(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_dataset_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3705,6 +4170,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_dataset_version(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_dataset_version_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3850,6 +4319,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_saved_query(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_saved_query_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4003,6 +4476,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_export_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_export_data_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4149,6 +4626,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_annotation_spec(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_annotation_spec_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4295,6 +4776,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_dataset(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_dataset_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4439,6 +4924,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_dataset_version(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_dataset_version_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4592,6 +5081,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_import_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_import_data_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4738,6 +5231,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_annotations(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_annotations_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4884,6 +5381,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_data_items(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_data_items_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5030,6 +5531,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_datasets(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_datasets_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5179,6 +5684,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_dataset_versions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_dataset_versions_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5327,6 +5836,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_saved_queries(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_saved_queries_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5475,6 +5988,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_restore_dataset_version(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_restore_dataset_version_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5621,6 +6138,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_search_data_items(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_search_data_items_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5773,6 +6294,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_dataset(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_dataset_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5924,6 +6449,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_dataset_version(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_dataset_version_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

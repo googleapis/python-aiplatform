@@ -212,11 +212,34 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_feature_online_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_feature_online_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_feature_online_store` interceptor runs
+        before the `post_create_feature_online_store_with_metadata` interceptor.
         """
         return response
+
+    def post_create_feature_online_store_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_feature_online_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_create_feature_online_store_with_metadata`
+        interceptor in new development instead of the `post_create_feature_online_store` interceptor.
+        When both interceptors are used, this `post_create_feature_online_store_with_metadata` interceptor runs after the
+        `post_create_feature_online_store` interceptor. The (possibly modified) response returned by
+        `post_create_feature_online_store` will be passed to
+        `post_create_feature_online_store_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_feature_view(
         self,
@@ -238,11 +261,34 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_feature_view
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_feature_view_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_feature_view` interceptor runs
+        before the `post_create_feature_view_with_metadata` interceptor.
         """
         return response
+
+    def post_create_feature_view_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_feature_view
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_create_feature_view_with_metadata`
+        interceptor in new development instead of the `post_create_feature_view` interceptor.
+        When both interceptors are used, this `post_create_feature_view_with_metadata` interceptor runs after the
+        `post_create_feature_view` interceptor. The (possibly modified) response returned by
+        `post_create_feature_view` will be passed to
+        `post_create_feature_view_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_feature_online_store(
         self,
@@ -264,11 +310,34 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_feature_online_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_feature_online_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_feature_online_store` interceptor runs
+        before the `post_delete_feature_online_store_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_feature_online_store_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_feature_online_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_feature_online_store_with_metadata`
+        interceptor in new development instead of the `post_delete_feature_online_store` interceptor.
+        When both interceptors are used, this `post_delete_feature_online_store_with_metadata` interceptor runs after the
+        `post_delete_feature_online_store` interceptor. The (possibly modified) response returned by
+        `post_delete_feature_online_store` will be passed to
+        `post_delete_feature_online_store_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_feature_view(
         self,
@@ -290,11 +359,34 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_feature_view
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_feature_view_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_feature_view` interceptor runs
+        before the `post_delete_feature_view_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_feature_view_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_feature_view
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_feature_view_with_metadata`
+        interceptor in new development instead of the `post_delete_feature_view` interceptor.
+        When both interceptors are used, this `post_delete_feature_view_with_metadata` interceptor runs after the
+        `post_delete_feature_view` interceptor. The (possibly modified) response returned by
+        `post_delete_feature_view` will be passed to
+        `post_delete_feature_view_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_feature_online_store(
         self,
@@ -316,11 +408,36 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> feature_online_store.FeatureOnlineStore:
         """Post-rpc interceptor for get_feature_online_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_feature_online_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_feature_online_store` interceptor runs
+        before the `post_get_feature_online_store_with_metadata` interceptor.
         """
         return response
+
+    def post_get_feature_online_store_with_metadata(
+        self,
+        response: feature_online_store.FeatureOnlineStore,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_online_store.FeatureOnlineStore, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_feature_online_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_get_feature_online_store_with_metadata`
+        interceptor in new development instead of the `post_get_feature_online_store` interceptor.
+        When both interceptors are used, this `post_get_feature_online_store_with_metadata` interceptor runs after the
+        `post_get_feature_online_store` interceptor. The (possibly modified) response returned by
+        `post_get_feature_online_store` will be passed to
+        `post_get_feature_online_store_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_feature_view(
         self,
@@ -342,11 +459,34 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> feature_view.FeatureView:
         """Post-rpc interceptor for get_feature_view
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_feature_view_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_feature_view` interceptor runs
+        before the `post_get_feature_view_with_metadata` interceptor.
         """
         return response
+
+    def post_get_feature_view_with_metadata(
+        self,
+        response: feature_view.FeatureView,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[feature_view.FeatureView, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_feature_view
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_get_feature_view_with_metadata`
+        interceptor in new development instead of the `post_get_feature_view` interceptor.
+        When both interceptors are used, this `post_get_feature_view_with_metadata` interceptor runs after the
+        `post_get_feature_view` interceptor. The (possibly modified) response returned by
+        `post_get_feature_view` will be passed to
+        `post_get_feature_view_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_feature_view_sync(
         self,
@@ -368,11 +508,36 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> feature_view_sync.FeatureViewSync:
         """Post-rpc interceptor for get_feature_view_sync
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_feature_view_sync_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_feature_view_sync` interceptor runs
+        before the `post_get_feature_view_sync_with_metadata` interceptor.
         """
         return response
+
+    def post_get_feature_view_sync_with_metadata(
+        self,
+        response: feature_view_sync.FeatureViewSync,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_view_sync.FeatureViewSync, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_feature_view_sync
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_get_feature_view_sync_with_metadata`
+        interceptor in new development instead of the `post_get_feature_view_sync` interceptor.
+        When both interceptors are used, this `post_get_feature_view_sync_with_metadata` interceptor runs after the
+        `post_get_feature_view_sync` interceptor. The (possibly modified) response returned by
+        `post_get_feature_view_sync` will be passed to
+        `post_get_feature_view_sync_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_feature_online_stores(
         self,
@@ -395,11 +560,37 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> feature_online_store_admin_service.ListFeatureOnlineStoresResponse:
         """Post-rpc interceptor for list_feature_online_stores
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_feature_online_stores_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_feature_online_stores` interceptor runs
+        before the `post_list_feature_online_stores_with_metadata` interceptor.
         """
         return response
+
+    def post_list_feature_online_stores_with_metadata(
+        self,
+        response: feature_online_store_admin_service.ListFeatureOnlineStoresResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_online_store_admin_service.ListFeatureOnlineStoresResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_feature_online_stores
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_list_feature_online_stores_with_metadata`
+        interceptor in new development instead of the `post_list_feature_online_stores` interceptor.
+        When both interceptors are used, this `post_list_feature_online_stores_with_metadata` interceptor runs after the
+        `post_list_feature_online_stores` interceptor. The (possibly modified) response returned by
+        `post_list_feature_online_stores` will be passed to
+        `post_list_feature_online_stores_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_feature_views(
         self,
@@ -421,11 +612,37 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> feature_online_store_admin_service.ListFeatureViewsResponse:
         """Post-rpc interceptor for list_feature_views
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_feature_views_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_feature_views` interceptor runs
+        before the `post_list_feature_views_with_metadata` interceptor.
         """
         return response
+
+    def post_list_feature_views_with_metadata(
+        self,
+        response: feature_online_store_admin_service.ListFeatureViewsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_online_store_admin_service.ListFeatureViewsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_feature_views
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_list_feature_views_with_metadata`
+        interceptor in new development instead of the `post_list_feature_views` interceptor.
+        When both interceptors are used, this `post_list_feature_views_with_metadata` interceptor runs after the
+        `post_list_feature_views` interceptor. The (possibly modified) response returned by
+        `post_list_feature_views` will be passed to
+        `post_list_feature_views_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_feature_view_syncs(
         self,
@@ -447,11 +664,37 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> feature_online_store_admin_service.ListFeatureViewSyncsResponse:
         """Post-rpc interceptor for list_feature_view_syncs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_feature_view_syncs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_feature_view_syncs` interceptor runs
+        before the `post_list_feature_view_syncs_with_metadata` interceptor.
         """
         return response
+
+    def post_list_feature_view_syncs_with_metadata(
+        self,
+        response: feature_online_store_admin_service.ListFeatureViewSyncsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_online_store_admin_service.ListFeatureViewSyncsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_feature_view_syncs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_list_feature_view_syncs_with_metadata`
+        interceptor in new development instead of the `post_list_feature_view_syncs` interceptor.
+        When both interceptors are used, this `post_list_feature_view_syncs_with_metadata` interceptor runs after the
+        `post_list_feature_view_syncs` interceptor. The (possibly modified) response returned by
+        `post_list_feature_view_syncs` will be passed to
+        `post_list_feature_view_syncs_with_metadata`.
+        """
+        return response, metadata
 
     def pre_sync_feature_view(
         self,
@@ -473,11 +716,37 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> feature_online_store_admin_service.SyncFeatureViewResponse:
         """Post-rpc interceptor for sync_feature_view
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_sync_feature_view_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_sync_feature_view` interceptor runs
+        before the `post_sync_feature_view_with_metadata` interceptor.
         """
         return response
+
+    def post_sync_feature_view_with_metadata(
+        self,
+        response: feature_online_store_admin_service.SyncFeatureViewResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_online_store_admin_service.SyncFeatureViewResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for sync_feature_view
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_sync_feature_view_with_metadata`
+        interceptor in new development instead of the `post_sync_feature_view` interceptor.
+        When both interceptors are used, this `post_sync_feature_view_with_metadata` interceptor runs after the
+        `post_sync_feature_view` interceptor. The (possibly modified) response returned by
+        `post_sync_feature_view` will be passed to
+        `post_sync_feature_view_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_feature_online_store(
         self,
@@ -499,11 +768,34 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_feature_online_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_feature_online_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_feature_online_store` interceptor runs
+        before the `post_update_feature_online_store_with_metadata` interceptor.
         """
         return response
+
+    def post_update_feature_online_store_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_feature_online_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_update_feature_online_store_with_metadata`
+        interceptor in new development instead of the `post_update_feature_online_store` interceptor.
+        When both interceptors are used, this `post_update_feature_online_store_with_metadata` interceptor runs after the
+        `post_update_feature_online_store` interceptor. The (possibly modified) response returned by
+        `post_update_feature_online_store` will be passed to
+        `post_update_feature_online_store_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_feature_view(
         self,
@@ -525,11 +817,34 @@ class FeatureOnlineStoreAdminServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_feature_view
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_feature_view_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureOnlineStoreAdminService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_feature_view` interceptor runs
+        before the `post_update_feature_view_with_metadata` interceptor.
         """
         return response
+
+    def post_update_feature_view_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_feature_view
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureOnlineStoreAdminService server but before it is returned to user code.
+
+        We recommend only using this `post_update_feature_view_with_metadata`
+        interceptor in new development instead of the `post_update_feature_view` interceptor.
+        When both interceptors are used, this `post_update_feature_view_with_metadata` interceptor runs after the
+        `post_update_feature_view` interceptor. The (possibly modified) response returned by
+        `post_update_feature_view` will be passed to
+        `post_update_feature_view_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -2913,6 +3228,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_feature_online_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_feature_online_store_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3065,6 +3384,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_create_feature_view(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_create_feature_view_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3214,6 +3537,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_feature_online_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_feature_online_store_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3360,6 +3687,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_feature_view(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_feature_view_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3512,6 +3843,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_feature_online_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_feature_online_store_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3662,6 +3997,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_feature_view(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_feature_view_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3813,6 +4152,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_feature_view_sync(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_feature_view_sync_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3969,6 +4312,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_feature_online_stores(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_feature_online_stores_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4120,6 +4467,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_feature_views(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_feature_views_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4273,6 +4624,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_feature_view_syncs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_feature_view_syncs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4430,6 +4785,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_sync_feature_view(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_sync_feature_view_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4587,6 +4946,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_feature_online_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_feature_online_store_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4739,6 +5102,10 @@ class FeatureOnlineStoreAdminServiceRestTransport(
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_feature_view(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_feature_view_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

@@ -389,11 +389,37 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
         """Post-rpc interceptor for add_context_artifacts_and_executions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_add_context_artifacts_and_executions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_add_context_artifacts_and_executions` interceptor runs
+        before the `post_add_context_artifacts_and_executions_with_metadata` interceptor.
         """
         return response
+
+    async def post_add_context_artifacts_and_executions_with_metadata(
+        self,
+        response: metadata_service.AddContextArtifactsAndExecutionsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddContextArtifactsAndExecutionsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for add_context_artifacts_and_executions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_add_context_artifacts_and_executions_with_metadata`
+        interceptor in new development instead of the `post_add_context_artifacts_and_executions` interceptor.
+        When both interceptors are used, this `post_add_context_artifacts_and_executions_with_metadata` interceptor runs after the
+        `post_add_context_artifacts_and_executions` interceptor. The (possibly modified) response returned by
+        `post_add_context_artifacts_and_executions` will be passed to
+        `post_add_context_artifacts_and_executions_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_add_context_children(
         self,
@@ -415,11 +441,37 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.AddContextChildrenResponse:
         """Post-rpc interceptor for add_context_children
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_add_context_children_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_add_context_children` interceptor runs
+        before the `post_add_context_children_with_metadata` interceptor.
         """
         return response
+
+    async def post_add_context_children_with_metadata(
+        self,
+        response: metadata_service.AddContextChildrenResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddContextChildrenResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for add_context_children
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_add_context_children_with_metadata`
+        interceptor in new development instead of the `post_add_context_children` interceptor.
+        When both interceptors are used, this `post_add_context_children_with_metadata` interceptor runs after the
+        `post_add_context_children` interceptor. The (possibly modified) response returned by
+        `post_add_context_children` will be passed to
+        `post_add_context_children_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_add_execution_events(
         self,
@@ -441,11 +493,37 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.AddExecutionEventsResponse:
         """Post-rpc interceptor for add_execution_events
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_add_execution_events_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_add_execution_events` interceptor runs
+        before the `post_add_execution_events_with_metadata` interceptor.
         """
         return response
+
+    async def post_add_execution_events_with_metadata(
+        self,
+        response: metadata_service.AddExecutionEventsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.AddExecutionEventsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for add_execution_events
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_add_execution_events_with_metadata`
+        interceptor in new development instead of the `post_add_execution_events` interceptor.
+        When both interceptors are used, this `post_add_execution_events_with_metadata` interceptor runs after the
+        `post_add_execution_events` interceptor. The (possibly modified) response returned by
+        `post_add_execution_events` will be passed to
+        `post_add_execution_events_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_artifact(
         self,
@@ -466,11 +544,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> gca_artifact.Artifact:
         """Post-rpc interceptor for create_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_artifact` interceptor runs
+        before the `post_create_artifact_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_artifact_with_metadata(
+        self,
+        response: gca_artifact.Artifact,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_artifact.Artifact, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_artifact_with_metadata`
+        interceptor in new development instead of the `post_create_artifact` interceptor.
+        When both interceptors are used, this `post_create_artifact_with_metadata` interceptor runs after the
+        `post_create_artifact` interceptor. The (possibly modified) response returned by
+        `post_create_artifact` will be passed to
+        `post_create_artifact_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_context(
         self,
@@ -491,11 +592,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> gca_context.Context:
         """Post-rpc interceptor for create_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_context` interceptor runs
+        before the `post_create_context_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_context_with_metadata(
+        self,
+        response: gca_context.Context,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_context.Context, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_context_with_metadata`
+        interceptor in new development instead of the `post_create_context` interceptor.
+        When both interceptors are used, this `post_create_context_with_metadata` interceptor runs after the
+        `post_create_context` interceptor. The (possibly modified) response returned by
+        `post_create_context` will be passed to
+        `post_create_context_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_execution(
         self,
@@ -516,11 +640,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> gca_execution.Execution:
         """Post-rpc interceptor for create_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_execution` interceptor runs
+        before the `post_create_execution_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_execution_with_metadata(
+        self,
+        response: gca_execution.Execution,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_execution.Execution, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_execution_with_metadata`
+        interceptor in new development instead of the `post_create_execution` interceptor.
+        When both interceptors are used, this `post_create_execution_with_metadata` interceptor runs after the
+        `post_create_execution` interceptor. The (possibly modified) response returned by
+        `post_create_execution` will be passed to
+        `post_create_execution_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_metadata_schema(
         self,
@@ -542,11 +689,36 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> gca_metadata_schema.MetadataSchema:
         """Post-rpc interceptor for create_metadata_schema
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_metadata_schema_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_metadata_schema` interceptor runs
+        before the `post_create_metadata_schema_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_metadata_schema_with_metadata(
+        self,
+        response: gca_metadata_schema.MetadataSchema,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_metadata_schema.MetadataSchema, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for create_metadata_schema
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_metadata_schema_with_metadata`
+        interceptor in new development instead of the `post_create_metadata_schema` interceptor.
+        When both interceptors are used, this `post_create_metadata_schema_with_metadata` interceptor runs after the
+        `post_create_metadata_schema` interceptor. The (possibly modified) response returned by
+        `post_create_metadata_schema` will be passed to
+        `post_create_metadata_schema_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_metadata_store(
         self,
@@ -568,11 +740,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_metadata_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_metadata_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_metadata_store` interceptor runs
+        before the `post_create_metadata_store_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_metadata_store_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_metadata_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_create_metadata_store_with_metadata`
+        interceptor in new development instead of the `post_create_metadata_store` interceptor.
+        When both interceptors are used, this `post_create_metadata_store_with_metadata` interceptor runs after the
+        `post_create_metadata_store` interceptor. The (possibly modified) response returned by
+        `post_create_metadata_store` will be passed to
+        `post_create_metadata_store_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_artifact(
         self,
@@ -593,11 +788,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_artifact` interceptor runs
+        before the `post_delete_artifact_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_artifact_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_artifact_with_metadata`
+        interceptor in new development instead of the `post_delete_artifact` interceptor.
+        When both interceptors are used, this `post_delete_artifact_with_metadata` interceptor runs after the
+        `post_delete_artifact` interceptor. The (possibly modified) response returned by
+        `post_delete_artifact` will be passed to
+        `post_delete_artifact_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_context(
         self,
@@ -618,11 +836,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_context` interceptor runs
+        before the `post_delete_context_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_context_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_context_with_metadata`
+        interceptor in new development instead of the `post_delete_context` interceptor.
+        When both interceptors are used, this `post_delete_context_with_metadata` interceptor runs after the
+        `post_delete_context` interceptor. The (possibly modified) response returned by
+        `post_delete_context` will be passed to
+        `post_delete_context_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_execution(
         self,
@@ -643,11 +884,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_execution` interceptor runs
+        before the `post_delete_execution_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_execution_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_execution_with_metadata`
+        interceptor in new development instead of the `post_delete_execution` interceptor.
+        When both interceptors are used, this `post_delete_execution_with_metadata` interceptor runs after the
+        `post_delete_execution` interceptor. The (possibly modified) response returned by
+        `post_delete_execution` will be passed to
+        `post_delete_execution_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_metadata_store(
         self,
@@ -669,11 +933,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_metadata_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_metadata_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_metadata_store` interceptor runs
+        before the `post_delete_metadata_store_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_metadata_store_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_metadata_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_metadata_store_with_metadata`
+        interceptor in new development instead of the `post_delete_metadata_store` interceptor.
+        When both interceptors are used, this `post_delete_metadata_store_with_metadata` interceptor runs after the
+        `post_delete_metadata_store` interceptor. The (possibly modified) response returned by
+        `post_delete_metadata_store` will be passed to
+        `post_delete_metadata_store_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_artifact(
         self,
@@ -692,11 +979,34 @@ class AsyncMetadataServiceRestInterceptor:
     async def post_get_artifact(self, response: artifact.Artifact) -> artifact.Artifact:
         """Post-rpc interceptor for get_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_artifact` interceptor runs
+        before the `post_get_artifact_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_artifact_with_metadata(
+        self,
+        response: artifact.Artifact,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[artifact.Artifact, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_artifact_with_metadata`
+        interceptor in new development instead of the `post_get_artifact` interceptor.
+        When both interceptors are used, this `post_get_artifact_with_metadata` interceptor runs after the
+        `post_get_artifact` interceptor. The (possibly modified) response returned by
+        `post_get_artifact` will be passed to
+        `post_get_artifact_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_context(
         self,
@@ -715,11 +1025,34 @@ class AsyncMetadataServiceRestInterceptor:
     async def post_get_context(self, response: context.Context) -> context.Context:
         """Post-rpc interceptor for get_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_context` interceptor runs
+        before the `post_get_context_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_context_with_metadata(
+        self,
+        response: context.Context,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[context.Context, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_context_with_metadata`
+        interceptor in new development instead of the `post_get_context` interceptor.
+        When both interceptors are used, this `post_get_context_with_metadata` interceptor runs after the
+        `post_get_context` interceptor. The (possibly modified) response returned by
+        `post_get_context` will be passed to
+        `post_get_context_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_execution(
         self,
@@ -740,11 +1073,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> execution.Execution:
         """Post-rpc interceptor for get_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_execution` interceptor runs
+        before the `post_get_execution_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_execution_with_metadata(
+        self,
+        response: execution.Execution,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[execution.Execution, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_execution_with_metadata`
+        interceptor in new development instead of the `post_get_execution` interceptor.
+        When both interceptors are used, this `post_get_execution_with_metadata` interceptor runs after the
+        `post_get_execution` interceptor. The (possibly modified) response returned by
+        `post_get_execution` will be passed to
+        `post_get_execution_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_metadata_schema(
         self,
@@ -766,11 +1122,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_schema.MetadataSchema:
         """Post-rpc interceptor for get_metadata_schema
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_metadata_schema_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_metadata_schema` interceptor runs
+        before the `post_get_metadata_schema_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_metadata_schema_with_metadata(
+        self,
+        response: metadata_schema.MetadataSchema,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[metadata_schema.MetadataSchema, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_metadata_schema
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_metadata_schema_with_metadata`
+        interceptor in new development instead of the `post_get_metadata_schema` interceptor.
+        When both interceptors are used, this `post_get_metadata_schema_with_metadata` interceptor runs after the
+        `post_get_metadata_schema` interceptor. The (possibly modified) response returned by
+        `post_get_metadata_schema` will be passed to
+        `post_get_metadata_schema_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_metadata_store(
         self,
@@ -792,11 +1171,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_store.MetadataStore:
         """Post-rpc interceptor for get_metadata_store
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_metadata_store_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_metadata_store` interceptor runs
+        before the `post_get_metadata_store_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_metadata_store_with_metadata(
+        self,
+        response: metadata_store.MetadataStore,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[metadata_store.MetadataStore, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_metadata_store
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_get_metadata_store_with_metadata`
+        interceptor in new development instead of the `post_get_metadata_store` interceptor.
+        When both interceptors are used, this `post_get_metadata_store_with_metadata` interceptor runs after the
+        `post_get_metadata_store` interceptor. The (possibly modified) response returned by
+        `post_get_metadata_store` will be passed to
+        `post_get_metadata_store_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_artifacts(
         self,
@@ -817,11 +1219,36 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.ListArtifactsResponse:
         """Post-rpc interceptor for list_artifacts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_artifacts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_artifacts` interceptor runs
+        before the `post_list_artifacts_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_artifacts_with_metadata(
+        self,
+        response: metadata_service.ListArtifactsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListArtifactsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_artifacts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_artifacts_with_metadata`
+        interceptor in new development instead of the `post_list_artifacts` interceptor.
+        When both interceptors are used, this `post_list_artifacts_with_metadata` interceptor runs after the
+        `post_list_artifacts` interceptor. The (possibly modified) response returned by
+        `post_list_artifacts` will be passed to
+        `post_list_artifacts_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_contexts(
         self,
@@ -842,11 +1269,36 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.ListContextsResponse:
         """Post-rpc interceptor for list_contexts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_contexts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_contexts` interceptor runs
+        before the `post_list_contexts_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_contexts_with_metadata(
+        self,
+        response: metadata_service.ListContextsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListContextsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_contexts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_contexts_with_metadata`
+        interceptor in new development instead of the `post_list_contexts` interceptor.
+        When both interceptors are used, this `post_list_contexts_with_metadata` interceptor runs after the
+        `post_list_contexts` interceptor. The (possibly modified) response returned by
+        `post_list_contexts` will be passed to
+        `post_list_contexts_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_executions(
         self,
@@ -867,11 +1319,36 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.ListExecutionsResponse:
         """Post-rpc interceptor for list_executions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_executions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_executions` interceptor runs
+        before the `post_list_executions_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_executions_with_metadata(
+        self,
+        response: metadata_service.ListExecutionsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListExecutionsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_executions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_executions_with_metadata`
+        interceptor in new development instead of the `post_list_executions` interceptor.
+        When both interceptors are used, this `post_list_executions_with_metadata` interceptor runs after the
+        `post_list_executions` interceptor. The (possibly modified) response returned by
+        `post_list_executions` will be passed to
+        `post_list_executions_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_metadata_schemas(
         self,
@@ -893,11 +1370,37 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.ListMetadataSchemasResponse:
         """Post-rpc interceptor for list_metadata_schemas
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_metadata_schemas_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_metadata_schemas` interceptor runs
+        before the `post_list_metadata_schemas_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_metadata_schemas_with_metadata(
+        self,
+        response: metadata_service.ListMetadataSchemasResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListMetadataSchemasResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_metadata_schemas
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_metadata_schemas_with_metadata`
+        interceptor in new development instead of the `post_list_metadata_schemas` interceptor.
+        When both interceptors are used, this `post_list_metadata_schemas_with_metadata` interceptor runs after the
+        `post_list_metadata_schemas` interceptor. The (possibly modified) response returned by
+        `post_list_metadata_schemas` will be passed to
+        `post_list_metadata_schemas_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_metadata_stores(
         self,
@@ -919,11 +1422,37 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.ListMetadataStoresResponse:
         """Post-rpc interceptor for list_metadata_stores
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_metadata_stores_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_metadata_stores` interceptor runs
+        before the `post_list_metadata_stores_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_metadata_stores_with_metadata(
+        self,
+        response: metadata_service.ListMetadataStoresResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.ListMetadataStoresResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_metadata_stores
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_list_metadata_stores_with_metadata`
+        interceptor in new development instead of the `post_list_metadata_stores` interceptor.
+        When both interceptors are used, this `post_list_metadata_stores_with_metadata` interceptor runs after the
+        `post_list_metadata_stores` interceptor. The (possibly modified) response returned by
+        `post_list_metadata_stores` will be passed to
+        `post_list_metadata_stores_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_purge_artifacts(
         self,
@@ -944,11 +1473,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for purge_artifacts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_purge_artifacts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_purge_artifacts` interceptor runs
+        before the `post_purge_artifacts_with_metadata` interceptor.
         """
         return response
+
+    async def post_purge_artifacts_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for purge_artifacts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_purge_artifacts_with_metadata`
+        interceptor in new development instead of the `post_purge_artifacts` interceptor.
+        When both interceptors are used, this `post_purge_artifacts_with_metadata` interceptor runs after the
+        `post_purge_artifacts` interceptor. The (possibly modified) response returned by
+        `post_purge_artifacts` will be passed to
+        `post_purge_artifacts_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_purge_contexts(
         self,
@@ -969,11 +1521,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for purge_contexts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_purge_contexts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_purge_contexts` interceptor runs
+        before the `post_purge_contexts_with_metadata` interceptor.
         """
         return response
+
+    async def post_purge_contexts_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for purge_contexts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_purge_contexts_with_metadata`
+        interceptor in new development instead of the `post_purge_contexts` interceptor.
+        When both interceptors are used, this `post_purge_contexts_with_metadata` interceptor runs after the
+        `post_purge_contexts` interceptor. The (possibly modified) response returned by
+        `post_purge_contexts` will be passed to
+        `post_purge_contexts_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_purge_executions(
         self,
@@ -994,11 +1569,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for purge_executions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_purge_executions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_purge_executions` interceptor runs
+        before the `post_purge_executions_with_metadata` interceptor.
         """
         return response
+
+    async def post_purge_executions_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for purge_executions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_purge_executions_with_metadata`
+        interceptor in new development instead of the `post_purge_executions` interceptor.
+        When both interceptors are used, this `post_purge_executions_with_metadata` interceptor runs after the
+        `post_purge_executions` interceptor. The (possibly modified) response returned by
+        `post_purge_executions` will be passed to
+        `post_purge_executions_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_query_artifact_lineage_subgraph(
         self,
@@ -1020,11 +1618,36 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> lineage_subgraph.LineageSubgraph:
         """Post-rpc interceptor for query_artifact_lineage_subgraph
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_artifact_lineage_subgraph_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_artifact_lineage_subgraph` interceptor runs
+        before the `post_query_artifact_lineage_subgraph_with_metadata` interceptor.
         """
         return response
+
+    async def post_query_artifact_lineage_subgraph_with_metadata(
+        self,
+        response: lineage_subgraph.LineageSubgraph,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        lineage_subgraph.LineageSubgraph, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for query_artifact_lineage_subgraph
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_query_artifact_lineage_subgraph_with_metadata`
+        interceptor in new development instead of the `post_query_artifact_lineage_subgraph` interceptor.
+        When both interceptors are used, this `post_query_artifact_lineage_subgraph_with_metadata` interceptor runs after the
+        `post_query_artifact_lineage_subgraph` interceptor. The (possibly modified) response returned by
+        `post_query_artifact_lineage_subgraph` will be passed to
+        `post_query_artifact_lineage_subgraph_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_query_context_lineage_subgraph(
         self,
@@ -1046,11 +1669,36 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> lineage_subgraph.LineageSubgraph:
         """Post-rpc interceptor for query_context_lineage_subgraph
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_context_lineage_subgraph_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_context_lineage_subgraph` interceptor runs
+        before the `post_query_context_lineage_subgraph_with_metadata` interceptor.
         """
         return response
+
+    async def post_query_context_lineage_subgraph_with_metadata(
+        self,
+        response: lineage_subgraph.LineageSubgraph,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        lineage_subgraph.LineageSubgraph, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for query_context_lineage_subgraph
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_query_context_lineage_subgraph_with_metadata`
+        interceptor in new development instead of the `post_query_context_lineage_subgraph` interceptor.
+        When both interceptors are used, this `post_query_context_lineage_subgraph_with_metadata` interceptor runs after the
+        `post_query_context_lineage_subgraph` interceptor. The (possibly modified) response returned by
+        `post_query_context_lineage_subgraph` will be passed to
+        `post_query_context_lineage_subgraph_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_query_execution_inputs_and_outputs(
         self,
@@ -1072,11 +1720,36 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> lineage_subgraph.LineageSubgraph:
         """Post-rpc interceptor for query_execution_inputs_and_outputs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_execution_inputs_and_outputs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_execution_inputs_and_outputs` interceptor runs
+        before the `post_query_execution_inputs_and_outputs_with_metadata` interceptor.
         """
         return response
+
+    async def post_query_execution_inputs_and_outputs_with_metadata(
+        self,
+        response: lineage_subgraph.LineageSubgraph,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        lineage_subgraph.LineageSubgraph, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for query_execution_inputs_and_outputs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_query_execution_inputs_and_outputs_with_metadata`
+        interceptor in new development instead of the `post_query_execution_inputs_and_outputs` interceptor.
+        When both interceptors are used, this `post_query_execution_inputs_and_outputs_with_metadata` interceptor runs after the
+        `post_query_execution_inputs_and_outputs` interceptor. The (possibly modified) response returned by
+        `post_query_execution_inputs_and_outputs` will be passed to
+        `post_query_execution_inputs_and_outputs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_remove_context_children(
         self,
@@ -1098,11 +1771,37 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> metadata_service.RemoveContextChildrenResponse:
         """Post-rpc interceptor for remove_context_children
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_remove_context_children_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_remove_context_children` interceptor runs
+        before the `post_remove_context_children_with_metadata` interceptor.
         """
         return response
+
+    async def post_remove_context_children_with_metadata(
+        self,
+        response: metadata_service.RemoveContextChildrenResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        metadata_service.RemoveContextChildrenResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for remove_context_children
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_remove_context_children_with_metadata`
+        interceptor in new development instead of the `post_remove_context_children` interceptor.
+        When both interceptors are used, this `post_remove_context_children_with_metadata` interceptor runs after the
+        `post_remove_context_children` interceptor. The (possibly modified) response returned by
+        `post_remove_context_children` will be passed to
+        `post_remove_context_children_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_artifact(
         self,
@@ -1123,11 +1822,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> gca_artifact.Artifact:
         """Post-rpc interceptor for update_artifact
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_artifact_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_artifact` interceptor runs
+        before the `post_update_artifact_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_artifact_with_metadata(
+        self,
+        response: gca_artifact.Artifact,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_artifact.Artifact, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_artifact
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_update_artifact_with_metadata`
+        interceptor in new development instead of the `post_update_artifact` interceptor.
+        When both interceptors are used, this `post_update_artifact_with_metadata` interceptor runs after the
+        `post_update_artifact` interceptor. The (possibly modified) response returned by
+        `post_update_artifact` will be passed to
+        `post_update_artifact_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_context(
         self,
@@ -1148,11 +1870,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> gca_context.Context:
         """Post-rpc interceptor for update_context
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_context_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_context` interceptor runs
+        before the `post_update_context_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_context_with_metadata(
+        self,
+        response: gca_context.Context,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_context.Context, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_context
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_update_context_with_metadata`
+        interceptor in new development instead of the `post_update_context` interceptor.
+        When both interceptors are used, this `post_update_context_with_metadata` interceptor runs after the
+        `post_update_context` interceptor. The (possibly modified) response returned by
+        `post_update_context` will be passed to
+        `post_update_context_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_execution(
         self,
@@ -1173,11 +1918,34 @@ class AsyncMetadataServiceRestInterceptor:
     ) -> gca_execution.Execution:
         """Post-rpc interceptor for update_execution
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_execution_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the MetadataService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_execution` interceptor runs
+        before the `post_update_execution_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_execution_with_metadata(
+        self,
+        response: gca_execution.Execution,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_execution.Execution, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_execution
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the MetadataService server but before it is returned to user code.
+
+        We recommend only using this `post_update_execution_with_metadata`
+        interceptor in new development instead of the `post_update_execution` interceptor.
+        When both interceptors are used, this `post_update_execution_with_metadata` interceptor runs after the
+        `post_update_execution` interceptor. The (possibly modified) response returned by
+        `post_update_execution` will be passed to
+        `post_update_execution_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -1854,6 +2622,13 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             resp = await self._interceptor.post_add_context_artifacts_and_executions(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_add_context_artifacts_and_executions_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2015,6 +2790,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_add_context_children(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_add_context_children_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2176,6 +2955,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_add_execution_events(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_add_execution_events_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2337,6 +3120,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_artifact_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2496,6 +3283,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_context_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2655,6 +3446,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_execution_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2812,6 +3607,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_metadata_schema(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_metadata_schema_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2974,6 +3773,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_metadata_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_metadata_store_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3130,6 +3933,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_artifact_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3286,6 +4093,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_context_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3442,6 +4253,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_execution_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3596,6 +4411,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_metadata_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_metadata_store_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3748,6 +4567,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_artifact_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3900,6 +4723,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_context_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4053,6 +4880,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_execution_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4204,6 +5035,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_metadata_schema(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_metadata_schema_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4360,6 +5195,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_metadata_store(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_metadata_store_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4515,6 +5354,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_artifacts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_artifacts_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4672,6 +5515,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_contexts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_contexts_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4829,6 +5676,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_executions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_executions_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4984,6 +5835,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_metadata_schemas(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_metadata_schemas_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5139,6 +5994,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_metadata_stores(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_metadata_stores_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5303,6 +6162,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_purge_artifacts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_purge_artifacts_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5465,6 +6328,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_purge_contexts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_purge_contexts_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5627,6 +6494,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_purge_executions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_purge_executions_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5787,6 +6658,13 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_query_artifact_lineage_subgraph(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_query_artifact_lineage_subgraph_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5947,6 +6825,13 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_query_context_lineage_subgraph(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_query_context_lineage_subgraph_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6109,6 +6994,13 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_query_execution_inputs_and_outputs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_query_execution_inputs_and_outputs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6270,6 +7162,13 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_remove_context_children(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_remove_context_children_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6431,6 +7330,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_artifact(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_artifact_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6590,6 +7493,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_context(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_context_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6749,6 +7656,10 @@ class AsyncMetadataServiceRestTransport(_BaseMetadataServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_execution(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_execution_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

@@ -703,9 +703,12 @@ from .types.model_service import ListModelEvaluationsRequest
 from .types.model_service import ListModelEvaluationsResponse
 from .types.model_service import ListModelsRequest
 from .types.model_service import ListModelsResponse
+from .types.model_service import ListModelVersionCheckpointsRequest
+from .types.model_service import ListModelVersionCheckpointsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import ModelVersionCheckpoint
 from .types.model_service import UpdateExplanationDatasetOperationMetadata
 from .types.model_service import UpdateExplanationDatasetRequest
 from .types.model_service import UpdateExplanationDatasetResponse
@@ -755,6 +758,8 @@ from .types.notebook_service import UpgradeNotebookRuntimeOperationMetadata
 from .types.notebook_service import UpgradeNotebookRuntimeRequest
 from .types.notebook_service import UpgradeNotebookRuntimeResponse
 from .types.notebook_service import NotebookExecutionJobView
+from .types.notebook_software_config import NotebookSoftwareConfig
+from .types.notebook_software_config import PostStartupScriptConfig
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -1534,6 +1539,8 @@ __all__ = (
     "ListModelEvaluationSlicesResponse",
     "ListModelEvaluationsRequest",
     "ListModelEvaluationsResponse",
+    "ListModelVersionCheckpointsRequest",
+    "ListModelVersionCheckpointsResponse",
     "ListModelVersionsRequest",
     "ListModelVersionsResponse",
     "ListModelsRequest",
@@ -1620,6 +1627,7 @@ __all__ = (
     "ModelMonitoringStatsAnomalies",
     "ModelServiceClient",
     "ModelSourceInfo",
+    "ModelVersionCheckpoint",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
@@ -1646,6 +1654,7 @@ __all__ = (
     "NotebookRuntimeTemplateRef",
     "NotebookRuntimeType",
     "NotebookServiceClient",
+    "NotebookSoftwareConfig",
     "PSCAutomationConfig",
     "PairwiseChoice",
     "PairwiseMetricInput",
@@ -1679,6 +1688,7 @@ __all__ = (
     "PointwiseMetricResult",
     "PointwiseMetricSpec",
     "Port",
+    "PostStartupScriptConfig",
     "PredefinedSplit",
     "PredictRequest",
     "PredictRequestResponseLoggingConfig",

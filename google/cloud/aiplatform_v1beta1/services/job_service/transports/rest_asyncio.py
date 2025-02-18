@@ -469,11 +469,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> gca_batch_prediction_job.BatchPredictionJob:
         """Post-rpc interceptor for create_batch_prediction_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_batch_prediction_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_batch_prediction_job` interceptor runs
+        before the `post_create_batch_prediction_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_batch_prediction_job_with_metadata(
+        self,
+        response: gca_batch_prediction_job.BatchPredictionJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_batch_prediction_job.BatchPredictionJob,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for create_batch_prediction_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_create_batch_prediction_job_with_metadata`
+        interceptor in new development instead of the `post_create_batch_prediction_job` interceptor.
+        When both interceptors are used, this `post_create_batch_prediction_job_with_metadata` interceptor runs after the
+        `post_create_batch_prediction_job` interceptor. The (possibly modified) response returned by
+        `post_create_batch_prediction_job` will be passed to
+        `post_create_batch_prediction_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_custom_job(
         self,
@@ -494,11 +520,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> gca_custom_job.CustomJob:
         """Post-rpc interceptor for create_custom_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_custom_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_custom_job` interceptor runs
+        before the `post_create_custom_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_custom_job_with_metadata(
+        self,
+        response: gca_custom_job.CustomJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_custom_job.CustomJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_custom_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_create_custom_job_with_metadata`
+        interceptor in new development instead of the `post_create_custom_job` interceptor.
+        When both interceptors are used, this `post_create_custom_job_with_metadata` interceptor runs after the
+        `post_create_custom_job` interceptor. The (possibly modified) response returned by
+        `post_create_custom_job` will be passed to
+        `post_create_custom_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_data_labeling_job(
         self,
@@ -520,11 +569,36 @@ class AsyncJobServiceRestInterceptor:
     ) -> gca_data_labeling_job.DataLabelingJob:
         """Post-rpc interceptor for create_data_labeling_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_data_labeling_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_data_labeling_job` interceptor runs
+        before the `post_create_data_labeling_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_data_labeling_job_with_metadata(
+        self,
+        response: gca_data_labeling_job.DataLabelingJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_data_labeling_job.DataLabelingJob, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for create_data_labeling_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_create_data_labeling_job_with_metadata`
+        interceptor in new development instead of the `post_create_data_labeling_job` interceptor.
+        When both interceptors are used, this `post_create_data_labeling_job_with_metadata` interceptor runs after the
+        `post_create_data_labeling_job` interceptor. The (possibly modified) response returned by
+        `post_create_data_labeling_job` will be passed to
+        `post_create_data_labeling_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_hyperparameter_tuning_job(
         self,
@@ -546,11 +620,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         """Post-rpc interceptor for create_hyperparameter_tuning_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_hyperparameter_tuning_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_hyperparameter_tuning_job` interceptor runs
+        before the `post_create_hyperparameter_tuning_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_hyperparameter_tuning_job_with_metadata(
+        self,
+        response: gca_hyperparameter_tuning_job.HyperparameterTuningJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_hyperparameter_tuning_job.HyperparameterTuningJob,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for create_hyperparameter_tuning_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_create_hyperparameter_tuning_job_with_metadata`
+        interceptor in new development instead of the `post_create_hyperparameter_tuning_job` interceptor.
+        When both interceptors are used, this `post_create_hyperparameter_tuning_job_with_metadata` interceptor runs after the
+        `post_create_hyperparameter_tuning_job` interceptor. The (possibly modified) response returned by
+        `post_create_hyperparameter_tuning_job` will be passed to
+        `post_create_hyperparameter_tuning_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_model_deployment_monitoring_job(
         self,
@@ -572,11 +672,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         """Post-rpc interceptor for create_model_deployment_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_model_deployment_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_model_deployment_monitoring_job` interceptor runs
+        before the `post_create_model_deployment_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_model_deployment_monitoring_job_with_metadata(
+        self,
+        response: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for create_model_deployment_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_create_model_deployment_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_create_model_deployment_monitoring_job` interceptor.
+        When both interceptors are used, this `post_create_model_deployment_monitoring_job_with_metadata` interceptor runs after the
+        `post_create_model_deployment_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_create_model_deployment_monitoring_job` will be passed to
+        `post_create_model_deployment_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_nas_job(
         self,
@@ -597,11 +723,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> gca_nas_job.NasJob:
         """Post-rpc interceptor for create_nas_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_nas_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_nas_job` interceptor runs
+        before the `post_create_nas_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_nas_job_with_metadata(
+        self,
+        response: gca_nas_job.NasJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_nas_job.NasJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_nas_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_create_nas_job_with_metadata`
+        interceptor in new development instead of the `post_create_nas_job` interceptor.
+        When both interceptors are used, this `post_create_nas_job_with_metadata` interceptor runs after the
+        `post_create_nas_job` interceptor. The (possibly modified) response returned by
+        `post_create_nas_job` will be passed to
+        `post_create_nas_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_batch_prediction_job(
         self,
@@ -623,11 +772,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_batch_prediction_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_batch_prediction_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_batch_prediction_job` interceptor runs
+        before the `post_delete_batch_prediction_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_batch_prediction_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_batch_prediction_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_batch_prediction_job_with_metadata`
+        interceptor in new development instead of the `post_delete_batch_prediction_job` interceptor.
+        When both interceptors are used, this `post_delete_batch_prediction_job_with_metadata` interceptor runs after the
+        `post_delete_batch_prediction_job` interceptor. The (possibly modified) response returned by
+        `post_delete_batch_prediction_job` will be passed to
+        `post_delete_batch_prediction_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_custom_job(
         self,
@@ -648,11 +820,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_custom_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_custom_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_custom_job` interceptor runs
+        before the `post_delete_custom_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_custom_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_custom_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_custom_job_with_metadata`
+        interceptor in new development instead of the `post_delete_custom_job` interceptor.
+        When both interceptors are used, this `post_delete_custom_job_with_metadata` interceptor runs after the
+        `post_delete_custom_job` interceptor. The (possibly modified) response returned by
+        `post_delete_custom_job` will be passed to
+        `post_delete_custom_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_data_labeling_job(
         self,
@@ -674,11 +869,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_data_labeling_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_data_labeling_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_data_labeling_job` interceptor runs
+        before the `post_delete_data_labeling_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_data_labeling_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_data_labeling_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_data_labeling_job_with_metadata`
+        interceptor in new development instead of the `post_delete_data_labeling_job` interceptor.
+        When both interceptors are used, this `post_delete_data_labeling_job_with_metadata` interceptor runs after the
+        `post_delete_data_labeling_job` interceptor. The (possibly modified) response returned by
+        `post_delete_data_labeling_job` will be passed to
+        `post_delete_data_labeling_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_hyperparameter_tuning_job(
         self,
@@ -700,11 +918,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_hyperparameter_tuning_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_hyperparameter_tuning_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_hyperparameter_tuning_job` interceptor runs
+        before the `post_delete_hyperparameter_tuning_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_hyperparameter_tuning_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_hyperparameter_tuning_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_hyperparameter_tuning_job_with_metadata`
+        interceptor in new development instead of the `post_delete_hyperparameter_tuning_job` interceptor.
+        When both interceptors are used, this `post_delete_hyperparameter_tuning_job_with_metadata` interceptor runs after the
+        `post_delete_hyperparameter_tuning_job` interceptor. The (possibly modified) response returned by
+        `post_delete_hyperparameter_tuning_job` will be passed to
+        `post_delete_hyperparameter_tuning_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_model_deployment_monitoring_job(
         self,
@@ -726,11 +967,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_model_deployment_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_model_deployment_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_model_deployment_monitoring_job` interceptor runs
+        before the `post_delete_model_deployment_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_model_deployment_monitoring_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_model_deployment_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_model_deployment_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_delete_model_deployment_monitoring_job` interceptor.
+        When both interceptors are used, this `post_delete_model_deployment_monitoring_job_with_metadata` interceptor runs after the
+        `post_delete_model_deployment_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_delete_model_deployment_monitoring_job` will be passed to
+        `post_delete_model_deployment_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_nas_job(
         self,
@@ -751,11 +1015,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_nas_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_nas_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_nas_job` interceptor runs
+        before the `post_delete_nas_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_nas_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_nas_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_nas_job_with_metadata`
+        interceptor in new development instead of the `post_delete_nas_job` interceptor.
+        When both interceptors are used, this `post_delete_nas_job_with_metadata` interceptor runs after the
+        `post_delete_nas_job` interceptor. The (possibly modified) response returned by
+        `post_delete_nas_job` will be passed to
+        `post_delete_nas_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_batch_prediction_job(
         self,
@@ -777,11 +1064,36 @@ class AsyncJobServiceRestInterceptor:
     ) -> batch_prediction_job.BatchPredictionJob:
         """Post-rpc interceptor for get_batch_prediction_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_batch_prediction_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_batch_prediction_job` interceptor runs
+        before the `post_get_batch_prediction_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_batch_prediction_job_with_metadata(
+        self,
+        response: batch_prediction_job.BatchPredictionJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        batch_prediction_job.BatchPredictionJob, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_batch_prediction_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_get_batch_prediction_job_with_metadata`
+        interceptor in new development instead of the `post_get_batch_prediction_job` interceptor.
+        When both interceptors are used, this `post_get_batch_prediction_job_with_metadata` interceptor runs after the
+        `post_get_batch_prediction_job` interceptor. The (possibly modified) response returned by
+        `post_get_batch_prediction_job` will be passed to
+        `post_get_batch_prediction_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_custom_job(
         self,
@@ -802,11 +1114,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> custom_job.CustomJob:
         """Post-rpc interceptor for get_custom_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_custom_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_custom_job` interceptor runs
+        before the `post_get_custom_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_custom_job_with_metadata(
+        self,
+        response: custom_job.CustomJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[custom_job.CustomJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_custom_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_get_custom_job_with_metadata`
+        interceptor in new development instead of the `post_get_custom_job` interceptor.
+        When both interceptors are used, this `post_get_custom_job_with_metadata` interceptor runs after the
+        `post_get_custom_job` interceptor. The (possibly modified) response returned by
+        `post_get_custom_job` will be passed to
+        `post_get_custom_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_data_labeling_job(
         self,
@@ -827,11 +1162,36 @@ class AsyncJobServiceRestInterceptor:
     ) -> data_labeling_job.DataLabelingJob:
         """Post-rpc interceptor for get_data_labeling_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_data_labeling_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_data_labeling_job` interceptor runs
+        before the `post_get_data_labeling_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_data_labeling_job_with_metadata(
+        self,
+        response: data_labeling_job.DataLabelingJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        data_labeling_job.DataLabelingJob, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_data_labeling_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_get_data_labeling_job_with_metadata`
+        interceptor in new development instead of the `post_get_data_labeling_job` interceptor.
+        When both interceptors are used, this `post_get_data_labeling_job_with_metadata` interceptor runs after the
+        `post_get_data_labeling_job` interceptor. The (possibly modified) response returned by
+        `post_get_data_labeling_job` will be passed to
+        `post_get_data_labeling_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_hyperparameter_tuning_job(
         self,
@@ -853,11 +1213,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         """Post-rpc interceptor for get_hyperparameter_tuning_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_hyperparameter_tuning_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_hyperparameter_tuning_job` interceptor runs
+        before the `post_get_hyperparameter_tuning_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_hyperparameter_tuning_job_with_metadata(
+        self,
+        response: hyperparameter_tuning_job.HyperparameterTuningJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        hyperparameter_tuning_job.HyperparameterTuningJob,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for get_hyperparameter_tuning_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_get_hyperparameter_tuning_job_with_metadata`
+        interceptor in new development instead of the `post_get_hyperparameter_tuning_job` interceptor.
+        When both interceptors are used, this `post_get_hyperparameter_tuning_job_with_metadata` interceptor runs after the
+        `post_get_hyperparameter_tuning_job` interceptor. The (possibly modified) response returned by
+        `post_get_hyperparameter_tuning_job` will be passed to
+        `post_get_hyperparameter_tuning_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_model_deployment_monitoring_job(
         self,
@@ -879,11 +1265,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         """Post-rpc interceptor for get_model_deployment_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_deployment_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model_deployment_monitoring_job` interceptor runs
+        before the `post_get_model_deployment_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_model_deployment_monitoring_job_with_metadata(
+        self,
+        response: model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for get_model_deployment_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_deployment_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_get_model_deployment_monitoring_job` interceptor.
+        When both interceptors are used, this `post_get_model_deployment_monitoring_job_with_metadata` interceptor runs after the
+        `post_get_model_deployment_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_get_model_deployment_monitoring_job` will be passed to
+        `post_get_model_deployment_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_nas_job(
         self,
@@ -900,11 +1312,34 @@ class AsyncJobServiceRestInterceptor:
     async def post_get_nas_job(self, response: nas_job.NasJob) -> nas_job.NasJob:
         """Post-rpc interceptor for get_nas_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_nas_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_nas_job` interceptor runs
+        before the `post_get_nas_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_nas_job_with_metadata(
+        self,
+        response: nas_job.NasJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[nas_job.NasJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_nas_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_get_nas_job_with_metadata`
+        interceptor in new development instead of the `post_get_nas_job` interceptor.
+        When both interceptors are used, this `post_get_nas_job_with_metadata` interceptor runs after the
+        `post_get_nas_job` interceptor. The (possibly modified) response returned by
+        `post_get_nas_job` will be passed to
+        `post_get_nas_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_nas_trial_detail(
         self,
@@ -925,11 +1360,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> nas_job.NasTrialDetail:
         """Post-rpc interceptor for get_nas_trial_detail
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_nas_trial_detail_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_nas_trial_detail` interceptor runs
+        before the `post_get_nas_trial_detail_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_nas_trial_detail_with_metadata(
+        self,
+        response: nas_job.NasTrialDetail,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[nas_job.NasTrialDetail, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_nas_trial_detail
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_get_nas_trial_detail_with_metadata`
+        interceptor in new development instead of the `post_get_nas_trial_detail` interceptor.
+        When both interceptors are used, this `post_get_nas_trial_detail_with_metadata` interceptor runs after the
+        `post_get_nas_trial_detail` interceptor. The (possibly modified) response returned by
+        `post_get_nas_trial_detail` will be passed to
+        `post_get_nas_trial_detail_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_batch_prediction_jobs(
         self,
@@ -951,11 +1409,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.ListBatchPredictionJobsResponse:
         """Post-rpc interceptor for list_batch_prediction_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_batch_prediction_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_batch_prediction_jobs` interceptor runs
+        before the `post_list_batch_prediction_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_batch_prediction_jobs_with_metadata(
+        self,
+        response: job_service.ListBatchPredictionJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.ListBatchPredictionJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_batch_prediction_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_list_batch_prediction_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_batch_prediction_jobs` interceptor.
+        When both interceptors are used, this `post_list_batch_prediction_jobs_with_metadata` interceptor runs after the
+        `post_list_batch_prediction_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_batch_prediction_jobs` will be passed to
+        `post_list_batch_prediction_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_custom_jobs(
         self,
@@ -976,11 +1460,36 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.ListCustomJobsResponse:
         """Post-rpc interceptor for list_custom_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_custom_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_custom_jobs` interceptor runs
+        before the `post_list_custom_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_custom_jobs_with_metadata(
+        self,
+        response: job_service.ListCustomJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.ListCustomJobsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_custom_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_list_custom_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_custom_jobs` interceptor.
+        When both interceptors are used, this `post_list_custom_jobs_with_metadata` interceptor runs after the
+        `post_list_custom_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_custom_jobs` will be passed to
+        `post_list_custom_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_data_labeling_jobs(
         self,
@@ -1001,11 +1510,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.ListDataLabelingJobsResponse:
         """Post-rpc interceptor for list_data_labeling_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_data_labeling_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_data_labeling_jobs` interceptor runs
+        before the `post_list_data_labeling_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_data_labeling_jobs_with_metadata(
+        self,
+        response: job_service.ListDataLabelingJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.ListDataLabelingJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_data_labeling_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_list_data_labeling_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_data_labeling_jobs` interceptor.
+        When both interceptors are used, this `post_list_data_labeling_jobs_with_metadata` interceptor runs after the
+        `post_list_data_labeling_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_data_labeling_jobs` will be passed to
+        `post_list_data_labeling_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_hyperparameter_tuning_jobs(
         self,
@@ -1027,11 +1562,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.ListHyperparameterTuningJobsResponse:
         """Post-rpc interceptor for list_hyperparameter_tuning_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_hyperparameter_tuning_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_hyperparameter_tuning_jobs` interceptor runs
+        before the `post_list_hyperparameter_tuning_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_hyperparameter_tuning_jobs_with_metadata(
+        self,
+        response: job_service.ListHyperparameterTuningJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.ListHyperparameterTuningJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_hyperparameter_tuning_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_list_hyperparameter_tuning_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_hyperparameter_tuning_jobs` interceptor.
+        When both interceptors are used, this `post_list_hyperparameter_tuning_jobs_with_metadata` interceptor runs after the
+        `post_list_hyperparameter_tuning_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_hyperparameter_tuning_jobs` will be passed to
+        `post_list_hyperparameter_tuning_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_model_deployment_monitoring_jobs(
         self,
@@ -1053,11 +1614,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.ListModelDeploymentMonitoringJobsResponse:
         """Post-rpc interceptor for list_model_deployment_monitoring_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_deployment_monitoring_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_deployment_monitoring_jobs` interceptor runs
+        before the `post_list_model_deployment_monitoring_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_model_deployment_monitoring_jobs_with_metadata(
+        self,
+        response: job_service.ListModelDeploymentMonitoringJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.ListModelDeploymentMonitoringJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_deployment_monitoring_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_deployment_monitoring_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_model_deployment_monitoring_jobs` interceptor.
+        When both interceptors are used, this `post_list_model_deployment_monitoring_jobs_with_metadata` interceptor runs after the
+        `post_list_model_deployment_monitoring_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_model_deployment_monitoring_jobs` will be passed to
+        `post_list_model_deployment_monitoring_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_nas_jobs(
         self,
@@ -1076,11 +1663,36 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.ListNasJobsResponse:
         """Post-rpc interceptor for list_nas_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_nas_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_nas_jobs` interceptor runs
+        before the `post_list_nas_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_nas_jobs_with_metadata(
+        self,
+        response: job_service.ListNasJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.ListNasJobsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_nas_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_list_nas_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_nas_jobs` interceptor.
+        When both interceptors are used, this `post_list_nas_jobs_with_metadata` interceptor runs after the
+        `post_list_nas_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_nas_jobs` will be passed to
+        `post_list_nas_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_nas_trial_details(
         self,
@@ -1101,11 +1713,36 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.ListNasTrialDetailsResponse:
         """Post-rpc interceptor for list_nas_trial_details
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_nas_trial_details_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_nas_trial_details` interceptor runs
+        before the `post_list_nas_trial_details_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_nas_trial_details_with_metadata(
+        self,
+        response: job_service.ListNasTrialDetailsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.ListNasTrialDetailsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_nas_trial_details
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_list_nas_trial_details_with_metadata`
+        interceptor in new development instead of the `post_list_nas_trial_details` interceptor.
+        When both interceptors are used, this `post_list_nas_trial_details_with_metadata` interceptor runs after the
+        `post_list_nas_trial_details` interceptor. The (possibly modified) response returned by
+        `post_list_nas_trial_details` will be passed to
+        `post_list_nas_trial_details_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_pause_model_deployment_monitoring_job(
         self,
@@ -1158,11 +1795,37 @@ class AsyncJobServiceRestInterceptor:
     ) -> job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse:
         """Post-rpc interceptor for search_model_deployment_monitoring_stats_anomalies
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_search_model_deployment_monitoring_stats_anomalies_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_search_model_deployment_monitoring_stats_anomalies` interceptor runs
+        before the `post_search_model_deployment_monitoring_stats_anomalies_with_metadata` interceptor.
         """
         return response
+
+    async def post_search_model_deployment_monitoring_stats_anomalies_with_metadata(
+        self,
+        response: job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for search_model_deployment_monitoring_stats_anomalies
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_search_model_deployment_monitoring_stats_anomalies_with_metadata`
+        interceptor in new development instead of the `post_search_model_deployment_monitoring_stats_anomalies` interceptor.
+        When both interceptors are used, this `post_search_model_deployment_monitoring_stats_anomalies_with_metadata` interceptor runs after the
+        `post_search_model_deployment_monitoring_stats_anomalies` interceptor. The (possibly modified) response returned by
+        `post_search_model_deployment_monitoring_stats_anomalies` will be passed to
+        `post_search_model_deployment_monitoring_stats_anomalies_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_model_deployment_monitoring_job(
         self,
@@ -1184,11 +1847,34 @@ class AsyncJobServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_model_deployment_monitoring_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_model_deployment_monitoring_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the JobService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_model_deployment_monitoring_job` interceptor runs
+        before the `post_update_model_deployment_monitoring_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_model_deployment_monitoring_job_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_model_deployment_monitoring_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the JobService server but before it is returned to user code.
+
+        We recommend only using this `post_update_model_deployment_monitoring_job_with_metadata`
+        interceptor in new development instead of the `post_update_model_deployment_monitoring_job` interceptor.
+        When both interceptors are used, this `post_update_model_deployment_monitoring_job_with_metadata` interceptor runs after the
+        `post_update_model_deployment_monitoring_job` interceptor. The (possibly modified) response returned by
+        `post_update_model_deployment_monitoring_job` will be passed to
+        `post_update_model_deployment_monitoring_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -2505,6 +3191,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_batch_prediction_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_create_batch_prediction_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2673,6 +3366,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_custom_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_custom_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2834,6 +3531,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_data_labeling_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_create_data_labeling_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3001,6 +3705,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_hyperparameter_tuning_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_create_hyperparameter_tuning_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3179,6 +3890,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = await self._interceptor.post_create_model_deployment_monitoring_job(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_create_model_deployment_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3345,6 +4063,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_nas_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_nas_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3500,6 +4222,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_batch_prediction_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_delete_batch_prediction_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3655,6 +4384,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_custom_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_custom_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3810,6 +4543,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_data_labeling_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_delete_data_labeling_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3968,6 +4708,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_hyperparameter_tuning_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_delete_hyperparameter_tuning_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4130,6 +4877,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = await self._interceptor.post_delete_model_deployment_monitoring_job(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_delete_model_deployment_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4287,6 +5041,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_nas_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_nas_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4446,6 +5204,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_batch_prediction_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_get_batch_prediction_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4610,6 +5375,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_custom_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_custom_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4765,6 +5534,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_data_labeling_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_data_labeling_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4926,6 +5699,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_hyperparameter_tuning_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_get_hyperparameter_tuning_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5094,6 +5874,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = await self._interceptor.post_get_model_deployment_monitoring_job(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_get_model_deployment_monitoring_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5252,6 +6039,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_nas_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_nas_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5408,6 +6199,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_nas_trial_detail(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_nas_trial_detail_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5562,6 +6357,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_batch_prediction_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_list_batch_prediction_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5718,6 +6520,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_custom_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_custom_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5874,6 +6680,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_data_labeling_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_list_data_labeling_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6033,6 +6846,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_hyperparameter_tuning_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_list_hyperparameter_tuning_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6198,6 +7018,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = await self._interceptor.post_list_model_deployment_monitoring_jobs(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_list_model_deployment_monitoring_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6358,6 +7185,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_nas_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_nas_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6512,6 +7343,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_nas_trial_details(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_nas_trial_details_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6943,6 +7778,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             resp = await self._interceptor.post_search_model_deployment_monitoring_stats_anomalies(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_search_model_deployment_monitoring_stats_anomalies_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -7112,6 +7954,13 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_model_deployment_monitoring_job(
                 resp
+            )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_update_model_deployment_monitoring_job_with_metadata(
+                resp, response_metadata
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

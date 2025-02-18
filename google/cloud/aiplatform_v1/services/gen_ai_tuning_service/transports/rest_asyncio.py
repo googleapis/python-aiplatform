@@ -177,11 +177,34 @@ class AsyncGenAiTuningServiceRestInterceptor:
     ) -> gca_tuning_job.TuningJob:
         """Post-rpc interceptor for create_tuning_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_tuning_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the GenAiTuningService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_tuning_job` interceptor runs
+        before the `post_create_tuning_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_tuning_job_with_metadata(
+        self,
+        response: gca_tuning_job.TuningJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_tuning_job.TuningJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_tuning_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the GenAiTuningService server but before it is returned to user code.
+
+        We recommend only using this `post_create_tuning_job_with_metadata`
+        interceptor in new development instead of the `post_create_tuning_job` interceptor.
+        When both interceptors are used, this `post_create_tuning_job_with_metadata` interceptor runs after the
+        `post_create_tuning_job` interceptor. The (possibly modified) response returned by
+        `post_create_tuning_job` will be passed to
+        `post_create_tuning_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_tuning_job(
         self,
@@ -203,11 +226,34 @@ class AsyncGenAiTuningServiceRestInterceptor:
     ) -> tuning_job.TuningJob:
         """Post-rpc interceptor for get_tuning_job
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_tuning_job_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the GenAiTuningService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_tuning_job` interceptor runs
+        before the `post_get_tuning_job_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_tuning_job_with_metadata(
+        self,
+        response: tuning_job.TuningJob,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[tuning_job.TuningJob, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_tuning_job
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the GenAiTuningService server but before it is returned to user code.
+
+        We recommend only using this `post_get_tuning_job_with_metadata`
+        interceptor in new development instead of the `post_get_tuning_job` interceptor.
+        When both interceptors are used, this `post_get_tuning_job_with_metadata` interceptor runs after the
+        `post_get_tuning_job` interceptor. The (possibly modified) response returned by
+        `post_get_tuning_job` will be passed to
+        `post_get_tuning_job_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_tuning_jobs(
         self,
@@ -229,11 +275,37 @@ class AsyncGenAiTuningServiceRestInterceptor:
     ) -> genai_tuning_service.ListTuningJobsResponse:
         """Post-rpc interceptor for list_tuning_jobs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_tuning_jobs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the GenAiTuningService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_tuning_jobs` interceptor runs
+        before the `post_list_tuning_jobs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_tuning_jobs_with_metadata(
+        self,
+        response: genai_tuning_service.ListTuningJobsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        genai_tuning_service.ListTuningJobsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_tuning_jobs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the GenAiTuningService server but before it is returned to user code.
+
+        We recommend only using this `post_list_tuning_jobs_with_metadata`
+        interceptor in new development instead of the `post_list_tuning_jobs` interceptor.
+        When both interceptors are used, this `post_list_tuning_jobs_with_metadata` interceptor runs after the
+        `post_list_tuning_jobs` interceptor. The (possibly modified) response returned by
+        `post_list_tuning_jobs` will be passed to
+        `post_list_tuning_jobs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_rebase_tuned_model(
         self,
@@ -255,11 +327,34 @@ class AsyncGenAiTuningServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for rebase_tuned_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_rebase_tuned_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the GenAiTuningService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_rebase_tuned_model` interceptor runs
+        before the `post_rebase_tuned_model_with_metadata` interceptor.
         """
         return response
+
+    async def post_rebase_tuned_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for rebase_tuned_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the GenAiTuningService server but before it is returned to user code.
+
+        We recommend only using this `post_rebase_tuned_model_with_metadata`
+        interceptor in new development instead of the `post_rebase_tuned_model` interceptor.
+        When both interceptors are used, this `post_rebase_tuned_model_with_metadata` interceptor runs after the
+        `post_rebase_tuned_model` interceptor. The (possibly modified) response returned by
+        `post_rebase_tuned_model` will be passed to
+        `post_rebase_tuned_model_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -916,6 +1011,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_tuning_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_tuning_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1071,6 +1170,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_tuning_job(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_tuning_job_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1224,6 +1327,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_tuning_jobs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_tuning_jobs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1386,6 +1493,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_rebase_tuned_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_rebase_tuned_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

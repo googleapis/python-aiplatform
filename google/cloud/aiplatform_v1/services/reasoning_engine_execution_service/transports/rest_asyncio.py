@@ -138,11 +138,37 @@ class AsyncReasoningEngineExecutionServiceRestInterceptor:
     ) -> reasoning_engine_execution_service.QueryReasoningEngineResponse:
         """Post-rpc interceptor for query_reasoning_engine
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_query_reasoning_engine_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ReasoningEngineExecutionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_query_reasoning_engine` interceptor runs
+        before the `post_query_reasoning_engine_with_metadata` interceptor.
         """
         return response
+
+    async def post_query_reasoning_engine_with_metadata(
+        self,
+        response: reasoning_engine_execution_service.QueryReasoningEngineResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        reasoning_engine_execution_service.QueryReasoningEngineResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for query_reasoning_engine
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ReasoningEngineExecutionService server but before it is returned to user code.
+
+        We recommend only using this `post_query_reasoning_engine_with_metadata`
+        interceptor in new development instead of the `post_query_reasoning_engine` interceptor.
+        When both interceptors are used, this `post_query_reasoning_engine_with_metadata` interceptor runs after the
+        `post_query_reasoning_engine` interceptor. The (possibly modified) response returned by
+        `post_query_reasoning_engine` will be passed to
+        `post_query_reasoning_engine_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_stream_query_reasoning_engine(
         self,
@@ -164,11 +190,37 @@ class AsyncReasoningEngineExecutionServiceRestInterceptor:
     ) -> rest_streaming_async.AsyncResponseIterator:
         """Post-rpc interceptor for stream_query_reasoning_engine
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_stream_query_reasoning_engine_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ReasoningEngineExecutionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_stream_query_reasoning_engine` interceptor runs
+        before the `post_stream_query_reasoning_engine_with_metadata` interceptor.
         """
         return response
+
+    async def post_stream_query_reasoning_engine_with_metadata(
+        self,
+        response: rest_streaming_async.AsyncResponseIterator,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        rest_streaming_async.AsyncResponseIterator,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for stream_query_reasoning_engine
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ReasoningEngineExecutionService server but before it is returned to user code.
+
+        We recommend only using this `post_stream_query_reasoning_engine_with_metadata`
+        interceptor in new development instead of the `post_stream_query_reasoning_engine` interceptor.
+        When both interceptors are used, this `post_stream_query_reasoning_engine_with_metadata` interceptor runs after the
+        `post_stream_query_reasoning_engine` interceptor. The (possibly modified) response returned by
+        `post_stream_query_reasoning_engine` will be passed to
+        `post_stream_query_reasoning_engine_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -694,6 +746,10 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_query_reasoning_engine(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_query_reasoning_engine_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -907,6 +963,13 @@ class AsyncReasoningEngineExecutionServiceRestTransport(
                 response, httpbody_pb2.HttpBody
             )
             resp = await self._interceptor.post_stream_query_reasoning_engine(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_stream_query_reasoning_engine_with_metadata(
+                resp, response_metadata
+            )
             return resp
 
     @property

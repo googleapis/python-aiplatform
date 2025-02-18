@@ -37,6 +37,7 @@ __protobuf__ = proto.module(
         "PredictRequestResponseLoggingConfig",
         "ClientConnectionConfig",
         "FasterDeploymentConfig",
+        "RolloutOptions",
     },
 )
 
@@ -377,6 +378,8 @@ class DeployedModel(proto.Message):
             is configured.
         faster_deployment_config (google.cloud.aiplatform_v1beta1.types.FasterDeploymentConfig):
             Configuration for faster model deployment.
+        rollout_options (google.cloud.aiplatform_v1beta1.types.RolloutOptions):
+            Options for configuring rolling deployments.
         status (google.cloud.aiplatform_v1beta1.types.DeployedModel.Status):
             Output only. Runtime status of the deployed
             model.
@@ -483,6 +486,11 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=23,
         message="FasterDeploymentConfig",
+    )
+    rollout_options: "RolloutOptions" = proto.Field(
+        proto.MESSAGE,
+        number=25,
+        message="RolloutOptions",
     )
     status: Status = proto.Field(
         proto.MESSAGE,
@@ -599,6 +607,80 @@ class FasterDeploymentConfig(proto.Message):
 
     fast_tryout_enabled: bool = proto.Field(
         proto.BOOL,
+        number=2,
+    )
+
+
+class RolloutOptions(proto.Message):
+    r"""Configuration for rolling deployments.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        max_unavailable_replicas (int):
+            Absolute count of replicas allowed to be
+            unavailable.
+
+            This field is a member of `oneof`_ ``max_unavailable``.
+        max_unavailable_percentage (int):
+            Percentage of replicas allowed to be
+            unavailable. For autoscaling deployments, this
+            refers to the target replica count.
+
+            This field is a member of `oneof`_ ``max_unavailable``.
+        max_surge_replicas (int):
+            Absolute count of allowed additional
+            replicas.
+
+            This field is a member of `oneof`_ ``max_surge``.
+        max_surge_percentage (int):
+            Percentage of allowed additional replicas.
+            For autoscaling deployments, this refers to the
+            target replica count.
+
+            This field is a member of `oneof`_ ``max_surge``.
+        previous_deployed_model (str):
+            ID of the DeployedModel that this deployment
+            should replace.
+        revision_number (int):
+            Output only. Read-only. Revision number
+            determines the relative priority of
+            DeployedModels in the same rollout. The
+            DeployedModel with the largest revision number
+            specifies the intended state of the deployment.
+    """
+
+    max_unavailable_replicas: int = proto.Field(
+        proto.INT32,
+        number=3,
+        oneof="max_unavailable",
+    )
+    max_unavailable_percentage: int = proto.Field(
+        proto.INT32,
+        number=4,
+        oneof="max_unavailable",
+    )
+    max_surge_replicas: int = proto.Field(
+        proto.INT32,
+        number=5,
+        oneof="max_surge",
+    )
+    max_surge_percentage: int = proto.Field(
+        proto.INT32,
+        number=6,
+        oneof="max_surge",
+    )
+    previous_deployed_model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    revision_number: int = proto.Field(
+        proto.INT32,
         number=2,
     )
 

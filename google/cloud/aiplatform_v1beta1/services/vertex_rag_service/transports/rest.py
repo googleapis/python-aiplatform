@@ -127,11 +127,37 @@ class VertexRagServiceRestInterceptor:
     ) -> vertex_rag_service.AugmentPromptResponse:
         """Post-rpc interceptor for augment_prompt
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_augment_prompt_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VertexRagService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_augment_prompt` interceptor runs
+        before the `post_augment_prompt_with_metadata` interceptor.
         """
         return response
+
+    def post_augment_prompt_with_metadata(
+        self,
+        response: vertex_rag_service.AugmentPromptResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vertex_rag_service.AugmentPromptResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for augment_prompt
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VertexRagService server but before it is returned to user code.
+
+        We recommend only using this `post_augment_prompt_with_metadata`
+        interceptor in new development instead of the `post_augment_prompt` interceptor.
+        When both interceptors are used, this `post_augment_prompt_with_metadata` interceptor runs after the
+        `post_augment_prompt` interceptor. The (possibly modified) response returned by
+        `post_augment_prompt` will be passed to
+        `post_augment_prompt_with_metadata`.
+        """
+        return response, metadata
 
     def pre_corroborate_content(
         self,
@@ -153,11 +179,37 @@ class VertexRagServiceRestInterceptor:
     ) -> vertex_rag_service.CorroborateContentResponse:
         """Post-rpc interceptor for corroborate_content
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_corroborate_content_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VertexRagService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_corroborate_content` interceptor runs
+        before the `post_corroborate_content_with_metadata` interceptor.
         """
         return response
+
+    def post_corroborate_content_with_metadata(
+        self,
+        response: vertex_rag_service.CorroborateContentResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vertex_rag_service.CorroborateContentResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for corroborate_content
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VertexRagService server but before it is returned to user code.
+
+        We recommend only using this `post_corroborate_content_with_metadata`
+        interceptor in new development instead of the `post_corroborate_content` interceptor.
+        When both interceptors are used, this `post_corroborate_content_with_metadata` interceptor runs after the
+        `post_corroborate_content` interceptor. The (possibly modified) response returned by
+        `post_corroborate_content` will be passed to
+        `post_corroborate_content_with_metadata`.
+        """
+        return response, metadata
 
     def pre_retrieve_contexts(
         self,
@@ -179,11 +231,37 @@ class VertexRagServiceRestInterceptor:
     ) -> vertex_rag_service.RetrieveContextsResponse:
         """Post-rpc interceptor for retrieve_contexts
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_retrieve_contexts_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the VertexRagService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_retrieve_contexts` interceptor runs
+        before the `post_retrieve_contexts_with_metadata` interceptor.
         """
         return response
+
+    def post_retrieve_contexts_with_metadata(
+        self,
+        response: vertex_rag_service.RetrieveContextsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        vertex_rag_service.RetrieveContextsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for retrieve_contexts
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the VertexRagService server but before it is returned to user code.
+
+        We recommend only using this `post_retrieve_contexts_with_metadata`
+        interceptor in new development instead of the `post_retrieve_contexts` interceptor.
+        When both interceptors are used, this `post_retrieve_contexts_with_metadata` interceptor runs after the
+        `post_retrieve_contexts` interceptor. The (possibly modified) response returned by
+        `post_retrieve_contexts` will be passed to
+        `post_retrieve_contexts_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -639,6 +717,10 @@ class VertexRagServiceRestTransport(_BaseVertexRagServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_augment_prompt(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_augment_prompt_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -794,6 +876,10 @@ class VertexRagServiceRestTransport(_BaseVertexRagServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_corroborate_content(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_corroborate_content_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -949,6 +1035,10 @@ class VertexRagServiceRestTransport(_BaseVertexRagServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_retrieve_contexts(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_retrieve_contexts_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

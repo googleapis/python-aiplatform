@@ -98,6 +98,14 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -353,6 +361,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         EndpointServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = EndpointServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = EndpointServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -7182,10 +7233,13 @@ def test_create_endpoint_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_create_endpoint"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor, "post_create_endpoint_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_create_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.CreateEndpointRequest.pb(
             endpoint_service.CreateEndpointRequest()
         )
@@ -7209,6 +7263,7 @@ def test_create_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.create_endpoint(
             request,
@@ -7220,6 +7275,7 @@ def test_create_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_endpoint_rest_bad_request(
@@ -7327,10 +7383,13 @@ def test_get_endpoint_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_get_endpoint"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor, "post_get_endpoint_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_get_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.GetEndpointRequest.pb(
             endpoint_service.GetEndpointRequest()
         )
@@ -7354,6 +7413,7 @@ def test_get_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = endpoint.Endpoint()
+        post_with_metadata.return_value = endpoint.Endpoint(), metadata
 
         client.get_endpoint(
             request,
@@ -7365,6 +7425,7 @@ def test_get_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_endpoints_rest_bad_request(
@@ -7449,10 +7510,13 @@ def test_list_endpoints_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_list_endpoints"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor, "post_list_endpoints_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_list_endpoints"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.ListEndpointsRequest.pb(
             endpoint_service.ListEndpointsRequest()
         )
@@ -7478,6 +7542,10 @@ def test_list_endpoints_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = endpoint_service.ListEndpointsResponse()
+        post_with_metadata.return_value = (
+            endpoint_service.ListEndpointsResponse(),
+            metadata,
+        )
 
         client.list_endpoints(
             request,
@@ -7489,6 +7557,7 @@ def test_list_endpoints_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_endpoint_rest_bad_request(
@@ -7804,10 +7873,13 @@ def test_update_endpoint_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_update_endpoint"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor, "post_update_endpoint_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_update_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.UpdateEndpointRequest.pb(
             endpoint_service.UpdateEndpointRequest()
         )
@@ -7831,6 +7903,7 @@ def test_update_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_endpoint.Endpoint()
+        post_with_metadata.return_value = gca_endpoint.Endpoint(), metadata
 
         client.update_endpoint(
             request,
@@ -7842,6 +7915,7 @@ def test_update_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_update_endpoint_long_running_rest_bad_request(
@@ -7926,10 +8000,14 @@ def test_update_endpoint_long_running_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_update_endpoint_long_running"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor,
+        "post_update_endpoint_long_running_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_update_endpoint_long_running"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.UpdateEndpointLongRunningRequest.pb(
             endpoint_service.UpdateEndpointLongRunningRequest()
         )
@@ -7953,6 +8031,7 @@ def test_update_endpoint_long_running_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.update_endpoint_long_running(
             request,
@@ -7964,6 +8043,7 @@ def test_update_endpoint_long_running_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_endpoint_rest_bad_request(
@@ -8044,10 +8124,13 @@ def test_delete_endpoint_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_delete_endpoint"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor, "post_delete_endpoint_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_delete_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.DeleteEndpointRequest.pb(
             endpoint_service.DeleteEndpointRequest()
         )
@@ -8071,6 +8154,7 @@ def test_delete_endpoint_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_endpoint(
             request,
@@ -8082,6 +8166,7 @@ def test_delete_endpoint_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_deploy_model_rest_bad_request(
@@ -8162,10 +8247,13 @@ def test_deploy_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_deploy_model"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor, "post_deploy_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_deploy_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.DeployModelRequest.pb(
             endpoint_service.DeployModelRequest()
         )
@@ -8189,6 +8277,7 @@ def test_deploy_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.deploy_model(
             request,
@@ -8200,6 +8289,7 @@ def test_deploy_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_undeploy_model_rest_bad_request(
@@ -8280,10 +8370,13 @@ def test_undeploy_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_undeploy_model"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor, "post_undeploy_model_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_undeploy_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.UndeployModelRequest.pb(
             endpoint_service.UndeployModelRequest()
         )
@@ -8307,6 +8400,7 @@ def test_undeploy_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.undeploy_model(
             request,
@@ -8318,6 +8412,7 @@ def test_undeploy_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_mutate_deployed_model_rest_bad_request(
@@ -8398,10 +8493,14 @@ def test_mutate_deployed_model_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.EndpointServiceRestInterceptor, "post_mutate_deployed_model"
     ) as post, mock.patch.object(
+        transports.EndpointServiceRestInterceptor,
+        "post_mutate_deployed_model_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.EndpointServiceRestInterceptor, "pre_mutate_deployed_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.MutateDeployedModelRequest.pb(
             endpoint_service.MutateDeployedModelRequest()
         )
@@ -8425,6 +8524,7 @@ def test_mutate_deployed_model_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.mutate_deployed_model(
             request,
@@ -8436,6 +8536,7 @@ def test_mutate_deployed_model_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -9580,10 +9681,14 @@ async def test_create_endpoint_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_create_endpoint"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_create_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_create_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.CreateEndpointRequest.pb(
             endpoint_service.CreateEndpointRequest()
         )
@@ -9607,6 +9712,7 @@ async def test_create_endpoint_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.create_endpoint(
             request,
@@ -9618,6 +9724,7 @@ async def test_create_endpoint_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9741,10 +9848,14 @@ async def test_get_endpoint_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_get_endpoint"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_get_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_get_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.GetEndpointRequest.pb(
             endpoint_service.GetEndpointRequest()
         )
@@ -9768,6 +9879,7 @@ async def test_get_endpoint_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = endpoint.Endpoint()
+        post_with_metadata.return_value = endpoint.Endpoint(), metadata
 
         await client.get_endpoint(
             request,
@@ -9779,6 +9891,7 @@ async def test_get_endpoint_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -9879,10 +9992,14 @@ async def test_list_endpoints_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_list_endpoints"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_list_endpoints_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_list_endpoints"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.ListEndpointsRequest.pb(
             endpoint_service.ListEndpointsRequest()
         )
@@ -9908,6 +10025,10 @@ async def test_list_endpoints_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = endpoint_service.ListEndpointsResponse()
+        post_with_metadata.return_value = (
+            endpoint_service.ListEndpointsResponse(),
+            metadata,
+        )
 
         await client.list_endpoints(
             request,
@@ -9919,6 +10040,7 @@ async def test_list_endpoints_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10250,10 +10372,14 @@ async def test_update_endpoint_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_update_endpoint"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_update_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_update_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.UpdateEndpointRequest.pb(
             endpoint_service.UpdateEndpointRequest()
         )
@@ -10277,6 +10403,7 @@ async def test_update_endpoint_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_endpoint.Endpoint()
+        post_with_metadata.return_value = gca_endpoint.Endpoint(), metadata
 
         await client.update_endpoint(
             request,
@@ -10288,6 +10415,7 @@ async def test_update_endpoint_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10390,10 +10518,14 @@ async def test_update_endpoint_long_running_rest_asyncio_interceptors(null_inter
         "post_update_endpoint_long_running",
     ) as post, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor,
+        "post_update_endpoint_long_running_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
         "pre_update_endpoint_long_running",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.UpdateEndpointLongRunningRequest.pb(
             endpoint_service.UpdateEndpointLongRunningRequest()
         )
@@ -10417,6 +10549,7 @@ async def test_update_endpoint_long_running_rest_asyncio_interceptors(null_inter
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.update_endpoint_long_running(
             request,
@@ -10428,6 +10561,7 @@ async def test_update_endpoint_long_running_rest_asyncio_interceptors(null_inter
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10524,10 +10658,14 @@ async def test_delete_endpoint_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_delete_endpoint"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_delete_endpoint_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_delete_endpoint"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.DeleteEndpointRequest.pb(
             endpoint_service.DeleteEndpointRequest()
         )
@@ -10551,6 +10689,7 @@ async def test_delete_endpoint_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_endpoint(
             request,
@@ -10562,6 +10701,7 @@ async def test_delete_endpoint_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10658,10 +10798,14 @@ async def test_deploy_model_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_deploy_model"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_deploy_model_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_deploy_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.DeployModelRequest.pb(
             endpoint_service.DeployModelRequest()
         )
@@ -10685,6 +10829,7 @@ async def test_deploy_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.deploy_model(
             request,
@@ -10696,6 +10841,7 @@ async def test_deploy_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10792,10 +10938,14 @@ async def test_undeploy_model_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_undeploy_model"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_undeploy_model_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_undeploy_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.UndeployModelRequest.pb(
             endpoint_service.UndeployModelRequest()
         )
@@ -10819,6 +10969,7 @@ async def test_undeploy_model_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.undeploy_model(
             request,
@@ -10830,6 +10981,7 @@ async def test_undeploy_model_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10926,10 +11078,14 @@ async def test_mutate_deployed_model_rest_asyncio_interceptors(null_interceptor)
     ), mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "post_mutate_deployed_model"
     ) as post, mock.patch.object(
+        transports.AsyncEndpointServiceRestInterceptor,
+        "post_mutate_deployed_model_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncEndpointServiceRestInterceptor, "pre_mutate_deployed_model"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = endpoint_service.MutateDeployedModelRequest.pb(
             endpoint_service.MutateDeployedModelRequest()
         )
@@ -10953,6 +11109,7 @@ async def test_mutate_deployed_model_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.mutate_deployed_model(
             request,
@@ -10964,6 +11121,7 @@ async def test_mutate_deployed_model_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

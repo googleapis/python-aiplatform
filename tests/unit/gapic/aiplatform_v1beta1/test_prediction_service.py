@@ -86,8 +86,17 @@ from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from google.type import latlng_pb2  # type: ignore
 import google.auth
+
+
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
 
 
 async def mock_async_gen(data, chunk_size=1):
@@ -354,6 +363,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         PredictionServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = PredictionServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = PredictionServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -4114,6 +4166,7 @@ def test_generate_content(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
         response = client.generate_content(request)
 
@@ -4126,6 +4179,7 @@ def test_generate_content(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 def test_generate_content_non_empty_request_with_auto_populated_field():
@@ -4257,6 +4311,7 @@ async def test_generate_content_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             prediction_service.GenerateContentResponse(
                 model_version="model_version_value",
+                response_id="response_id_value",
             )
         )
         response = await client.generate_content(request)
@@ -4270,6 +4325,7 @@ async def test_generate_content_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.asyncio
@@ -7692,6 +7748,7 @@ async def test_generate_content_empty_call_grpc_asyncio():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             prediction_service.GenerateContentResponse(
                 model_version="model_version_value",
+                response_id="response_id_value",
             )
         )
         await client.generate_content(request=None)
@@ -7849,10 +7906,13 @@ def test_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.PredictRequest.pb(
             prediction_service.PredictRequest()
         )
@@ -7878,6 +7938,7 @@ def test_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.PredictResponse()
+        post_with_metadata.return_value = prediction_service.PredictResponse(), metadata
 
         client.predict(
             request,
@@ -7889,6 +7950,7 @@ def test_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_raw_predict_rest_bad_request(
@@ -7972,10 +8034,13 @@ def test_raw_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_raw_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_raw_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.RawPredictRequest.pb(
             prediction_service.RawPredictRequest()
         )
@@ -7999,6 +8064,7 @@ def test_raw_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         client.raw_predict(
             request,
@@ -8010,6 +8076,7 @@ def test_raw_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stream_raw_predict_rest_bad_request(
@@ -8097,10 +8164,14 @@ def test_stream_raw_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_stream_raw_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_stream_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_stream_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamRawPredictRequest.pb(
             prediction_service.StreamRawPredictRequest()
         )
@@ -8124,6 +8195,7 @@ def test_stream_raw_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         client.stream_raw_predict(
             request,
@@ -8135,6 +8207,7 @@ def test_stream_raw_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_direct_predict_rest_bad_request(
@@ -8216,10 +8289,13 @@ def test_direct_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_direct_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_direct_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_direct_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectPredictRequest.pb(
             prediction_service.DirectPredictRequest()
         )
@@ -8245,6 +8321,10 @@ def test_direct_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectPredictResponse(),
+            metadata,
+        )
 
         client.direct_predict(
             request,
@@ -8256,6 +8336,7 @@ def test_direct_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_direct_raw_predict_rest_bad_request(
@@ -8340,10 +8421,14 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_direct_raw_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_direct_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_direct_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectRawPredictRequest.pb(
             prediction_service.DirectRawPredictRequest()
         )
@@ -8369,6 +8454,10 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectRawPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectRawPredictResponse(),
+            metadata,
+        )
 
         client.direct_raw_predict(
             request,
@@ -8380,6 +8469,7 @@ def test_direct_raw_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stream_direct_predict_rest_error():
@@ -8504,10 +8594,14 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_server_streaming_predict"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_server_streaming_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_server_streaming_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamingPredictRequest.pb(
             prediction_service.StreamingPredictRequest()
         )
@@ -8533,6 +8627,10 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.StreamingPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.StreamingPredictResponse(),
+            metadata,
+        )
 
         client.server_streaming_predict(
             request,
@@ -8544,6 +8642,7 @@ def test_server_streaming_predict_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_streaming_raw_predict_rest_error():
@@ -8639,10 +8738,13 @@ def test_explain_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_explain"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_explain_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_explain"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.ExplainRequest.pb(
             prediction_service.ExplainRequest()
         )
@@ -8668,6 +8770,7 @@ def test_explain_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.ExplainResponse()
+        post_with_metadata.return_value = prediction_service.ExplainResponse(), metadata
 
         client.explain(
             request,
@@ -8679,6 +8782,7 @@ def test_explain_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_count_tokens_rest_bad_request(
@@ -8765,10 +8869,13 @@ def test_count_tokens_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_count_tokens"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor, "post_count_tokens_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_count_tokens"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.CountTokensRequest.pb(
             prediction_service.CountTokensRequest()
         )
@@ -8794,6 +8901,10 @@ def test_count_tokens_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.CountTokensResponse()
+        post_with_metadata.return_value = (
+            prediction_service.CountTokensResponse(),
+            metadata,
+        )
 
         client.count_tokens(
             request,
@@ -8805,6 +8916,7 @@ def test_count_tokens_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_generate_content_rest_bad_request(
@@ -8853,6 +8965,7 @@ def test_generate_content_rest_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -8870,6 +8983,7 @@ def test_generate_content_rest_call_success(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -8889,10 +9003,14 @@ def test_generate_content_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_generate_content"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -8918,6 +9036,10 @@ def test_generate_content_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         client.generate_content(
             request,
@@ -8929,6 +9051,7 @@ def test_generate_content_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_stream_generate_content_rest_bad_request(
@@ -8977,6 +9100,7 @@ def test_stream_generate_content_rest_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -8998,6 +9122,7 @@ def test_stream_generate_content_rest_call_success(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -9017,10 +9142,14 @@ def test_stream_generate_content_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_stream_generate_content"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_stream_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_stream_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -9046,6 +9175,10 @@ def test_stream_generate_content_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         client.stream_generate_content(
             request,
@@ -9057,6 +9190,7 @@ def test_stream_generate_content_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_chat_completions_rest_bad_request(
@@ -9221,10 +9355,14 @@ def test_chat_completions_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "post_chat_completions"
     ) as post, mock.patch.object(
+        transports.PredictionServiceRestInterceptor,
+        "post_chat_completions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PredictionServiceRestInterceptor, "pre_chat_completions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.ChatCompletionsRequest.pb(
             prediction_service.ChatCompletionsRequest()
         )
@@ -9248,6 +9386,7 @@ def test_chat_completions_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         client.chat_completions(
             request,
@@ -9259,6 +9398,7 @@ def test_chat_completions_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -10236,10 +10376,13 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor, "post_predict_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.PredictRequest.pb(
             prediction_service.PredictRequest()
         )
@@ -10265,6 +10408,7 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.PredictResponse()
+        post_with_metadata.return_value = prediction_service.PredictResponse(), metadata
 
         await client.predict(
             request,
@@ -10276,6 +10420,7 @@ async def test_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10375,10 +10520,14 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_raw_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.RawPredictRequest.pb(
             prediction_service.RawPredictRequest()
         )
@@ -10402,6 +10551,7 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         await client.raw_predict(
             request,
@@ -10413,6 +10563,7 @@ async def test_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10514,10 +10665,14 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_stream_raw_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_stream_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_stream_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamRawPredictRequest.pb(
             prediction_service.StreamRawPredictRequest()
         )
@@ -10541,6 +10696,7 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         await client.stream_raw_predict(
             request,
@@ -10552,6 +10708,7 @@ async def test_stream_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10649,10 +10806,14 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_direct_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_direct_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_direct_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectPredictRequest.pb(
             prediction_service.DirectPredictRequest()
         )
@@ -10678,6 +10839,10 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectPredictResponse(),
+            metadata,
+        )
 
         await client.direct_predict(
             request,
@@ -10689,6 +10854,7 @@ async def test_direct_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10789,10 +10955,14 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_direct_raw_predict"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_direct_raw_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_direct_raw_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.DirectRawPredictRequest.pb(
             prediction_service.DirectRawPredictRequest()
         )
@@ -10818,6 +10988,10 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.DirectRawPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.DirectRawPredictResponse(),
+            metadata,
+        )
 
         await client.direct_raw_predict(
             request,
@@ -10829,6 +11003,7 @@ async def test_direct_raw_predict_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -10983,10 +11158,14 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
         transports.AsyncPredictionServiceRestInterceptor,
         "post_server_streaming_predict",
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_server_streaming_predict_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_server_streaming_predict"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.StreamingPredictRequest.pb(
             prediction_service.StreamingPredictRequest()
         )
@@ -11012,6 +11191,10 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.StreamingPredictResponse()
+        post_with_metadata.return_value = (
+            prediction_service.StreamingPredictResponse(),
+            metadata,
+        )
 
         await client.server_streaming_predict(
             request,
@@ -11023,6 +11206,7 @@ async def test_server_streaming_predict_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11141,10 +11325,13 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_explain"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor, "post_explain_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_explain"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.ExplainRequest.pb(
             prediction_service.ExplainRequest()
         )
@@ -11170,6 +11357,7 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.ExplainResponse()
+        post_with_metadata.return_value = prediction_service.ExplainResponse(), metadata
 
         await client.explain(
             request,
@@ -11181,6 +11369,7 @@ async def test_explain_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11283,10 +11472,14 @@ async def test_count_tokens_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_count_tokens"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_count_tokens_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_count_tokens"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.CountTokensRequest.pb(
             prediction_service.CountTokensRequest()
         )
@@ -11312,6 +11505,10 @@ async def test_count_tokens_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.CountTokensResponse()
+        post_with_metadata.return_value = (
+            prediction_service.CountTokensResponse(),
+            metadata,
+        )
 
         await client.count_tokens(
             request,
@@ -11323,6 +11520,7 @@ async def test_count_tokens_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11380,6 +11578,7 @@ async def test_generate_content_rest_asyncio_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -11399,6 +11598,7 @@ async def test_generate_content_rest_asyncio_call_success(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.asyncio
@@ -11423,10 +11623,14 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_generate_content"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -11452,6 +11656,10 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         await client.generate_content(
             request,
@@ -11463,6 +11671,7 @@ async def test_generate_content_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11520,6 +11729,7 @@ async def test_stream_generate_content_rest_asyncio_call_success(request_type):
         # Designate an appropriate value for the returned response.
         return_value = prediction_service.GenerateContentResponse(
             model_version="model_version_value",
+            response_id="response_id_value",
         )
 
         # Wrap the value into a proper Response obj
@@ -11541,6 +11751,7 @@ async def test_stream_generate_content_rest_asyncio_call_success(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.GenerateContentResponse)
     assert response.model_version == "model_version_value"
+    assert response.response_id == "response_id_value"
 
 
 @pytest.mark.asyncio
@@ -11565,10 +11776,14 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_stream_generate_content"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_stream_generate_content_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_stream_generate_content"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.GenerateContentRequest.pb(
             prediction_service.GenerateContentRequest()
         )
@@ -11594,6 +11809,10 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = prediction_service.GenerateContentResponse()
+        post_with_metadata.return_value = (
+            prediction_service.GenerateContentResponse(),
+            metadata,
+        )
 
         await client.stream_generate_content(
             request,
@@ -11605,6 +11824,7 @@ async def test_stream_generate_content_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -11783,10 +12003,14 @@ async def test_chat_completions_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "post_chat_completions"
     ) as post, mock.patch.object(
+        transports.AsyncPredictionServiceRestInterceptor,
+        "post_chat_completions_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPredictionServiceRestInterceptor, "pre_chat_completions"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = prediction_service.ChatCompletionsRequest.pb(
             prediction_service.ChatCompletionsRequest()
         )
@@ -11810,6 +12034,7 @@ async def test_chat_completions_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = httpbody_pb2.HttpBody()
+        post_with_metadata.return_value = httpbody_pb2.HttpBody(), metadata
 
         await client.chat_completions(
             request,
@@ -11821,6 +12046,7 @@ async def test_chat_completions_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

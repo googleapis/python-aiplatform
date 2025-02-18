@@ -374,11 +374,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
         """Post-rpc interceptor for batch_create_tensorboard_runs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_create_tensorboard_runs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_create_tensorboard_runs` interceptor runs
+        before the `post_batch_create_tensorboard_runs_with_metadata` interceptor.
         """
         return response
+
+    async def post_batch_create_tensorboard_runs_with_metadata(
+        self,
+        response: tensorboard_service.BatchCreateTensorboardRunsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.BatchCreateTensorboardRunsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for batch_create_tensorboard_runs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_create_tensorboard_runs_with_metadata`
+        interceptor in new development instead of the `post_batch_create_tensorboard_runs` interceptor.
+        When both interceptors are used, this `post_batch_create_tensorboard_runs_with_metadata` interceptor runs after the
+        `post_batch_create_tensorboard_runs` interceptor. The (possibly modified) response returned by
+        `post_batch_create_tensorboard_runs` will be passed to
+        `post_batch_create_tensorboard_runs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_batch_create_tensorboard_time_series(
         self,
@@ -400,11 +426,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
         """Post-rpc interceptor for batch_create_tensorboard_time_series
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_create_tensorboard_time_series_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_create_tensorboard_time_series` interceptor runs
+        before the `post_batch_create_tensorboard_time_series_with_metadata` interceptor.
         """
         return response
+
+    async def post_batch_create_tensorboard_time_series_with_metadata(
+        self,
+        response: tensorboard_service.BatchCreateTensorboardTimeSeriesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.BatchCreateTensorboardTimeSeriesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for batch_create_tensorboard_time_series
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_create_tensorboard_time_series_with_metadata`
+        interceptor in new development instead of the `post_batch_create_tensorboard_time_series` interceptor.
+        When both interceptors are used, this `post_batch_create_tensorboard_time_series_with_metadata` interceptor runs after the
+        `post_batch_create_tensorboard_time_series` interceptor. The (possibly modified) response returned by
+        `post_batch_create_tensorboard_time_series` will be passed to
+        `post_batch_create_tensorboard_time_series_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_batch_read_tensorboard_time_series_data(
         self,
@@ -426,11 +478,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse:
         """Post-rpc interceptor for batch_read_tensorboard_time_series_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_read_tensorboard_time_series_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_read_tensorboard_time_series_data` interceptor runs
+        before the `post_batch_read_tensorboard_time_series_data_with_metadata` interceptor.
         """
         return response
+
+    async def post_batch_read_tensorboard_time_series_data_with_metadata(
+        self,
+        response: tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for batch_read_tensorboard_time_series_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_read_tensorboard_time_series_data_with_metadata`
+        interceptor in new development instead of the `post_batch_read_tensorboard_time_series_data` interceptor.
+        When both interceptors are used, this `post_batch_read_tensorboard_time_series_data_with_metadata` interceptor runs after the
+        `post_batch_read_tensorboard_time_series_data` interceptor. The (possibly modified) response returned by
+        `post_batch_read_tensorboard_time_series_data` will be passed to
+        `post_batch_read_tensorboard_time_series_data_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_tensorboard(
         self,
@@ -452,11 +530,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_tensorboard
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_tensorboard_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_tensorboard` interceptor runs
+        before the `post_create_tensorboard_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_tensorboard_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_tensorboard
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_create_tensorboard_with_metadata`
+        interceptor in new development instead of the `post_create_tensorboard` interceptor.
+        When both interceptors are used, this `post_create_tensorboard_with_metadata` interceptor runs after the
+        `post_create_tensorboard` interceptor. The (possibly modified) response returned by
+        `post_create_tensorboard` will be passed to
+        `post_create_tensorboard_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_tensorboard_experiment(
         self,
@@ -478,11 +579,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         """Post-rpc interceptor for create_tensorboard_experiment
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_tensorboard_experiment_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_tensorboard_experiment` interceptor runs
+        before the `post_create_tensorboard_experiment_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_tensorboard_experiment_with_metadata(
+        self,
+        response: gca_tensorboard_experiment.TensorboardExperiment,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_tensorboard_experiment.TensorboardExperiment,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for create_tensorboard_experiment
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_create_tensorboard_experiment_with_metadata`
+        interceptor in new development instead of the `post_create_tensorboard_experiment` interceptor.
+        When both interceptors are used, this `post_create_tensorboard_experiment_with_metadata` interceptor runs after the
+        `post_create_tensorboard_experiment` interceptor. The (possibly modified) response returned by
+        `post_create_tensorboard_experiment` will be passed to
+        `post_create_tensorboard_experiment_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_tensorboard_run(
         self,
@@ -504,11 +631,36 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> gca_tensorboard_run.TensorboardRun:
         """Post-rpc interceptor for create_tensorboard_run
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_tensorboard_run_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_tensorboard_run` interceptor runs
+        before the `post_create_tensorboard_run_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_tensorboard_run_with_metadata(
+        self,
+        response: gca_tensorboard_run.TensorboardRun,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_tensorboard_run.TensorboardRun, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for create_tensorboard_run
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_create_tensorboard_run_with_metadata`
+        interceptor in new development instead of the `post_create_tensorboard_run` interceptor.
+        When both interceptors are used, this `post_create_tensorboard_run_with_metadata` interceptor runs after the
+        `post_create_tensorboard_run` interceptor. The (possibly modified) response returned by
+        `post_create_tensorboard_run` will be passed to
+        `post_create_tensorboard_run_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_tensorboard_time_series(
         self,
@@ -530,11 +682,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         """Post-rpc interceptor for create_tensorboard_time_series
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_tensorboard_time_series_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_tensorboard_time_series` interceptor runs
+        before the `post_create_tensorboard_time_series_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_tensorboard_time_series_with_metadata(
+        self,
+        response: gca_tensorboard_time_series.TensorboardTimeSeries,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_tensorboard_time_series.TensorboardTimeSeries,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for create_tensorboard_time_series
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_create_tensorboard_time_series_with_metadata`
+        interceptor in new development instead of the `post_create_tensorboard_time_series` interceptor.
+        When both interceptors are used, this `post_create_tensorboard_time_series_with_metadata` interceptor runs after the
+        `post_create_tensorboard_time_series` interceptor. The (possibly modified) response returned by
+        `post_create_tensorboard_time_series` will be passed to
+        `post_create_tensorboard_time_series_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_tensorboard(
         self,
@@ -556,11 +734,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_tensorboard
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_tensorboard_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_tensorboard` interceptor runs
+        before the `post_delete_tensorboard_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_tensorboard_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_tensorboard
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_tensorboard_with_metadata`
+        interceptor in new development instead of the `post_delete_tensorboard` interceptor.
+        When both interceptors are used, this `post_delete_tensorboard_with_metadata` interceptor runs after the
+        `post_delete_tensorboard` interceptor. The (possibly modified) response returned by
+        `post_delete_tensorboard` will be passed to
+        `post_delete_tensorboard_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_tensorboard_experiment(
         self,
@@ -582,11 +783,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_tensorboard_experiment
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_tensorboard_experiment_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_tensorboard_experiment` interceptor runs
+        before the `post_delete_tensorboard_experiment_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_tensorboard_experiment_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_tensorboard_experiment
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_tensorboard_experiment_with_metadata`
+        interceptor in new development instead of the `post_delete_tensorboard_experiment` interceptor.
+        When both interceptors are used, this `post_delete_tensorboard_experiment_with_metadata` interceptor runs after the
+        `post_delete_tensorboard_experiment` interceptor. The (possibly modified) response returned by
+        `post_delete_tensorboard_experiment` will be passed to
+        `post_delete_tensorboard_experiment_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_tensorboard_run(
         self,
@@ -608,11 +832,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_tensorboard_run
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_tensorboard_run_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_tensorboard_run` interceptor runs
+        before the `post_delete_tensorboard_run_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_tensorboard_run_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_tensorboard_run
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_tensorboard_run_with_metadata`
+        interceptor in new development instead of the `post_delete_tensorboard_run` interceptor.
+        When both interceptors are used, this `post_delete_tensorboard_run_with_metadata` interceptor runs after the
+        `post_delete_tensorboard_run` interceptor. The (possibly modified) response returned by
+        `post_delete_tensorboard_run` will be passed to
+        `post_delete_tensorboard_run_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_tensorboard_time_series(
         self,
@@ -634,11 +881,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_tensorboard_time_series
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_tensorboard_time_series_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_tensorboard_time_series` interceptor runs
+        before the `post_delete_tensorboard_time_series_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_tensorboard_time_series_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_tensorboard_time_series
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_tensorboard_time_series_with_metadata`
+        interceptor in new development instead of the `post_delete_tensorboard_time_series` interceptor.
+        When both interceptors are used, this `post_delete_tensorboard_time_series_with_metadata` interceptor runs after the
+        `post_delete_tensorboard_time_series` interceptor. The (possibly modified) response returned by
+        `post_delete_tensorboard_time_series` will be passed to
+        `post_delete_tensorboard_time_series_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_export_tensorboard_time_series_data(
         self,
@@ -660,11 +930,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ExportTensorboardTimeSeriesDataResponse:
         """Post-rpc interceptor for export_tensorboard_time_series_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_export_tensorboard_time_series_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_export_tensorboard_time_series_data` interceptor runs
+        before the `post_export_tensorboard_time_series_data_with_metadata` interceptor.
         """
         return response
+
+    async def post_export_tensorboard_time_series_data_with_metadata(
+        self,
+        response: tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for export_tensorboard_time_series_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_export_tensorboard_time_series_data_with_metadata`
+        interceptor in new development instead of the `post_export_tensorboard_time_series_data` interceptor.
+        When both interceptors are used, this `post_export_tensorboard_time_series_data_with_metadata` interceptor runs after the
+        `post_export_tensorboard_time_series_data` interceptor. The (possibly modified) response returned by
+        `post_export_tensorboard_time_series_data` will be passed to
+        `post_export_tensorboard_time_series_data_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_tensorboard(
         self,
@@ -686,11 +982,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard.Tensorboard:
         """Post-rpc interceptor for get_tensorboard
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_tensorboard_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_tensorboard` interceptor runs
+        before the `post_get_tensorboard_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_tensorboard_with_metadata(
+        self,
+        response: tensorboard.Tensorboard,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[tensorboard.Tensorboard, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_tensorboard
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_get_tensorboard_with_metadata`
+        interceptor in new development instead of the `post_get_tensorboard` interceptor.
+        When both interceptors are used, this `post_get_tensorboard_with_metadata` interceptor runs after the
+        `post_get_tensorboard` interceptor. The (possibly modified) response returned by
+        `post_get_tensorboard` will be passed to
+        `post_get_tensorboard_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_tensorboard_experiment(
         self,
@@ -712,11 +1031,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_experiment.TensorboardExperiment:
         """Post-rpc interceptor for get_tensorboard_experiment
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_tensorboard_experiment_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_tensorboard_experiment` interceptor runs
+        before the `post_get_tensorboard_experiment_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_tensorboard_experiment_with_metadata(
+        self,
+        response: tensorboard_experiment.TensorboardExperiment,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_experiment.TensorboardExperiment,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for get_tensorboard_experiment
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_get_tensorboard_experiment_with_metadata`
+        interceptor in new development instead of the `post_get_tensorboard_experiment` interceptor.
+        When both interceptors are used, this `post_get_tensorboard_experiment_with_metadata` interceptor runs after the
+        `post_get_tensorboard_experiment` interceptor. The (possibly modified) response returned by
+        `post_get_tensorboard_experiment` will be passed to
+        `post_get_tensorboard_experiment_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_tensorboard_run(
         self,
@@ -738,11 +1083,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_run.TensorboardRun:
         """Post-rpc interceptor for get_tensorboard_run
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_tensorboard_run_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_tensorboard_run` interceptor runs
+        before the `post_get_tensorboard_run_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_tensorboard_run_with_metadata(
+        self,
+        response: tensorboard_run.TensorboardRun,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[tensorboard_run.TensorboardRun, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_tensorboard_run
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_get_tensorboard_run_with_metadata`
+        interceptor in new development instead of the `post_get_tensorboard_run` interceptor.
+        When both interceptors are used, this `post_get_tensorboard_run_with_metadata` interceptor runs after the
+        `post_get_tensorboard_run` interceptor. The (possibly modified) response returned by
+        `post_get_tensorboard_run` will be passed to
+        `post_get_tensorboard_run_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_tensorboard_time_series(
         self,
@@ -764,11 +1132,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_time_series.TensorboardTimeSeries:
         """Post-rpc interceptor for get_tensorboard_time_series
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_tensorboard_time_series_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_tensorboard_time_series` interceptor runs
+        before the `post_get_tensorboard_time_series_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_tensorboard_time_series_with_metadata(
+        self,
+        response: tensorboard_time_series.TensorboardTimeSeries,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_time_series.TensorboardTimeSeries,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for get_tensorboard_time_series
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_get_tensorboard_time_series_with_metadata`
+        interceptor in new development instead of the `post_get_tensorboard_time_series` interceptor.
+        When both interceptors are used, this `post_get_tensorboard_time_series_with_metadata` interceptor runs after the
+        `post_get_tensorboard_time_series` interceptor. The (possibly modified) response returned by
+        `post_get_tensorboard_time_series` will be passed to
+        `post_get_tensorboard_time_series_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_tensorboard_experiments(
         self,
@@ -790,11 +1184,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ListTensorboardExperimentsResponse:
         """Post-rpc interceptor for list_tensorboard_experiments
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_tensorboard_experiments_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_tensorboard_experiments` interceptor runs
+        before the `post_list_tensorboard_experiments_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_tensorboard_experiments_with_metadata(
+        self,
+        response: tensorboard_service.ListTensorboardExperimentsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ListTensorboardExperimentsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_tensorboard_experiments
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_list_tensorboard_experiments_with_metadata`
+        interceptor in new development instead of the `post_list_tensorboard_experiments` interceptor.
+        When both interceptors are used, this `post_list_tensorboard_experiments_with_metadata` interceptor runs after the
+        `post_list_tensorboard_experiments` interceptor. The (possibly modified) response returned by
+        `post_list_tensorboard_experiments` will be passed to
+        `post_list_tensorboard_experiments_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_tensorboard_runs(
         self,
@@ -816,11 +1236,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ListTensorboardRunsResponse:
         """Post-rpc interceptor for list_tensorboard_runs
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_tensorboard_runs_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_tensorboard_runs` interceptor runs
+        before the `post_list_tensorboard_runs_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_tensorboard_runs_with_metadata(
+        self,
+        response: tensorboard_service.ListTensorboardRunsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ListTensorboardRunsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_tensorboard_runs
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_list_tensorboard_runs_with_metadata`
+        interceptor in new development instead of the `post_list_tensorboard_runs` interceptor.
+        When both interceptors are used, this `post_list_tensorboard_runs_with_metadata` interceptor runs after the
+        `post_list_tensorboard_runs` interceptor. The (possibly modified) response returned by
+        `post_list_tensorboard_runs` will be passed to
+        `post_list_tensorboard_runs_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_tensorboards(
         self,
@@ -842,11 +1288,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ListTensorboardsResponse:
         """Post-rpc interceptor for list_tensorboards
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_tensorboards_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_tensorboards` interceptor runs
+        before the `post_list_tensorboards_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_tensorboards_with_metadata(
+        self,
+        response: tensorboard_service.ListTensorboardsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ListTensorboardsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_tensorboards
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_list_tensorboards_with_metadata`
+        interceptor in new development instead of the `post_list_tensorboards` interceptor.
+        When both interceptors are used, this `post_list_tensorboards_with_metadata` interceptor runs after the
+        `post_list_tensorboards` interceptor. The (possibly modified) response returned by
+        `post_list_tensorboards` will be passed to
+        `post_list_tensorboards_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_tensorboard_time_series(
         self,
@@ -868,11 +1340,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ListTensorboardTimeSeriesResponse:
         """Post-rpc interceptor for list_tensorboard_time_series
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_tensorboard_time_series_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_tensorboard_time_series` interceptor runs
+        before the `post_list_tensorboard_time_series_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_tensorboard_time_series_with_metadata(
+        self,
+        response: tensorboard_service.ListTensorboardTimeSeriesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ListTensorboardTimeSeriesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_tensorboard_time_series
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_list_tensorboard_time_series_with_metadata`
+        interceptor in new development instead of the `post_list_tensorboard_time_series` interceptor.
+        When both interceptors are used, this `post_list_tensorboard_time_series_with_metadata` interceptor runs after the
+        `post_list_tensorboard_time_series` interceptor. The (possibly modified) response returned by
+        `post_list_tensorboard_time_series` will be passed to
+        `post_list_tensorboard_time_series_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_read_tensorboard_blob_data(
         self,
@@ -894,11 +1392,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> rest_streaming_async.AsyncResponseIterator:
         """Post-rpc interceptor for read_tensorboard_blob_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_read_tensorboard_blob_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_read_tensorboard_blob_data` interceptor runs
+        before the `post_read_tensorboard_blob_data_with_metadata` interceptor.
         """
         return response
+
+    async def post_read_tensorboard_blob_data_with_metadata(
+        self,
+        response: rest_streaming_async.AsyncResponseIterator,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        rest_streaming_async.AsyncResponseIterator,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for read_tensorboard_blob_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_read_tensorboard_blob_data_with_metadata`
+        interceptor in new development instead of the `post_read_tensorboard_blob_data` interceptor.
+        When both interceptors are used, this `post_read_tensorboard_blob_data_with_metadata` interceptor runs after the
+        `post_read_tensorboard_blob_data` interceptor. The (possibly modified) response returned by
+        `post_read_tensorboard_blob_data` will be passed to
+        `post_read_tensorboard_blob_data_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_read_tensorboard_size(
         self,
@@ -920,11 +1444,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ReadTensorboardSizeResponse:
         """Post-rpc interceptor for read_tensorboard_size
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_read_tensorboard_size_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_read_tensorboard_size` interceptor runs
+        before the `post_read_tensorboard_size_with_metadata` interceptor.
         """
         return response
+
+    async def post_read_tensorboard_size_with_metadata(
+        self,
+        response: tensorboard_service.ReadTensorboardSizeResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ReadTensorboardSizeResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for read_tensorboard_size
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_read_tensorboard_size_with_metadata`
+        interceptor in new development instead of the `post_read_tensorboard_size` interceptor.
+        When both interceptors are used, this `post_read_tensorboard_size_with_metadata` interceptor runs after the
+        `post_read_tensorboard_size` interceptor. The (possibly modified) response returned by
+        `post_read_tensorboard_size` will be passed to
+        `post_read_tensorboard_size_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_read_tensorboard_time_series_data(
         self,
@@ -946,11 +1496,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
         """Post-rpc interceptor for read_tensorboard_time_series_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_read_tensorboard_time_series_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_read_tensorboard_time_series_data` interceptor runs
+        before the `post_read_tensorboard_time_series_data_with_metadata` interceptor.
         """
         return response
+
+    async def post_read_tensorboard_time_series_data_with_metadata(
+        self,
+        response: tensorboard_service.ReadTensorboardTimeSeriesDataResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ReadTensorboardTimeSeriesDataResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for read_tensorboard_time_series_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_read_tensorboard_time_series_data_with_metadata`
+        interceptor in new development instead of the `post_read_tensorboard_time_series_data` interceptor.
+        When both interceptors are used, this `post_read_tensorboard_time_series_data_with_metadata` interceptor runs after the
+        `post_read_tensorboard_time_series_data` interceptor. The (possibly modified) response returned by
+        `post_read_tensorboard_time_series_data` will be passed to
+        `post_read_tensorboard_time_series_data_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_read_tensorboard_usage(
         self,
@@ -972,11 +1548,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.ReadTensorboardUsageResponse:
         """Post-rpc interceptor for read_tensorboard_usage
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_read_tensorboard_usage_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_read_tensorboard_usage` interceptor runs
+        before the `post_read_tensorboard_usage_with_metadata` interceptor.
         """
         return response
+
+    async def post_read_tensorboard_usage_with_metadata(
+        self,
+        response: tensorboard_service.ReadTensorboardUsageResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.ReadTensorboardUsageResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for read_tensorboard_usage
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_read_tensorboard_usage_with_metadata`
+        interceptor in new development instead of the `post_read_tensorboard_usage` interceptor.
+        When both interceptors are used, this `post_read_tensorboard_usage_with_metadata` interceptor runs after the
+        `post_read_tensorboard_usage` interceptor. The (possibly modified) response returned by
+        `post_read_tensorboard_usage` will be passed to
+        `post_read_tensorboard_usage_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_tensorboard(
         self,
@@ -998,11 +1600,34 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_tensorboard
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_tensorboard_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_tensorboard` interceptor runs
+        before the `post_update_tensorboard_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_tensorboard_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_tensorboard
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_update_tensorboard_with_metadata`
+        interceptor in new development instead of the `post_update_tensorboard` interceptor.
+        When both interceptors are used, this `post_update_tensorboard_with_metadata` interceptor runs after the
+        `post_update_tensorboard` interceptor. The (possibly modified) response returned by
+        `post_update_tensorboard` will be passed to
+        `post_update_tensorboard_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_tensorboard_experiment(
         self,
@@ -1024,11 +1649,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         """Post-rpc interceptor for update_tensorboard_experiment
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_tensorboard_experiment_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_tensorboard_experiment` interceptor runs
+        before the `post_update_tensorboard_experiment_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_tensorboard_experiment_with_metadata(
+        self,
+        response: gca_tensorboard_experiment.TensorboardExperiment,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_tensorboard_experiment.TensorboardExperiment,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for update_tensorboard_experiment
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_update_tensorboard_experiment_with_metadata`
+        interceptor in new development instead of the `post_update_tensorboard_experiment` interceptor.
+        When both interceptors are used, this `post_update_tensorboard_experiment_with_metadata` interceptor runs after the
+        `post_update_tensorboard_experiment` interceptor. The (possibly modified) response returned by
+        `post_update_tensorboard_experiment` will be passed to
+        `post_update_tensorboard_experiment_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_tensorboard_run(
         self,
@@ -1050,11 +1701,36 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> gca_tensorboard_run.TensorboardRun:
         """Post-rpc interceptor for update_tensorboard_run
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_tensorboard_run_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_tensorboard_run` interceptor runs
+        before the `post_update_tensorboard_run_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_tensorboard_run_with_metadata(
+        self,
+        response: gca_tensorboard_run.TensorboardRun,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_tensorboard_run.TensorboardRun, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for update_tensorboard_run
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_update_tensorboard_run_with_metadata`
+        interceptor in new development instead of the `post_update_tensorboard_run` interceptor.
+        When both interceptors are used, this `post_update_tensorboard_run_with_metadata` interceptor runs after the
+        `post_update_tensorboard_run` interceptor. The (possibly modified) response returned by
+        `post_update_tensorboard_run` will be passed to
+        `post_update_tensorboard_run_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_tensorboard_time_series(
         self,
@@ -1076,11 +1752,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         """Post-rpc interceptor for update_tensorboard_time_series
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_tensorboard_time_series_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_tensorboard_time_series` interceptor runs
+        before the `post_update_tensorboard_time_series_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_tensorboard_time_series_with_metadata(
+        self,
+        response: gca_tensorboard_time_series.TensorboardTimeSeries,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_tensorboard_time_series.TensorboardTimeSeries,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for update_tensorboard_time_series
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_update_tensorboard_time_series_with_metadata`
+        interceptor in new development instead of the `post_update_tensorboard_time_series` interceptor.
+        When both interceptors are used, this `post_update_tensorboard_time_series_with_metadata` interceptor runs after the
+        `post_update_tensorboard_time_series` interceptor. The (possibly modified) response returned by
+        `post_update_tensorboard_time_series` will be passed to
+        `post_update_tensorboard_time_series_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_write_tensorboard_experiment_data(
         self,
@@ -1102,11 +1804,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.WriteTensorboardExperimentDataResponse:
         """Post-rpc interceptor for write_tensorboard_experiment_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_write_tensorboard_experiment_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_write_tensorboard_experiment_data` interceptor runs
+        before the `post_write_tensorboard_experiment_data_with_metadata` interceptor.
         """
         return response
+
+    async def post_write_tensorboard_experiment_data_with_metadata(
+        self,
+        response: tensorboard_service.WriteTensorboardExperimentDataResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.WriteTensorboardExperimentDataResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for write_tensorboard_experiment_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_write_tensorboard_experiment_data_with_metadata`
+        interceptor in new development instead of the `post_write_tensorboard_experiment_data` interceptor.
+        When both interceptors are used, this `post_write_tensorboard_experiment_data_with_metadata` interceptor runs after the
+        `post_write_tensorboard_experiment_data` interceptor. The (possibly modified) response returned by
+        `post_write_tensorboard_experiment_data` will be passed to
+        `post_write_tensorboard_experiment_data_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_write_tensorboard_run_data(
         self,
@@ -1128,11 +1856,37 @@ class AsyncTensorboardServiceRestInterceptor:
     ) -> tensorboard_service.WriteTensorboardRunDataResponse:
         """Post-rpc interceptor for write_tensorboard_run_data
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_write_tensorboard_run_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the TensorboardService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_write_tensorboard_run_data` interceptor runs
+        before the `post_write_tensorboard_run_data_with_metadata` interceptor.
         """
         return response
+
+    async def post_write_tensorboard_run_data_with_metadata(
+        self,
+        response: tensorboard_service.WriteTensorboardRunDataResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        tensorboard_service.WriteTensorboardRunDataResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for write_tensorboard_run_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the TensorboardService server but before it is returned to user code.
+
+        We recommend only using this `post_write_tensorboard_run_data_with_metadata`
+        interceptor in new development instead of the `post_write_tensorboard_run_data` interceptor.
+        When both interceptors are used, this `post_write_tensorboard_run_data_with_metadata` interceptor runs after the
+        `post_write_tensorboard_run_data` interceptor. The (possibly modified) response returned by
+        `post_write_tensorboard_run_data` will be passed to
+        `post_write_tensorboard_run_data_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -1797,6 +2551,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_create_tensorboard_runs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_batch_create_tensorboard_runs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1970,6 +2731,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             resp = await self._interceptor.post_batch_create_tensorboard_time_series(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_batch_create_tensorboard_time_series_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2135,6 +2903,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             resp = await self._interceptor.post_batch_read_tensorboard_time_series_data(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_batch_read_tensorboard_time_series_data_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2297,6 +3072,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_tensorboard(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_tensorboard_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2464,6 +3243,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_tensorboard_experiment(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_create_tensorboard_experiment_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2629,6 +3415,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_tensorboard_run(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_tensorboard_run_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2796,6 +3586,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_tensorboard_time_series(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_create_tensorboard_time_series_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2954,6 +3751,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_tensorboard(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_tensorboard_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3114,6 +3915,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_tensorboard_experiment(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_delete_tensorboard_experiment_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3268,6 +4076,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_tensorboard_run(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_tensorboard_run_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3428,6 +4240,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_tensorboard_time_series(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_delete_tensorboard_time_series_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3597,6 +4416,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             resp = await self._interceptor.post_export_tensorboard_time_series_data(
                 resp
             )
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_export_tensorboard_time_series_data_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3756,6 +4582,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_tensorboard(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_tensorboard_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3912,6 +4742,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_tensorboard_experiment(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_get_tensorboard_experiment_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4069,6 +4906,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_tensorboard_run(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_tensorboard_run_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4223,6 +5064,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_tensorboard_time_series(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_get_tensorboard_time_series_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4384,6 +5232,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_tensorboard_experiments(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_list_tensorboard_experiments_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4541,6 +5396,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_tensorboard_runs(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_tensorboard_runs_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4698,6 +5557,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_tensorboards(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_tensorboards_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4859,6 +5722,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_tensorboard_time_series(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_list_tensorboard_time_series_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5016,6 +5886,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                 response, tensorboard_service.ReadTensorboardBlobDataResponse
             )
             resp = await self._interceptor.post_read_tensorboard_blob_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_read_tensorboard_blob_data_with_metadata(
+                resp, response_metadata
+            )
             return resp
 
     class _ReadTensorboardSize(
@@ -5147,6 +6024,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_read_tensorboard_size(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_read_tensorboard_size_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5310,6 +6191,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_read_tensorboard_time_series_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_read_tensorboard_time_series_data_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5465,6 +6353,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_read_tensorboard_usage(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_read_tensorboard_usage_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5629,6 +6521,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_tensorboard(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_tensorboard_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5796,6 +6692,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_tensorboard_experiment(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_update_tensorboard_experiment_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5961,6 +6864,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_tensorboard_run(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_tensorboard_run_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6128,6 +7035,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_tensorboard_time_series(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_update_tensorboard_time_series_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6299,6 +7213,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_write_tensorboard_experiment_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_write_tensorboard_experiment_data_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -6461,6 +7382,13 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_write_tensorboard_run_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = await self._interceptor.post_write_tensorboard_run_data_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

@@ -107,6 +107,14 @@ from google.rpc import status_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -362,6 +370,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         PipelineServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = PipelineServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = PipelineServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -9049,6 +9100,7 @@ def test_create_training_pipeline_rest_call_success(request_type):
             "display_name": "display_name_value",
             "description": "description_value",
             "version_description": "version_description_value",
+            "default_checkpoint_id": "default_checkpoint_id_value",
             "predict_schemata": {
                 "instance_schema_uri": "instance_schema_uri_value",
                 "parameters_schema_uri": "parameters_schema_uri_value",
@@ -9074,10 +9126,25 @@ def test_create_training_pipeline_rest_call_success(request_type):
                 "shared_memory_size_mb": 2231,
                 "startup_probe": {
                     "exec_": {"command": ["command_value1", "command_value2"]},
+                    "http_get": {
+                        "path": "path_value",
+                        "port": 453,
+                        "host": "host_value",
+                        "scheme": "scheme_value",
+                        "http_headers": [
+                            {"name": "name_value", "value": "value_value"}
+                        ],
+                    },
+                    "grpc": {"port": 453, "service": "service_value"},
+                    "tcp_socket": {"port": 453, "host": "host_value"},
                     "period_seconds": 1489,
                     "timeout_seconds": 1621,
+                    "failure_threshold": 1812,
+                    "success_threshold": 1829,
+                    "initial_delay_seconds": 2214,
                 },
                 "health_probe": {},
+                "liveness_probe": {},
             },
             "artifact_uri": "artifact_uri_value",
             "supported_deployment_resources_types": [1],
@@ -9298,10 +9365,14 @@ def test_create_training_pipeline_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_create_training_pipeline"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_create_training_pipeline_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_create_training_pipeline"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.CreateTrainingPipelineRequest.pb(
             pipeline_service.CreateTrainingPipelineRequest()
         )
@@ -9327,6 +9398,10 @@ def test_create_training_pipeline_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_training_pipeline.TrainingPipeline()
+        post_with_metadata.return_value = (
+            gca_training_pipeline.TrainingPipeline(),
+            metadata,
+        )
 
         client.create_training_pipeline(
             request,
@@ -9338,6 +9413,7 @@ def test_create_training_pipeline_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_training_pipeline_rest_bad_request(
@@ -9436,10 +9512,14 @@ def test_get_training_pipeline_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_get_training_pipeline"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_get_training_pipeline_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_get_training_pipeline"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.GetTrainingPipelineRequest.pb(
             pipeline_service.GetTrainingPipelineRequest()
         )
@@ -9465,6 +9545,7 @@ def test_get_training_pipeline_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = training_pipeline.TrainingPipeline()
+        post_with_metadata.return_value = training_pipeline.TrainingPipeline(), metadata
 
         client.get_training_pipeline(
             request,
@@ -9476,6 +9557,7 @@ def test_get_training_pipeline_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_training_pipelines_rest_bad_request(
@@ -9560,10 +9642,14 @@ def test_list_training_pipelines_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_list_training_pipelines"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_list_training_pipelines_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_list_training_pipelines"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.ListTrainingPipelinesRequest.pb(
             pipeline_service.ListTrainingPipelinesRequest()
         )
@@ -9589,6 +9675,10 @@ def test_list_training_pipelines_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = pipeline_service.ListTrainingPipelinesResponse()
+        post_with_metadata.return_value = (
+            pipeline_service.ListTrainingPipelinesResponse(),
+            metadata,
+        )
 
         client.list_training_pipelines(
             request,
@@ -9600,6 +9690,7 @@ def test_list_training_pipelines_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_training_pipeline_rest_bad_request(
@@ -9684,10 +9775,14 @@ def test_delete_training_pipeline_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_delete_training_pipeline"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_delete_training_pipeline_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_delete_training_pipeline"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.DeleteTrainingPipelineRequest.pb(
             pipeline_service.DeleteTrainingPipelineRequest()
         )
@@ -9711,6 +9806,7 @@ def test_delete_training_pipeline_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_training_pipeline(
             request,
@@ -9722,6 +9818,7 @@ def test_delete_training_pipeline_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_training_pipeline_rest_bad_request(
@@ -10105,10 +10202,14 @@ def test_create_pipeline_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_create_pipeline_job"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_create_pipeline_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_create_pipeline_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.CreatePipelineJobRequest.pb(
             pipeline_service.CreatePipelineJobRequest()
         )
@@ -10134,6 +10235,7 @@ def test_create_pipeline_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_pipeline_job.PipelineJob()
+        post_with_metadata.return_value = gca_pipeline_job.PipelineJob(), metadata
 
         client.create_pipeline_job(
             request,
@@ -10145,6 +10247,7 @@ def test_create_pipeline_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_pipeline_job_rest_bad_request(
@@ -10245,10 +10348,13 @@ def test_get_pipeline_job_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_get_pipeline_job"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor, "post_get_pipeline_job_with_metadata"
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_get_pipeline_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.GetPipelineJobRequest.pb(
             pipeline_service.GetPipelineJobRequest()
         )
@@ -10272,6 +10378,7 @@ def test_get_pipeline_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = pipeline_job.PipelineJob()
+        post_with_metadata.return_value = pipeline_job.PipelineJob(), metadata
 
         client.get_pipeline_job(
             request,
@@ -10283,6 +10390,7 @@ def test_get_pipeline_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_list_pipeline_jobs_rest_bad_request(
@@ -10367,10 +10475,14 @@ def test_list_pipeline_jobs_rest_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_list_pipeline_jobs"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_list_pipeline_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_list_pipeline_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.ListPipelineJobsRequest.pb(
             pipeline_service.ListPipelineJobsRequest()
         )
@@ -10396,6 +10508,10 @@ def test_list_pipeline_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = pipeline_service.ListPipelineJobsResponse()
+        post_with_metadata.return_value = (
+            pipeline_service.ListPipelineJobsResponse(),
+            metadata,
+        )
 
         client.list_pipeline_jobs(
             request,
@@ -10407,6 +10523,7 @@ def test_list_pipeline_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_delete_pipeline_job_rest_bad_request(
@@ -10487,10 +10604,14 @@ def test_delete_pipeline_job_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_delete_pipeline_job"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_delete_pipeline_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_delete_pipeline_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.DeletePipelineJobRequest.pb(
             pipeline_service.DeletePipelineJobRequest()
         )
@@ -10514,6 +10635,7 @@ def test_delete_pipeline_job_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.delete_pipeline_job(
             request,
@@ -10525,6 +10647,7 @@ def test_delete_pipeline_job_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_batch_delete_pipeline_jobs_rest_bad_request(
@@ -10605,10 +10728,14 @@ def test_batch_delete_pipeline_jobs_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_batch_delete_pipeline_jobs"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_batch_delete_pipeline_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_batch_delete_pipeline_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.BatchDeletePipelineJobsRequest.pb(
             pipeline_service.BatchDeletePipelineJobsRequest()
         )
@@ -10632,6 +10759,7 @@ def test_batch_delete_pipeline_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.batch_delete_pipeline_jobs(
             request,
@@ -10643,6 +10771,7 @@ def test_batch_delete_pipeline_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_cancel_pipeline_job_rest_bad_request(
@@ -10832,10 +10961,14 @@ def test_batch_cancel_pipeline_jobs_rest_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.PipelineServiceRestInterceptor, "post_batch_cancel_pipeline_jobs"
     ) as post, mock.patch.object(
+        transports.PipelineServiceRestInterceptor,
+        "post_batch_cancel_pipeline_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.PipelineServiceRestInterceptor, "pre_batch_cancel_pipeline_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.BatchCancelPipelineJobsRequest.pb(
             pipeline_service.BatchCancelPipelineJobsRequest()
         )
@@ -10859,6 +10992,7 @@ def test_batch_cancel_pipeline_jobs_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         client.batch_cancel_pipeline_jobs(
             request,
@@ -10870,6 +11004,7 @@ def test_batch_cancel_pipeline_jobs_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -11896,6 +12031,7 @@ async def test_create_training_pipeline_rest_asyncio_call_success(request_type):
             "display_name": "display_name_value",
             "description": "description_value",
             "version_description": "version_description_value",
+            "default_checkpoint_id": "default_checkpoint_id_value",
             "predict_schemata": {
                 "instance_schema_uri": "instance_schema_uri_value",
                 "parameters_schema_uri": "parameters_schema_uri_value",
@@ -11921,10 +12057,25 @@ async def test_create_training_pipeline_rest_asyncio_call_success(request_type):
                 "shared_memory_size_mb": 2231,
                 "startup_probe": {
                     "exec_": {"command": ["command_value1", "command_value2"]},
+                    "http_get": {
+                        "path": "path_value",
+                        "port": 453,
+                        "host": "host_value",
+                        "scheme": "scheme_value",
+                        "http_headers": [
+                            {"name": "name_value", "value": "value_value"}
+                        ],
+                    },
+                    "grpc": {"port": 453, "service": "service_value"},
+                    "tcp_socket": {"port": 453, "host": "host_value"},
                     "period_seconds": 1489,
                     "timeout_seconds": 1621,
+                    "failure_threshold": 1812,
+                    "success_threshold": 1829,
+                    "initial_delay_seconds": 2214,
                 },
                 "health_probe": {},
+                "liveness_probe": {},
             },
             "artifact_uri": "artifact_uri_value",
             "supported_deployment_resources_types": [1],
@@ -12152,10 +12303,14 @@ async def test_create_training_pipeline_rest_asyncio_interceptors(null_intercept
     ) as transcode, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_create_training_pipeline"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_create_training_pipeline_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_create_training_pipeline"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.CreateTrainingPipelineRequest.pb(
             pipeline_service.CreateTrainingPipelineRequest()
         )
@@ -12181,6 +12336,10 @@ async def test_create_training_pipeline_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = gca_training_pipeline.TrainingPipeline()
+        post_with_metadata.return_value = (
+            gca_training_pipeline.TrainingPipeline(),
+            metadata,
+        )
 
         await client.create_training_pipeline(
             request,
@@ -12192,6 +12351,7 @@ async def test_create_training_pipeline_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12306,10 +12466,14 @@ async def test_get_training_pipeline_rest_asyncio_interceptors(null_interceptor)
     ) as transcode, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_get_training_pipeline"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_get_training_pipeline_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_get_training_pipeline"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.GetTrainingPipelineRequest.pb(
             pipeline_service.GetTrainingPipelineRequest()
         )
@@ -12335,6 +12499,7 @@ async def test_get_training_pipeline_rest_asyncio_interceptors(null_interceptor)
         ]
         pre.return_value = request, metadata
         post.return_value = training_pipeline.TrainingPipeline()
+        post_with_metadata.return_value = training_pipeline.TrainingPipeline(), metadata
 
         await client.get_training_pipeline(
             request,
@@ -12346,6 +12511,7 @@ async def test_get_training_pipeline_rest_asyncio_interceptors(null_interceptor)
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12446,10 +12612,14 @@ async def test_list_training_pipelines_rest_asyncio_interceptors(null_intercepto
     ) as transcode, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_list_training_pipelines"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_list_training_pipelines_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_list_training_pipelines"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.ListTrainingPipelinesRequest.pb(
             pipeline_service.ListTrainingPipelinesRequest()
         )
@@ -12475,6 +12645,10 @@ async def test_list_training_pipelines_rest_asyncio_interceptors(null_intercepto
         ]
         pre.return_value = request, metadata
         post.return_value = pipeline_service.ListTrainingPipelinesResponse()
+        post_with_metadata.return_value = (
+            pipeline_service.ListTrainingPipelinesResponse(),
+            metadata,
+        )
 
         await client.list_training_pipelines(
             request,
@@ -12486,6 +12660,7 @@ async def test_list_training_pipelines_rest_asyncio_interceptors(null_intercepto
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -12586,10 +12761,14 @@ async def test_delete_training_pipeline_rest_asyncio_interceptors(null_intercept
     ), mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_delete_training_pipeline"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_delete_training_pipeline_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_delete_training_pipeline"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.DeleteTrainingPipelineRequest.pb(
             pipeline_service.DeleteTrainingPipelineRequest()
         )
@@ -12613,6 +12792,7 @@ async def test_delete_training_pipeline_rest_asyncio_interceptors(null_intercept
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_training_pipeline(
             request,
@@ -12624,6 +12804,7 @@ async def test_delete_training_pipeline_rest_asyncio_interceptors(null_intercept
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13039,10 +13220,14 @@ async def test_create_pipeline_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_create_pipeline_job"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_create_pipeline_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_create_pipeline_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.CreatePipelineJobRequest.pb(
             pipeline_service.CreatePipelineJobRequest()
         )
@@ -13068,6 +13253,7 @@ async def test_create_pipeline_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = gca_pipeline_job.PipelineJob()
+        post_with_metadata.return_value = gca_pipeline_job.PipelineJob(), metadata
 
         await client.create_pipeline_job(
             request,
@@ -13079,6 +13265,7 @@ async def test_create_pipeline_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13195,10 +13382,14 @@ async def test_get_pipeline_job_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_get_pipeline_job"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_get_pipeline_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_get_pipeline_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.GetPipelineJobRequest.pb(
             pipeline_service.GetPipelineJobRequest()
         )
@@ -13222,6 +13413,7 @@ async def test_get_pipeline_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = pipeline_job.PipelineJob()
+        post_with_metadata.return_value = pipeline_job.PipelineJob(), metadata
 
         await client.get_pipeline_job(
             request,
@@ -13233,6 +13425,7 @@ async def test_get_pipeline_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13333,10 +13526,14 @@ async def test_list_pipeline_jobs_rest_asyncio_interceptors(null_interceptor):
     ) as transcode, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_list_pipeline_jobs"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_list_pipeline_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_list_pipeline_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.ListPipelineJobsRequest.pb(
             pipeline_service.ListPipelineJobsRequest()
         )
@@ -13362,6 +13559,10 @@ async def test_list_pipeline_jobs_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = pipeline_service.ListPipelineJobsResponse()
+        post_with_metadata.return_value = (
+            pipeline_service.ListPipelineJobsResponse(),
+            metadata,
+        )
 
         await client.list_pipeline_jobs(
             request,
@@ -13373,6 +13574,7 @@ async def test_list_pipeline_jobs_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13469,10 +13671,14 @@ async def test_delete_pipeline_job_rest_asyncio_interceptors(null_interceptor):
     ), mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "post_delete_pipeline_job"
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_delete_pipeline_job_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_delete_pipeline_job"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.DeletePipelineJobRequest.pb(
             pipeline_service.DeletePipelineJobRequest()
         )
@@ -13496,6 +13702,7 @@ async def test_delete_pipeline_job_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.delete_pipeline_job(
             request,
@@ -13507,6 +13714,7 @@ async def test_delete_pipeline_job_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13604,10 +13812,14 @@ async def test_batch_delete_pipeline_jobs_rest_asyncio_interceptors(null_interce
         transports.AsyncPipelineServiceRestInterceptor,
         "post_batch_delete_pipeline_jobs",
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_batch_delete_pipeline_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_batch_delete_pipeline_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.BatchDeletePipelineJobsRequest.pb(
             pipeline_service.BatchDeletePipelineJobsRequest()
         )
@@ -13631,6 +13843,7 @@ async def test_batch_delete_pipeline_jobs_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.batch_delete_pipeline_jobs(
             request,
@@ -13642,6 +13855,7 @@ async def test_batch_delete_pipeline_jobs_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -13864,10 +14078,14 @@ async def test_batch_cancel_pipeline_jobs_rest_asyncio_interceptors(null_interce
         transports.AsyncPipelineServiceRestInterceptor,
         "post_batch_cancel_pipeline_jobs",
     ) as post, mock.patch.object(
+        transports.AsyncPipelineServiceRestInterceptor,
+        "post_batch_cancel_pipeline_jobs_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
         transports.AsyncPipelineServiceRestInterceptor, "pre_batch_cancel_pipeline_jobs"
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = pipeline_service.BatchCancelPipelineJobsRequest.pb(
             pipeline_service.BatchCancelPipelineJobsRequest()
         )
@@ -13891,6 +14109,7 @@ async def test_batch_cancel_pipeline_jobs_rest_asyncio_interceptors(null_interce
         ]
         pre.return_value = request, metadata
         post.return_value = operations_pb2.Operation()
+        post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
         await client.batch_cancel_pipeline_jobs(
             request,
@@ -13902,6 +14121,7 @@ async def test_batch_cancel_pipeline_jobs_rest_asyncio_interceptors(null_interce
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

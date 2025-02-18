@@ -165,11 +165,34 @@ class AsyncExtensionRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_extension
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_extension_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ExtensionRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_extension` interceptor runs
+        before the `post_delete_extension_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_extension_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_extension
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ExtensionRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_extension_with_metadata`
+        interceptor in new development instead of the `post_delete_extension` interceptor.
+        When both interceptors are used, this `post_delete_extension_with_metadata` interceptor runs after the
+        `post_delete_extension` interceptor. The (possibly modified) response returned by
+        `post_delete_extension` will be passed to
+        `post_delete_extension_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_extension(
         self,
@@ -191,11 +214,34 @@ class AsyncExtensionRegistryServiceRestInterceptor:
     ) -> extension.Extension:
         """Post-rpc interceptor for get_extension
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_extension_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ExtensionRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_extension` interceptor runs
+        before the `post_get_extension_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_extension_with_metadata(
+        self,
+        response: extension.Extension,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[extension.Extension, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_extension
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ExtensionRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_get_extension_with_metadata`
+        interceptor in new development instead of the `post_get_extension` interceptor.
+        When both interceptors are used, this `post_get_extension_with_metadata` interceptor runs after the
+        `post_get_extension` interceptor. The (possibly modified) response returned by
+        `post_get_extension` will be passed to
+        `post_get_extension_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_import_extension(
         self,
@@ -217,11 +263,34 @@ class AsyncExtensionRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for import_extension
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_import_extension_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ExtensionRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_import_extension` interceptor runs
+        before the `post_import_extension_with_metadata` interceptor.
         """
         return response
+
+    async def post_import_extension_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for import_extension
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ExtensionRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_import_extension_with_metadata`
+        interceptor in new development instead of the `post_import_extension` interceptor.
+        When both interceptors are used, this `post_import_extension_with_metadata` interceptor runs after the
+        `post_import_extension` interceptor. The (possibly modified) response returned by
+        `post_import_extension` will be passed to
+        `post_import_extension_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_extensions(
         self,
@@ -243,11 +312,37 @@ class AsyncExtensionRegistryServiceRestInterceptor:
     ) -> extension_registry_service.ListExtensionsResponse:
         """Post-rpc interceptor for list_extensions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_extensions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ExtensionRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_extensions` interceptor runs
+        before the `post_list_extensions_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_extensions_with_metadata(
+        self,
+        response: extension_registry_service.ListExtensionsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        extension_registry_service.ListExtensionsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_extensions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ExtensionRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_list_extensions_with_metadata`
+        interceptor in new development instead of the `post_list_extensions` interceptor.
+        When both interceptors are used, this `post_list_extensions_with_metadata` interceptor runs after the
+        `post_list_extensions` interceptor. The (possibly modified) response returned by
+        `post_list_extensions` will be passed to
+        `post_list_extensions_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_extension(
         self,
@@ -269,11 +364,34 @@ class AsyncExtensionRegistryServiceRestInterceptor:
     ) -> gca_extension.Extension:
         """Post-rpc interceptor for update_extension
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_extension_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ExtensionRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_extension` interceptor runs
+        before the `post_update_extension_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_extension_with_metadata(
+        self,
+        response: gca_extension.Extension,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_extension.Extension, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_extension
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ExtensionRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_update_extension_with_metadata`
+        interceptor in new development instead of the `post_update_extension` interceptor.
+        When both interceptors are used, this `post_update_extension_with_metadata` interceptor runs after the
+        `post_update_extension` interceptor. The (possibly modified) response returned by
+        `post_update_extension` will be passed to
+        `post_update_extension_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -806,6 +924,10 @@ class AsyncExtensionRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_extension(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_extension_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -960,6 +1082,10 @@ class AsyncExtensionRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_extension(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_extension_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1120,6 +1246,10 @@ class AsyncExtensionRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_import_extension(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_import_extension_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1273,6 +1403,10 @@ class AsyncExtensionRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_extensions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_extensions_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1437,6 +1571,10 @@ class AsyncExtensionRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_extension(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_extension_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

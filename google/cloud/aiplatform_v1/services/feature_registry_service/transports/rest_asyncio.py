@@ -214,11 +214,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for batch_create_features
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_create_features_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_create_features` interceptor runs
+        before the `post_batch_create_features_with_metadata` interceptor.
         """
         return response
+
+    async def post_batch_create_features_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for batch_create_features
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_create_features_with_metadata`
+        interceptor in new development instead of the `post_batch_create_features` interceptor.
+        When both interceptors are used, this `post_batch_create_features_with_metadata` interceptor runs after the
+        `post_batch_create_features` interceptor. The (possibly modified) response returned by
+        `post_batch_create_features` will be passed to
+        `post_batch_create_features_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_feature(
         self,
@@ -240,11 +263,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_feature
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_feature_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_feature` interceptor runs
+        before the `post_create_feature_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_feature_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_feature
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_create_feature_with_metadata`
+        interceptor in new development instead of the `post_create_feature` interceptor.
+        When both interceptors are used, this `post_create_feature_with_metadata` interceptor runs after the
+        `post_create_feature` interceptor. The (possibly modified) response returned by
+        `post_create_feature` will be passed to
+        `post_create_feature_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_create_feature_group(
         self,
@@ -266,11 +312,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for create_feature_group
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_create_feature_group_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_create_feature_group` interceptor runs
+        before the `post_create_feature_group_with_metadata` interceptor.
         """
         return response
+
+    async def post_create_feature_group_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for create_feature_group
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_create_feature_group_with_metadata`
+        interceptor in new development instead of the `post_create_feature_group` interceptor.
+        When both interceptors are used, this `post_create_feature_group_with_metadata` interceptor runs after the
+        `post_create_feature_group` interceptor. The (possibly modified) response returned by
+        `post_create_feature_group` will be passed to
+        `post_create_feature_group_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_feature(
         self,
@@ -292,11 +361,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_feature
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_feature_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_feature` interceptor runs
+        before the `post_delete_feature_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_feature_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_feature
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_feature_with_metadata`
+        interceptor in new development instead of the `post_delete_feature` interceptor.
+        When both interceptors are used, this `post_delete_feature_with_metadata` interceptor runs after the
+        `post_delete_feature` interceptor. The (possibly modified) response returned by
+        `post_delete_feature` will be passed to
+        `post_delete_feature_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_delete_feature_group(
         self,
@@ -318,11 +410,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_feature_group
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_feature_group_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_feature_group` interceptor runs
+        before the `post_delete_feature_group_with_metadata` interceptor.
         """
         return response
+
+    async def post_delete_feature_group_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_feature_group
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_feature_group_with_metadata`
+        interceptor in new development instead of the `post_delete_feature_group` interceptor.
+        When both interceptors are used, this `post_delete_feature_group_with_metadata` interceptor runs after the
+        `post_delete_feature_group` interceptor. The (possibly modified) response returned by
+        `post_delete_feature_group` will be passed to
+        `post_delete_feature_group_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_feature(
         self,
@@ -341,11 +456,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     async def post_get_feature(self, response: feature.Feature) -> feature.Feature:
         """Post-rpc interceptor for get_feature
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_feature_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_feature` interceptor runs
+        before the `post_get_feature_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_feature_with_metadata(
+        self,
+        response: feature.Feature,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[feature.Feature, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_feature
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_get_feature_with_metadata`
+        interceptor in new development instead of the `post_get_feature` interceptor.
+        When both interceptors are used, this `post_get_feature_with_metadata` interceptor runs after the
+        `post_get_feature` interceptor. The (possibly modified) response returned by
+        `post_get_feature` will be passed to
+        `post_get_feature_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_feature_group(
         self,
@@ -367,11 +505,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> feature_group.FeatureGroup:
         """Post-rpc interceptor for get_feature_group
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_feature_group_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_feature_group` interceptor runs
+        before the `post_get_feature_group_with_metadata` interceptor.
         """
         return response
+
+    async def post_get_feature_group_with_metadata(
+        self,
+        response: feature_group.FeatureGroup,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[feature_group.FeatureGroup, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_feature_group
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_get_feature_group_with_metadata`
+        interceptor in new development instead of the `post_get_feature_group` interceptor.
+        When both interceptors are used, this `post_get_feature_group_with_metadata` interceptor runs after the
+        `post_get_feature_group` interceptor. The (possibly modified) response returned by
+        `post_get_feature_group` will be passed to
+        `post_get_feature_group_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_feature_groups(
         self,
@@ -393,11 +554,37 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> feature_registry_service.ListFeatureGroupsResponse:
         """Post-rpc interceptor for list_feature_groups
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_feature_groups_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_feature_groups` interceptor runs
+        before the `post_list_feature_groups_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_feature_groups_with_metadata(
+        self,
+        response: feature_registry_service.ListFeatureGroupsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        feature_registry_service.ListFeatureGroupsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_feature_groups
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_list_feature_groups_with_metadata`
+        interceptor in new development instead of the `post_list_feature_groups` interceptor.
+        When both interceptors are used, this `post_list_feature_groups_with_metadata` interceptor runs after the
+        `post_list_feature_groups` interceptor. The (possibly modified) response returned by
+        `post_list_feature_groups` will be passed to
+        `post_list_feature_groups_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_list_features(
         self,
@@ -419,11 +606,37 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> featurestore_service.ListFeaturesResponse:
         """Post-rpc interceptor for list_features
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_features_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_features` interceptor runs
+        before the `post_list_features_with_metadata` interceptor.
         """
         return response
+
+    async def post_list_features_with_metadata(
+        self,
+        response: featurestore_service.ListFeaturesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        featurestore_service.ListFeaturesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_features
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_list_features_with_metadata`
+        interceptor in new development instead of the `post_list_features` interceptor.
+        When both interceptors are used, this `post_list_features_with_metadata` interceptor runs after the
+        `post_list_features` interceptor. The (possibly modified) response returned by
+        `post_list_features` will be passed to
+        `post_list_features_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_feature(
         self,
@@ -445,11 +658,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_feature
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_feature_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_feature` interceptor runs
+        before the `post_update_feature_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_feature_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_feature
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_update_feature_with_metadata`
+        interceptor in new development instead of the `post_update_feature` interceptor.
+        When both interceptors are used, this `post_update_feature_with_metadata` interceptor runs after the
+        `post_update_feature` interceptor. The (possibly modified) response returned by
+        `post_update_feature` will be passed to
+        `post_update_feature_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_update_feature_group(
         self,
@@ -471,11 +707,34 @@ class AsyncFeatureRegistryServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_feature_group
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_feature_group_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the FeatureRegistryService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_feature_group` interceptor runs
+        before the `post_update_feature_group_with_metadata` interceptor.
         """
         return response
+
+    async def post_update_feature_group_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_feature_group
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the FeatureRegistryService server but before it is returned to user code.
+
+        We recommend only using this `post_update_feature_group_with_metadata`
+        interceptor in new development instead of the `post_update_feature_group` interceptor.
+        When both interceptors are used, this `post_update_feature_group_with_metadata` interceptor runs after the
+        `post_update_feature_group` interceptor. The (possibly modified) response returned by
+        `post_update_feature_group` will be passed to
+        `post_update_feature_group_with_metadata`.
+        """
+        return response, metadata
 
     async def pre_get_location(
         self,
@@ -1045,6 +1304,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_create_features(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_batch_create_features_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1207,6 +1470,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_feature(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_feature_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1367,6 +1634,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_feature_group(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_create_feature_group_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1523,6 +1794,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_feature(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_feature_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1677,6 +1952,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_feature_group(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_delete_feature_group_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1833,6 +2112,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_feature(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_feature_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1984,6 +2267,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_get_feature_group(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_get_feature_group_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2137,6 +2424,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_feature_groups(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_feature_groups_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2298,6 +2589,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_list_features(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_list_features_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2462,6 +2757,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_feature(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_feature_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -2622,6 +2921,10 @@ class AsyncFeatureRegistryServiceRestTransport(
             content = await response.read()
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_feature_group(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_update_feature_group_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER

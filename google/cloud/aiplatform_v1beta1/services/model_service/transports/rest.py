@@ -190,6 +190,14 @@ class ModelServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_list_model_version_checkpoints(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_list_model_version_checkpoints(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_list_model_versions(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -256,11 +264,37 @@ class ModelServiceRestInterceptor:
     ) -> model_service.BatchImportEvaluatedAnnotationsResponse:
         """Post-rpc interceptor for batch_import_evaluated_annotations
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_import_evaluated_annotations_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_import_evaluated_annotations` interceptor runs
+        before the `post_batch_import_evaluated_annotations_with_metadata` interceptor.
         """
         return response
+
+    def post_batch_import_evaluated_annotations_with_metadata(
+        self,
+        response: model_service.BatchImportEvaluatedAnnotationsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.BatchImportEvaluatedAnnotationsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for batch_import_evaluated_annotations
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_import_evaluated_annotations_with_metadata`
+        interceptor in new development instead of the `post_batch_import_evaluated_annotations` interceptor.
+        When both interceptors are used, this `post_batch_import_evaluated_annotations_with_metadata` interceptor runs after the
+        `post_batch_import_evaluated_annotations` interceptor. The (possibly modified) response returned by
+        `post_batch_import_evaluated_annotations` will be passed to
+        `post_batch_import_evaluated_annotations_with_metadata`.
+        """
+        return response, metadata
 
     def pre_batch_import_model_evaluation_slices(
         self,
@@ -282,11 +316,37 @@ class ModelServiceRestInterceptor:
     ) -> model_service.BatchImportModelEvaluationSlicesResponse:
         """Post-rpc interceptor for batch_import_model_evaluation_slices
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_batch_import_model_evaluation_slices_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_batch_import_model_evaluation_slices` interceptor runs
+        before the `post_batch_import_model_evaluation_slices_with_metadata` interceptor.
         """
         return response
+
+    def post_batch_import_model_evaluation_slices_with_metadata(
+        self,
+        response: model_service.BatchImportModelEvaluationSlicesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.BatchImportModelEvaluationSlicesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for batch_import_model_evaluation_slices
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_batch_import_model_evaluation_slices_with_metadata`
+        interceptor in new development instead of the `post_batch_import_model_evaluation_slices` interceptor.
+        When both interceptors are used, this `post_batch_import_model_evaluation_slices_with_metadata` interceptor runs after the
+        `post_batch_import_model_evaluation_slices` interceptor. The (possibly modified) response returned by
+        `post_batch_import_model_evaluation_slices` will be passed to
+        `post_batch_import_model_evaluation_slices_with_metadata`.
+        """
+        return response, metadata
 
     def pre_copy_model(
         self,
@@ -305,11 +365,34 @@ class ModelServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for copy_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_copy_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_copy_model` interceptor runs
+        before the `post_copy_model_with_metadata` interceptor.
         """
         return response
+
+    def post_copy_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for copy_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_copy_model_with_metadata`
+        interceptor in new development instead of the `post_copy_model` interceptor.
+        When both interceptors are used, this `post_copy_model_with_metadata` interceptor runs after the
+        `post_copy_model` interceptor. The (possibly modified) response returned by
+        `post_copy_model` will be passed to
+        `post_copy_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_model(
         self,
@@ -330,11 +413,34 @@ class ModelServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_model` interceptor runs
+        before the `post_delete_model_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_model_with_metadata`
+        interceptor in new development instead of the `post_delete_model` interceptor.
+        When both interceptors are used, this `post_delete_model_with_metadata` interceptor runs after the
+        `post_delete_model` interceptor. The (possibly modified) response returned by
+        `post_delete_model` will be passed to
+        `post_delete_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_delete_model_version(
         self,
@@ -355,11 +461,34 @@ class ModelServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for delete_model_version
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_delete_model_version_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_delete_model_version` interceptor runs
+        before the `post_delete_model_version_with_metadata` interceptor.
         """
         return response
+
+    def post_delete_model_version_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for delete_model_version
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_delete_model_version_with_metadata`
+        interceptor in new development instead of the `post_delete_model_version` interceptor.
+        When both interceptors are used, this `post_delete_model_version_with_metadata` interceptor runs after the
+        `post_delete_model_version` interceptor. The (possibly modified) response returned by
+        `post_delete_model_version` will be passed to
+        `post_delete_model_version_with_metadata`.
+        """
+        return response, metadata
 
     def pre_export_model(
         self,
@@ -380,11 +509,34 @@ class ModelServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for export_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_export_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_export_model` interceptor runs
+        before the `post_export_model_with_metadata` interceptor.
         """
         return response
+
+    def post_export_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for export_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_export_model_with_metadata`
+        interceptor in new development instead of the `post_export_model` interceptor.
+        When both interceptors are used, this `post_export_model_with_metadata` interceptor runs after the
+        `post_export_model` interceptor. The (possibly modified) response returned by
+        `post_export_model` will be passed to
+        `post_export_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_model(
         self,
@@ -401,11 +553,32 @@ class ModelServiceRestInterceptor:
     def post_get_model(self, response: model.Model) -> model.Model:
         """Post-rpc interceptor for get_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model` interceptor runs
+        before the `post_get_model_with_metadata` interceptor.
         """
         return response
+
+    def post_get_model_with_metadata(
+        self, response: model.Model, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[model.Model, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for get_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_with_metadata`
+        interceptor in new development instead of the `post_get_model` interceptor.
+        When both interceptors are used, this `post_get_model_with_metadata` interceptor runs after the
+        `post_get_model` interceptor. The (possibly modified) response returned by
+        `post_get_model` will be passed to
+        `post_get_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_model_evaluation(
         self,
@@ -426,11 +599,36 @@ class ModelServiceRestInterceptor:
     ) -> model_evaluation.ModelEvaluation:
         """Post-rpc interceptor for get_model_evaluation
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_evaluation_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model_evaluation` interceptor runs
+        before the `post_get_model_evaluation_with_metadata` interceptor.
         """
         return response
+
+    def post_get_model_evaluation_with_metadata(
+        self,
+        response: model_evaluation.ModelEvaluation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_evaluation.ModelEvaluation, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for get_model_evaluation
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_evaluation_with_metadata`
+        interceptor in new development instead of the `post_get_model_evaluation` interceptor.
+        When both interceptors are used, this `post_get_model_evaluation_with_metadata` interceptor runs after the
+        `post_get_model_evaluation` interceptor. The (possibly modified) response returned by
+        `post_get_model_evaluation` will be passed to
+        `post_get_model_evaluation_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_model_evaluation_slice(
         self,
@@ -452,11 +650,37 @@ class ModelServiceRestInterceptor:
     ) -> model_evaluation_slice.ModelEvaluationSlice:
         """Post-rpc interceptor for get_model_evaluation_slice
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_get_model_evaluation_slice_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_get_model_evaluation_slice` interceptor runs
+        before the `post_get_model_evaluation_slice_with_metadata` interceptor.
         """
         return response
+
+    def post_get_model_evaluation_slice_with_metadata(
+        self,
+        response: model_evaluation_slice.ModelEvaluationSlice,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_evaluation_slice.ModelEvaluationSlice,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for get_model_evaluation_slice
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_get_model_evaluation_slice_with_metadata`
+        interceptor in new development instead of the `post_get_model_evaluation_slice` interceptor.
+        When both interceptors are used, this `post_get_model_evaluation_slice_with_metadata` interceptor runs after the
+        `post_get_model_evaluation_slice` interceptor. The (possibly modified) response returned by
+        `post_get_model_evaluation_slice` will be passed to
+        `post_get_model_evaluation_slice_with_metadata`.
+        """
+        return response, metadata
 
     def pre_import_model_evaluation(
         self,
@@ -478,11 +702,36 @@ class ModelServiceRestInterceptor:
     ) -> gca_model_evaluation.ModelEvaluation:
         """Post-rpc interceptor for import_model_evaluation
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_import_model_evaluation_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_import_model_evaluation` interceptor runs
+        before the `post_import_model_evaluation_with_metadata` interceptor.
         """
         return response
+
+    def post_import_model_evaluation_with_metadata(
+        self,
+        response: gca_model_evaluation.ModelEvaluation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        gca_model_evaluation.ModelEvaluation, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for import_model_evaluation
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_import_model_evaluation_with_metadata`
+        interceptor in new development instead of the `post_import_model_evaluation` interceptor.
+        When both interceptors are used, this `post_import_model_evaluation_with_metadata` interceptor runs after the
+        `post_import_model_evaluation` interceptor. The (possibly modified) response returned by
+        `post_import_model_evaluation` will be passed to
+        `post_import_model_evaluation_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_model_evaluations(
         self,
@@ -504,11 +753,37 @@ class ModelServiceRestInterceptor:
     ) -> model_service.ListModelEvaluationsResponse:
         """Post-rpc interceptor for list_model_evaluations
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_evaluations_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_evaluations` interceptor runs
+        before the `post_list_model_evaluations_with_metadata` interceptor.
         """
         return response
+
+    def post_list_model_evaluations_with_metadata(
+        self,
+        response: model_service.ListModelEvaluationsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelEvaluationsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_evaluations
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_evaluations_with_metadata`
+        interceptor in new development instead of the `post_list_model_evaluations` interceptor.
+        When both interceptors are used, this `post_list_model_evaluations_with_metadata` interceptor runs after the
+        `post_list_model_evaluations` interceptor. The (possibly modified) response returned by
+        `post_list_model_evaluations` will be passed to
+        `post_list_model_evaluations_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_model_evaluation_slices(
         self,
@@ -530,11 +805,37 @@ class ModelServiceRestInterceptor:
     ) -> model_service.ListModelEvaluationSlicesResponse:
         """Post-rpc interceptor for list_model_evaluation_slices
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_evaluation_slices_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_evaluation_slices` interceptor runs
+        before the `post_list_model_evaluation_slices_with_metadata` interceptor.
         """
         return response
+
+    def post_list_model_evaluation_slices_with_metadata(
+        self,
+        response: model_service.ListModelEvaluationSlicesResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelEvaluationSlicesResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_evaluation_slices
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_evaluation_slices_with_metadata`
+        interceptor in new development instead of the `post_list_model_evaluation_slices` interceptor.
+        When both interceptors are used, this `post_list_model_evaluation_slices_with_metadata` interceptor runs after the
+        `post_list_model_evaluation_slices` interceptor. The (possibly modified) response returned by
+        `post_list_model_evaluation_slices` will be passed to
+        `post_list_model_evaluation_slices_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_models(
         self,
@@ -555,11 +856,88 @@ class ModelServiceRestInterceptor:
     ) -> model_service.ListModelsResponse:
         """Post-rpc interceptor for list_models
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_models_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_models` interceptor runs
+        before the `post_list_models_with_metadata` interceptor.
         """
         return response
+
+    def post_list_models_with_metadata(
+        self,
+        response: model_service.ListModelsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_models
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_list_models_with_metadata`
+        interceptor in new development instead of the `post_list_models` interceptor.
+        When both interceptors are used, this `post_list_models_with_metadata` interceptor runs after the
+        `post_list_models` interceptor. The (possibly modified) response returned by
+        `post_list_models` will be passed to
+        `post_list_models_with_metadata`.
+        """
+        return response, metadata
+
+    def pre_list_model_version_checkpoints(
+        self,
+        request: model_service.ListModelVersionCheckpointsRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelVersionCheckpointsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for list_model_version_checkpoints
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelService server.
+        """
+        return request, metadata
+
+    def post_list_model_version_checkpoints(
+        self, response: model_service.ListModelVersionCheckpointsResponse
+    ) -> model_service.ListModelVersionCheckpointsResponse:
+        """Post-rpc interceptor for list_model_version_checkpoints
+
+        DEPRECATED. Please use the `post_list_model_version_checkpoints_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the ModelService server but before
+        it is returned to user code. This `post_list_model_version_checkpoints` interceptor runs
+        before the `post_list_model_version_checkpoints_with_metadata` interceptor.
+        """
+        return response
+
+    def post_list_model_version_checkpoints_with_metadata(
+        self,
+        response: model_service.ListModelVersionCheckpointsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelVersionCheckpointsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for list_model_version_checkpoints
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_version_checkpoints_with_metadata`
+        interceptor in new development instead of the `post_list_model_version_checkpoints` interceptor.
+        When both interceptors are used, this `post_list_model_version_checkpoints_with_metadata` interceptor runs after the
+        `post_list_model_version_checkpoints` interceptor. The (possibly modified) response returned by
+        `post_list_model_version_checkpoints` will be passed to
+        `post_list_model_version_checkpoints_with_metadata`.
+        """
+        return response, metadata
 
     def pre_list_model_versions(
         self,
@@ -580,11 +958,36 @@ class ModelServiceRestInterceptor:
     ) -> model_service.ListModelVersionsResponse:
         """Post-rpc interceptor for list_model_versions
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_list_model_versions_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_list_model_versions` interceptor runs
+        before the `post_list_model_versions_with_metadata` interceptor.
         """
         return response
+
+    def post_list_model_versions_with_metadata(
+        self,
+        response: model_service.ListModelVersionsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_service.ListModelVersionsResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for list_model_versions
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_list_model_versions_with_metadata`
+        interceptor in new development instead of the `post_list_model_versions` interceptor.
+        When both interceptors are used, this `post_list_model_versions_with_metadata` interceptor runs after the
+        `post_list_model_versions` interceptor. The (possibly modified) response returned by
+        `post_list_model_versions` will be passed to
+        `post_list_model_versions_with_metadata`.
+        """
+        return response, metadata
 
     def pre_merge_version_aliases(
         self,
@@ -604,11 +1007,32 @@ class ModelServiceRestInterceptor:
     def post_merge_version_aliases(self, response: model.Model) -> model.Model:
         """Post-rpc interceptor for merge_version_aliases
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_merge_version_aliases_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_merge_version_aliases` interceptor runs
+        before the `post_merge_version_aliases_with_metadata` interceptor.
         """
         return response
+
+    def post_merge_version_aliases_with_metadata(
+        self, response: model.Model, metadata: Sequence[Tuple[str, Union[str, bytes]]]
+    ) -> Tuple[model.Model, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for merge_version_aliases
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_merge_version_aliases_with_metadata`
+        interceptor in new development instead of the `post_merge_version_aliases` interceptor.
+        When both interceptors are used, this `post_merge_version_aliases_with_metadata` interceptor runs after the
+        `post_merge_version_aliases` interceptor. The (possibly modified) response returned by
+        `post_merge_version_aliases` will be passed to
+        `post_merge_version_aliases_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_explanation_dataset(
         self,
@@ -630,11 +1054,34 @@ class ModelServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for update_explanation_dataset
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_explanation_dataset_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_explanation_dataset` interceptor runs
+        before the `post_update_explanation_dataset_with_metadata` interceptor.
         """
         return response
+
+    def post_update_explanation_dataset_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_explanation_dataset
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_update_explanation_dataset_with_metadata`
+        interceptor in new development instead of the `post_update_explanation_dataset` interceptor.
+        When both interceptors are used, this `post_update_explanation_dataset_with_metadata` interceptor runs after the
+        `post_update_explanation_dataset` interceptor. The (possibly modified) response returned by
+        `post_update_explanation_dataset` will be passed to
+        `post_update_explanation_dataset_with_metadata`.
+        """
+        return response, metadata
 
     def pre_update_model(
         self,
@@ -653,11 +1100,34 @@ class ModelServiceRestInterceptor:
     def post_update_model(self, response: gca_model.Model) -> gca_model.Model:
         """Post-rpc interceptor for update_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_update_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_update_model` interceptor runs
+        before the `post_update_model_with_metadata` interceptor.
         """
         return response
+
+    def post_update_model_with_metadata(
+        self,
+        response: gca_model.Model,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[gca_model.Model, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for update_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_update_model_with_metadata`
+        interceptor in new development instead of the `post_update_model` interceptor.
+        When both interceptors are used, this `post_update_model_with_metadata` interceptor runs after the
+        `post_update_model` interceptor. The (possibly modified) response returned by
+        `post_update_model` will be passed to
+        `post_update_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_upload_model(
         self,
@@ -678,11 +1148,34 @@ class ModelServiceRestInterceptor:
     ) -> operations_pb2.Operation:
         """Post-rpc interceptor for upload_model
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_upload_model_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the ModelService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_upload_model` interceptor runs
+        before the `post_upload_model_with_metadata` interceptor.
         """
         return response
+
+    def post_upload_model_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for upload_model
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelService server but before it is returned to user code.
+
+        We recommend only using this `post_upload_model_with_metadata`
+        interceptor in new development instead of the `post_upload_model` interceptor.
+        When both interceptors are used, this `post_upload_model_with_metadata` interceptor runs after the
+        `post_upload_model` interceptor. The (possibly modified) response returned by
+        `post_upload_model` will be passed to
+        `post_upload_model_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -3235,6 +3728,13 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_batch_import_evaluated_annotations(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_batch_import_evaluated_annotations_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3396,6 +3896,13 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_batch_import_model_evaluation_slices(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_batch_import_model_evaluation_slices_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3553,6 +4060,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_copy_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_copy_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3700,6 +4211,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -3845,6 +4360,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_delete_model_version(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_delete_model_version_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4000,6 +4519,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_export_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_export_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4144,6 +4667,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4292,6 +4819,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_model_evaluation(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_model_evaluation_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4444,6 +4975,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_get_model_evaluation_slice(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_get_model_evaluation_slice_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4600,6 +5135,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_import_model_evaluation(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_import_model_evaluation_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4748,6 +5287,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_model_evaluations(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_model_evaluations_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -4900,6 +5443,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_model_evaluation_slices(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_model_evaluation_slices_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5052,6 +5599,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_models(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_models_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5071,6 +5622,167 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     extra={
                         "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
                         "rpcName": "ListModels",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
+
+    class _ListModelVersionCheckpoints(
+        _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints,
+        ModelServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("ModelServiceRestTransport.ListModelVersionCheckpoints")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+            )
+            return response
+
+        def __call__(
+            self,
+            request: model_service.ListModelVersionCheckpointsRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> model_service.ListModelVersionCheckpointsResponse:
+            r"""Call the list model version
+            checkpoints method over HTTP.
+
+                Args:
+                    request (~.model_service.ListModelVersionCheckpointsRequest):
+                        The request object. Request message for
+                    [ModelService.ListModelVersionCheckpoints][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersionCheckpoints].
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
+
+                Returns:
+                    ~.model_service.ListModelVersionCheckpointsResponse:
+                        Response message for
+                    [ModelService.ListModelVersionCheckpoints][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersionCheckpoints]
+
+            """
+
+            http_options = (
+                _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_http_options()
+            )
+
+            request, metadata = self._interceptor.pre_list_model_version_checkpoints(
+                request, metadata
+            )
+            transcoded_request = _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_transcoded_request(
+                http_options, request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseModelServiceRestTransport._BaseListModelVersionCheckpoints._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelServiceClient.ListModelVersionCheckpoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelVersionCheckpoints",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = (
+                ModelServiceRestTransport._ListModelVersionCheckpoints._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = model_service.ListModelVersionCheckpointsResponse()
+            pb_resp = model_service.ListModelVersionCheckpointsResponse.pb(resp)
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_list_model_version_checkpoints(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            (
+                resp,
+                _,
+            ) = self._interceptor.post_list_model_version_checkpoints_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        model_service.ListModelVersionCheckpointsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelServiceClient.list_model_version_checkpoints",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelService",
+                        "rpcName": "ListModelVersionCheckpoints",
                         "metadata": http_response["headers"],
                         "httpResponse": http_response,
                     },
@@ -5200,6 +5912,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_list_model_versions(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_list_model_versions_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5352,6 +6068,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_merge_version_aliases(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_merge_version_aliases_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5507,6 +6227,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_explanation_dataset(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_explanation_dataset_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5661,6 +6385,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_update_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_update_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5816,6 +6544,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
             json_format.Parse(response.content, resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_upload_model(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_upload_model_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -5960,6 +6692,17 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._ListModels(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def list_model_version_checkpoints(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionCheckpointsRequest],
+        model_service.ListModelVersionCheckpointsResponse,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._ListModelVersionCheckpoints(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def list_model_versions(

@@ -23,6 +23,7 @@ import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
@@ -138,6 +139,11 @@ class EvaluationServiceTransport(abc.ABC):
                 default_timeout=60.0,
                 client_info=client_info,
             ),
+            self.evaluate_dataset: gapic_v1.method.wrap_method(
+                self.evaluate_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -200,6 +206,11 @@ class EvaluationServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def operations_client(self):
+        """Return the client designed to process long-running operations."""
+        raise NotImplementedError()
+
+    @property
     def evaluate_instances(
         self,
     ) -> Callable[
@@ -208,6 +219,15 @@ class EvaluationServiceTransport(abc.ABC):
             evaluation_service.EvaluateInstancesResponse,
             Awaitable[evaluation_service.EvaluateInstancesResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def evaluate_dataset(
+        self,
+    ) -> Callable[
+        [evaluation_service.EvaluateDatasetRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

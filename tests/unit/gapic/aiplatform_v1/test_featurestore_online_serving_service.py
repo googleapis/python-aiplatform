@@ -84,6 +84,14 @@ from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
+CRED_INFO_JSON = {
+    "credential_source": "/path/to/file",
+    "credential_type": "service account credentials",
+    "principal": "service-account@example.com",
+}
+CRED_INFO_STRING = json.dumps(CRED_INFO_JSON)
+
+
 async def mock_async_gen(data, chunk_size=1):
     for i in range(0, len(data)):  # pragma: NO COVER
         chunk = data[i : i + chunk_size]
@@ -375,6 +383,49 @@ def test__get_universe_domain():
     with pytest.raises(ValueError) as excinfo:
         FeaturestoreOnlineServingServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
+
+
+@pytest.mark.parametrize(
+    "error_code,cred_info_json,show_cred_info",
+    [
+        (401, CRED_INFO_JSON, True),
+        (403, CRED_INFO_JSON, True),
+        (404, CRED_INFO_JSON, True),
+        (500, CRED_INFO_JSON, False),
+        (401, None, False),
+        (403, None, False),
+        (404, None, False),
+        (500, None, False),
+    ],
+)
+def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
+    cred = mock.Mock(["get_cred_info"])
+    cred.get_cred_info = mock.Mock(return_value=cred_info_json)
+    client = FeaturestoreOnlineServingServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=["foo"])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    if show_cred_info:
+        assert error.details == ["foo", CRED_INFO_STRING]
+    else:
+        assert error.details == ["foo"]
+
+
+@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
+    cred = mock.Mock([])
+    assert not hasattr(cred, "get_cred_info")
+    client = FeaturestoreOnlineServingServiceClient(credentials=cred)
+    client._transport._credentials = cred
+
+    error = core_exceptions.GoogleAPICallError("message", details=[])
+    error.code = error_code
+
+    client._add_cred_info_for_auth_errors(error)
+    assert error.details == []
 
 
 @pytest.mark.parametrize(
@@ -3229,10 +3280,14 @@ def test_read_feature_values_rest_interceptors(null_interceptor):
         "post_read_feature_values",
     ) as post, mock.patch.object(
         transports.FeaturestoreOnlineServingServiceRestInterceptor,
+        "post_read_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeaturestoreOnlineServingServiceRestInterceptor,
         "pre_read_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_online_service.ReadFeatureValuesRequest.pb(
             featurestore_online_service.ReadFeatureValuesRequest()
         )
@@ -3258,6 +3313,10 @@ def test_read_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_online_service.ReadFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            featurestore_online_service.ReadFeatureValuesResponse(),
+            metadata,
+        )
 
         client.read_feature_values(
             request,
@@ -3269,6 +3328,7 @@ def test_read_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_streaming_read_feature_values_rest_bad_request(
@@ -3362,10 +3422,14 @@ def test_streaming_read_feature_values_rest_interceptors(null_interceptor):
         "post_streaming_read_feature_values",
     ) as post, mock.patch.object(
         transports.FeaturestoreOnlineServingServiceRestInterceptor,
+        "post_streaming_read_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeaturestoreOnlineServingServiceRestInterceptor,
         "pre_streaming_read_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_online_service.StreamingReadFeatureValuesRequest.pb(
             featurestore_online_service.StreamingReadFeatureValuesRequest()
         )
@@ -3391,6 +3455,10 @@ def test_streaming_read_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_online_service.ReadFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            featurestore_online_service.ReadFeatureValuesResponse(),
+            metadata,
+        )
 
         client.streaming_read_feature_values(
             request,
@@ -3402,6 +3470,7 @@ def test_streaming_read_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_write_feature_values_rest_bad_request(
@@ -3491,10 +3560,14 @@ def test_write_feature_values_rest_interceptors(null_interceptor):
         "post_write_feature_values",
     ) as post, mock.patch.object(
         transports.FeaturestoreOnlineServingServiceRestInterceptor,
+        "post_write_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.FeaturestoreOnlineServingServiceRestInterceptor,
         "pre_write_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_online_service.WriteFeatureValuesRequest.pb(
             featurestore_online_service.WriteFeatureValuesRequest()
         )
@@ -3520,6 +3593,10 @@ def test_write_feature_values_rest_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_online_service.WriteFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            featurestore_online_service.WriteFeatureValuesResponse(),
+            metadata,
+        )
 
         client.write_feature_values(
             request,
@@ -3531,6 +3608,7 @@ def test_write_feature_values_rest_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
@@ -4345,10 +4423,14 @@ async def test_read_feature_values_rest_asyncio_interceptors(null_interceptor):
         "post_read_feature_values",
     ) as post, mock.patch.object(
         transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor,
+        "post_read_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor,
         "pre_read_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_online_service.ReadFeatureValuesRequest.pb(
             featurestore_online_service.ReadFeatureValuesRequest()
         )
@@ -4374,6 +4456,10 @@ async def test_read_feature_values_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_online_service.ReadFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            featurestore_online_service.ReadFeatureValuesResponse(),
+            metadata,
+        )
 
         await client.read_feature_values(
             request,
@@ -4385,6 +4471,7 @@ async def test_read_feature_values_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -4494,10 +4581,14 @@ async def test_streaming_read_feature_values_rest_asyncio_interceptors(
         "post_streaming_read_feature_values",
     ) as post, mock.patch.object(
         transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor,
+        "post_streaming_read_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor,
         "pre_streaming_read_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_online_service.StreamingReadFeatureValuesRequest.pb(
             featurestore_online_service.StreamingReadFeatureValuesRequest()
         )
@@ -4523,6 +4614,10 @@ async def test_streaming_read_feature_values_rest_asyncio_interceptors(
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_online_service.ReadFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            featurestore_online_service.ReadFeatureValuesResponse(),
+            metadata,
+        )
 
         await client.streaming_read_feature_values(
             request,
@@ -4534,6 +4629,7 @@ async def test_streaming_read_feature_values_rest_asyncio_interceptors(
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -4639,10 +4735,14 @@ async def test_write_feature_values_rest_asyncio_interceptors(null_interceptor):
         "post_write_feature_values",
     ) as post, mock.patch.object(
         transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor,
+        "post_write_feature_values_with_metadata",
+    ) as post_with_metadata, mock.patch.object(
+        transports.AsyncFeaturestoreOnlineServingServiceRestInterceptor,
         "pre_write_feature_values",
     ) as pre:
         pre.assert_not_called()
         post.assert_not_called()
+        post_with_metadata.assert_not_called()
         pb_message = featurestore_online_service.WriteFeatureValuesRequest.pb(
             featurestore_online_service.WriteFeatureValuesRequest()
         )
@@ -4668,6 +4768,10 @@ async def test_write_feature_values_rest_asyncio_interceptors(null_interceptor):
         ]
         pre.return_value = request, metadata
         post.return_value = featurestore_online_service.WriteFeatureValuesResponse()
+        post_with_metadata.return_value = (
+            featurestore_online_service.WriteFeatureValuesResponse(),
+            metadata,
+        )
 
         await client.write_feature_values(
             request,
@@ -4679,6 +4783,7 @@ async def test_write_feature_values_rest_asyncio_interceptors(null_interceptor):
 
         pre.assert_called_once()
         post.assert_called_once()
+        post_with_metadata.assert_called_once()
 
 
 @pytest.mark.asyncio

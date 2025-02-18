@@ -176,11 +176,37 @@ class PredictionServiceRestInterceptor:
     ) -> prediction_service.DirectPredictResponse:
         """Post-rpc interceptor for direct_predict
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_direct_predict_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_direct_predict` interceptor runs
+        before the `post_direct_predict_with_metadata` interceptor.
         """
         return response
+
+    def post_direct_predict_with_metadata(
+        self,
+        response: prediction_service.DirectPredictResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.DirectPredictResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for direct_predict
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_direct_predict_with_metadata`
+        interceptor in new development instead of the `post_direct_predict` interceptor.
+        When both interceptors are used, this `post_direct_predict_with_metadata` interceptor runs after the
+        `post_direct_predict` interceptor. The (possibly modified) response returned by
+        `post_direct_predict` will be passed to
+        `post_direct_predict_with_metadata`.
+        """
+        return response, metadata
 
     def pre_direct_raw_predict(
         self,
@@ -202,11 +228,37 @@ class PredictionServiceRestInterceptor:
     ) -> prediction_service.DirectRawPredictResponse:
         """Post-rpc interceptor for direct_raw_predict
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_direct_raw_predict_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_direct_raw_predict` interceptor runs
+        before the `post_direct_raw_predict_with_metadata` interceptor.
         """
         return response
+
+    def post_direct_raw_predict_with_metadata(
+        self,
+        response: prediction_service.DirectRawPredictResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.DirectRawPredictResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for direct_raw_predict
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_direct_raw_predict_with_metadata`
+        interceptor in new development instead of the `post_direct_raw_predict` interceptor.
+        When both interceptors are used, this `post_direct_raw_predict_with_metadata` interceptor runs after the
+        `post_direct_raw_predict` interceptor. The (possibly modified) response returned by
+        `post_direct_raw_predict` will be passed to
+        `post_direct_raw_predict_with_metadata`.
+        """
+        return response, metadata
 
     def pre_explain(
         self,
@@ -227,11 +279,36 @@ class PredictionServiceRestInterceptor:
     ) -> prediction_service.ExplainResponse:
         """Post-rpc interceptor for explain
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_explain_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_explain` interceptor runs
+        before the `post_explain_with_metadata` interceptor.
         """
         return response
+
+    def post_explain_with_metadata(
+        self,
+        response: prediction_service.ExplainResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.ExplainResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for explain
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_explain_with_metadata`
+        interceptor in new development instead of the `post_explain` interceptor.
+        When both interceptors are used, this `post_explain_with_metadata` interceptor runs after the
+        `post_explain` interceptor. The (possibly modified) response returned by
+        `post_explain` will be passed to
+        `post_explain_with_metadata`.
+        """
+        return response, metadata
 
     def pre_generate_content(
         self,
@@ -253,11 +330,37 @@ class PredictionServiceRestInterceptor:
     ) -> prediction_service.GenerateContentResponse:
         """Post-rpc interceptor for generate_content
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_generate_content_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_generate_content` interceptor runs
+        before the `post_generate_content_with_metadata` interceptor.
         """
         return response
+
+    def post_generate_content_with_metadata(
+        self,
+        response: prediction_service.GenerateContentResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.GenerateContentResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for generate_content
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_generate_content_with_metadata`
+        interceptor in new development instead of the `post_generate_content` interceptor.
+        When both interceptors are used, this `post_generate_content_with_metadata` interceptor runs after the
+        `post_generate_content` interceptor. The (possibly modified) response returned by
+        `post_generate_content` will be passed to
+        `post_generate_content_with_metadata`.
+        """
+        return response, metadata
 
     def pre_predict(
         self,
@@ -278,11 +381,36 @@ class PredictionServiceRestInterceptor:
     ) -> prediction_service.PredictResponse:
         """Post-rpc interceptor for predict
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_predict_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_predict` interceptor runs
+        before the `post_predict_with_metadata` interceptor.
         """
         return response
+
+    def post_predict_with_metadata(
+        self,
+        response: prediction_service.PredictResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.PredictResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for predict
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_predict_with_metadata`
+        interceptor in new development instead of the `post_predict` interceptor.
+        When both interceptors are used, this `post_predict_with_metadata` interceptor runs after the
+        `post_predict` interceptor. The (possibly modified) response returned by
+        `post_predict` will be passed to
+        `post_predict_with_metadata`.
+        """
+        return response, metadata
 
     def pre_raw_predict(
         self,
@@ -303,11 +431,34 @@ class PredictionServiceRestInterceptor:
     ) -> httpbody_pb2.HttpBody:
         """Post-rpc interceptor for raw_predict
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_raw_predict_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_raw_predict` interceptor runs
+        before the `post_raw_predict_with_metadata` interceptor.
         """
         return response
+
+    def post_raw_predict_with_metadata(
+        self,
+        response: httpbody_pb2.HttpBody,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[httpbody_pb2.HttpBody, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for raw_predict
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_raw_predict_with_metadata`
+        interceptor in new development instead of the `post_raw_predict` interceptor.
+        When both interceptors are used, this `post_raw_predict_with_metadata` interceptor runs after the
+        `post_raw_predict` interceptor. The (possibly modified) response returned by
+        `post_raw_predict` will be passed to
+        `post_raw_predict_with_metadata`.
+        """
+        return response, metadata
 
     def pre_server_streaming_predict(
         self,
@@ -329,11 +480,36 @@ class PredictionServiceRestInterceptor:
     ) -> rest_streaming.ResponseIterator:
         """Post-rpc interceptor for server_streaming_predict
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_server_streaming_predict_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_server_streaming_predict` interceptor runs
+        before the `post_server_streaming_predict_with_metadata` interceptor.
         """
         return response
+
+    def post_server_streaming_predict_with_metadata(
+        self,
+        response: rest_streaming.ResponseIterator,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        rest_streaming.ResponseIterator, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for server_streaming_predict
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_server_streaming_predict_with_metadata`
+        interceptor in new development instead of the `post_server_streaming_predict` interceptor.
+        When both interceptors are used, this `post_server_streaming_predict_with_metadata` interceptor runs after the
+        `post_server_streaming_predict` interceptor. The (possibly modified) response returned by
+        `post_server_streaming_predict` will be passed to
+        `post_server_streaming_predict_with_metadata`.
+        """
+        return response, metadata
 
     def pre_stream_generate_content(
         self,
@@ -355,11 +531,36 @@ class PredictionServiceRestInterceptor:
     ) -> rest_streaming.ResponseIterator:
         """Post-rpc interceptor for stream_generate_content
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_stream_generate_content_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_stream_generate_content` interceptor runs
+        before the `post_stream_generate_content_with_metadata` interceptor.
         """
         return response
+
+    def post_stream_generate_content_with_metadata(
+        self,
+        response: rest_streaming.ResponseIterator,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        rest_streaming.ResponseIterator, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for stream_generate_content
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_stream_generate_content_with_metadata`
+        interceptor in new development instead of the `post_stream_generate_content` interceptor.
+        When both interceptors are used, this `post_stream_generate_content_with_metadata` interceptor runs after the
+        `post_stream_generate_content` interceptor. The (possibly modified) response returned by
+        `post_stream_generate_content` will be passed to
+        `post_stream_generate_content_with_metadata`.
+        """
+        return response, metadata
 
     def pre_stream_raw_predict(
         self,
@@ -381,11 +582,36 @@ class PredictionServiceRestInterceptor:
     ) -> rest_streaming.ResponseIterator:
         """Post-rpc interceptor for stream_raw_predict
 
-        Override in a subclass to manipulate the response
+        DEPRECATED. Please use the `post_stream_raw_predict_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
         after it is returned by the PredictionService server but before
-        it is returned to user code.
+        it is returned to user code. This `post_stream_raw_predict` interceptor runs
+        before the `post_stream_raw_predict_with_metadata` interceptor.
         """
         return response
+
+    def post_stream_raw_predict_with_metadata(
+        self,
+        response: rest_streaming.ResponseIterator,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        rest_streaming.ResponseIterator, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for stream_raw_predict
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_stream_raw_predict_with_metadata`
+        interceptor in new development instead of the `post_stream_raw_predict` interceptor.
+        When both interceptors are used, this `post_stream_raw_predict_with_metadata` interceptor runs after the
+        `post_stream_raw_predict` interceptor. The (possibly modified) response returned by
+        `post_stream_raw_predict` will be passed to
+        `post_stream_raw_predict_with_metadata`.
+        """
+        return response, metadata
 
     def pre_get_location(
         self,
@@ -845,6 +1071,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_direct_predict(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_direct_predict_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1000,6 +1230,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_direct_raw_predict(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_direct_raw_predict_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1156,6 +1390,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_explain(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_explain_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1310,6 +1548,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_generate_content(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_generate_content_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1466,6 +1708,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_predict(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_predict_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1665,6 +1911,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
 
             resp = self._interceptor.post_raw_predict(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_raw_predict_with_metadata(
+                resp, response_metadata
+            )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
             ):  # pragma: NO COVER
@@ -1825,6 +2075,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             )
 
             resp = self._interceptor.post_server_streaming_predict(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_server_streaming_predict_with_metadata(
+                resp, response_metadata
+            )
             return resp
 
     class _StreamDirectPredict(
@@ -1996,6 +2250,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             )
 
             resp = self._interceptor.post_stream_generate_content(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_stream_generate_content_with_metadata(
+                resp, response_metadata
+            )
             return resp
 
     class _StreamingPredict(
@@ -2211,6 +2469,10 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             resp = rest_streaming.ResponseIterator(response, httpbody_pb2.HttpBody)
 
             resp = self._interceptor.post_stream_raw_predict(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_stream_raw_predict_with_metadata(
+                resp, response_metadata
+            )
             return resp
 
     @property
