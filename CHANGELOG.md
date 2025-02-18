@@ -6,19 +6,13 @@
 ### Features
 
 * A new field `create_time` is added to message `.google.cloud.aiplatform.v1.GenerateContentResponse` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
-* A new field `create_time` is added to message `.google.cloud.aiplatform.v1.GenerateContentResponse` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
-* A new field `response_id` is added to message `.google.cloud.aiplatform.v1.GenerateContentResponse` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * A new field `response_id` is added to message `.google.cloud.aiplatform.v1.GenerateContentResponse` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * A new field `unversioned_package_disabled` is added to message `.google.api.PythonSettings` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * Add additional Probe options to v1 model.proto ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * Add Notebooks Runtime Software Configuration ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
-* Add Notebooks Runtime Software Configuration ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
-* Add REST Interceptors which support reading metadata ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * Add REST Interceptors which support reading metadata ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * Add RolloutOptions to DeployedModel in v1beta1 endpoint.proto, add additional Probe options in v1beta1 model.proto ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * Add support for reading selective GAPIC generation methods from service YAML ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
-* Add support for reading selective GAPIC generation methods from service YAML ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
-* EvaluateDataset API v1beta1 initial release ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * EvaluateDataset API v1beta1 initial release ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
 * Use default file name if one isn't provided when uploading evaluation results to GCS. ([d86d87a](https://github.com/googleapis/python-aiplatform/commit/d86d87a87ed6b22f39b95f7b09365570905f017a))
 
