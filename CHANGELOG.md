@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.81.0](https://github.com/googleapis/python-aiplatform/compare/v1.80.0...v1.81.0) (2025-02-18)
+
+
+### Features
+
+* A new field `create_time` is added to message `.google.cloud.aiplatform.v1.GenerateContentResponse` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* A new field `response_id` is added to message `.google.cloud.aiplatform.v1.GenerateContentResponse` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* A new field `unversioned_package_disabled` is added to message `.google.api.PythonSettings` ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* Add additional Probe options to v1 model.proto ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* Add Notebooks Runtime Software Configuration ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* Add REST Interceptors which support reading metadata ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* Add RolloutOptions to DeployedModel in v1beta1 endpoint.proto, add additional Probe options in v1beta1 model.proto ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* Add support for reading selective GAPIC generation methods from service YAML ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* EvaluateDataset API v1beta1 initial release ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* Use default file name if one isn't provided when uploading evaluation results to GCS. ([d86d87a](https://github.com/googleapis/python-aiplatform/commit/d86d87a87ed6b22f39b95f7b09365570905f017a))
+
+
+### Bug Fixes
+
+* **deps:** Require grpc-google-iam-v1&gt;=0.14.0 ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* Prediction stream raw predict url for non dedicated endpoint ([b91a8aa](https://github.com/googleapis/python-aiplatform/commit/b91a8aa95e89f93150522672b5ee367c8f3211ac))
+
+
+### Documentation
+
+* A comment for field `content` in message `.google.api.Page` is changed ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* A comment for field `filter` in message `.google.cloud.aiplatform.v1.ListNotebookRuntimesRequest` is changed ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* A comment for field `filter` in message `.google.cloud.aiplatform.v1.ListNotebookRuntimeTemplatesRequest` is changed ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* A comment for field `filter` in message `.google.cloud.aiplatform.v1beta1.ListNotebookRuntimesRequest` is changed ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* A comment for field `filter` in message `.google.cloud.aiplatform.v1beta1.ListNotebookRuntimeTemplatesRequest` is changed ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+* A comment for message `RoutingRule` is changed ([b176d13](https://github.com/googleapis/python-aiplatform/commit/b176d13092bba744417a43d944f3c7639f73d5f6))
+
 ## [1.80.0](https://github.com/googleapis/python-aiplatform/compare/v1.79.0...v1.80.0) (2025-02-11)
 
 
