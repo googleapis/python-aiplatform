@@ -27,6 +27,7 @@ from vertexai.rag.rag_data import (
     get_file,
     list_files,
     delete_file,
+    ImportRagFilesResponseWithMetadata,
 )
 
 from vertexai.rag.rag_retrieval import (
@@ -65,6 +66,7 @@ __all__ = (
     "ChunkingConfig",
     "EmbeddingModelConfig",
     "Filter",
+    "ImportRagFilesResponseWithMetadata",
     "JiraQuery",
     "JiraSource",
     "Pinecone",

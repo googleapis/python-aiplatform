@@ -29,6 +29,7 @@ from google.cloud.aiplatform_v1 import (
     DeleteRagFileRequest,
     GetRagCorpusRequest,
     GetRagFileRequest,
+    ImportRagFilesOperationMetadata,
     ImportRagFilesResponse,
     ListRagCorporaRequest,
     ListRagFilesRequest,
@@ -51,6 +52,17 @@ from vertexai.rag.utils.resources import (
     SlackChannelsSource,
     TransformationConfig,
 )
+import proto  # type: ignore
+
+
+class ImportRagFilesResponseWithMetadata(ImportRagFilesResponse):
+    """ImportRagFilesResponse with metadata."""
+
+    operation_metadata: ImportRagFilesOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=ImportRagFilesOperationMetadata,
+    )
 
 
 def create_corpus(
@@ -395,7 +407,7 @@ def import_files(
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
     partial_failures_sink: Optional[str] = None,
-) -> ImportRagFilesResponse:
+) -> ImportRagFilesResponseWithMetadata:
     """
     Import files to an existing RagCorpus, wait until completion.
 
@@ -505,7 +517,7 @@ def import_files(
             the schema will be checked and the partial failures will be appended
             to the table.
     Returns:
-        ImportRagFilesResponse.
+        ImportRagFilesResponseWithMetadata.
     """
     if source is not None and paths is not None:
         raise ValueError("Only one of source or paths must be passed in at a time")

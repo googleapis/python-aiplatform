@@ -43,7 +43,6 @@ from google.cloud.aiplatform_v1 import (
     RagFileTransformationConfig,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
-    ImportRagFilesResponse,
     JiraSource as GapicJiraSource,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
@@ -54,6 +53,7 @@ from google.cloud.aiplatform_v1 import (
     RagVectorDbConfig as GapicRagVectorDbConfig,
 )
 from google.cloud.aiplatform_v1.types import api_auth
+from vertexai import rag
 from google.protobuf import timestamp_pb2
 
 
@@ -264,7 +264,9 @@ TEST_IMPORT_REQUEST_DRIVE_FILE = ImportRagFilesRequest(
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FILE,
 )
 
-TEST_IMPORT_RESPONSE = ImportRagFilesResponse(imported_rag_files_count=2)
+TEST_IMPORT_RESPONSE = rag.ImportRagFilesResponseWithMetadata(
+    imported_rag_files_count=2
+)
 
 TEST_GAPIC_RAG_FILE = GapicRagFile(
     name=TEST_RAG_FILE_RESOURCE_NAME,
