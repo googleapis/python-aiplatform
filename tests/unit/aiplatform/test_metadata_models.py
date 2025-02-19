@@ -76,6 +76,9 @@ _TEST_MODEL_NAME = (
 )
 
 
+_LINEAR_REGRESSION_CLASS = f"{LinearRegression.__module__}.LinearRegression"
+
+
 @pytest.fixture
 def mock_datetime_now(monkeypatch):
     class DateTime(datetime.datetime):
@@ -205,7 +208,7 @@ _TEST_SKLEARN_MODEL_ARTIFACT = GapicArtifact(
         "frameworkName": "sklearn",
         "frameworkVersion": "1.0",
         "modelFile": "model.pkl",
-        "modelClass": "sklearn.linear_model._base.LinearRegression",
+        "modelClass": _LINEAR_REGRESSION_CLASS,
     },
 )
 
@@ -380,7 +383,7 @@ class TestModels:
                 "frameworkName": "sklearn",
                 "frameworkVersion": sklearn.__version__,
                 "modelFile": "model.pkl",
-                "modelClass": "sklearn.linear_model._base.LinearRegression",
+                "modelClass": _LINEAR_REGRESSION_CLASS,
             },
             state=GapicArtifact.State.LIVE,
         )
@@ -433,7 +436,7 @@ class TestModels:
                 "frameworkName": "sklearn",
                 "frameworkVersion": sklearn.__version__,
                 "modelFile": "model.pkl",
-                "modelClass": "sklearn.linear_model._base.LinearRegression",
+                "modelClass": _LINEAR_REGRESSION_CLASS,
                 "predictSchemata": {"instanceSchemaUri": f"{_TEST_URI}/instance.yaml"},
             },
             state=GapicArtifact.State.LIVE,
@@ -879,7 +882,7 @@ class TestModels:
         model_info = experiment_model.get_model_info()
 
         expected_model_info = {
-            "model_class": "sklearn.linear_model._base.LinearRegression",
+            "model_class": _LINEAR_REGRESSION_CLASS,
             "framework_name": "sklearn",
             "framework_version": "1.0",
             "input_example": {
