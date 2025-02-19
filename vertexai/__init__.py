@@ -17,6 +17,8 @@
 import importlib
 
 from google.cloud.aiplatform import version as aiplatform_version
+from .genai.client import Client
+from .genai import types
 
 __version__ = aiplatform_version.__version__
 
@@ -25,6 +27,8 @@ from google.cloud.aiplatform import init
 __all__ = [
     "init",
     "preview",
+    "Client",
+    "types",
 ]
 
 
