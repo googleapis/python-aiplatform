@@ -3614,7 +3614,7 @@ class PrivateEndpoint(Endpoint):
         Example usage:
             PSA based private endpoint:
 
-            response = my_private_endpoint.predict(instances=[...])
+            response = my_private_endpoint.predict(instances=[...], parameters={...})
             my_predictions = response.predictions
 
             PSC based private endpoint:
@@ -3680,7 +3680,7 @@ class PrivateEndpoint(Endpoint):
             response = self._http_request(
                 method="POST",
                 url=self.predict_http_uri,
-                body=json.dumps({"instances": instances}),
+                body=json.dumps({"instances": instances, "parameters": parameters}),
                 headers={"Content-Type": "application/json"},
             )
             prediction_response = json.loads(response.data)
@@ -3717,7 +3717,7 @@ class PrivateEndpoint(Endpoint):
             response = self._http_request(
                 method="POST",
                 url=url,
-                body=json.dumps({"instances": instances}),
+                body=json.dumps({"instances": instances, "parameters": parameters}),
                 headers=headers,
             )
 

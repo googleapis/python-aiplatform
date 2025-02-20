@@ -3525,7 +3525,7 @@ class TestPrivateEndpoint:
         predict_private_endpoint_mock.assert_called_once_with(
             method="POST",
             url="",
-            body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]}',
+            body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
             headers={"Content-Type": "application/json"},
         )
 
@@ -3552,7 +3552,7 @@ class TestPrivateEndpoint:
         predict_private_endpoint_mock.assert_called_once_with(
             method="POST",
             url=f"https://{_TEST_ENDPOINT_OVERRIDE}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:predict",
-            body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]}',
+            body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
             headers={
                 "Content-Type": "application/json",
                 "Authorization": "Bearer None",
