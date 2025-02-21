@@ -565,7 +565,7 @@ def set_backend_config(
                 "backend_config must be a VertexFeatureStore,"
                 "RagManagedDb, or Pinecone."
             )
-        if backend_config.rag_embedding_model_config:
-            set_embedding_model_config(
-                backend_config.rag_embedding_model_config, rag_corpus
-            )
+    if backend_config.rag_embedding_model_config:
+        set_embedding_model_config(
+            backend_config.rag_embedding_model_config, rag_corpus
+        )
