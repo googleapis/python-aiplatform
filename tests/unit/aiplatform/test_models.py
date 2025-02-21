@@ -2854,6 +2854,54 @@ class TestModel:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures(
+        "get_model_mock",
+        "preview_deploy_model_mock",
+        "create_endpoint_mock",
+        "get_endpoint_mock",
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_with_rollout_options(self, preview_deploy_model_mock, sync):
+        test_model = models.Model(_TEST_ID).preview
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint = preview_models.Endpoint(
+            test_constants.EndpointConstants._TEST_ENDPOINT_NAME
+        )
+        test_rollout_options = preview_models.RolloutOptions(
+            previous_deployed_model="123",
+            max_surge_percentage=10,
+            max_unavailable_replicas=2,
+        )
+        test_model.deploy(
+            endpoint=test_endpoint,
+            sync=sync,
+            deploy_request_timeout=None,
+            rollout_options=test_rollout_options,
+            disable_container_logging=False,
+        )
+        if not sync:
+            test_endpoint.wait()
+        expected_rollout_options = gca_endpoint_v1beta1.RolloutOptions(
+            previous_deployed_model="123",
+            max_surge_percentage=10,
+            max_unavailable_replicas=2,
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            model=test_model.resource_name,
+            display_name=None,
+            rollout_options=expected_rollout_options,
+            enable_container_logging=True,
+        )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_init_aiplatform_with_encryption_key_name_and_batch_predict_gcs_source_and_dest(
