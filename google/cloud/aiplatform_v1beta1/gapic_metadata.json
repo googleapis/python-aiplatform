@@ -3375,6 +3375,11 @@
         "grpc": {
           "libraryClient": "ModelGardenServiceClient",
           "rpcs": {
+            "Deploy": {
+              "methods": [
+                "deploy"
+              ]
+            },
             "DeployPublisherModel": {
               "methods": [
                 "deploy_publisher_model"
@@ -3395,6 +3400,11 @@
         "grpc-async": {
           "libraryClient": "ModelGardenServiceAsyncClient",
           "rpcs": {
+            "Deploy": {
+              "methods": [
+                "deploy"
+              ]
+            },
             "DeployPublisherModel": {
               "methods": [
                 "deploy_publisher_model"
@@ -3415,6 +3425,11 @@
         "rest": {
           "libraryClient": "ModelGardenServiceClient",
           "rpcs": {
+            "Deploy": {
+              "methods": [
+                "deploy"
+              ]
+            },
             "DeployPublisherModel": {
               "methods": [
                 "deploy_publisher_model"

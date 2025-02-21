@@ -410,6 +410,34 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
         return self._stubs["list_publisher_models"]
 
     @property
+    def deploy(
+        self,
+    ) -> Callable[
+        [model_garden_service.DeployRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the deploy method over gRPC.
+
+        Deploys a model to a new endpoint.
+
+        Returns:
+            Callable[[~.DeployRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "deploy" not in self._stubs:
+            self._stubs["deploy"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelGardenService/Deploy",
+                request_serializer=model_garden_service.DeployRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["deploy"]
+
+    @property
     def deploy_publisher_model(
         self,
     ) -> Callable[
@@ -448,6 +476,11 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
             ),
             self.list_publisher_models: self._wrap_method(
                 self.list_publisher_models,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.deploy: self._wrap_method(
+                self.deploy,
                 default_timeout=None,
                 client_info=client_info,
             ),
