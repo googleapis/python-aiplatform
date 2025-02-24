@@ -471,6 +471,80 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         )
 
 
+class RolloutOptions(object):
+    """RolloutOptions contains configurations for rolling deployments.
+
+    Attributes:
+        previous_deployed_model:
+            The ID of the previous deployed model.
+        max_surge_percentage:
+            Maximum additional replicas to create during the deployment,
+            specified as a percentage of the current replica count.
+        max_surge_replicas:
+            Maximum number of additional replicas to create during the
+            deployment.
+        max_unavailable_percentage:
+            Maximum amount of replicas that can be unavailable during the
+            deployment, specified as a percentage of the current replica count.
+        max_unavailable_replicas:
+            Maximum number of replicas that can be unavailable during the
+            deployment.
+    """
+
+    def __init__(
+        self,
+        previous_deployed_model: int,
+        max_surge_percentage: Optional[int] = None,
+        max_surge_replicas: Optional[int] = None,
+        max_unavailable_percentage: Optional[int] = None,
+        max_unavailable_replicas: Optional[int] = None,
+    ):
+        self.previous_deployed_model = previous_deployed_model
+        self.max_surge_percentage = max_surge_percentage
+        self.max_surge_replicas = max_surge_replicas
+        self.max_unavailable_percentage = max_unavailable_percentage
+        self.max_unavailable_replicas = max_unavailable_replicas
+
+    @classmethod
+    def from_gapic(cls, opts: gca_endpoint_compat.RolloutOptions) -> "RolloutOptions":
+        return cls(
+            previous_deployed_model=int(opts.previous_deployed_model),
+            max_surge_percentage=opts.max_surge_percentage,
+            max_surge_replicas=opts.max_surge_replicas,
+            max_unavailable_percentage=opts.max_unavailable_percentage,
+            max_unavailable_replicas=opts.max_unavailable_replicas,
+        )
+
+    def to_gapic(self) -> gca_endpoint_compat.RolloutOptions:
+        """Converts RolloutOptions class to gapic RolloutOptions proto."""
+        result = gca_endpoint_compat.RolloutOptions(
+            previous_deployed_model=str(self.previous_deployed_model),
+        )
+        if self.max_surge_percentage:
+            if self.max_surge_replicas:
+                raise ValueError(
+                    "max_surge_percentage and max_surge_replicas cannot both be" " set."
+                )
+            result.max_surge_percentage = self.max_surge_percentage
+        elif self.max_surge_replicas:
+            result.max_surge_replicas = self.max_surge_replicas
+        else:
+            result.max_surge_replicas = 0
+        if self.max_unavailable_percentage:
+            if self.max_unavailable_replicas:
+                raise ValueError(
+                    "max_unavailable_percentage and max_unavailable_replicas"
+                    " cannot both be set."
+                )
+            result.max_unavailable_percentage = self.max_unavailable_percentage
+        elif self.max_unavailable_replicas:
+            result.max_unavailable_replicas = self.max_unavailable_replicas
+        else:
+            result.max_unavailable_replicas = 0
+
+        return result
+
+
 class Endpoint(aiplatform.Endpoint):
     @staticmethod
     def _validate_deploy_args(
@@ -616,6 +690,7 @@ class Endpoint(aiplatform.Endpoint):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
+        rollout_options: Optional[RolloutOptions] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -712,6 +787,8 @@ class Endpoint(aiplatform.Endpoint):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            rollout_options (RolloutOptions):
+                Optional. Options to configure a rolling deployment.
 
         """
         self._sync_gca_resource_if_skipped()
@@ -754,6 +831,7 @@ class Endpoint(aiplatform.Endpoint):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
+            rollout_options=rollout_options,
         )
 
     @base.optional_sync()
@@ -780,6 +858,7 @@ class Endpoint(aiplatform.Endpoint):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
+        rollout_options: Optional[RolloutOptions] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -870,7 +949,8 @@ class Endpoint(aiplatform.Endpoint):
               set, the model deploy/mutate operation will succeed once
               available_replica_count reaches required_replica_count, and the
               rest of the replicas will be retried.
-
+            rollout_options (RolloutOptions): Optional.
+              Options to configure a rolling deployment.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -901,6 +981,7 @@ class Endpoint(aiplatform.Endpoint):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
+            rollout_options=rollout_options,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -934,6 +1015,7 @@ class Endpoint(aiplatform.Endpoint):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
+        rollout_options: Optional[RolloutOptions] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1031,6 +1113,8 @@ class Endpoint(aiplatform.Endpoint):
               set, the model deploy/mutate operation will succeed once
               available_replica_count reaches required_replica_count, and the
               rest of the replicas will be retried.
+            rollout_options (RolloutOptions): Optional. Options to configure a
+              rolling deployment.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -1103,7 +1187,7 @@ class Endpoint(aiplatform.Endpoint):
                 machine_type = _DEFAULT_MACHINE_TYPE
                 _LOGGER.info(f"Using default machine_type: {machine_type}")
 
-            if use_dedicated_resources:
+            if use_dedicated_resources and not rollout_options:
                 dedicated_resources = gca_machine_resources_compat.DedicatedResources(
                     min_replica_count=min_replica_count,
                     max_replica_count=max_replica_count,
@@ -1146,6 +1230,15 @@ class Endpoint(aiplatform.Endpoint):
                     )
                 )
                 deployed_model.dedicated_resources = dedicated_resources
+            elif rollout_options:
+                deployed_model.rollout_options = rollout_options.to_gapic()
+            elif supports_automatic_resources:
+                deployed_model.automatic_resources = (
+                    gca_machine_resources_compat.AutomaticResources(
+                        min_replica_count=min_replica_count,
+                        max_replica_count=max_replica_count,
+                    )
+                )
         else:
             deployed_model = gca_endpoint_compat.DeployedModel(
                 model=model.versioned_resource_name,
@@ -1444,6 +1537,7 @@ class Model(aiplatform.Model):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
+        rollout_options: Optional[RolloutOptions] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1561,6 +1655,8 @@ class Model(aiplatform.Model):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            rollout_options (RolloutOptions):
+              Optional. Options to configure a rolling deployment.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1620,6 +1716,7 @@ class Model(aiplatform.Model):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
+            rollout_options=rollout_options,
         )
 
     def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
@@ -1655,6 +1752,7 @@ class Model(aiplatform.Model):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
+        rollout_options: Optional[RolloutOptions] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1763,6 +1861,8 @@ class Model(aiplatform.Model):
               set, the model deploy/mutate operation will succeed once
               available_replica_count reaches required_replica_count, and the
               rest of the replicas will be retried.
+            rollout_options (RolloutOptions):
+              Optional. Options to configure a rolling deployment.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1771,6 +1871,10 @@ class Model(aiplatform.Model):
 
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
+            if rollout_options is not None:
+                raise ValueError(
+                    "Rollout options may only be used when deploying to an existing endpoint."
+                )
 
             if not network:
                 endpoint = Endpoint.create(
@@ -1792,6 +1896,10 @@ class Model(aiplatform.Model):
                     credentials=self.credentials,
                     encryption_spec_key_name=encryption_spec_key_name,
                 )
+        if isinstance(endpoint, Endpoint):
+            preview_kwargs = {"rollout_options": rollout_options}
+        else:
+            preview_kwargs = {}
 
         _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)
 
@@ -1820,6 +1928,7 @@ class Model(aiplatform.Model):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
+            **preview_kwargs,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
