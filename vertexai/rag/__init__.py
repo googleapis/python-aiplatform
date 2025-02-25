@@ -39,7 +39,6 @@ from vertexai.rag.rag_store import (
 )
 from vertexai.rag.utils.resources import (
     ChunkingConfig,
-    EmbeddingModelConfig,
     Filter,
     JiraQuery,
     JiraSource,
@@ -63,7 +62,6 @@ from vertexai.rag.utils.resources import (
 
 __all__ = (
     "ChunkingConfig",
-    "EmbeddingModelConfig",
     "Filter",
     "JiraQuery",
     "JiraSource",
