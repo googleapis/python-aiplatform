@@ -145,6 +145,11 @@ class ModelGardenServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.deploy: gapic_v1.method.wrap_method(
+                self.deploy,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.deploy_publisher_model: gapic_v1.method.wrap_method(
                 self.deploy_publisher_model,
                 default_timeout=None,
@@ -236,6 +241,15 @@ class ModelGardenServiceTransport(abc.ABC):
             model_garden_service.ListPublisherModelsResponse,
             Awaitable[model_garden_service.ListPublisherModelsResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def deploy(
+        self,
+    ) -> Callable[
+        [model_garden_service.DeployRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

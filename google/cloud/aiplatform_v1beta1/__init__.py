@@ -762,9 +762,12 @@ from .types.model_deployment_monitoring_job import (
 )
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
+from .types.model_garden_service import DeployOperationMetadata
 from .types.model_garden_service import DeployPublisherModelOperationMetadata
 from .types.model_garden_service import DeployPublisherModelRequest
 from .types.model_garden_service import DeployPublisherModelResponse
+from .types.model_garden_service import DeployRequest
+from .types.model_garden_service import DeployResponse
 from .types.model_garden_service import GetPublisherModelRequest
 from .types.model_garden_service import ListPublisherModelsRequest
 from .types.model_garden_service import ListPublisherModelsResponse
@@ -1446,9 +1449,12 @@ __all__ = (
     "DeployModelOperationMetadata",
     "DeployModelRequest",
     "DeployModelResponse",
+    "DeployOperationMetadata",
     "DeployPublisherModelOperationMetadata",
     "DeployPublisherModelRequest",
     "DeployPublisherModelResponse",
+    "DeployRequest",
+    "DeployResponse",
     "DeployedIndex",
     "DeployedIndexAuthConfig",
     "DeployedIndexRef",

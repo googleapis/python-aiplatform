@@ -80,6 +80,14 @@ class ModelGardenServiceRestInterceptor:
 
     .. code-block:: python
         class MyCustomModelGardenServiceInterceptor(ModelGardenServiceRestInterceptor):
+            def pre_deploy(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_deploy(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_deploy_publisher_model(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -109,6 +117,54 @@ class ModelGardenServiceRestInterceptor:
 
 
     """
+
+    def pre_deploy(
+        self,
+        request: model_garden_service.DeployRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        model_garden_service.DeployRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Pre-rpc interceptor for deploy
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ModelGardenService server.
+        """
+        return request, metadata
+
+    def post_deploy(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for deploy
+
+        DEPRECATED. Please use the `post_deploy_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the ModelGardenService server but before
+        it is returned to user code. This `post_deploy` interceptor runs
+        before the `post_deploy_with_metadata` interceptor.
+        """
+        return response
+
+    def post_deploy_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for deploy
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ModelGardenService server but before it is returned to user code.
+
+        We recommend only using this `post_deploy_with_metadata`
+        interceptor in new development instead of the `post_deploy` interceptor.
+        When both interceptors are used, this `post_deploy_with_metadata` interceptor runs after the
+        `post_deploy` interceptor. The (possibly modified) response returned by
+        `post_deploy` will be passed to
+        `post_deploy_with_metadata`.
+        """
+        return response, metadata
 
     def pre_deploy_publisher_model(
         self,
@@ -2677,6 +2733,163 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
         # Return the client from cache.
         return self._operations_client
 
+    class _Deploy(
+        _BaseModelGardenServiceRestTransport._BaseDeploy, ModelGardenServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("ModelGardenServiceRestTransport.Deploy")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: model_garden_service.DeployRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the deploy method over HTTP.
+
+            Args:
+                request (~.model_garden_service.DeployRequest):
+                    The request object. Request message for
+                [ModelGardenService.Deploy][google.cloud.aiplatform.v1beta1.ModelGardenService.Deploy].
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseModelGardenServiceRestTransport._BaseDeploy._get_http_options()
+            )
+
+            request, metadata = self._interceptor.pre_deploy(request, metadata)
+            transcoded_request = _BaseModelGardenServiceRestTransport._BaseDeploy._get_transcoded_request(
+                http_options, request
+            )
+
+            body = (
+                _BaseModelGardenServiceRestTransport._BaseDeploy._get_request_body_json(
+                    transcoded_request
+                )
+            )
+
+            # Jsonify the query params
+            query_params = (
+                _BaseModelGardenServiceRestTransport._BaseDeploy._get_query_params_json(
+                    transcoded_request
+                )
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.Deploy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "Deploy",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = ModelGardenServiceRestTransport._Deploy._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_deploy(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_deploy_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ModelGardenServiceClient.deploy",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
+                        "rpcName": "Deploy",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
+
     class _DeployPublisherModel(
         _BaseModelGardenServiceRestTransport._BaseDeployPublisherModel,
         ModelGardenServiceRestStub,
@@ -3140,6 +3353,14 @@ class ModelGardenServiceRestTransport(_BaseModelGardenServiceRestTransport):
                     },
                 )
             return resp
+
+    @property
+    def deploy(
+        self,
+    ) -> Callable[[model_garden_service.DeployRequest], operations_pb2.Operation]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._Deploy(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def deploy_publisher_model(
