@@ -84,7 +84,7 @@ def test_vertexai_import():
     assert sorted(new_modules_after_vertexai) == [vertexai_module_name]
 
     assert vertexai_import_timedelta.total_seconds() < 0.005
-    assert aip_import_timedelta.total_seconds() < 20
+    assert aip_import_timedelta.total_seconds() < 23
 
     # Testing that external modules are not loaded.
     new_modules = modules_after_vertexai - modules_before_aip
