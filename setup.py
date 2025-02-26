@@ -171,6 +171,16 @@ langchain_testing_extra_require = list(
     )
 )
 
+ag2_extra_require = [
+    "ag2[gemini]",
+]
+
+ag2_testing_extra_require = list(
+    set(
+        ag2_extra_require + reasoning_engine_extra_require + ["absl-py", "pytest-xdist"]
+    )
+)
+
 tokenization_extra_require = ["sentencepiece >= 0.2.0"]
 tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
 
@@ -284,6 +294,8 @@ setuptools.setup(
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,
         "tokenization": tokenization_extra_require,
+        "ag2": ag2_extra_require,
+        "ag2_testing": ag2_testing_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

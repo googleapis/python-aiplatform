@@ -14,6 +14,8 @@
 #
 from absl.testing import parameterized
 import cloudpickle
+import dataclasses
+import datetime
 import difflib
 import importlib
 import os
@@ -219,6 +221,30 @@ class MethodToBeUnregisteredEngine:
                 _TEST_METHOD_TO_BE_UNREGISTERED_NAME,
             ]
         }
+
+
+@dataclasses.dataclass
+class NonSerializableClass:
+    name: str
+    date: datetime  # Not JSON serializable by default
+
+
+@dataclasses.dataclass
+class SerializableClass:
+    name: str
+    value: int
+
+
+@dataclasses.dataclass
+class NestedClass:
+    name: str
+    inner: SerializableClass
+
+
+@dataclasses.dataclass
+class ListClass:
+    name: str
+    items: List[Any]
 
 
 _TEST_RETRY = base._DEFAULT_RETRY
@@ -2225,6 +2251,52 @@ class TestToProto(parameterized.TestCase):
         new_result = _utils.to_proto({})
         self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
         self.assertEmpty(new_result)
+
+
+class TestDataclassToDict(parameterized.TestCase):
+    @parameterized.named_parameters(
+        dict(
+            testcase_name="serializable_dataclass",
+            obj=SerializableClass(name="test", value=42),
+            expected_dict={"name": "test", "value": 42},
+        ),
+        dict(
+            testcase_name="nested_dataclass",
+            obj=NestedClass(
+                name="outer", inner=SerializableClass(name="inner", value=10)
+            ),
+            expected_dict={"name": "outer", "inner": {"name": "inner", "value": 10}},
+        ),
+        dict(
+            testcase_name="list_dataclass",
+            obj=ListClass(name="list_test", items=[1, 2, 3]),
+            expected_dict={"name": "list_test", "items": [1, 2, 3]},
+        ),
+        dict(
+            testcase_name="empty_list_dataclass",
+            obj=ListClass(name="list_test", items=[]),
+            expected_dict={"name": "list_test", "items": []},
+        ),
+    )
+    def test_dataclass_to_dict_success(self, obj, expected_dict):
+        result = _utils.dataclass_to_dict(obj)
+        self.assertEqual(result, expected_dict)
+
+    @parameterized.named_parameters(
+        dict(
+            testcase_name="non_dataclass_input",
+            obj="not a dataclass",
+            expected_exception=TypeError,
+        ),
+        dict(
+            testcase_name="non_serializable_field",
+            obj=NonSerializableClass(name="test", date=datetime.datetime.now()),
+            expected_exception=TypeError,
+        ),
+    )
+    def test_dataclass_to_dict_failure(self, obj, expected_exception):
+        with self.assertRaises(expected_exception):
+            _utils.dataclass_to_dict(obj)
 
 
 class ToParsedJsonTest(parameterized.TestCase):

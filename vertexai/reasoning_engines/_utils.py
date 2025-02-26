@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import dataclasses
 import inspect
 import json
 import types
@@ -88,6 +89,19 @@ def to_dict(message: proto.Message) -> JsonDict:
     except AttributeError:
         result: JsonDict = json.loads(json_format.MessageToJson(message))
     return result
+
+
+def dataclass_to_dict(obj: dataclasses.dataclass) -> JsonDict:
+    """Converts a dataclass to a JSON dictionary.
+
+    Args:
+        obj (dataclasses.dataclass):
+            Required. The dataclass to be converted to a JSON dictionary.
+
+    Returns:
+        dict[str, Any]: A dictionary containing the contents of the dataclass.
+    """
+    return json.loads(json.dumps(dataclasses.asdict(obj)))
 
 
 def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
@@ -353,5 +367,18 @@ def _import_openinference_langchain_or_warn() -> Optional[types.ModuleType]:
         _LOGGER.warning(
             "openinference-instrumentation-langchain is not installed. Please "
             "call 'pip install google-cloud-aiplatform[langchain]'."
+        )
+    return None
+
+
+def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the autogen.tools module."""
+    try:
+        from autogen import tools
+
+        return tools
+    except ImportError:
+        _LOGGER.warning(
+            "autogen.tools is not installed. Please call: `pip install ag2[tools]`"
         )
     return None
