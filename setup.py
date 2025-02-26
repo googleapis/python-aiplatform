@@ -148,6 +148,15 @@ reasoning_engine_extra_require = [
     "typing_extensions",
 ]
 
+agent_engines_extra_require = [
+    "packaging >= 24.0",
+    "cloudpickle >= 3.0, < 4.0",
+    "google-cloud-trace < 2",
+    "google-cloud-logging < 4",
+    "pydantic >= 2.10, < 3",
+    "typing_extensions",
+]
+
 evaluation_extra_require = [
     "pandas >= 1.0.0",
     "tqdm>=4.23.0",
@@ -290,6 +299,7 @@ setuptools.setup(
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
+        "agent_engines": agent_engines_extra_require,
         "evaluation": evaluation_extra_require,
         "langchain": langchain_extra_require,
         "langchain_testing": langchain_testing_extra_require,

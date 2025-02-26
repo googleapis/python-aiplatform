@@ -167,6 +167,12 @@ from google.cloud.aiplatform_v1.services.prediction_service import (
 from google.cloud.aiplatform_v1.services.prediction_service import (
     async_client as prediction_service_async_client_v1,
 )
+from google.cloud.aiplatform_v1.services.reasoning_engine_service import (
+    client as reasoning_engine_service_client_v1,
+)
+from google.cloud.aiplatform_v1.services.reasoning_engine_execution_service import (
+    client as reasoning_engine_execution_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.schedule_service import (
     client as schedule_service_client_v1,
 )
@@ -209,6 +215,8 @@ __all__ = (
     pipeline_service_client_v1,
     prediction_service_client_v1,
     prediction_service_async_client_v1,
+    reasoning_engine_execution_service_client_v1,
+    reasoning_engine_service_client_v1,
     schedule_service_client_v1,
     specialist_pool_service_client_v1,
     tensorboard_service_client_v1,
