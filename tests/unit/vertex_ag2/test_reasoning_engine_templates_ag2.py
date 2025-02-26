@@ -31,6 +31,7 @@ _DEFAULT_PLACE_PHOTO_MAXWIDTH = 400
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
 _TEST_MODEL = "gemini-1.0-pro"
+_TEST_RUNNABLE_NAME = "test-runnable"
 _TEST_SYSTEM_INSTRUCTION = "You are a helpful bot."
 
 
@@ -127,8 +128,11 @@ class TestAG2Agent:
         initializer.global_pool.shutdown(wait=True)
 
     def test_initialization(self):
-        agent = reasoning_engines.AG2Agent(model=_TEST_MODEL)
+        agent = reasoning_engines.AG2Agent(
+            model=_TEST_MODEL, runnable_name=_TEST_RUNNABLE_NAME
+        )
         assert agent._model_name == _TEST_MODEL
+        assert agent._runnable_name == _TEST_RUNNABLE_NAME
         assert agent._project == _TEST_PROJECT
         assert agent._location == _TEST_LOCATION
         assert agent._runnable is None
@@ -140,6 +144,7 @@ class TestAG2Agent:
         ]
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
             system_instruction=_TEST_SYSTEM_INSTRUCTION,
             tools=tools,
             runnable_builder=lambda **kwargs: kwargs,
@@ -154,6 +159,7 @@ class TestAG2Agent:
     def test_set_up(self):
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
             runnable_builder=lambda **kwargs: kwargs,
         )
         assert agent._runnable is None
@@ -163,6 +169,7 @@ class TestAG2Agent:
     def test_clone(self):
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
             runnable_builder=lambda **kwargs: kwargs,
         )
         agent.set_up()
@@ -176,6 +183,7 @@ class TestAG2Agent:
     def test_query(self, dataclasses_asdict_mock):
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
         )
         agent._runnable = mock.Mock()
         mocks = mock.Mock()
@@ -202,6 +210,7 @@ class TestAG2Agent:
     ):
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
             enable_tracing=True,
         )
         assert agent._enable_tracing is True
@@ -220,5 +229,6 @@ class TestConvertToolsOrRaiseErrors:
         with pytest.raises(TypeError, match=r"has untyped input_arg"):
             reasoning_engines.AG2Agent(
                 model=_TEST_MODEL,
+                runnable_name=_TEST_RUNNABLE_NAME,
                 tools=[_return_input_no_typing],
             )

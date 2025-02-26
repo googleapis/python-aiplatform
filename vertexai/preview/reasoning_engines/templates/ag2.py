@@ -71,7 +71,7 @@ def _prepare_runnable_kwargs(
     if "system_message" not in runnable_kwargs and system_instruction:
         runnable_kwargs["system_message"] = system_instruction
 
-    if "name" not in runnable_kwargs and runnable_name:
+    if "name" not in runnable_kwargs:
         runnable_kwargs["name"] = runnable_name
 
     if "llm_config" not in runnable_kwargs:
@@ -146,11 +146,11 @@ class AG2Agent:
     def __init__(
         self,
         model: str,
+        runnable_name: str,
         *,
         api_type: Optional[str] = None,
         llm_config: Optional[Mapping[str, Any]] = None,
         system_instruction: Optional[str] = None,
-        runnable_name: Optional[str] = None,
         runnable_kwargs: Optional[Mapping[str, Any]] = None,
         runnable_builder: Optional[Callable[..., "ConversableAgent"]] = None,
         tools: Optional[Sequence[Callable[..., Any]]] = None,
@@ -201,6 +201,11 @@ class AG2Agent:
                 Required. The name of the model (e.g. "gemini-1.0-pro").
                 Used to create a default `llm_config` if one is not provided.
                 This parameter is ignored if `llm_config` is provided.
+            runnable_name (str):
+                Required. The name of the runnable.
+                This name is used as the default `runnable_kwargs["name"]`
+                unless `runnable_kwargs` already contains a "name", in which
+                case the provided `runnable_kwargs["name"]` will be used.
             api_type (str):
                 Optional. The API type to use for the language model.
                 Used to create a default `llm_config` if one is not provided.
@@ -219,11 +224,6 @@ class AG2Agent:
                 `runnable_kwargs["system_message"]` unless `runnable_kwargs`
                 already contains a "system_message", in which case the provided
                 `runnable_kwargs["system_message"]` will be used.
-            runnable_name (str):
-                Optional. The name of the runnable.
-                This name is used as the default `runnable_kwargs["name"]`
-                unless `runnable_kwargs` already contains a "name", in which
-                case the provided `runnable_kwargs["name"]` will be used.
             runnable_kwargs (Mapping[str, Any]):
                 Optional. Additional keyword arguments for the constructor of
                 the runnable. Details of the kwargs can be found in
