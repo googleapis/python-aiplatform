@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.82.0](https://github.com/googleapis/python-aiplatform/compare/v1.81.0...v1.82.0) (2025-02-26)
+
+
+### Features
+
+* Add Model Garden deploy API ([e356f5a](https://github.com/googleapis/python-aiplatform/commit/e356f5abd2942ddaad299cf9f31a6177e9c6e7e0))
+* Add the initial version of the AG2 agent prebuilt template. ([abf08da](https://github.com/googleapis/python-aiplatform/commit/abf08da023a2e9deaccab3f1c6fe3c2328cc44f7))
+* Implement preview deployment with RolloutOptions. ([8cefabb](https://github.com/googleapis/python-aiplatform/commit/8cefabbcbbd835cfe0c9aebe556eccab0fb0f3b4))
+* Vertex AI Agent Engine GA SDK ([632730c](https://github.com/googleapis/python-aiplatform/commit/632730c36c935aa61d75e1f3b70131a26dce6b23))
+
+
+### Bug Fixes
+
+* Avoid hard-coding the LinearRegression class name in tests ([7121770](https://github.com/googleapis/python-aiplatform/commit/7121770b4a490e37921d62aa73a3c7a1dbee3c4b))
+* Clean up unused EmbeddingModelConfig. ([4998c1a](https://github.com/googleapis/python-aiplatform/commit/4998c1a71ab4fa21e4fecac3ac8c8ac08ba5d07a))
+* Fix rag_embedding_model_config logic indentation ([63736ef](https://github.com/googleapis/python-aiplatform/commit/63736ef08a631c1f59d5fc3aeeffa8324000c89e))
+* PrivateEndpoint predict method should set parameters in request payload. ([c7526a1](https://github.com/googleapis/python-aiplatform/commit/c7526a1d44b5ec54ef231ae1c495bdb053f05c22))
+
 ## [1.81.0](https://github.com/googleapis/python-aiplatform/compare/v1.80.0...v1.81.0) (2025-02-18)
 
 
