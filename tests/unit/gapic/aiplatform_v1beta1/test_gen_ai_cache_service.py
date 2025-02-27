@@ -4705,6 +4705,7 @@ def test_create_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
             }
         ],
@@ -5183,6 +5184,7 @@ def test_update_cached_content_rest_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
             }
         ],
@@ -6523,6 +6525,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
             }
         ],
@@ -7033,6 +7036,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 "google_search_retrieval": {
                     "dynamic_retrieval_config": {"mode": 1, "dynamic_threshold": 0.1809}
                 },
+                "enterprise_web_search": {},
                 "code_execution": {},
             }
         ],
