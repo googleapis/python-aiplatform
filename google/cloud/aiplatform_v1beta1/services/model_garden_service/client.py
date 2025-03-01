@@ -1219,6 +1219,11 @@ class ModelGardenServiceClient(metaclass=ModelGardenServiceClientMeta):
                    [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
 
         """
+        warnings.warn(
+            "ModelGardenServiceClient.deploy_publisher_model is deprecated",
+            DeprecationWarning,
+        )
+
         # Create or coerce a protobuf request object.
         # - Use the request object if provided (there's no risk of modifying the input as
         #   there are no flattened fields), or create one.

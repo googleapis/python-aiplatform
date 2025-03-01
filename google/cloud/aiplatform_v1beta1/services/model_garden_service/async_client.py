@@ -28,6 +28,7 @@ from typing import (
     Type,
     Union,
 )
+import warnings
 
 from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
@@ -712,6 +713,11 @@ class ModelGardenServiceAsyncClient:
                    [ModelGardenService.DeployPublisherModel][google.cloud.aiplatform.v1beta1.ModelGardenService.DeployPublisherModel].
 
         """
+        warnings.warn(
+            "ModelGardenServiceAsyncClient.deploy_publisher_model is deprecated",
+            DeprecationWarning,
+        )
+
         # Create or coerce a protobuf request object.
         # - Use the request object if provided (there's no risk of modifying the input as
         #   there are no flattened fields), or create one.

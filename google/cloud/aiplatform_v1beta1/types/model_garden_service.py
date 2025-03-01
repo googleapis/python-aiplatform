@@ -85,6 +85,10 @@ class GetPublisherModelRequest(proto.Message):
         hugging_face_token (str):
             Optional. Token used to access Hugging Face
             gated models.
+        include_equivalent_model_garden_model_deployment_configs (bool):
+            Optional. Whether to cnclude the deployment
+            configs from the equivalent Model Garden model
+            if the requested model is a Hugging Face model.
     """
 
     name: str = proto.Field(
@@ -107,6 +111,10 @@ class GetPublisherModelRequest(proto.Message):
     hugging_face_token: str = proto.Field(
         proto.STRING,
         number=6,
+    )
+    include_equivalent_model_garden_model_deployment_configs: bool = proto.Field(
+        proto.BOOL,
+        number=7,
     )
 
 
@@ -390,11 +398,15 @@ class DeployPublisherModelRequest(proto.Message):
 
     Attributes:
         model (str):
-            Required. The name of the PublisherModel resource. Format:
-            ``publishers/{publisher}/models/{publisher_model}@{version_id}``,
-            or
-            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001``
-            or Hugging Face model ID like ``google/gemma-2-2b-it``.
+            Required. The model to deploy. Format:
+
+            1. ``publishers/{publisher}/models/{publisher_model}@{version_id}``,
+               or
+               ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001``.
+            2. Hugging Face model ID like ``google/gemma-2-2b-it``.
+            3. Custom model Google Cloud Storage URI like
+               ``gs://bucket``.
+            4. Custom model zip file like ``https://example.com/a.zip``.
         destination (str):
             Required. The resource name of the Location to deploy the
             model in. Format:
