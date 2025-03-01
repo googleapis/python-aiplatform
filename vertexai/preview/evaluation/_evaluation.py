@@ -340,52 +340,71 @@ def _aggregate_summary_metrics(
 
 
 def _generate_content_text_response(
-    model: generative_models.GenerativeModel, prompt: str
+    model: generative_models.GenerativeModel, prompt: str, max_retries: int = 3
 ) -> str:
-    """Generates a text response from Gemini model from a text prompt.
+    """Generates a text response from Gemini model from a text prompt with retries.
 
     Args:
         model: The Gemini model instance.
         prompt: The prompt to send to the model.
+        max_retries: Maximum number of retries for response generation.
 
     Returns:
         The text response from the model.
-
-    Raises:
-        RuntimeError if the prompt or the response for the prompt is blocked for
-        safety reasons.
+        Returns constants.RESPONSE_ERROR if there is an error after all retries.
     """
-    response = model.generate_content(prompt)
-    try:
-        if not response.candidates:
-            raise RuntimeError(
-                f"The model response was blocked due to"
-                f" {response._raw_response.prompt_feedback.block_reason.name}.\n."  # pylint: disable=protected-access
-                f"Blocked reason message:"
-                f" {response._raw_response.prompt_feedback.block_reason_message}.\n."  # pylint: disable=protected-access
-                "The input prompt may be blocked for safety reasons.",
-                f"Prompt: {prompt}.",
-            )
-        else:
-            candidate = response.candidates[0]
-            if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
-                raise RuntimeError(
-                    "The model response did not finish"
-                    " successfully.\n"
-                    f"Finish reason: {candidate.finish_reason}.\n"
-                    f"Finish message: {candidate.finish_message}.\n"
-                    f"Safety ratings: {candidate.safety_ratings}.\n"
-                    "Please adjust the model safety_settings, or"
-                    " try a different prompt."
+    for retry_attempt in range(max_retries):
+        try:
+            response = model.generate_content(prompt)
+            if not response.candidates:
+                error_message = (
+                    f"The model response was blocked due to"
+                    f" {response._raw_response.prompt_feedback.block_reason.name}.\n"
+                    f"Blocked reason message:"
+                    f" {response._raw_response.prompt_feedback.block_reason_message}.\n"
+                    "The input prompt may be blocked for safety reasons.\n"
+                    f"Prompt: {prompt}.\n"
+                    f"Retry attempt: {retry_attempt + 1}/{max_retries}"
                 )
-            return response.candidates[0].content.parts[0].text
-    except Exception:
-        raise RuntimeError(
-            f"Failed to generate response candidates from Gemini model"
-            f" {model._model_name}.\n"  # pylint: disable=protected-access
-            f"Response: {response}.\n"
-            f"Prompt: {prompt}."
-        )
+                _LOGGER.warning(error_message)
+                break
+            else:
+                candidate = response.candidates[0]
+                if candidate.finish_reason not in _SUCCESSFUL_FINISH_REASONS:
+                    error_message = (
+                        "The model response did not finish"
+                        " successfully.\n"
+                        f"Finish reason: {candidate.finish_reason}.\n"
+                        f"Finish message: {candidate.finish_message}.\n"
+                        f"Safety ratings: {candidate.safety_ratings}.\n"
+                        "Please adjust the model safety_settings, or"
+                        " try a different prompt.\n"
+                        f"Retry attempt: {retry_attempt + 1}/{max_retries}"
+                    )
+                    _LOGGER.warning(error_message)
+                else:
+                    return response.candidates[0].content.parts[0].text
+        except Exception as e:
+            error_message = (
+                f"Failed to generate response candidates from Gemini model"
+                f" {model._model_name}.\n"
+                f"Error: {e}.\n"
+                f"Prompt: {prompt}.\n"
+                f"Retry attempt: {retry_attempt + 1}/{max_retries}"
+            )
+            _LOGGER.warning(error_message)
+        if retry_attempt < max_retries - 1:
+            _LOGGER.info(
+                f"Retrying response generation for prompt: {prompt}, attempt"
+                f" {retry_attempt + 1}/{max_retries}..."
+            )
+
+    final_error_message = (
+        f"Failed to generate response from Gemini model {model._model_name}.\n"
+        f"Prompt: {prompt}."
+    )
+    _LOGGER.warning(final_error_message)
+    return constants.RESPONSE_ERROR
 
 
 def _generate_responses_from_gemini_model(

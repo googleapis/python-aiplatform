@@ -20,6 +20,7 @@ import dataclasses
 # The number of concurrent workers to use for making model inference and
 # evaluation requests.
 MAX_WORKERS = 100
+RESPONSE_ERROR = "Error"
 
 
 @dataclasses.dataclass(frozen=True)
