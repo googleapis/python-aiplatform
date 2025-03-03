@@ -676,7 +676,7 @@ class TestModelGarden:
             location=_TEST_LOCATION,
         )
 
-        mg_models = model_garden.OpenModel.list_deployable_models()
+        mg_models = model_garden.list_deployable_models()
         list_publisher_models_mock.assert_called_with(
             types.ListPublisherModelsRequest(
                 parent="publishers/*",
@@ -692,7 +692,7 @@ class TestModelGarden:
             "google/paligemma@004",
         ]
 
-        hf_models = model_garden.OpenModel.list_deployable_models(list_hf_models=True)
+        hf_models = model_garden.list_deployable_models(list_hf_models=True)
         list_publisher_models_mock.assert_called_with(
             types.ListPublisherModelsRequest(
                 parent="publishers/*",

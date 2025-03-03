@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Classes for working with Model Garden."""
+"""Classes and functions for working with Model Garden."""
 
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
-from vertexai.model_garden._model_garden import OpenModel
+from vertexai.model_garden._model_garden import (
+    OpenModel,
+    list_deployable_models,
+)
 
-__all__ = ("OpenModel",)
+
+__all__ = ("OpenModel", "list_deployable_models")

@@ -43,6 +43,51 @@ _VERIFIED_DEPLOYMENT_FILTER = (
 )
 
 
+def list_deployable_models(
+    *, list_hf_models: bool = False, model_filter: Optional[str] = None
+) -> List[str]:
+    """Lists the deployable models in Model Garden.
+
+    Args:
+        list_hf_models: Whether to list the Hugging Face models.
+        model_filter: Optional. A string to filter the models by.
+
+    Returns:
+        The names of the deployable models in Model Garden in the format of
+        `{publisher}/{model}@{version}` or Hugging Face model ID in the format
+        of `{organization}/{model}`.
+    """
+    filter_str = _NATIVE_MODEL_FILTER
+    if list_hf_models:
+        filter_str = " AND ".join([_HF_WILDCARD_FILTER, _VERIFIED_DEPLOYMENT_FILTER])
+    if model_filter:
+        filter_str = (
+            f'{filter_str} AND (model_user_id=~"(?i).*{model_filter}.*" OR'
+            f' display_name=~"(?i).*{model_filter}.*")'
+        )
+
+    request = types.ListPublisherModelsRequest(
+        parent="publishers/*",
+        list_all_versions=True,
+        filter=filter_str,
+    )
+    client = initializer.global_config.create_client(
+        client_class=_ModelGardenClientWithOverride,
+        credentials=initializer.global_config.credentials,
+        location_override="us-central1",
+    )
+    response = client.list_publisher_models(request)
+    output = []
+    for page in response.pages:
+        for model in page.publisher_models:
+            if model.supported_actions.multi_deploy_vertex.multi_deploy_vertex:
+                output.append(
+                    re.sub(r"publishers/(hf-|)|models/", "", model.name)
+                    + ("" if list_hf_models else ("@" + model.version_id))
+                )
+    return output
+
+
 def _is_hugging_face_model(model_name: str) -> bool:
     """Returns whether the model is a Hugging Face model."""
     return re.match(r"^(?P<publisher>[^/]+)/(?P<model>[^/@]+)$", model_name)
@@ -541,40 +586,3 @@ class OpenModel:
                 " to find out which ones currently support deployment."
             )
         return multi_deploy
-
-    @classmethod
-    def list_deployable_models(
-        cls, list_hf_models: bool = False, model_filter=None
-    ) -> List[str]:
-        """Lists the deployable models in Model Garden."""
-        filter_str = _NATIVE_MODEL_FILTER
-        if list_hf_models:
-            filter_str = " AND ".join(
-                [_HF_WILDCARD_FILTER, _VERIFIED_DEPLOYMENT_FILTER]
-            )
-        if model_filter:
-            filter_str = (
-                f'{filter_str} AND (model_user_id=~"(?i).*{model_filter}.*" OR'
-                f' display_name=~"(?i).*{model_filter}.*")'
-            )
-
-        request = types.ListPublisherModelsRequest(
-            parent="publishers/*",
-            list_all_versions=True,
-            filter=filter_str,
-        )
-        client = initializer.global_config.create_client(
-            client_class=_ModelGardenClientWithOverride,
-            credentials=initializer.global_config.credentials,
-            location_override="us-central1",
-        )
-        response = client.list_publisher_models(request)
-        output = []
-        for page in response.pages:
-            for model in page.publisher_models:
-                if model.supported_actions.multi_deploy_vertex.multi_deploy_vertex:
-                    output.append(
-                        re.sub(r"publishers/(hf-|)|models/", "", model.name)
-                        + ("" if list_hf_models else ("@" + model.version_id))
-                    )
-        return output
