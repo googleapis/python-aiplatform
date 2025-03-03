@@ -153,6 +153,8 @@ agent_engines_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
     "google-cloud-trace < 2",
     "google-cloud-logging < 4",
+    "opentelemetry-sdk < 2",
+    "opentelemetry-exporter-gcp-trace < 2",
     "pydantic >= 2.10, < 3",
     "typing_extensions",
 ]
