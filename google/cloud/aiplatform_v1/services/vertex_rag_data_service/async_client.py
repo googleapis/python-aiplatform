@@ -398,7 +398,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, rag_corpus])
+        flattened_params = [parent, rag_corpus]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -527,7 +530,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([rag_corpus])
+        flattened_params = [rag_corpus]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -648,7 +654,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -763,7 +772,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -899,7 +911,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1038,7 +1053,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, rag_file, upload_rag_file_config])
+        flattened_params = [parent, rag_file, upload_rag_file_config]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1174,7 +1192,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, import_rag_files_config])
+        flattened_params = [parent, import_rag_files_config]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1294,7 +1315,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1409,7 +1433,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1545,7 +1572,10 @@ class VertexRagDataServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "

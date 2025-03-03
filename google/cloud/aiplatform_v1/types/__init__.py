@@ -1044,6 +1044,7 @@ from .tensorboard_time_series import (
 from .tool import (
     CodeExecutionResult,
     DynamicRetrievalConfig,
+    EnterpriseWebSearch,
     ExecutableCode,
     FunctionCall,
     FunctionCallingConfig,
@@ -1976,6 +1977,7 @@ __all__ = (
     "TensorboardTimeSeries",
     "CodeExecutionResult",
     "DynamicRetrievalConfig",
+    "EnterpriseWebSearch",
     "ExecutableCode",
     "FunctionCall",
     "FunctionCallingConfig",

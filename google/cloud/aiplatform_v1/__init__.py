@@ -929,6 +929,7 @@ from .types.tensorboard_service import WriteTensorboardRunDataResponse
 from .types.tensorboard_time_series import TensorboardTimeSeries
 from .types.tool import CodeExecutionResult
 from .types.tool import DynamicRetrievalConfig
+from .types.tool import EnterpriseWebSearch
 from .types.tool import ExecutableCode
 from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
@@ -1302,6 +1303,7 @@ __all__ = (
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EnterpriseWebSearch",
     "EntityIdSelector",
     "EntityType",
     "EnvVar",

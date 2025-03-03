@@ -1247,7 +1247,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, custom_job])
+        flattened_params = [parent, custom_job]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1360,7 +1363,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1470,7 +1476,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1601,7 +1610,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1717,7 +1729,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1837,7 +1852,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, data_labeling_job])
+        flattened_params = [parent, data_labeling_job]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1945,7 +1963,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2054,7 +2075,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2185,7 +2209,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2290,7 +2317,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2419,7 +2449,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, hyperparameter_tuning_job])
+        flattened_params = [parent, hyperparameter_tuning_job]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2533,7 +2566,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2647,7 +2683,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2782,7 +2821,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2904,7 +2946,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3022,7 +3067,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, nas_job])
+        flattened_params = [parent, nas_job]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3129,7 +3177,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3239,7 +3290,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3370,7 +3424,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3486,7 +3543,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3591,7 +3651,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3700,7 +3763,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3843,7 +3909,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, batch_prediction_job])
+        flattened_params = [parent, batch_prediction_job]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3958,7 +4027,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4070,7 +4142,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4206,7 +4281,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4326,7 +4404,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4452,7 +4533,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, model_deployment_monitoring_job])
+        flattened_params = [parent, model_deployment_monitoring_job]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4584,7 +4668,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([model_deployment_monitoring_job, deployed_model_id])
+        flattened_params = [model_deployment_monitoring_job, deployed_model_id]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4723,7 +4810,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4837,7 +4927,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -5007,7 +5100,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([model_deployment_monitoring_job, update_mask])
+        flattened_params = [model_deployment_monitoring_job, update_mask]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -5152,7 +5248,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -5266,7 +5365,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -5368,7 +5470,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "

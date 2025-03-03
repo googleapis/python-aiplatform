@@ -38,6 +38,7 @@ __protobuf__ = proto.module(
         "VertexRagStore",
         "VertexAISearch",
         "GoogleSearchRetrieval",
+        "EnterpriseWebSearch",
         "DynamicRetrievalConfig",
         "ToolConfig",
         "FunctionCallingConfig",
@@ -83,11 +84,14 @@ class Tool(proto.Message):
             Optional. GoogleSearchRetrieval tool type.
             Specialized retrieval tool that is powered by
             Google search.
+        enterprise_web_search (google.cloud.aiplatform_v1beta1.types.EnterpriseWebSearch):
+            Optional. Tool to support searching public
+            web data, powered by Vertex AI Search and Sec4
+            compliance.
         code_execution (google.cloud.aiplatform_v1beta1.types.Tool.CodeExecution):
             Optional. CodeExecution tool type.
             Enables the model to execute code as part of
-            generation. This field is only used by the
-            Gemini Developer API services.
+            generation.
     """
 
     class GoogleSearch(proto.Message):
@@ -124,6 +128,11 @@ class Tool(proto.Message):
         proto.MESSAGE,
         number=3,
         message="GoogleSearchRetrieval",
+    )
+    enterprise_web_search: "EnterpriseWebSearch" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message="EnterpriseWebSearch",
     )
     code_execution: CodeExecution = proto.Field(
         proto.MESSAGE,
@@ -556,19 +565,28 @@ class VertexRagStore(proto.Message):
 
 
 class VertexAISearch(proto.Message):
-    r"""Retrieve from Vertex AI Search datastore for grounding.
-    See https://cloud.google.com/products/agent-builder
+    r"""Retrieve from Vertex AI Search datastore or engine for
+    grounding. datastore and engine are mutually exclusive. See
+    https://cloud.google.com/products/agent-builder
 
     Attributes:
         datastore (str):
-            Required. Fully-qualified Vertex AI Search data store
+            Optional. Fully-qualified Vertex AI Search data store
             resource ID. Format:
             ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}``
+        engine (str):
+            Optional. Fully-qualified Vertex AI Search engine resource
+            ID. Format:
+            ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}``
     """
 
     datastore: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    engine: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
@@ -587,6 +605,13 @@ class GoogleSearchRetrieval(proto.Message):
         number=2,
         message="DynamicRetrievalConfig",
     )
+
+
+class EnterpriseWebSearch(proto.Message):
+    r"""Tool to search public web data, powered by Vertex AI Search
+    and Sec4 compliance.
+
+    """
 
 
 class DynamicRetrievalConfig(proto.Message):

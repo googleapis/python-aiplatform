@@ -943,7 +943,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, tensorboard])
+        flattened_params = [parent, tensorboard]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1064,7 +1067,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1196,7 +1202,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard, update_mask])
+        flattened_params = [tensorboard, update_mask]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1320,7 +1329,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1453,7 +1465,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1569,7 +1584,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard])
+        flattened_params = [tensorboard]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1679,7 +1697,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard])
+        flattened_params = [tensorboard]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -1812,8 +1833,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any(
-            [parent, tensorboard_experiment, tensorboard_experiment_id]
+        flattened_params = [parent, tensorboard_experiment, tensorboard_experiment_id]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
         )
         if request is not None and has_flattened_params:
             raise ValueError(
@@ -1932,7 +1954,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2059,7 +2084,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard_experiment, update_mask])
+        flattened_params = [tensorboard_experiment, update_mask]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2179,7 +2207,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2316,7 +2347,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2463,7 +2497,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
+        flattened_params = [parent, tensorboard_run, tensorboard_run_id]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2596,7 +2633,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, requests])
+        flattened_params = [parent, requests]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2712,7 +2752,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2838,7 +2881,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard_run, update_mask])
+        flattened_params = [tensorboard_run, update_mask]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -2954,7 +3000,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3087,7 +3136,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3226,7 +3278,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, requests])
+        flattened_params = [parent, requests]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3357,7 +3412,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, tensorboard_time_series])
+        flattened_params = [parent, tensorboard_time_series]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3471,7 +3529,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3601,7 +3662,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard_time_series, update_mask])
+        flattened_params = [tensorboard_time_series, update_mask]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3726,7 +3790,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3863,7 +3930,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -3993,7 +4063,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard])
+        flattened_params = [tensorboard]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4113,7 +4186,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard_time_series])
+        flattened_params = [tensorboard_time_series]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4231,7 +4307,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([time_series])
+        flattened_params = [time_series]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4361,7 +4440,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard_experiment, write_run_data_requests])
+        flattened_params = [tensorboard_experiment, write_run_data_requests]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4500,7 +4582,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard_run, time_series_data])
+        flattened_params = [tensorboard_run, time_series_data]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
@@ -4619,7 +4704,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        has_flattened_params = any([tensorboard_time_series])
+        flattened_params = [tensorboard_time_series]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "

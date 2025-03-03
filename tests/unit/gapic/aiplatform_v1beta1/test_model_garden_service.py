@@ -2709,6 +2709,7 @@ def test_get_publisher_model_rest_required_fields(
     assert not set(unset_fields) - set(
         (
             "hugging_face_token",
+            "include_equivalent_model_garden_model_deployment_configs",
             "is_hugging_face_model",
             "language_code",
             "view",
@@ -2772,6 +2773,7 @@ def test_get_publisher_model_rest_unset_required_fields():
         set(
             (
                 "huggingFaceToken",
+                "includeEquivalentModelGardenModelDeploymentConfigs",
                 "isHuggingFaceModel",
                 "languageCode",
                 "view",

@@ -170,7 +170,7 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
             http_options: List[Dict[str, str]] = [
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{destination=projects/*/locations/*}:deploy",
+                    "uri": "/v1beta1/{destination=projects/*/locations/*}:deployPublisherModel",
                     "body": "*",
                 },
             ]
