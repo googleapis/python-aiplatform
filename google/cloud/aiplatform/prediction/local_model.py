@@ -343,7 +343,7 @@ class LocalModel:
                 https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache
                 for more details.
             platform (str):
-                Required. The target platform for the Docker image build. See
+                Optional. The target platform for the Docker image build. See
                 https://docs.docker.com/build/building/multi-platform/#building-multi-platform-images
                 for more details.
 
