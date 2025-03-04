@@ -105,6 +105,25 @@ def simple_span_processor_mock():
 
 
 @pytest.fixture
+def autogen_instrumentor_mock():
+    with mock.patch.object(
+        _utils,
+        "_import_openinference_autogen_or_warn",
+    ) as autogen_instrumentor_mock:
+        yield autogen_instrumentor_mock
+
+
+@pytest.fixture
+def autogen_instrumentor_none_mock():
+    with mock.patch.object(
+        _utils,
+        "_import_openinference_autogen_or_warn",
+    ) as autogen_instrumentor_mock:
+        autogen_instrumentor_mock.return_value = None
+        yield autogen_instrumentor_mock
+
+
+@pytest.fixture
 def autogen_tools_mock():
     with mock.patch.object(
         _utils,
@@ -207,13 +226,27 @@ class TestAG2Agent:
         cloud_trace_exporter_mock,
         tracer_provider_mock,
         simple_span_processor_mock,
+        autogen_instrumentor_mock,
     ):
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
             enable_tracing=True,
         )
-        assert agent._enable_tracing is True
+        assert agent._instrumentor is None
+        # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+        # agent.set_up()
+        # assert agent._instrumentor is not None
+        # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+
+    @pytest.mark.usefixtures("caplog")
+    def test_enable_tracing_warning(self, caplog, autogen_instrumentor_none_mock):
+        agent = reasoning_engines.AG2Agent(
+            model=_TEST_MODEL,
+            runnable_name=_TEST_RUNNABLE_NAME,
+            enable_tracing=True,
+        )
+        assert agent._instrumentor is None
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # agent.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
