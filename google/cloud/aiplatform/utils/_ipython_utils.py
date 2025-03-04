@@ -146,10 +146,10 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
         </script>
     """
 
-    from IPython.core.display import display
+    from IPython.core.display import display_html
     from IPython.display import HTML
 
-    display(HTML(html))
+    display_html(HTML(html))
 
 
 def display_experiment_button(experiment: "experiment_resources.Experiment") -> None:

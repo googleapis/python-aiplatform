@@ -141,7 +141,11 @@ def _override_active_span_processor(
 
 
 class AG2Agent:
-    """An AG2 Agent."""
+    """An AG2 Agent.
+
+    See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/ag2
+    for details.
+    """
 
     def __init__(
         self,
@@ -277,6 +281,8 @@ class AG2Agent:
         self._ag2_tool_objects = []
         self._runnable = None
         self._runnable_builder = runnable_builder
+
+        self._instrumentor = None
         self._enable_tracing = enable_tracing
 
     def set_up(self):
@@ -293,12 +299,14 @@ class AG2Agent:
 
             cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
             cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
+            openinference_autogen = _utils._import_openinference_autogen_or_warn()
             opentelemetry = _utils._import_opentelemetry_or_warn()
             opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
             if all(
                 (
                     cloud_trace_exporter,
                     cloud_trace_v2,
+                    openinference_autogen,
                     opentelemetry,
                     opentelemetry_sdk_trace,
                 )
@@ -351,6 +359,16 @@ class AG2Agent:
                     opentelemetry_sdk_trace.SynchronousMultiSpanProcessor(),
                 )
                 tracer_provider.add_span_processor(span_processor)
+                # Keep the instrumentation up-to-date.
+                # When creating multiple AG2Agents,
+                # we need to keep the instrumentation up-to-date.
+                # We deliberately override the instrument each time,
+                # so that if different agents end up using different
+                # instrumentations, we guarantee that the user is always
+                # working with the most recent agent's instrumentation.
+                self._instrumentor = openinference_autogen.AutogenInstrumentor()
+                self._instrumentor.uninstrument()
+                self._instrumentor.instrument()
             else:
                 from google.cloud.aiplatform import base
 

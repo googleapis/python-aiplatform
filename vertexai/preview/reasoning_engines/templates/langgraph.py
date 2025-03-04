@@ -224,7 +224,11 @@ def _override_active_span_processor(
 
 
 class LanggraphAgent:
-    """A LangGraph Agent."""
+    """A LangGraph Agent.
+
+    See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/langgraph
+    for details.
+    """
 
     def __init__(
         self,

@@ -33,19 +33,19 @@ with open(os.path.join(package_root, "version.py")) as fp:
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0; python_version<='3.11'"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0, <3.0.0dev",
+    "tensorflow >= 2.3.0, <3.0.0",
     "pandas >= 1.0.0",
     "lit-nlp == 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
 ]
 profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0, <3.0.0dev",
-    "werkzeug >= 2.0.0, <2.1.0dev",
-    "tensorflow >=2.4.0, <3.0.0dev",
+    "tensorboard-plugin-profile >= 2.4.0, <3.0.0",
+    "werkzeug >= 2.0.0, <2.1.0",
+    "tensorflow >=2.4.0, <3.0.0",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
@@ -56,7 +56,7 @@ pipelines_extra_require = [
     "pyyaml>=5.3.1,<7",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
+    "pyarrow >= 3.0.0, < 8.0; python_version<'3.11'",
     "pyarrow >= 10.0.1; python_version=='3.11'",
     "pyarrow >= 14.0.0; python_version>='3.12'",
 ]

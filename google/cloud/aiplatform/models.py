@@ -3339,6 +3339,9 @@ class PrivateEndpoint(Endpoint):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
         private_service_connect_config: Optional[PrivateServiceConnectConfig] = None,
+        enable_request_response_logging=False,
+        request_response_logging_sampling_rate: Optional[float] = None,
+        request_response_logging_bq_destination_table: Optional[str] = None,
         inference_timeout: Optional[int] = None,
     ) -> "PrivateEndpoint":
         """Creates a new PrivateEndpoint.
@@ -3376,64 +3379,68 @@ class PrivateEndpoint(Endpoint):
                     project_allowlist=["test-project"]),
             )
         Args:
-            display_name (str):
-                Required. The user-defined name of the Endpoint.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-            project (str):
-                Optional. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Optional. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
-            network (str):
-                Optional. The full name of the Compute Engine network to which
-                this Endpoint will be peered. E.g. "projects/123456789123/global/networks/my_vpc".
-                Private services access must already be configured for the network.
-                If left unspecified, the network set with aiplatform.init will be used.
-                Cannot be set together with private_service_connect_config.
-            description (str):
-                Optional. The description of the Endpoint.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Endpoints.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-            encryption_spec_key_name (str):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the model. Has the
+            display_name (str): Required. The user-defined name of the Endpoint. The
+              name can be up to 128 characters long and can be consist of any UTF-8
+              characters.
+            project (str): Optional. Project to retrieve endpoint from. If not set,
+              project set in aiplatform.init will be used.
+            location (str): Optional. Location to retrieve endpoint from. If not
+              set, location set in aiplatform.init will be used.
+            network (str): Optional. The full name of the Compute Engine network to
+              which this Endpoint will be peered. E.g.
+              "projects/123456789123/global/networks/my_vpc". Private services
+              access must already be configured for the network. If left
+              unspecified, the network set with aiplatform.init will be used. Cannot
+              be set together with private_service_connect_config.
+            description (str): Optional. The description of the Endpoint.
+            labels (Dict[str, str]): Optional. The labels with user-defined metadata
+              to organize your Endpoints. Label keys and values can be no longer
+              than 64 characters (Unicode codepoints), can only contain lowercase
+              letters, numeric characters, underscores and dashes. International
+              characters are allowed. See https://goo.gl/xmQnxf for more information
+              and examples of labels.
+            credentials (auth_credentials.Credentials): Optional. Custom credentials
+              to use to upload this model. Overrides credentials set in
+              aiplatform.init.
+            encryption_spec_key_name (str): Optional. The Cloud KMS resource
+              identifier of the customer managed encryption key used to protect the
+              model. Has the
                 form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this Model and all sub-resources of this Model will be secured by this key.
-
-                Overrides encryption_spec_key_name set in aiplatform.init.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-            private_service_connect_config (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig):
-                [Private Service Connect](https://cloud.google.com/vpc/docs/private-service-connect) configuration for the endpoint.
-                Cannot be set when network is specified.
-            inference_timeout (int):
-                Optional. It defines the prediction timeout, in seconds, for online predictions using cloud-based endpoints. This applies to either PSC endpoints, when private_service_connect_config is set, or dedicated endpoints, when dedicated_endpoint_enabled is true.
+                  ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                  The key needs to be in the same region as where the compute
+                  resource is created.  If set, this Model and all sub-resources of
+                  this Model will be secured by this key.  Overrides
+                  encryption_spec_key_name set in aiplatform.init.
+            sync (bool): Whether to execute this method synchronously. If False,
+              this method will be executed in concurrent Future and any downstream
+              object will be immediately returned and synced when the Future has
+              completed. private_service_connect_config
+              (aiplatform.PrivateEndpoint.PrivateServiceConnectConfig): [Private
+              Service
+              Connect](https://cloud.google.com/vpc/docs/private-service-connect)
+              configuration for the endpoint. Cannot be set when network is
+              specified.
+            enable_request_response_logging (bool): Optional. Whether to enable
+              request & response logging for this endpoint.
+            request_response_logging_sampling_rate (float): Optional. The request
+              response logging sampling rate. If not set, default is 0.0.
+            request_response_logging_bq_destination_table (str): Optional. The
+              request response logging bigquery destination. If not set, will create
+              a table with name:
+              ``bq://{project_id}.logging_{endpoint_display_name}_{endpoint_id}.request_response_logging``.
+            inference_timeout (int): Optional. It defines the prediction timeout, in
+              seconds, for online predictions using cloud-based endpoints. This
+              applies to either PSC endpoints, when private_service_connect_config
+              is set, or dedicated endpoints, when dedicated_endpoint_enabled is
+              true.
 
         Returns:
             endpoint (aiplatform.PrivateEndpoint):
                 Created endpoint.
 
         Raises:
-            ValueError: A network must be instantiated when creating a PrivateEndpoint.
+            ValueError: A network must be instantiated when creating a
+            PrivateEndpoint.
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
@@ -3463,6 +3470,18 @@ class PrivateEndpoint(Endpoint):
                 private_service_connect_config._gapic_private_service_connect_config
             )
 
+        predict_request_response_logging_config = None
+        if enable_request_response_logging:
+            predict_request_response_logging_config = (
+                gca_endpoint_compat.PredictRequestResponseLoggingConfig(
+                    enabled=True,
+                    sampling_rate=request_response_logging_sampling_rate,
+                    bigquery_destination=gca_io_compat.BigQueryDestination(
+                        output_uri=request_response_logging_bq_destination_table
+                    ),
+                )
+            )
+
         client_connection_config = None
         if private_service_connect_config and inference_timeout:
             client_connection_config = gca_endpoint_compat.ClientConnectionConfig(
@@ -3483,6 +3502,7 @@ class PrivateEndpoint(Endpoint):
             network=network,
             sync=sync,
             private_service_connect_config=config,
+            predict_request_response_logging_config=predict_request_response_logging_config,
             client_connection_config=client_connection_config,
         )
 

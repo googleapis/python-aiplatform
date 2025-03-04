@@ -32,8 +32,8 @@ from google.cloud.aiplatform_v1 import (
     ListRagFilesResponse,
 )
 from google.cloud import aiplatform
-import mock
 from unittest.mock import patch
+from unittest import mock
 import pytest
 import test_rag_constants
 
@@ -119,6 +119,9 @@ def update_rag_corpus_mock_pinecone():
 
 @pytest.fixture
 def list_rag_corpora_pager_mock():
+    import inspect
+
+    real_signature = inspect.signature(VertexRagDataServiceClient.list_rag_corpora)
     with mock.patch.object(
         VertexRagDataServiceClient,
         "list_rag_corpora",
@@ -131,6 +134,9 @@ def list_rag_corpora_pager_mock():
                 next_page_token=test_rag_constants.TEST_PAGE_TOKEN,
             ),
         ]
+
+        # this is needed because metadata wrapper inspects the signature
+        list_rag_corpora_pager_mock.__signature__ = real_signature
         yield list_rag_corpora_pager_mock
 
 
@@ -393,6 +399,18 @@ class TestRagDataManagement:
         pager = rag.list_corpora(page_size=1)
 
         list_rag_corpora_pager_mock.assert_called_once()
+        assert pager[0].next_page_token == test_rag_constants.TEST_PAGE_TOKEN
+
+    def test_list_corpora_with_metadata(self, list_rag_corpora_pager_mock):
+        aiplatform.init(
+            project=test_rag_constants.TEST_PROJECT,
+            location=test_rag_constants.TEST_REGION,
+            request_metadata=[("key", "value")],
+        )
+        pager = rag.list_corpora(page_size=1)
+
+        call_args = list_rag_corpora_pager_mock.call_args
+        assert call_args.kwargs["metadata"] == [("key", "value")]
         assert pager[0].next_page_token == test_rag_constants.TEST_PAGE_TOKEN
 
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
