@@ -152,6 +152,7 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
     display_html(HTML(html))
 
 
+
 def display_experiment_button(experiment: "experiment_resources.Experiment") -> None:
     """Function to generate a link bound to the Vertex experiment"""
     if not is_ipython_available():
