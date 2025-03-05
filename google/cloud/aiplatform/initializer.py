@@ -675,6 +675,12 @@ class _ClientWrapperThatAddsDefaultMetadata:
                 return _FunctionWrapperThatAddsDefaultMetadata(func)
         return result
 
+    def select_version(self, *args, **kwargs):
+        client = self._client.select_version(*args, **kwargs)
+        if global_config._request_metadata:
+            client = _ClientWrapperThatAddsDefaultMetadata(client)
+        return client
+
 
 class _FunctionWrapperThatAddsDefaultMetadata:
     """A function wrapper that wraps a function/method to add default metadata."""

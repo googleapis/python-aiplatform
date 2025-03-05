@@ -371,6 +371,20 @@ def _import_openinference_langchain_or_warn() -> Optional[types.ModuleType]:
     return None
 
 
+def _import_openinference_autogen_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.autogen module."""
+    try:
+        import openinference.instrumentation.autogen  # noqa:F401
+
+        return openinference.instrumentation.autogen
+    except ImportError:
+        _LOGGER.warning(
+            "openinference-instrumentation-autogen is not installed. Please "
+            "call 'pip install openinference-instrumentation-autogen'."
+        )
+    return None
+
+
 def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
     """Tries to import the autogen.tools module."""
     try:
