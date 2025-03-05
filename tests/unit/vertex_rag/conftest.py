@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 from unittest.mock import patch
+from unittest import mock
 from google import auth
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
@@ -30,7 +31,6 @@ from google.cloud.aiplatform_v1beta1 import (
 )
 import test_rag_constants_preview
 import test_rag_constants
-import mock
 import pytest
 
 
