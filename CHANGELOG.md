@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.83.0](https://github.com/googleapis/python-aiplatform/compare/v1.82.0...v1.83.0) (2025-03-05)
+
+
+### Features
+
+* Add EnterpriseWebSearch tool option ([816a607](https://github.com/googleapis/python-aiplatform/commit/816a6078699eb028996bd61e0d8d658c9147b5cb))
+* Add notebook helper functions to eval SDK to display and visualize evaluation results in an IPython environment ([acf8a80](https://github.com/googleapis/python-aiplatform/commit/acf8a80c0ec01ff3225532d6054562470e03fe12))
+* Add VertexAISearch.engine option ([816a607](https://github.com/googleapis/python-aiplatform/commit/816a6078699eb028996bd61e0d8d658c9147b5cb))
+* Eval SDK: Modify Gemini scraping to log errors during response generation and return a consistent error message ([cc2d36e](https://github.com/googleapis/python-aiplatform/commit/cc2d36e3de15474953129191091e822e92066279))
+* Vertex AI Model Garden open model deploy SDK Public Preview ([4c8c277](https://github.com/googleapis/python-aiplatform/commit/4c8c277066d6f56f49b99e769344c09356e87c3d))
+
+
+### Bug Fixes
+
+* Add request metadata to rag methods. ([b2cc069](https://github.com/googleapis/python-aiplatform/commit/b2cc0699a394ecd5fca1eee134bd155bab094899))
+* Migration to python 3.12. called_once was deleted in favor of assert_called_once, since it was largely misused ([b4ec000](https://github.com/googleapis/python-aiplatform/commit/b4ec000674d92247012bf5e6a227729b0bfdf803))
+* Resolve issue where pre-release versions of dependencies are installed ([35cf246](https://github.com/googleapis/python-aiplatform/commit/35cf246655bad1b55ae3f8c1904447e17eaa41ac))
+
 ## [1.82.0](https://github.com/googleapis/python-aiplatform/compare/v1.81.0...v1.82.0) (2025-02-26)
 
 
