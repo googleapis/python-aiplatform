@@ -1304,6 +1304,7 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
+            platform=None,
         )
 
     def test_build_cpr_model_fails_handler_is_none(
@@ -1418,6 +1419,7 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
+            platform=None,
         )
 
     def test_build_cpr_model_with_custom_handler_and_predictor_is_none(
@@ -1472,6 +1474,7 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
+            platform=None,
         )
 
     def test_build_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
@@ -1527,6 +1530,7 @@ class TestLocalModel:
             pip_command="pip3",
             python_command="python3",
             no_cache=False,
+            platform=None,
         )
 
     def test_build_cpr_model_creates_and_get_localmodel_with_requirements_path(
@@ -1584,6 +1588,7 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
+            platform=None,
         )
 
     def test_build_cpr_model_creates_and_get_localmodel_with_extra_packages(
@@ -1641,6 +1646,7 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
+            platform=None,
         )
 
     def test_build_cpr_model_creates_and_get_localmodel_no_cache(
@@ -1695,6 +1701,7 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=no_cache,
+            platform=None,
         )
 
     def test_deploy_to_local_endpoint(
