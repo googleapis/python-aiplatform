@@ -1704,12 +1704,21 @@ class TestLocalModel:
             platform=None,
         )
 
+    @pytest.mark.parametrize(
+        "platform",
+        [
+            None,
+            "linux/amd64",
+            "some_arbitrary_platform_value_that_will_by_validated_by_docker_build_command",
+        ],
+    )
     def test_build_cpr_model_creates_and_get_localmodel_platform(
         self,
         tmp_path,
         inspect_source_from_class_mock_predictor_only,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
+        platform,
     ):
         src_dir = tmp_path / _TEST_SRC_DIR
         src_dir.mkdir()
@@ -1725,7 +1734,7 @@ class TestLocalModel:
         my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
 
         local_model = LocalModel.build_cpr_model(
-            str(src_dir), _TEST_OUTPUT_IMAGE, predictor=my_predictor, platform="linux/amd64"
+            str(src_dir), _TEST_OUTPUT_IMAGE, predictor=my_predictor, platform=platform
         )
 
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
@@ -1755,7 +1764,7 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
-            platform="linux/amd64",
+            platform=platform,
         )
 
     def test_deploy_to_local_endpoint(
