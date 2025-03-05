@@ -4240,9 +4240,7 @@ class TestModel:
 
         assert isinstance(eval_job, model_evaluation_job._ModelEvaluationJob)
 
-        assert mock_pipeline_service_create.called_once
-
-        assert mock_pipeline_service_get.called_once
+        mock_pipeline_service_create.assert_called_once()
 
         eval_job.wait()
 
@@ -4283,9 +4281,7 @@ class TestModel:
 
         assert isinstance(eval_job, model_evaluation_job._ModelEvaluationJob)
 
-        assert mock_pipeline_service_create.called_once
-
-        assert mock_pipeline_service_get.called_once
+        mock_pipeline_service_create.assert_called_once()
 
     @pytest.mark.parametrize(
         "job_spec_json",
@@ -4315,9 +4311,7 @@ class TestModel:
 
         assert isinstance(eval_job, model_evaluation_job._ModelEvaluationJob)
 
-        assert mock_pipeline_service_create.called_once
-
-        assert mock_pipeline_service_get.called_once
+        mock_pipeline_service_create.assert_called_once()
 
     def test_model_evaluate_with_no_staging_path_or_initialized_staging_bucket_raises(
         self,
