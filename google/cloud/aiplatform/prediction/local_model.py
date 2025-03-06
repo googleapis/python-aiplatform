@@ -246,7 +246,6 @@ class LocalModel:
         requirements_path: Optional[str] = None,
         extra_packages: Optional[List[str]] = None,
         no_cache: bool = False,
-        platform: Optional[str] = None,
     ) -> "LocalModel":
         """Builds a local model from a custom predictor.
 
@@ -275,7 +274,6 @@ class LocalModel:
                 predictor=$CUSTOM_PREDICTOR_CLASS,
                 requirements_path="./user_src_dir/requirements.txt",
                 extra_packages=["./user_src_dir/user_code/custom_package.tar.gz"],
-                platform="linux/amd64", # i.e., if you're building on a non-x86 machine
             )
 
         In the built image, user provided files will be copied as follows:
@@ -342,10 +340,6 @@ class LocalModel:
                 reduces the image building time. See
                 https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache
                 for more details.
-            platform (str):
-                Optional. The target platform for the Docker image build. See
-                https://docs.docker.com/build/building/multi-platform/#building-multi-platform-images
-                for more details.
 
         Returns:
             local model: Instantiated representation of the local model.
@@ -397,7 +391,6 @@ class LocalModel:
             pip_command="pip3" if is_prebuilt_prediction_image else "pip",
             python_command="python3" if is_prebuilt_prediction_image else "python",
             no_cache=no_cache,
-            platform=platform,
         )
 
         container_spec = gca_model_compat.ModelContainerSpec(

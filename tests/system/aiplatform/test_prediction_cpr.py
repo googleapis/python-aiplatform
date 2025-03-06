@@ -49,8 +49,7 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-prediction-cpr"
 
-    @pytest.mark.parametrize("platform", [None, "linux/amd64"])
-    def test_build_cpr_model_upload_and_deploy(self, shared_state, caplog, platform):
+    def test_build_cpr_model_upload_and_deploy(self, shared_state, caplog):
         """Creates a CPR model from custom predictor, uploads it and deploys."""
 
         caplog.set_level(logging.INFO)
@@ -62,7 +61,6 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
             _IMAGE_URI,
             predictor=SklearnPredictor,
             requirements_path=os.path.join(_USER_CODE_DIR, _REQUIREMENTS_FILE),
-            platform=platform,
         )
 
         with local_model.deploy_to_local_endpoint(

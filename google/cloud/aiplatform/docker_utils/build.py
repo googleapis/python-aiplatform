@@ -418,7 +418,6 @@ def build_image(
     pip_command: str = "pip",
     python_command: str = "python",
     no_cache: bool = True,
-    platform: Optional[str] = None,
     **kwargs,
 ) -> Image:
     """Builds a Docker image.
@@ -460,10 +459,6 @@ def build_image(
             reduces the image building time. See
             https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache
             for more details.
-        platform (str):
-            Optional. The target platform for the Docker image build. See
-            https://docs.docker.com/build/building/multi-platform/#building-multi-platform-images
-            for more details.
         **kwargs:
             Other arguments to pass to underlying method that generates the Dockerfile.
 
@@ -477,14 +472,9 @@ def build_image(
 
     tag_options = ["-t", output_image_name]
     cache_args = ["--no-cache"] if no_cache else []
-    platform_args = ["--platform", platform] if platform is not None else []
 
     command = (
-        ["docker", "build"]
-        + cache_args
-        + platform_args
-        + tag_options
-        + ["--rm", "-f-", host_workdir]
+        ["docker", "build"] + cache_args + tag_options + ["--rm", "-f-", host_workdir]
     )
 
     requirements_relative_path = _get_relative_path_to_workdir(

@@ -270,7 +270,7 @@ def _override_active_span_processor(
 class LangchainAgent:
     """A Langchain Agent.
 
-    See https://cloud.google.com/vertex-ai/generative-ai/docs/reasoning-engine/develop
+    See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/langchain
     for details.
     """
 

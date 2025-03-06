@@ -141,7 +141,11 @@ def _override_active_span_processor(
 
 
 class AG2Agent:
-    """An AG2 Agent."""
+    """An AG2 Agent.
+
+    See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/ag2
+    for details.
+    """
 
     def __init__(
         self,
