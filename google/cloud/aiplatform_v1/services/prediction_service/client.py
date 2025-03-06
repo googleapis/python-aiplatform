@@ -249,11 +249,19 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         endpoint: str,
     ) -> str:
         """Returns a fully-qualified endpoint string."""
-        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project,
-            location=location,
-            endpoint=endpoint,
-        )
+        if project == "None":
+            return "endpoints/{endpoint}".format(
+                endpoint=endpoint,
+            )
+        else:
+            return (
+                "projects/{project}/locations/{location}/endpoints/{endpoint}"
+                .format(
+                    project=project,
+                    location=location,
+                    endpoint=endpoint,
+                )
+            )
 
     @staticmethod
     def parse_endpoint_path(path: str) -> Dict[str, str]:
