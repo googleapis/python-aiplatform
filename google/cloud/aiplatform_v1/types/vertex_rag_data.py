@@ -35,6 +35,7 @@ __protobuf__ = proto.module(
         "RagFile",
         "RagFileChunkingConfig",
         "RagFileTransformationConfig",
+        "RagFileParsingConfig",
         "UploadRagFileConfig",
         "ImportRagFilesConfig",
     },
@@ -526,6 +527,58 @@ class RagFileTransformationConfig(proto.Message):
     )
 
 
+class RagFileParsingConfig(proto.Message):
+    r"""Specifies the parsing config for RagFiles.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        layout_parser (google.cloud.aiplatform_v1.types.RagFileParsingConfig.LayoutParser):
+            The Layout Parser to use for RagFiles.
+
+            This field is a member of `oneof`_ ``parser``.
+    """
+
+    class LayoutParser(proto.Message):
+        r"""Document AI Layout Parser config.
+
+        Attributes:
+            processor_name (str):
+                The full resource name of a Document AI processor or
+                processor version. The processor must have type
+                ``LAYOUT_PARSER_PROCESSOR``. If specified, the
+                ``additional_config.parse_as_scanned_pdf`` field must be
+                false. Format:
+
+                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}``
+                -  ``projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}``
+            max_parsing_requests_per_min (int):
+                The maximum number of requests the job is
+                allowed to make to the Document AI processor per
+                minute. Consult
+                https://cloud.google.com/document-ai/quotas and
+                the Quota page for your project to set an
+                appropriate value here. If unspecified, a
+                default value of 120 QPM would be used.
+        """
+
+        processor_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        max_parsing_requests_per_min: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+
+    layout_parser: LayoutParser = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="parser",
+        message=LayoutParser,
+    )
+
+
 class UploadRagFileConfig(proto.Message):
     r"""Config for uploading RagFile.
 
@@ -600,6 +653,10 @@ class ImportRagFilesConfig(proto.Message):
         rag_file_transformation_config (google.cloud.aiplatform_v1.types.RagFileTransformationConfig):
             Specifies the transformation config for
             RagFiles.
+        rag_file_parsing_config (google.cloud.aiplatform_v1.types.RagFileParsingConfig):
+            Optional. Specifies the parsing config for
+            RagFiles. RAG will use the default parser if
+            this field is not set.
         max_embedding_requests_per_min (int):
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -657,6 +714,11 @@ class ImportRagFilesConfig(proto.Message):
         proto.MESSAGE,
         number=16,
         message="RagFileTransformationConfig",
+    )
+    rag_file_parsing_config: "RagFileParsingConfig" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="RagFileParsingConfig",
     )
     max_embedding_requests_per_min: int = proto.Field(
         proto.INT32,
