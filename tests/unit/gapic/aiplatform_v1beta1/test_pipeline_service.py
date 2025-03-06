@@ -9245,7 +9245,11 @@ def test_create_training_pipeline_rest_call_success(request_type):
             "original_model_info": {"model": "model_value"},
             "metadata_artifact": "metadata_artifact_value",
             "base_model_source": {
-                "model_garden_source": {"public_model_name": "public_model_name_value"},
+                "model_garden_source": {
+                    "public_model_name": "public_model_name_value",
+                    "version_id": "version_id_value",
+                    "skip_hf_model_cache": True,
+                },
                 "genie_source": {"base_model_uri": "base_model_uri_value"},
             },
             "satisfies_pzs": True,
@@ -12200,7 +12204,11 @@ async def test_create_training_pipeline_rest_asyncio_call_success(request_type):
             "original_model_info": {"model": "model_value"},
             "metadata_artifact": "metadata_artifact_value",
             "base_model_source": {
-                "model_garden_source": {"public_model_name": "public_model_name_value"},
+                "model_garden_source": {
+                    "public_model_name": "public_model_name_value",
+                    "version_id": "version_id_value",
+                    "skip_hf_model_cache": True,
+                },
                 "genie_source": {"base_model_uri": "base_model_uri_value"},
             },
             "satisfies_pzs": True,

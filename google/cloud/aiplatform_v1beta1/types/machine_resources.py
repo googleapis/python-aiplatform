@@ -76,6 +76,9 @@ class MachineSpec(proto.Message):
             Immutable. The topology of the TPUs. Corresponds to the TPU
             topologies available from GKE. (Example: tpu_topology:
             "2x2x1").
+        multihost_gpu_node_count (int):
+            Optional. Immutable. The number of nodes per
+            replica for multihost GPU deployments.
         reservation_affinity (google.cloud.aiplatform_v1beta1.types.ReservationAffinity):
             Optional. Immutable. Configuration
             controlling how this resource pool consumes
@@ -98,6 +101,10 @@ class MachineSpec(proto.Message):
     tpu_topology: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+    multihost_gpu_node_count: int = proto.Field(
+        proto.INT32,
+        number=6,
     )
     reservation_affinity: gca_reservation_affinity.ReservationAffinity = proto.Field(
         proto.MESSAGE,
