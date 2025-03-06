@@ -973,6 +973,7 @@ from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
 from .types.vertex_rag_data import RagFileChunkingConfig
+from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
@@ -1742,6 +1743,7 @@ __all__ = (
     "RagEmbeddingModelConfig",
     "RagFile",
     "RagFileChunkingConfig",
+    "RagFileParsingConfig",
     "RagFileTransformationConfig",
     "RagQuery",
     "RagRetrievalConfig",
