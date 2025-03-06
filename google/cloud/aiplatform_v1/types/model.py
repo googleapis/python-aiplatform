@@ -709,11 +709,25 @@ class ModelGardenSource(proto.Message):
         public_model_name (str):
             Required. The model garden source model
             resource name.
+        version_id (str):
+            Optional. The model garden source model
+            version ID.
+        skip_hf_model_cache (bool):
+            Optional. Whether to avoid pulling the model
+            from the HF cache.
     """
 
     public_model_name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    version_id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    skip_hf_model_cache: bool = proto.Field(
+        proto.BOOL,
+        number=4,
     )
 
 

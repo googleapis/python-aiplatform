@@ -6473,6 +6473,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -7044,6 +7045,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -7724,6 +7726,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
                 "tpu_topology": "tpu_topology_value",
+                "multihost_gpu_node_count": 2593,
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,
                     "key": "key_value",
@@ -8820,6 +8823,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -9440,6 +9444,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
                         "tpu_topology": "tpu_topology_value",
+                        "multihost_gpu_node_count": 2593,
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
                             "key": "key_value",
@@ -10186,6 +10191,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
                 "tpu_topology": "tpu_topology_value",
+                "multihost_gpu_node_count": 2593,
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,
                     "key": "key_value",
