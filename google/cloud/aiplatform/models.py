@@ -210,6 +210,12 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 will be used.
         """
 
+        if project:
+            print("project: " + project)
+
+        if location:
+            print("location: " + location)
+
         super().__init__(
             project=project,
             location=location,
@@ -662,7 +668,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             endpoint_name (str):
                 Required. A fully-qualified endpoint resource name or endpoint ID.
                 Example: "projects/123/locations/us-central1/endpoints/456" or
-                "456" when project and location are initialized or passed.
+                "456" when project and location are initialized or passed. If
+                project and location are not passed, the endpoint_name is assumed
+                to be fully-qualified.
             project (str):
                 Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
@@ -681,14 +689,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             resource_name=endpoint_name,
         )
 
-        endpoint_name = utils.full_resource_name(
-            resource_name=endpoint_name,
-            resource_noun="endpoints",
-            parse_resource_name_method=self._parse_resource_name,
-            format_resource_name_method=self._format_resource_name,
-            project=project,
-            location=location,
-        )
+        if project or initializer.global_config.project:
+            endpoint_name = utils.full_resource_name(
+                resource_name=endpoint_name,
+                resource_noun="endpoints",
+                parse_resource_name_method=self._parse_resource_name,
+                format_resource_name_method=self._format_resource_name,
+                project=project,
+                location=location,
+            )
 
         # Lazy load the Endpoint gca_resource until needed
         self._gca_resource = gca_endpoint_compat.Endpoint(name=endpoint_name)
@@ -699,6 +708,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     @property
     def _prediction_client(self) -> utils.PredictionClientWithOverride:
+        api_key = initializer.global_config.api_key
+        if api_key and initializer.global_config.project:
+            api_key = None
         # The attribute might not exist due to issues in
         # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
         # We should switch to @functools.cached_property once its available.
@@ -706,8 +718,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             self._prediction_client_value = initializer.global_config.create_client(
                 client_class=utils.PredictionClientWithOverride,
                 credentials=self.credentials,
-                location_override=self.location,
+                location_override=self.location if not api_key else None,
                 prediction_client=True,
+                api_key=api_key,
             )
         return self._prediction_client_value
 
