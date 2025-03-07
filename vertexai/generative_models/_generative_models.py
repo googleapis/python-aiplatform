@@ -62,7 +62,7 @@ from google.protobuf import json_format
 import warnings
 
 if TYPE_CHECKING:
-    from vertexai.preview import caching
+    from vertexai.caching import CachedContent
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -234,7 +234,7 @@ def _validate_generate_content_parameters(
     tools: Optional[List["Tool"]] = None,
     tool_config: Optional["ToolConfig"] = None,
     system_instruction: Optional[PartsType] = None,
-    cached_content: Optional["caching.CachedContent"] = None,
+    cached_content: Optional["CachedContent"] = None,
     labels: Optional[Dict[str, str]] = None,
 ) -> None:
     """Validates the parameters for a generate_content call."""
@@ -447,7 +447,7 @@ class _GenerativeModel:
         self._tools = tools
         self._tool_config = tool_config
         self._system_instruction = system_instruction
-        self._cached_content: Optional["caching.CachedContent"] = None
+        self._cached_content: Optional["CachedContent"] = None
         self._labels = labels
 
         # Validating the parameters
@@ -1160,6 +1160,45 @@ class _GenerativeModel:
             history=history,
             response_validation=response_validation,
         )
+
+    @classmethod
+    def from_cached_content(
+        cls,
+        cached_content: Union[str, "CachedContent"],
+        *,
+        generation_config: Optional[GenerationConfigType] = None,
+        safety_settings: Optional[SafetySettingsType] = None,
+    ) -> "_GenerativeModel":
+        """Creates a model from cached content.
+
+        Creates a model instance with an existing cached content. The cached
+        content becomes the prefix of the requesting contents.
+
+        Args:
+            cached_content: The cached content resource name or object.
+            generation_config: The generation config to use for this model.
+            safety_settings: The safety settings to use for this model.
+
+        Returns:
+            A model instance with the cached content wtih cached content as
+            prefix of all its requests.
+        """
+        if isinstance(cached_content, str):
+            from vertexai.caching import CachedContent
+
+            cached_content = CachedContent.get(cached_content)
+        model_name = cached_content.model_name
+        model = cls(
+            model_name=model_name,
+            generation_config=generation_config,
+            safety_settings=safety_settings,
+            tools=None,
+            tool_config=None,
+            system_instruction=None,
+        )
+        model._cached_content = cached_content
+
+        return model
 
 
 _SUCCESSFUL_FINISH_REASONS = [
@@ -3515,42 +3554,3 @@ class _PreviewGenerativeModel(_GenerativeModel):
             response_validation=response_validation,
             responder=responder,
         )
-
-    @classmethod
-    def from_cached_content(
-        cls,
-        cached_content: Union[str, "caching.CachedContent"],
-        *,
-        generation_config: Optional[GenerationConfigType] = None,
-        safety_settings: Optional[SafetySettingsType] = None,
-    ) -> "_GenerativeModel":
-        """Creates a model from cached content.
-
-        Creates a model instance with an existing cached content. The cached
-        content becomes the prefix of the requesting contents.
-
-        Args:
-            cached_content: The cached content resource name or object.
-            generation_config: The generation config to use for this model.
-            safety_settings: The safety settings to use for this model.
-
-        Returns:
-            A model instance with the cached content wtih cached content as
-            prefix of all its requests.
-        """
-        if isinstance(cached_content, str):
-            from vertexai.preview import caching
-
-            cached_content = caching.CachedContent.get(cached_content)
-        model_name = cached_content.model_name
-        model = cls(
-            model_name=model_name,
-            generation_config=generation_config,
-            safety_settings=safety_settings,
-            tools=None,
-            tool_config=None,
-            system_instruction=None,
-        )
-        model._cached_content = cached_content
-
-        return model

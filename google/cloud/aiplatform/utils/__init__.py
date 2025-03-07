@@ -77,6 +77,7 @@ from google.cloud.aiplatform.compat.services import (
     feature_registry_service_client_v1,
     featurestore_online_serving_service_client_v1,
     featurestore_service_client_v1,
+    gen_ai_cache_service_client_v1,
     index_service_client_v1,
     index_endpoint_service_client_v1,
     job_service_client_v1,
@@ -807,8 +808,7 @@ class GenAiCacheServiceClientWithOverride(ClientWithOverride):
     _version_map = (
         (
             compat.V1,
-            # TODO(b/342585299): Temporary code. Switch to v1 once v1 is available.
-            gen_ai_cache_service_client_v1beta1.GenAiCacheServiceClient,
+            gen_ai_cache_service_client_v1.GenAiCacheServiceClient,
         ),
         (
             compat.V1BETA1,

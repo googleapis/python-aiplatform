@@ -137,6 +137,9 @@ from google.cloud.aiplatform_v1.services.featurestore_online_serving_service imp
 from google.cloud.aiplatform_v1.services.featurestore_service import (
     client as featurestore_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.gen_ai_cache_service import (
+    client as gen_ai_cache_service_client_v1,
+)
 from google.cloud.aiplatform_v1.services.index_service import (
     client as index_service_client_v1,
 )
