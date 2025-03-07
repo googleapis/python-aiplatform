@@ -493,10 +493,20 @@ def _create_prompt_version_resource(
 
 def _get_prompt_resource(prompt: Prompt, prompt_id: str) -> gca_dataset.Dataset:
     """Helper function to get a prompt resource from a prompt id."""
+    print("Branch CL _get_prompt_resource")
     project = aiplatform_initializer.global_config.project
     location = aiplatform_initializer.global_config.location
     name = f"projects/{project}/locations/{location}/datasets/{prompt_id}"
     dataset = prompt._dataset_client.get_dataset(name=name)
+
+    print("Setting ._dataset_client.client_info.gapic_version")
+    prompt._dataset_client.client_info.gapic_version = prompt._dataset_client.client_info.gapic_version + "+prompt_management"
+    print(str(prompt._dataset_client.client_info.gapic_version))
+
+    print("Setting ._dataset_client.appended_gapic_version")
+    prompt._dataset_client.appended_gapic_version = prompt._dataset_client.appended_gapic_version + "+prompt_management"
+    print(str(prompt._dataset_client.appended_gapic_version))
+
     return dataset
 
 
@@ -504,6 +514,7 @@ def _get_prompt_resource_from_version(
     prompt: Prompt, prompt_id: str, version_id: str
 ) -> gca_dataset.Dataset:
     """Helper function to get a prompt resource from a prompt version id."""
+    print("Branch CL _get_prompt_resource_from_version")
     project = aiplatform_initializer.global_config.project
     location = aiplatform_initializer.global_config.location
     name = f"projects/{project}/locations/{location}/datasets/{prompt_id}/datasetVersions/{version_id}"
@@ -515,6 +526,14 @@ def _get_prompt_resource_from_version(
     # Step 2: Fetch dataset object to get the dataset display name
     name = f"projects/{project}/locations/{location}/datasets/{prompt_id}"
     dataset = prompt._dataset_client.get_dataset(name=name)
+
+    print("Setting ._dataset_client.client_info.gapic_version")
+    prompt._dataset_client.client_info.gapic_version = prompt._dataset_client.client_info.gapic_version + "+prompt_management"
+    print(str(prompt._dataset_client.client_info.gapic_version))
+
+    print("Setting ._dataset_client.appended_gapic_version")
+    prompt._dataset_client.appended_gapic_version = prompt._dataset_client.appended_gapic_version + "+prompt_management"
+    print(str(prompt._dataset_client.appended_gapic_version))
 
     # Step 3: Convert to DatasetVersion object to Dataset object
     dataset = gca_dataset.Dataset(
@@ -573,12 +592,14 @@ def get(prompt_id: str, version_id: Optional[str] = None) -> Prompt:
     """
     prompt = Prompt()
     if version_id:
+        print("Branch CL get prompt resource from version")
         dataset = _get_prompt_resource_from_version(
             prompt=prompt,
             prompt_id=prompt_id,
             version_id=version_id,
         )
     else:
+        print("Branch CL get prompt resource")
         dataset = _get_prompt_resource(prompt=prompt, prompt_id=prompt_id)
 
     # Remove etag to avoid error for repeated dataset updates
@@ -586,6 +607,7 @@ def get(prompt_id: str, version_id: Optional[str] = None) -> Prompt:
 
     prompt._dataset = dataset
     prompt._version_id = version_id
+    prompt._used_prompt_management = True
 
     dataset_dict = _proto_to_dict(dataset)
 
