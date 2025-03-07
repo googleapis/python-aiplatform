@@ -46,68 +46,67 @@ def read_bigquery(
     concurrency: Optional[int] = None,
     override_num_blocks: Optional[int] = None,
 ) -> Dataset:
-    """Create a dataset from BigQuery.
+  """Create a dataset from BigQuery.
 
-    The data to read from is specified via the ``project_id``, ``dataset``
-    and/or ``query`` parameters.
+  The data to read from is specified via the ``project_id``, ``dataset``
+  and/or ``query`` parameters.
 
-    Args:
-        project_id: The name of the associated Google Cloud Project that hosts
-            the dataset to read.
-        dataset: The name of the dataset hosted in BigQuery in the format of
-            ``dataset_id.table_id``. Both the dataset_id and table_id must exist
-            otherwise an exception will be raised.
-        query: The query to execute.
-            The dataset is created from the results of executing the query if provided.
-            Otherwise, the entire dataset is read. For query syntax guidelines, see
-            https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
-        parallelism:
-            2.9.3: The requested parallelism of the read. If -1, it will be
-            automatically chosen based on the available cluster resources
-            and estimated in-memory data size.
-            2.33.0: This argument is deprecated. Use ``override_num_blocks`` argument.
-        ray_remote_args: kwargs passed to ray.remote in the read tasks.
-        concurrency: Not supported in 2.9.3.
-            2.33.0: The maximum number of Ray tasks to run concurrently. Set this
-            to control number of tasks to run concurrently. This doesn't change the
-            total number of tasks run or the total number of output blocks. By default,
-            concurrency is dynamically decided based on the available resources.
-        override_num_blocks: Not supported in 2.9.3.
-            2.33.0: Override the number of output blocks from all read tasks.
-            By default, the number of output blocks is dynamically decided based on
-            input data size and available resources. You shouldn't manually set this
-            value in most cases.
+  Args:
+      project_id: The name of the associated Google Cloud Project that hosts the
+        dataset to read.
+      dataset: The name of the dataset hosted in BigQuery in the format of
+        ``dataset_id.table_id``. Both the dataset_id and table_id must exist
+        otherwise an exception will be raised.
+      query: The query to execute. The dataset is created from the results of
+        executing the query if provided. Otherwise, the entire dataset is read.
+        For query syntax guidelines, see
+          https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
+      parallelism: 2.9.3: The requested parallelism of the read. If -1, it will
+        be automatically chosen based on the available cluster resources and
+        estimated in-memory data size. 2.33.0, 2.42.0: This argument is
+        deprecated. Use ``override_num_blocks`` argument.
+      ray_remote_args: kwargs passed to ray.remote in the read tasks.
+      concurrency: Supported for 2.33.0 and 2.42.0 only: The maximum number
+        of Ray tasks to run concurrently. Set this to control number of tasks to
+        run concurrently. This doesn't change the total number of tasks run or
+        the total number of output blocks. By default, concurrency is
+        dynamically decided based on the available resources.
+      override_num_blocks: Supported for 2.33.0 and 2.42.0 only: Override
+        the number of output blocks from all read tasks. By default, the number
+        of output blocks is dynamically decided based on input data size and
+        available resources. You shouldn't manually set this value in most
+        cases.
 
-    Returns:
-        Dataset producing rows from the results of executing the query
-        or reading the entire dataset on the specified BigQuery dataset.
-    """
-    datasource = _BigQueryDatasource(
+  Returns:
+      Dataset producing rows from the results of executing the query
+      or reading the entire dataset on the specified BigQuery dataset.
+  """
+  datasource = _BigQueryDatasource(
         project_id=project_id,
         dataset=dataset,
         query=query,
     )
 
-    if ray.__version__ == "2.9.3":
-        warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
-        # Concurrency and override_num_blocks are not supported in 2.9.3
-        return ray.data.read_datasource(
+  if ray.__version__ == "2.9.3":
+    warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
+    # Concurrency and override_num_blocks are not supported in 2.9.3
+    return ray.data.read_datasource(
             datasource=datasource,
             parallelism=parallelism,
             ray_remote_args=ray_remote_args,
         )
-    elif ray.__version__ == "2.33.0":
-        return ray.data.read_datasource(
-            datasource=datasource,
-            parallelism=parallelism,
-            ray_remote_args=ray_remote_args,
-            concurrency=concurrency,
-            override_num_blocks=override_num_blocks,
-        )
-    else:
-        raise ImportError(
+  elif ray.__version__ in ("2.33.0", "2.42.0"):
+    return ray.data.read_datasource(
+        datasource=datasource,
+        parallelism=parallelism,
+        ray_remote_args=ray_remote_args,
+        concurrency=concurrency,
+        override_num_blocks=override_num_blocks,
+    )
+  else:
+    raise ImportError(
             f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
-            + "Only 2.33.0 and 2.9.3 are supported."
+            + "Only 2.42.0, 2.33.0, and 2.9.3 are supported."
         )
 
 
@@ -135,11 +134,11 @@ def write_bigquery(
             The default number of retries is 10.
         ray_remote_args: kwargs passed to ray.remote in the write tasks.
         overwrite_table: Not supported in 2.9.3.
-            2.33.0: Whether the write will overwrite the table if it already
+            2.33.0, 2.42.0: Whether the write will overwrite the table if it already
             exists. The default behavior is to overwrite the table.
             If false, will append to the table if it exists.
         concurrency: Not supported in 2.9.3.
-            2.33.0: The maximum number of Ray tasks to run concurrently. Set this
+            2.33.0, 2.42.0: The maximum number of Ray tasks to run concurrently. Set this
             to control number of tasks to run concurrently. This doesn't change the
             total number of tasks run or the total number of output blocks. By default,
             concurrency is dynamically decided based on the available resources.
@@ -147,7 +146,7 @@ def write_bigquery(
     if ray.__version__ == "2.4.0":
         raise RuntimeError(_V2_4_WARNING_MESSAGE)
 
-    elif ray.__version__ == "2.9.3" or ray.__version__ == "2.33.0":
+    elif ray.__version__ in ("2.9.3", "2.33.0", "2.42.0"):
         if ray.__version__ == "2.9.3":
             warnings.warn(_V2_9_WARNING_MESSAGE, DeprecationWarning, stacklevel=1)
         if ray_remote_args is None:
@@ -174,7 +173,7 @@ def write_bigquery(
                 datasink=datasink,
                 ray_remote_args=ray_remote_args,
             )
-        elif ray.__version__ == "2.33.0":
+        elif ray.__version__ in ("2.33.0", "2.42.0"):
             datasink = _BigQueryDatasink(
                 project_id=project_id,
                 dataset=dataset,
@@ -189,5 +188,5 @@ def write_bigquery(
     else:
         raise ImportError(
             f"[Ray on Vertex AI]: Unsupported version {ray.__version__}."
-            + "Only 2.33.0 and 2.9.3 are supported."
+            + "Only 2.42.0, 2.33.0 and 2.9.3 are supported."
         )
