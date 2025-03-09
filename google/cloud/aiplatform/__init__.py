@@ -66,6 +66,7 @@ from google.cloud.aiplatform.tensorboard import (
     TensorboardRun,
     TensorboardTimeSeries,
 )
+from google.cloud.aiplatform.aiplatform.telemetry import VertexAIInstrumentor
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -183,5 +184,6 @@ __all__ = (
     "TemporalFusionTransformerForecastingTrainingJob",
     "TimeSeriesDataset",
     "TimeSeriesDenseEncoderForecastingTrainingJob",
+    "VertexAIInstrumentor",
     "VideoDataset",
 )
