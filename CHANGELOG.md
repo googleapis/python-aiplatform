@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.84.0](https://github.com/googleapis/python-aiplatform/compare/v1.83.0...v1.84.0) (2025-03-10)
+
+
+### Features
+
+* Add Layout Parser to RAG v1 API ([ba9a314](https://github.com/googleapis/python-aiplatform/commit/ba9a314cf51b579436b4c3173d599caedc9a6b91))
+* Add multihost_gpu_node_count to Vertex SDK for multihost GPU support ([ba9a314](https://github.com/googleapis/python-aiplatform/commit/ba9a314cf51b579436b4c3173d599caedc9a6b91))
+* Add request/response logging to PSC endpoints ([b36a43a](https://github.com/googleapis/python-aiplatform/commit/b36a43a6b7164d37f013229f03ea36ed6a04f522))
+* Add the system tests for AG2 prebuilt template ([80cfc2f](https://github.com/googleapis/python-aiplatform/commit/80cfc2f3b635860c6702252776af294f17d3b60d))
+* Add the system tests for Langgraph prebuilt template ([833c1d2](https://github.com/googleapis/python-aiplatform/commit/833c1d2d33bd47c1a41ff741957036164b5efeb5))
+* Allowing users to choose whether to use the hf model cache ([ba9a314](https://github.com/googleapis/python-aiplatform/commit/ba9a314cf51b579436b4c3173d599caedc9a6b91))
+* Allowing users to choose whether to use the hf model cache ([ba9a314](https://github.com/googleapis/python-aiplatform/commit/ba9a314cf51b579436b4c3173d599caedc9a6b91))
+* Allowing users to specify the version id of the Model Garden model ([ba9a314](https://github.com/googleapis/python-aiplatform/commit/ba9a314cf51b579436b4c3173d599caedc9a6b91))
+* Allowing users to specify the version id of the Model Garden model ([ba9a314](https://github.com/googleapis/python-aiplatform/commit/ba9a314cf51b579436b4c3173d599caedc9a6b91))
+* Support custom predictor Docker image builds on non-x86 architectures ([#2115](https://github.com/googleapis/python-aiplatform/issues/2115)) ([87dd5c0](https://github.com/googleapis/python-aiplatform/commit/87dd5c0c2ebbb8f5e24ab258b308b51b748b628d))
+
 ## [1.83.0](https://github.com/googleapis/python-aiplatform/compare/v1.82.0...v1.83.0) (2025-03-05)
 
 
