@@ -3554,6 +3554,39 @@ class TestPrivateEndpoint:
             endpoint_id=None,
         )
 
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_request_response_logging_on_psc(
+        self, create_psc_private_endpoint_mock, sync
+    ):
+        my_endpoint = models.PrivateEndpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            sync=sync,
+            private_service_connect_config=models.PrivateEndpoint.PrivateServiceConnectConfig(
+                project_allowlist=_TEST_PROJECT_ALLOWLIST
+            ),
+            enable_request_response_logging=True,
+            request_response_logging_sampling_rate=_TEST_REQUEST_RESPONSE_LOGGING_SAMPLING_RATE,
+            request_response_logging_bq_destination_table=_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            private_service_connect_config=gca_service_networking.PrivateServiceConnectConfig(
+                enable_private_service_connect=True,
+                project_allowlist=_TEST_PROJECT_ALLOWLIST,
+            ),
+            predict_request_response_logging_config=_TEST_REQUEST_RESPONSE_LOGGING_CONFIG,
+        )
+        create_psc_private_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_psa_private_endpoint_with_model_mock")
     def test_psa_predict(self, predict_private_endpoint_mock):
         test_endpoint = models.PrivateEndpoint(_TEST_ID)
