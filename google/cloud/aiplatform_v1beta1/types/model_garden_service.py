@@ -241,6 +241,9 @@ class DeployRequest(proto.Message):
         hugging_face_model_id (str):
             The Hugging Face model to deploy. Format: Hugging Face model
             ID like ``google/gemma-2-2b-it``.
+        custom_model (google.cloud.aiplatform_v1beta1.types.DeployRequest.CustomModel):
+            The custom model to deploy from a Google
+            Cloud Storage URI.
 
             This field is a member of `oneof`_ ``artifacts``.
         destination (str):
@@ -260,6 +263,32 @@ class DeployRequest(proto.Message):
             deployment. If not specified, the default deploy
             config will be used.
     """
+
+    class CustomModel(proto.Message):
+        r"""The custom model to deploy from a Google Cloud Storage URI.
+
+        Attributes:
+            model_id (str):
+                Optional. The model user id of the custom model, which will
+                become the final component of the model resource name in
+                Model Registry. This value may be up to 63 characters, and
+                valid characters are ``[a-z0-9_-]``. The first character
+                cannot be a number or hyphen. If not set, an auto-generated
+                model id will be assigned.
+            gcs_uri (str):
+                Required. Immutable. The Google Cloud Storage
+                URI of the custom model, storing weights and
+                config files.
+        """
+
+        model_id: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        gcs_uri: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     class ModelConfig(proto.Message):
         r"""The model config to use for the deployment.
@@ -370,6 +399,12 @@ class DeployRequest(proto.Message):
         proto.STRING,
         number=2,
         oneof="artifacts",
+    )
+    custom_model: CustomModel = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof='artifacts',
+        message=CustomModel,
     )
     destination: str = proto.Field(
         proto.STRING,
