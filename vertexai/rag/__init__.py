@@ -42,6 +42,7 @@ from vertexai.rag.utils.resources import (
     Filter,
     JiraQuery,
     JiraSource,
+    LayoutParserConfig,
     Pinecone,
     RagCorpus,
     RagEmbeddingModelConfig,
