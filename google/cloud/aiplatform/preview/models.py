@@ -139,6 +139,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         required_replica_count: Optional[int] = 0,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -205,6 +206,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU
+                DeployedModel. Required for multihost GPU deployments.
 
         Returns:
             DeploymentResourcePool
@@ -232,6 +236,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             create_request_timeout=create_request_timeout,
             required_replica_count=required_replica_count,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
     @classmethod
@@ -254,6 +259,7 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         required_replica_count: Optional[int] = 0,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> "DeploymentResourcePool":
         """Creates a new DeploymentResourcePool.
 
@@ -323,6 +329,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            multihost_gpu_node_count (int):
+                Optional. The number of nodes per replica for multihost GPU
+                DeployedModel. Required for multihost GPU deployments.
 
         Returns:
             DeploymentResourcePool
@@ -339,7 +348,8 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
         )
 
         machine_spec = gca_machine_resources_compat.MachineSpec(
-            machine_type=machine_type
+            machine_type=machine_type,
+            multihost_gpu_node_count=multihost_gpu_node_count,
         )
 
         if autoscaling_target_cpu_utilization:
@@ -368,6 +378,9 @@ class DeploymentResourcePool(base.VertexAiResourceNounWithFutureManager):
                 dedicated_resources.autoscaling_metric_specs.extend(
                     [autoscaling_metric_spec]
                 )
+
+        # if multihost_gpu_node_count:
+        #     machine_spec.multihost_gpu_node_count = multihost_gpu_node_count
 
         dedicated_resources.machine_spec = machine_spec
 
@@ -691,6 +704,7 @@ class Endpoint(aiplatform.Endpoint):
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
         rollout_options: Optional[RolloutOptions] = None,
+        multihost_gpu_node_count: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -787,8 +801,6 @@ class Endpoint(aiplatform.Endpoint):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
-            rollout_options (RolloutOptions):
-                Optional. Options to configure a rolling deployment.
 
         """
         self._sync_gca_resource_if_skipped()
@@ -831,7 +843,6 @@ class Endpoint(aiplatform.Endpoint):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
-            rollout_options=rollout_options,
         )
 
     @base.optional_sync()
@@ -858,7 +869,6 @@ class Endpoint(aiplatform.Endpoint):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
-        rollout_options: Optional[RolloutOptions] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -949,8 +959,7 @@ class Endpoint(aiplatform.Endpoint):
               set, the model deploy/mutate operation will succeed once
               available_replica_count reaches required_replica_count, and the
               rest of the replicas will be retried.
-            rollout_options (RolloutOptions): Optional.
-              Options to configure a rolling deployment.
+
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -981,7 +990,6 @@ class Endpoint(aiplatform.Endpoint):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
-            rollout_options=rollout_options,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1015,7 +1023,6 @@ class Endpoint(aiplatform.Endpoint):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
-        rollout_options: Optional[RolloutOptions] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1113,8 +1120,6 @@ class Endpoint(aiplatform.Endpoint):
               set, the model deploy/mutate operation will succeed once
               available_replica_count reaches required_replica_count, and the
               rest of the replicas will be retried.
-            rollout_options (RolloutOptions): Optional. Options to configure a
-              rolling deployment.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -1195,7 +1200,8 @@ class Endpoint(aiplatform.Endpoint):
                 )
 
                 machine_spec = gca_machine_resources_compat.MachineSpec(
-                    machine_type=machine_type
+                    machine_type=machine_type,
+                    multihost_gpu_node_count=multihost_gpu_node_count,
                 )
 
                 if autoscaling_target_cpu_utilization:
@@ -1537,7 +1543,6 @@ class Model(aiplatform.Model):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
-        rollout_options: Optional[RolloutOptions] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1655,8 +1660,6 @@ class Model(aiplatform.Model):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
-            rollout_options (RolloutOptions):
-              Optional. Options to configure a rolling deployment.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1716,7 +1719,6 @@ class Model(aiplatform.Model):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
-            rollout_options=rollout_options,
         )
 
     def _should_enable_dedicated_endpoint(self, fast_tryout_enabled: bool) -> bool:
@@ -1752,7 +1754,6 @@ class Model(aiplatform.Model):
         fast_tryout_enabled: bool = False,
         system_labels: Optional[Dict[str, str]] = None,
         required_replica_count: Optional[int] = 0,
-        rollout_options: Optional[RolloutOptions] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1861,8 +1862,6 @@ class Model(aiplatform.Model):
               set, the model deploy/mutate operation will succeed once
               available_replica_count reaches required_replica_count, and the
               rest of the replicas will be retried.
-            rollout_options (RolloutOptions):
-              Optional. Options to configure a rolling deployment.
 
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
@@ -1928,7 +1927,6 @@ class Model(aiplatform.Model):
             fast_tryout_enabled=fast_tryout_enabled,
             system_labels=system_labels,
             required_replica_count=required_replica_count,
-            **preview_kwargs,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
