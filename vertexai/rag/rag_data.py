@@ -44,6 +44,7 @@ from vertexai.rag.utils import (
 )
 from vertexai.rag.utils.resources import (
     JiraSource,
+    LayoutParserConfig,
     RagCorpus,
     RagFile,
     RagVectorDbConfig,
@@ -395,6 +396,7 @@ def import_files(
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -504,6 +506,8 @@ def import_files(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
     Returns:
         ImportRagFilesResponse.
     """
@@ -519,6 +523,7 @@ def import_files(
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -536,6 +541,7 @@ async def import_files_async(
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
     partial_failures_sink: Optional[str] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -645,6 +651,8 @@ async def import_files_async(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        layout_parser: Configuration for the Document AI Layout Parser Processor
+            to use for document parsing. Optional.
     Returns:
         operation_async.AsyncOperation.
     """
@@ -660,6 +668,7 @@ async def import_files_async(
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         partial_failures_sink=partial_failures_sink,
+        layout_parser=layout_parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:
