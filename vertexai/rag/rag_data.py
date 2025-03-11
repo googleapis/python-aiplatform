@@ -44,6 +44,7 @@ from vertexai.rag.utils import (
 )
 from vertexai.rag.utils.resources import (
     JiraSource,
+    LayoutParserConfig,
     RagCorpus,
     RagFile,
     RagVectorDbConfig,
@@ -395,6 +396,7 @@ def import_files(
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
     partial_failures_sink: Optional[str] = None,
+    parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -473,6 +475,17 @@ def import_files(
     # Return the number of imported RagFiles after completion.
     print(response.imported_rag_files_count)
 
+    # Document AI Layout Parser example.
+    parser = LayoutParserConfig(
+        processor_name="projects/my-project/locations/us-central1/processors/my-processor-id",
+        max_parsing_requests_per_min=120,
+    )
+    response = rag.import_files(
+        corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
+        paths=paths,
+        parser=parser,
+    )
+
     ```
     Args:
         corpus_name: The name of the RagCorpus resource into which to import files.
@@ -504,6 +517,9 @@ def import_files(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        parser: Document parser to use. Should be either None (default parser),
+            or a LayoutParserConfig (to parse documents using a Document AI
+            Layout Parser processor).
     Returns:
         ImportRagFilesResponse.
     """
@@ -519,6 +535,7 @@ def import_files(
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         partial_failures_sink=partial_failures_sink,
+        parser=parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -536,6 +553,7 @@ async def import_files_async(
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
     partial_failures_sink: Optional[str] = None,
+    parser: Optional[LayoutParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -612,6 +630,17 @@ async def import_files_async(
         share_point_sources=[sharepoint_query],
     )
 
+    # Document AI Layout Parser example.
+    parser = LayoutParserConfig(
+        processor_name="projects/my-project/locations/us-central1/processors/my-processor-id",
+        max_parsing_requests_per_min=120,
+    )
+    response = rag.import_files_async(
+        corpus_name="projects/my-project/locations/us-central1/ragCorpora/my-corpus-1",
+        paths=paths,
+        parser=parser,
+    )
+
     # Get the result.
     await response.result()
 
@@ -645,6 +674,9 @@ async def import_files_async(
             exist - if it does not exist, it will be created. If it does exist,
             the schema will be checked and the partial failures will be appended
             to the table.
+        parser: Document parser to use. Should be either None (default parser),
+            or a LayoutParserConfig (to parse documents using a Document AI
+            Layout Parser processor).
     Returns:
         operation_async.AsyncOperation.
     """
@@ -660,6 +692,7 @@ async def import_files_async(
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         partial_failures_sink=partial_failures_sink,
+        parser=parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:

@@ -367,3 +367,25 @@ class TransformationConfig:
     """
 
     chunking_config: Optional[ChunkingConfig] = None
+
+
+@dataclasses.dataclass
+class LayoutParserConfig:
+    """Configuration for the Document AI Layout Parser Processor.
+
+    Attributes:
+        processor_name: The full resource name of a Document AI processor or
+            processor version. The processor must have type
+            `LAYOUT_PARSER_PROCESSOR`.
+            Format must be one of the following:
+            -  `projects/{project_id}/locations/{location}/processors/{processor_id}`
+            -  `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`
+        max_parsing_requests_per_min: The maximum number of requests the job is
+            allowed to make to the Document AI processor per minute. Consult
+            https://cloud.google.com/document-ai/quotas and the Quota page for
+            your project to set an appropriate value here. If unspecified, a
+            default value of 120 QPM will be used.
+    """
+
+    processor_name: str
+    max_parsing_requests_per_min: Optional[int] = None
