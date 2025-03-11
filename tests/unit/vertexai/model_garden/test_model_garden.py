@@ -45,6 +45,28 @@ _TEST_HUGGING_FACE_ACCESS_TOKEN = "test-access-token"
 
 _TEST_ENDPOINT_NAME = "projects/test-project/locations/us-central1/endpoints/1234567890"
 _TEST_MODEL_NAME = "projects/test-project/locations/us-central1/models/9876543210"
+_TEST_MODEL_CONTAINER_SPEC = types.ModelContainerSpec(
+    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+    command=["python", "main.py"],
+    args=["--model-id=gemma-2b"],
+    env=[types.EnvVar(name="MODEL_ID", value="gemma-2b")],
+    ports=[types.Port(container_port=7080)],
+    grpc_ports=[types.Port(container_port=7081)],
+    predict_route="/predictions/v1/predict",
+    health_route="/ping",
+    deployment_timeout=duration_pb2.Duration(seconds=1800),
+    shared_memory_size_mb=256,
+    startup_probe=types.Probe(
+        exec_=types.Probe.ExecAction(command=["python", "main.py"]),
+        period_seconds=10,
+        timeout_seconds=10,
+    ),
+    health_probe=types.Probe(
+        exec_=types.Probe.ExecAction(command=["python", "health_check.py"]),
+        period_seconds=10,
+        timeout_seconds=10,
+    ),
+)
 
 
 @pytest.fixture(scope="module")
@@ -65,7 +87,7 @@ def deploy_mock():
         "deploy",
     ) as deploy:
         mock_lro = mock.Mock(ga_operation.Operation)
-        mock_lro.result.return_value = types.DeployPublisherModelResponse(
+        mock_lro.result.return_value = types.DeployResponse(
             endpoint=_TEST_ENDPOINT_NAME,
             model=_TEST_MODEL_FULL_RESOURCE_NAME,
         )
@@ -594,6 +616,71 @@ class TestModelGarden:
             location=_TEST_LOCATION,
         )
         model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        model.deploy(serving_container_spec=_TEST_MODEL_CONTAINER_SPEC)
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                model_config=types.DeployRequest.ModelConfig(
+                    container_spec=_TEST_MODEL_CONTAINER_SPEC
+                ),
+            )
+        )
+
+    def test_deploy_with_serving_container_spec_no_image_uri_raises_error(self):
+        """Tests getting the supported deploy options for a model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        expected_message = (
+            "Serving container image uri is required for the serving container" " spec."
+        )
+        with pytest.raises(ValueError) as exception:
+            model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+            model.deploy(
+                serving_container_spec=types.ModelContainerSpec(
+                    predict_route="/predictions/v1/predict",
+                    health_route="/ping",
+                )
+            )
+        assert str(exception.value) == expected_message
+
+    def test_deploy_with_serving_container_spec_with_both_image_uri_raises_error(
+        self,
+    ):
+        """Tests getting the supported deploy options for a model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        expected_message = (
+            "Serving container image uri is already set in the serving container"
+            " spec."
+        )
+        with pytest.raises(ValueError) as exception:
+            model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+            model.deploy(
+                serving_container_spec=types.ModelContainerSpec(
+                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                    predict_route="/predictions/v1/predict",
+                    health_route="/ping",
+                ),
+                serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+            )
+        assert str(exception.value) == expected_message
+
+    def test_deploy_with_serving_container_spec_individual_fields_success(
+        self, deploy_mock
+    ):
+        """Tests deploying a model with serving container spec."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
         model.deploy(
             serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
             serving_container_predict_route="/predictions/v1/predict",
@@ -665,7 +752,9 @@ class TestModelGarden:
         model.list_deploy_options()
         get_publisher_model_mock.assert_called_with(
             types.GetPublisherModelRequest(
-                name=_TEST_MODEL_FULL_RESOURCE_NAME, is_hugging_face_model=False
+                name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                is_hugging_face_model=False,
+                include_equivalent_model_garden_model_deployment_configs=True,
             )
         )
 
@@ -697,8 +786,10 @@ class TestModelGarden:
             types.ListPublisherModelsRequest(
                 parent="publishers/*",
                 list_all_versions=True,
-                filter="is_hf_wildcard(true) AND "
-                "labels.VERIFIED_DEPLOYMENT_CONFIG=VERIFIED_DEPLOYMENT_SUCCEED",
+                filter=(
+                    "is_hf_wildcard(true) AND "
+                    "labels.VERIFIED_DEPLOYMENT_CONFIG=VERIFIED_DEPLOYMENT_SUCCEED"
+                ),
             )
         )
         assert hf_models == [

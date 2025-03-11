@@ -326,6 +326,7 @@ class OpenModel:
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
+        serving_container_spec: Optional[types.ModelContainerSpec] = None,
         serving_container_image_uri: Optional[str] = None,
         serving_container_predict_route: Optional[str] = None,
         serving_container_health_route: Optional[str] = None,
@@ -400,6 +401,10 @@ class OpenModel:
             model_display_name: The display name of the uploaded model.
             deploy_request_timeout: The timeout for the deploy request. Default
                 is 2 hours.
+            serving_container_spec (types.ModelContainerSpec):
+                Optional. The container specification for the model instance.
+                This specification overrides the default container specification
+                and other serving container parameters.
             serving_container_image_uri (str):
                 Optional. The URI of the Model serving container. This parameter is required
                 if the parameter `local_model` is not specified.
@@ -474,6 +479,11 @@ class OpenModel:
         Returns:
             endpoint (aiplatform.Endpoint):
                 Created endpoint.
+
+        Raises:
+            ValueError: If ``serving_container_spec`` is specified but ``serving_container_spec.image_uri``
+                is ``None``, or if ``serving_container_spec`` is specified but other
+                serving container parameters are specified.
         """
         request = types.DeployRequest(
             destination=f"projects/{self._project}/locations/{self._location}",
@@ -529,6 +539,17 @@ class OpenModel:
         if fast_tryout_enabled:
             request.deploy_config.fast_tryout_enabled = fast_tryout_enabled
 
+        if serving_container_spec:
+            if not serving_container_spec.image_uri:
+                raise ValueError(
+                    "Serving container image uri is required for the serving container spec."
+                )
+            if serving_container_image_uri:
+                raise ValueError(
+                    "Serving container image uri is already set in the serving container spec."
+                )
+            request.model_config.container_spec = serving_container_spec
+
         if serving_container_image_uri:
             request.model_config.container_spec = _construct_serving_container_spec(
                 serving_container_image_uri,
@@ -574,6 +595,7 @@ class OpenModel:
         request = types.GetPublisherModelRequest(
             name=self._publisher_model_name,
             is_hugging_face_model="@" not in self._publisher_model_name,
+            include_equivalent_model_garden_model_deployment_configs=True,
         )
         response = self._us_central1_model_garden_client.get_publisher_model(request)
         multi_deploy = (
