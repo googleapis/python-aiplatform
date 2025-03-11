@@ -23,6 +23,7 @@ from google.cloud.aiplatform_v1 import (
     ImportRagFilesConfig,
     ImportRagFilesRequest,
     RagFileChunkingConfig,
+    RagFileParsingConfig,
     RagFileTransformationConfig,
     RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
@@ -38,6 +39,7 @@ from google.cloud.aiplatform.utils import (
     VertexRagClientWithOverride,
 )
 from vertexai.rag.utils.resources import (
+    LayoutParserConfig,
     Pinecone,
     RagCorpus,
     RagEmbeddingModelConfig,
@@ -54,6 +56,9 @@ from vertexai.rag.utils.resources import (
 
 
 _VALID_RESOURCE_NAME_REGEX = "[a-z][a-zA-Z0-9._-]{0,127}"
+_VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX = (
+    r"projects/[^/]+/locations/[^/]+/processors/[^/]+(?:/processorVersions/[^/]+)?"
+)
 
 
 def create_rag_data_service_client():
@@ -356,10 +361,29 @@ def prepare_import_files_request(
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
     partial_failures_sink: Optional[str] = None,
+    parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
             "corpus_name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`"
+        )
+
+    rag_file_parsing_config = RagFileParsingConfig()
+    if parser is not None:
+        if (
+            re.fullmatch(_VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX, parser.processor_name)
+            is None
+        ):
+            raise ValueError(
+                "processor_name must be of the format "
+                "`projects/{project_id}/locations/{location}/processors/{processor_id}`"
+                "or "
+                "`projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`, "
+                f"got {parser.processor_name!r}"
+            )
+        rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
+            processor_name=parser.processor_name,
+            max_parsing_requests_per_min=parser.max_parsing_requests_per_min,
         )
 
     chunk_size = 1024
@@ -379,6 +403,7 @@ def prepare_import_files_request(
 
     import_rag_files_config = ImportRagFilesConfig(
         rag_file_transformation_config=rag_file_transformation_config,
+        rag_file_parsing_config=rag_file_parsing_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
 
