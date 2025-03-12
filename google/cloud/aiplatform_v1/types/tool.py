@@ -663,6 +663,8 @@ class RagRetrievalConfig(proto.Message):
             Optional. The number of contexts to retrieve.
         filter (google.cloud.aiplatform_v1.types.RagRetrievalConfig.Filter):
             Optional. Config for filters.
+        ranking (google.cloud.aiplatform_v1.types.RagRetrievalConfig.Ranking):
+            Optional. Config for ranking and reranking.
     """
 
     class Filter(proto.Message):
@@ -705,6 +707,78 @@ class RagRetrievalConfig(proto.Message):
             number=2,
         )
 
+    class Ranking(proto.Message):
+        r"""Config for ranking and reranking.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            rank_service (google.cloud.aiplatform_v1.types.RagRetrievalConfig.Ranking.RankService):
+                Optional. Config for Rank Service.
+
+                This field is a member of `oneof`_ ``ranking_config``.
+            llm_ranker (google.cloud.aiplatform_v1.types.RagRetrievalConfig.Ranking.LlmRanker):
+                Optional. Config for LlmRanker.
+
+                This field is a member of `oneof`_ ``ranking_config``.
+        """
+
+        class RankService(proto.Message):
+            r"""Config for Rank Service.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                model_name (str):
+                    Optional. The model name of the rank service. Format:
+                    ``semantic-ranker-512@latest``
+
+                    This field is a member of `oneof`_ ``_model_name``.
+            """
+
+            model_name: str = proto.Field(
+                proto.STRING,
+                number=1,
+                optional=True,
+            )
+
+        class LlmRanker(proto.Message):
+            r"""Config for LlmRanker.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                model_name (str):
+                    Optional. The model name used for ranking. Format:
+                    ``gemini-1.5-pro``
+
+                    This field is a member of `oneof`_ ``_model_name``.
+            """
+
+            model_name: str = proto.Field(
+                proto.STRING,
+                number=1,
+                optional=True,
+            )
+
+        rank_service: "RagRetrievalConfig.Ranking.RankService" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="ranking_config",
+            message="RagRetrievalConfig.Ranking.RankService",
+        )
+        llm_ranker: "RagRetrievalConfig.Ranking.LlmRanker" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="ranking_config",
+            message="RagRetrievalConfig.Ranking.LlmRanker",
+        )
+
     top_k: int = proto.Field(
         proto.INT32,
         number=1,
@@ -713,6 +787,11 @@ class RagRetrievalConfig(proto.Message):
         proto.MESSAGE,
         number=3,
         message=Filter,
+    )
+    ranking: Ranking = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=Ranking,
     )
 
 
