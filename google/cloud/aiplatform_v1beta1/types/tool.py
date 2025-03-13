@@ -305,6 +305,10 @@ class FunctionCall(proto.Message):
     JSON object containing the parameters and their values.
 
     Attributes:
+        id (str):
+            Optional. The unique id of the function call. If populated,
+            the client to execute the ``function_call`` and return the
+            response with the matching ``id``.
         name (str):
             Required. The name of the function to call. Matches
             [FunctionDeclaration.name].
@@ -314,6 +318,10 @@ class FunctionCall(proto.Message):
             parameter details.
     """
 
+    id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
     name: str = proto.Field(
         proto.STRING,
         number=1,
@@ -333,6 +341,10 @@ class FunctionResponse(proto.Message):
     based on model prediction.
 
     Attributes:
+        id (str):
+            Optional. The id of the function call this response is for.
+            Populated by the client to match the corresponding function
+            call ``id``.
         name (str):
             Required. The name of the function to call. Matches
             [FunctionDeclaration.name] and [FunctionCall.name].
@@ -345,6 +357,10 @@ class FunctionResponse(proto.Message):
             treated as function output.
     """
 
+    id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
     name: str = proto.Field(
         proto.STRING,
         number=1,
