@@ -26,9 +26,20 @@ from google.cloud.aiplatform_v1.types import (
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
 from vertexai.agent_engines._agent_engines import (
+    AgentEngine,
+    Cloneable,
     OperationRegistrable,
     Queryable,
-    AgentEngine,
+    StreamQueryable,
+)
+from vertexai.agent_engines.templates.ag2 import (
+    AG2Agent,
+)
+from vertexai.agent_engines.templates.langchain import (
+    LangchainAgent,
+)
+from vertexai.agent_engines.templates.langgraph import (
+    LanggraphAgent,
 )
 
 
@@ -259,12 +270,21 @@ def update(
 
 
 __all__ = (
+    # Resources
     "AgentEngine",
+    # Protocols
+    "Cloneable",
     "OperationRegistrable",
     "Queryable",
+    "StreamQueryable",
+    # Methods
     "create",
     "delete",
     "get",
     "list",
     "update",
+    # Templates
+    "LangchainAgent",
+    "LanggraphAgent",
+    "AG2Agent",
 )

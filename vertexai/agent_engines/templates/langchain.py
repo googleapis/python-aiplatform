@@ -167,6 +167,92 @@ def _default_runnable_builder(
     return agent_executor
 
 
+def _default_instrumentor_builder(project_id: str):
+    from vertexai.agent_engines import _utils
+
+    cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
+    cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
+    openinference_langchain = _utils._import_openinference_langchain_or_warn()
+    opentelemetry = _utils._import_opentelemetry_or_warn()
+    opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
+    if all(
+        (
+            cloud_trace_exporter,
+            cloud_trace_v2,
+            openinference_langchain,
+            opentelemetry,
+            opentelemetry_sdk_trace,
+        )
+    ):
+        import google.auth
+
+        credentials, _ = google.auth.default()
+        span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
+            project_id=project_id,
+            client=cloud_trace_v2.TraceServiceClient(
+                credentials=credentials.with_quota_project(project_id),
+            ),
+        )
+        span_processor: SpanProcessor = (
+            opentelemetry_sdk_trace.export.SimpleSpanProcessor(
+                span_exporter=span_exporter,
+            )
+        )
+        tracer_provider: TracerProvider = opentelemetry.trace.get_tracer_provider()
+        # Get the appropriate tracer provider:
+        # 1. If _TRACER_PROVIDER is already set, use that.
+        # 2. Otherwise, if the OTEL_PYTHON_TRACER_PROVIDER environment
+        # variable is set, use that.
+        # 3. As a final fallback, use _PROXY_TRACER_PROVIDER.
+        # If none of the above is set, we log a warning, and
+        # create a tracer provider.
+        if not tracer_provider:
+            from google.cloud.aiplatform import base
+
+            _LOGGER = base.Logger(__name__)
+            _LOGGER.warning(
+                "No tracer provider. By default, "
+                "we should get one of the following providers: "
+                "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
+                "or _PROXY_TRACER_PROVIDER."
+            )
+            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
+            opentelemetry.trace.set_tracer_provider(tracer_provider)
+        # Avoids AttributeError:
+        # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
+        # attribute 'add_span_processor'.
+        if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+            tracer_provider = opentelemetry_sdk_trace.TracerProvider()
+            opentelemetry.trace.set_tracer_provider(tracer_provider)
+        # Avoids OpenTelemetry client already exists error.
+        _override_active_span_processor(
+            tracer_provider,
+            opentelemetry_sdk_trace.SynchronousMultiSpanProcessor(),
+        )
+        tracer_provider.add_span_processor(span_processor)
+        # Keep the instrumentation up-to-date.
+        # When creating multiple LangchainAgents,
+        # we need to keep the instrumentation up-to-date.
+        # We deliberately override the instrument each time,
+        # so that if different agents end up using different
+        # instrumentations, we guarantee that the user is always
+        # working with the most recent agent's instrumentation.
+        instrumentor = openinference_langchain.LangChainInstrumentor()
+        if instrumentor.is_instrumented_by_opentelemetry:
+            instrumentor.uninstrument()
+        instrumentor.instrument()
+        return instrumentor
+    else:
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
+        _LOGGER.warning(
+            "enable_tracing=True but proceeding with tracing disabled "
+            "because not all packages for tracing have been installed"
+        )
+        return None
+
+
 def _default_prompt(
     has_history: bool,
     system_instruction: Optional[str] = None,
@@ -270,7 +356,7 @@ def _override_active_span_processor(
 class LangchainAgent:
     """A Langchain Agent.
 
-    See https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/langchain
+    See https://cloud.google.com/vertex-ai/generative-ai/docs/reasoning-engine/develop
     for details.
     """
 
@@ -290,6 +376,7 @@ class LangchainAgent:
         model_builder: Optional[Callable] = None,
         runnable_builder: Optional[Callable] = None,
         enable_tracing: bool = False,
+        instrumentor_builder: Optional[Callable[..., Any]] = None,
     ):
         """Initializes the LangchainAgent.
 
@@ -409,6 +496,11 @@ class LangchainAgent:
             enable_tracing (bool):
                 Optional. Whether to enable tracing in Cloud Trace. Defaults to
                 False.
+            instrumentor_builder (Callable[..., Any]):
+                Optional. Callable that returns a new instrumentor. This can be
+                used for customizing the instrumentation logic of the Agent.
+                If not provided, a default instrumentor builder will be used.
+                This parameter is ignored if `enable_tracing` is False.
 
         Raises:
             ValueError: If both `prompt` and `system_instruction` are specified.
@@ -417,35 +509,38 @@ class LangchainAgent:
         """
         from google.cloud.aiplatform import initializer
 
-        self._project = initializer.global_config.project
-        self._location = initializer.global_config.location
-        self._tools = []
+        self._tmpl_attrs: dict[str, Any] = {
+            "project": initializer.global_config.project,
+            "location": initializer.global_config.location,
+            "tools": [],
+            "model_name": model,
+            "system_instruction": system_instruction,
+            "prompt": prompt,
+            "output_parser": output_parser,
+            "chat_history": chat_history,
+            "model_kwargs": model_kwargs,
+            "model_tool_kwargs": model_tool_kwargs,
+            "agent_executor_kwargs": agent_executor_kwargs,
+            "runnable_kwargs": runnable_kwargs,
+            "model_builder": model_builder,
+            "runnable_builder": runnable_builder,
+            "enable_tracing": enable_tracing,
+            "model": None,
+            "runnable": None,
+            "instrumentor": None,
+            "instrumentor_builder": instrumentor_builder,
+        }
         if tools:
             # We validate tools at initialization for actionable feedback before
             # they are deployed.
             _validate_tools(tools)
-            self._tools = tools
+            self._tmpl_attrs["tools"] = tools
         if prompt and system_instruction:
             raise ValueError(
                 "Only one of `prompt` or `system_instruction` should be specified. "
                 "Consider incorporating the system instruction into the prompt "
                 "rather than passing it separately as an argument."
             )
-        self._model_name = model
-        self._system_instruction = system_instruction
-        self._prompt = prompt
-        self._output_parser = output_parser
-        self._chat_history = chat_history
-        self._model_kwargs = model_kwargs
-        self._model_tool_kwargs = model_tool_kwargs
-        self._agent_executor_kwargs = agent_executor_kwargs
-        self._runnable_kwargs = runnable_kwargs
-        self._model = None
-        self._model_builder = model_builder
-        self._runnable = None
-        self._runnable_builder = runnable_builder
-        self._instrumentor = None
-        self._enable_tracing = enable_tracing
 
     def set_up(self):
         """Sets up the agent for execution of queries at runtime.
@@ -453,112 +548,38 @@ class LangchainAgent:
         It initializes the model, binds the model with tools, and connects it
         with the prompt template and output parser.
 
-        This method should not be called for an object that being passed to
-        the ReasoningEngine service for deployment, as it initializes clients
-        that can not be serialized.
+        This method should not be called for an object being passed to the
+        service for deployment, as it might initialize clients that can not be
+        serialized.
         """
-        if self._enable_tracing:
-            from vertexai.reasoning_engines import _utils
-
-            cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
-            cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
-            openinference_langchain = _utils._import_openinference_langchain_or_warn()
-            opentelemetry = _utils._import_opentelemetry_or_warn()
-            opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
-            if all(
-                (
-                    cloud_trace_exporter,
-                    cloud_trace_v2,
-                    openinference_langchain,
-                    opentelemetry,
-                    opentelemetry_sdk_trace,
-                )
-            ):
-                import google.auth
-
-                credentials, _ = google.auth.default()
-                span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
-                    project_id=self._project,
-                    client=cloud_trace_v2.TraceServiceClient(
-                        credentials=credentials.with_quota_project(self._project),
-                    ),
-                )
-                span_processor: SpanProcessor = (
-                    opentelemetry_sdk_trace.export.SimpleSpanProcessor(
-                        span_exporter=span_exporter,
-                    )
-                )
-                tracer_provider: TracerProvider = (
-                    opentelemetry.trace.get_tracer_provider()
-                )
-                # Get the appropriate tracer provider:
-                # 1. If _TRACER_PROVIDER is already set, use that.
-                # 2. Otherwise, if the OTEL_PYTHON_TRACER_PROVIDER environment
-                # variable is set, use that.
-                # 3. As a final fallback, use _PROXY_TRACER_PROVIDER.
-                # If none of the above is set, we log a warning, and
-                # create a tracer provider.
-                if not tracer_provider:
-                    from google.cloud.aiplatform import base
-
-                    _LOGGER = base.Logger(__name__)
-                    _LOGGER.warning(
-                        "No tracer provider. By default, "
-                        "we should get one of the following providers: "
-                        "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
-                        "or _PROXY_TRACER_PROVIDER."
-                    )
-                    tracer_provider = opentelemetry_sdk_trace.TracerProvider()
-                    opentelemetry.trace.set_tracer_provider(tracer_provider)
-                # Avoids AttributeError:
-                # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
-                # attribute 'add_span_processor'.
-                if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
-                    tracer_provider = opentelemetry_sdk_trace.TracerProvider()
-                    opentelemetry.trace.set_tracer_provider(tracer_provider)
-                # Avoids OpenTelemetry client already exists error.
-                _override_active_span_processor(
-                    tracer_provider,
-                    opentelemetry_sdk_trace.SynchronousMultiSpanProcessor(),
-                )
-                tracer_provider.add_span_processor(span_processor)
-                # Keep the instrumentation up-to-date.
-                # When creating multiple LangchainAgents,
-                # we need to keep the instrumentation up-to-date.
-                # We deliberately override the instrument each time,
-                # so that if different agents end up using different
-                # instrumentations, we guarantee that the user is always
-                # working with the most recent agent's instrumentation.
-                self._instrumentor = openinference_langchain.LangChainInstrumentor()
-                if self._instrumentor.is_instrumented_by_opentelemetry:
-                    self._instrumentor.uninstrument()
-                self._instrumentor.instrument()
-            else:
-                from google.cloud.aiplatform import base
-
-                _LOGGER = base.Logger(__name__)
-                _LOGGER.warning(
-                    "enable_tracing=True but proceeding with tracing disabled "
-                    "because not all packages for tracing have been installed"
-                )
-        model_builder = self._model_builder or _default_model_builder
-        self._model = model_builder(
-            model_name=self._model_name,
-            model_kwargs=self._model_kwargs,
-            project=self._project,
-            location=self._location,
+        if self._tmpl_attrs.get("enable_tracing"):
+            instrumentor_builder = (
+                self._tmpl_attrs.get("instrumentor_builder")
+                or _default_instrumentor_builder
+            )
+            self._tmpl_attrs["instrumentor"] = instrumentor_builder(
+                project_id=self._tmpl_attrs.get("project")
+            )
+        model_builder = self._tmpl_attrs.get("model_builder") or _default_model_builder
+        self._tmpl_attrs["model"] = model_builder(
+            model_name=self._tmpl_attrs.get("model_name"),
+            model_kwargs=self._tmpl_attrs.get("model_kwargs"),
+            project=self._tmpl_attrs.get("project"),
+            location=self._tmpl_attrs.get("location"),
         )
-        runnable_builder = self._runnable_builder or _default_runnable_builder
-        self._runnable = runnable_builder(
-            prompt=self._prompt,
-            model=self._model,
-            tools=self._tools,
-            system_instruction=self._system_instruction,
-            output_parser=self._output_parser,
-            chat_history=self._chat_history,
-            model_tool_kwargs=self._model_tool_kwargs,
-            agent_executor_kwargs=self._agent_executor_kwargs,
-            runnable_kwargs=self._runnable_kwargs,
+        runnable_builder = (
+            self._tmpl_attrs.get("runnable_builder") or _default_runnable_builder
+        )
+        self._tmpl_attrs["runnable"] = runnable_builder(
+            prompt=self._tmpl_attrs.get("prompt"),
+            model=self._tmpl_attrs.get("model"),
+            tools=self._tmpl_attrs.get("tools"),
+            system_instruction=self._tmpl_attrs.get("system_instruction"),
+            output_parser=self._tmpl_attrs.get("output_parser"),
+            chat_history=self._tmpl_attrs.get("chat_history"),
+            model_tool_kwargs=self._tmpl_attrs.get("model_tool_kwargs"),
+            agent_executor_kwargs=self._tmpl_attrs.get("agent_executor_kwargs"),
+            runnable_kwargs=self._tmpl_attrs.get("runnable_kwargs"),
         )
 
     def clone(self) -> "LangchainAgent":
@@ -566,19 +587,22 @@ class LangchainAgent:
         import copy
 
         return LangchainAgent(
-            model=self._model_name,
-            system_instruction=self._system_instruction,
-            prompt=copy.deepcopy(self._prompt),
-            tools=copy.deepcopy(self._tools),
-            output_parser=copy.deepcopy(self._output_parser),
-            chat_history=copy.deepcopy(self._chat_history),
-            model_kwargs=copy.deepcopy(self._model_kwargs),
-            model_tool_kwargs=copy.deepcopy(self._model_tool_kwargs),
-            agent_executor_kwargs=copy.deepcopy(self._agent_executor_kwargs),
-            runnable_kwargs=copy.deepcopy(self._runnable_kwargs),
-            model_builder=self._model_builder,
-            runnable_builder=self._runnable_builder,
-            enable_tracing=self._enable_tracing,
+            model=self._tmpl_attrs.get("model_name"),
+            system_instruction=self._tmpl_attrs.get("system_instruction"),
+            prompt=copy.deepcopy(self._tmpl_attrs.get("prompt")),
+            tools=copy.deepcopy(self._tmpl_attrs.get("tools")),
+            output_parser=copy.deepcopy(self._tmpl_attrs.get("output_parser")),
+            chat_history=copy.deepcopy(self._tmpl_attrs.get("chat_history")),
+            model_kwargs=copy.deepcopy(self._tmpl_attrs.get("model_kwargs")),
+            model_tool_kwargs=copy.deepcopy(self._tmpl_attrs.get("model_tool_kwargs")),
+            agent_executor_kwargs=copy.deepcopy(
+                self._tmpl_attrs.get("agent_executor_kwargs")
+            ),
+            runnable_kwargs=copy.deepcopy(self._tmpl_attrs.get("runnable_kwargs")),
+            model_builder=self._tmpl_attrs.get("model_builder"),
+            runnable_builder=self._tmpl_attrs.get("runnable_builder"),
+            enable_tracing=self._tmpl_attrs.get("enable_tracing"),
+            instrumentor_builder=self._tmpl_attrs.get("instrumentor_builder"),
         )
 
     def query(
@@ -606,10 +630,12 @@ class LangchainAgent:
 
         if isinstance(input, str):
             input = {"input": input}
-        if not self._runnable:
+        if not self._tmpl_attrs.get("runnable"):
             self.set_up()
         return langchain_load_dump.dumpd(
-            self._runnable.invoke(input=input, config=config, **kwargs)
+            self._tmpl_attrs.get("runnable").invoke(
+                input=input, config=config, **kwargs
+            )
         )
 
     def stream_query(
@@ -637,7 +663,11 @@ class LangchainAgent:
 
         if isinstance(input, str):
             input = {"input": input}
-        if not self._runnable:
+        if not self._tmpl_attrs.get("runnable"):
             self.set_up()
-        for chunk in self._runnable.stream(input=input, config=config, **kwargs):
+        for chunk in self._tmpl_attrs.get("runnable").stream(
+            input=input,
+            config=config,
+            **kwargs,
+        ):
             yield langchain_load_dump.dumpd(chunk)
