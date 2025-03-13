@@ -4630,10 +4630,12 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "file_uri": "file_uri_value",
                                 },
                                 "function_call": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "args": {"fields": {}},
                                 },
                                 "function_response": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
                                 },
@@ -6258,10 +6260,12 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "file_uri": "file_uri_value",
                                 },
                                 "function_call": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "args": {"fields": {}},
                                 },
                                 "function_response": {
+                                    "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
                                 },
