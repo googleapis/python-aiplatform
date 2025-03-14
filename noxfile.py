@@ -252,9 +252,7 @@ def unit_genai_minimal_dependencies(session):
     )
 
 
-@nox.session(python="3.10")
-@nox.parametrize("ray", ["2.9.3", "2.33.0"])
-def unit_ray(session, ray):
+def run_ray_unit_test(session, ray):
     # Install all test dependencies, then install this package in-place.
 
     constraints_path = str(CURRENT_DIRECTORY / "testing" / f"constraints-ray-{ray}.txt")
@@ -277,6 +275,17 @@ def unit_ray(session, ray):
         os.path.join("tests", "unit", "vertex_ray"),
         *session.posargs,
     )
+
+
+@nox.session(python="3.10")
+@nox.parametrize("ray", ["2.9.3", "2.33.0", "2.42.0"])
+def unit_ray(session, ray):
+    run_ray_unit_test(session, ray)
+
+
+@nox.session(python="3.11")
+def unit_ray(session):
+    run_ray_unit_test(session, ray="2.42.0")
 
 
 @nox.session(python=UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS)
