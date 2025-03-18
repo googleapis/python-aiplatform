@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,7 +74,6 @@ from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
 )
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import pagers
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import transports
-from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine
 from google.cloud.aiplatform_v1beta1.types import (
@@ -4617,20 +4616,7 @@ def test_create_reasoning_engine_rest_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
-            "deployment_spec": {
-                "env": [{"name": "name_value", "value": "value_value"}],
-                "secret_env": [
-                    {
-                        "name": "name_value",
-                        "secret_ref": {
-                            "secret": "secret_value",
-                            "version": "version_value",
-                        },
-                    }
-                ],
-            },
             "class_methods": [{"fields": {}}],
-            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
@@ -5123,20 +5109,7 @@ def test_update_reasoning_engine_rest_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
-            "deployment_spec": {
-                "env": [{"name": "name_value", "value": "value_value"}],
-                "secret_env": [
-                    {
-                        "name": "name_value",
-                        "secret_ref": {
-                            "secret": "secret_value",
-                            "version": "version_value",
-                        },
-                    }
-                ],
-            },
             "class_methods": [{"fields": {}}],
-            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
@@ -6253,20 +6226,7 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
-            "deployment_spec": {
-                "env": [{"name": "name_value", "value": "value_value"}],
-                "secret_env": [
-                    {
-                        "name": "name_value",
-                        "secret_ref": {
-                            "secret": "secret_value",
-                            "version": "version_value",
-                        },
-                    }
-                ],
-            },
             "class_methods": [{"fields": {}}],
-            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
@@ -6813,20 +6773,7 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
                 "requirements_gcs_uri": "requirements_gcs_uri_value",
                 "python_version": "python_version_value",
             },
-            "deployment_spec": {
-                "env": [{"name": "name_value", "value": "value_value"}],
-                "secret_env": [
-                    {
-                        "name": "name_value",
-                        "secret_ref": {
-                            "secret": "secret_value",
-                            "version": "version_value",
-                        },
-                    }
-                ],
-            },
             "class_methods": [{"fields": {}}],
-            "agent_framework": "agent_framework_value",
         },
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},

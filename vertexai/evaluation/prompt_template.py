@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Prompt template for creating prompts with variables."""
-
-import re
+import string
 from typing import Set
-
-_VARIABLE_NAME_REGEX = r"\{([_a-zA-Z][_a-zA-Z0-9]*)\}"
 
 
 class PromptTemplate:
@@ -27,10 +23,9 @@ class PromptTemplate:
 
     The `PromptTemplate` class allows users to define a template string with
     variables represented in curly braces `{variable}`. The variable
-    names cannot contain spaces and must start with a letter or underscore,
-    followed by letters, digits, or underscore. These variables can be
-    replaced with specific values using the `assemble` method, providing
-    flexibility in generating dynamic prompts.
+    names cannot contain spaces. These variables can be replaced with specific
+    values using the `assemble` method, providing flexibility in generating
+    dynamic prompts.
 
     Usage:
 
@@ -54,7 +49,11 @@ class PromptTemplate:
 
     def _get_variables(self) -> Set[str]:
         """Extracts and return a set of variable names from the template."""
-        return set(re.findall(_VARIABLE_NAME_REGEX, self.template))
+        return set(
+            field_name
+            for _, field_name, _, _ in string.Formatter().parse(self.template)
+            if field_name is not None
+        )
 
     def assemble(self, **kwargs) -> "PromptTemplate":
         """Replaces only the provided variables in the template with specific values.

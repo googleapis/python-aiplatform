@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -90,12 +90,6 @@ from .dataset import (
     ImportDataConfig,
 )
 from .dataset_service import (
-    AssembleDataOperationMetadata,
-    AssembleDataRequest,
-    AssembleDataResponse,
-    AssessDataOperationMetadata,
-    AssessDataRequest,
-    AssessDataResponse,
     CreateDatasetOperationMetadata,
     CreateDatasetRequest,
     CreateDatasetVersionOperationMetadata,
@@ -107,8 +101,6 @@ from .dataset_service import (
     ExportDataOperationMetadata,
     ExportDataRequest,
     ExportDataResponse,
-    GeminiExample,
-    GeminiTemplateConfig,
     GetAnnotationSpecRequest,
     GetDatasetRequest,
     GetDatasetVersionRequest,
@@ -193,8 +185,6 @@ from .entity_type import (
 )
 from .env_var import (
     EnvVar,
-    SecretEnvVar,
-    SecretRef,
 )
 from .evaluated_annotation import (
     ErrorAnalysisAnnotation,
@@ -819,9 +809,6 @@ from .model_garden_service import (
     DeployPublisherModelResponse,
     DeployRequest,
     DeployResponse,
-    ExportPublisherModelOperationMetadata,
-    ExportPublisherModelRequest,
-    ExportPublisherModelResponse,
     GetPublisherModelRequest,
     ListPublisherModelsRequest,
     ListPublisherModelsResponse,
@@ -1388,12 +1375,6 @@ __all__ = (
     "ExportDataConfig",
     "ExportFractionSplit",
     "ImportDataConfig",
-    "AssembleDataOperationMetadata",
-    "AssembleDataRequest",
-    "AssembleDataResponse",
-    "AssessDataOperationMetadata",
-    "AssessDataRequest",
-    "AssessDataResponse",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
     "CreateDatasetVersionOperationMetadata",
@@ -1405,8 +1386,6 @@ __all__ = (
     "ExportDataOperationMetadata",
     "ExportDataRequest",
     "ExportDataResponse",
-    "GeminiExample",
-    "GeminiTemplateConfig",
     "GetAnnotationSpecRequest",
     "GetDatasetRequest",
     "GetDatasetVersionRequest",
@@ -1471,8 +1450,6 @@ __all__ = (
     "UpdateEndpointRequest",
     "EntityType",
     "EnvVar",
-    "SecretEnvVar",
-    "SecretRef",
     "ErrorAnalysisAnnotation",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
@@ -1997,9 +1974,6 @@ __all__ = (
     "DeployPublisherModelResponse",
     "DeployRequest",
     "DeployResponse",
-    "ExportPublisherModelOperationMetadata",
-    "ExportPublisherModelRequest",
-    "ExportPublisherModelResponse",
     "GetPublisherModelRequest",
     "ListPublisherModelsRequest",
     "ListPublisherModelsResponse",

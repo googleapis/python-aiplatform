@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -153,12 +153,6 @@ from .types.dataset import Dataset
 from .types.dataset import ExportDataConfig
 from .types.dataset import ExportFractionSplit
 from .types.dataset import ImportDataConfig
-from .types.dataset_service import AssembleDataOperationMetadata
-from .types.dataset_service import AssembleDataRequest
-from .types.dataset_service import AssembleDataResponse
-from .types.dataset_service import AssessDataOperationMetadata
-from .types.dataset_service import AssessDataRequest
-from .types.dataset_service import AssessDataResponse
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
 from .types.dataset_service import CreateDatasetVersionOperationMetadata
@@ -170,8 +164,6 @@ from .types.dataset_service import DeleteSavedQueryRequest
 from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
-from .types.dataset_service import GeminiExample
-from .types.dataset_service import GeminiTemplateConfig
 from .types.dataset_service import GetAnnotationSpecRequest
 from .types.dataset_service import GetDatasetRequest
 from .types.dataset_service import GetDatasetVersionRequest
@@ -240,8 +232,6 @@ from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
-from .types.env_var import SecretEnvVar
-from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
@@ -778,9 +768,6 @@ from .types.model_garden_service import DeployPublisherModelRequest
 from .types.model_garden_service import DeployPublisherModelResponse
 from .types.model_garden_service import DeployRequest
 from .types.model_garden_service import DeployResponse
-from .types.model_garden_service import ExportPublisherModelOperationMetadata
-from .types.model_garden_service import ExportPublisherModelRequest
-from .types.model_garden_service import ExportPublisherModelResponse
 from .types.model_garden_service import GetPublisherModelRequest
 from .types.model_garden_service import ListPublisherModelsRequest
 from .types.model_garden_service import ListPublisherModelsResponse
@@ -1235,12 +1222,6 @@ __all__ = (
     "ApiAuth",
     "Artifact",
     "ArtifactTypeSchema",
-    "AssembleDataOperationMetadata",
-    "AssembleDataRequest",
-    "AssembleDataResponse",
-    "AssessDataOperationMetadata",
-    "AssessDataRequest",
-    "AssessDataResponse",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
     "Attribution",
@@ -1543,9 +1524,6 @@ __all__ = (
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
-    "ExportPublisherModelOperationMetadata",
-    "ExportPublisherModelRequest",
-    "ExportPublisherModelResponse",
     "ExportTensorboardTimeSeriesDataRequest",
     "ExportTensorboardTimeSeriesDataResponse",
     "Extension",
@@ -1603,8 +1581,6 @@ __all__ = (
     "FunctionResponse",
     "GcsDestination",
     "GcsSource",
-    "GeminiExample",
-    "GeminiTemplateConfig",
     "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
     "GenerateContentRequest",
@@ -2093,8 +2069,6 @@ __all__ = (
     "SearchModelMonitoringStatsResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
-    "SecretEnvVar",
-    "SecretRef",
     "Segment",
     "ServiceAccountSpec",
     "SharePointSources",

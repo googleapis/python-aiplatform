@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,7 +76,6 @@ from google.cloud.aiplatform_v1beta1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1beta1.services.dataset_service import transports
 from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import annotation_spec
-from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import data_item
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
@@ -85,22 +84,18 @@ from google.cloud.aiplatform_v1beta1.types import dataset_version
 from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
-from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import saved_query
-from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
-from google.type import latlng_pb2  # type: ignore
 import google.auth
 
 
@@ -8871,496 +8866,6 @@ async def test_list_annotations_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        dataset_service.AssessDataRequest,
-        dict,
-    ],
-)
-def test_assess_data(request_type, transport: str = "grpc"):
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.assess_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        request = dataset_service.AssessDataRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, future.Future)
-
-
-def test_assess_data_non_empty_request_with_auto_populated_field():
-    # This test is a coverage failsafe to make sure that UUID4 fields are
-    # automatically populated, according to AIP-4235, with non-empty requests.
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Populate all string fields in the request which are not UUID4
-    # since we want to check that UUID4 are populated automatically
-    # if they meet the requirements of AIP 4235.
-    request = dataset_service.AssessDataRequest(
-        name="name_value",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.assess_data(request=request)
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == dataset_service.AssessDataRequest(
-            name="name_value",
-        )
-
-
-def test_assess_data_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = DatasetServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.assess_data in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.assess_data] = mock_rpc
-        request = {}
-        client.assess_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods call wrapper_fn to build a cached
-        # client._transport.operations_client instance on first rpc call.
-        # Subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.assess_data(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-@pytest.mark.asyncio
-async def test_assess_data_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = DatasetServiceAsyncClient(
-            credentials=async_anonymous_credentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.assess_data
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.AsyncMock()
-        mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.assess_data
-        ] = mock_rpc
-
-        request = {}
-        await client.assess_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods call wrapper_fn to build a cached
-        # client._transport.operations_client instance on first rpc call.
-        # Subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.assess_data(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-@pytest.mark.asyncio
-async def test_assess_data_async(
-    transport: str = "grpc_asyncio", request_type=dataset_service.AssessDataRequest
-):
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.assess_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        request = dataset_service.AssessDataRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, future.Future)
-
-
-@pytest.mark.asyncio
-async def test_assess_data_async_from_dict():
-    await test_assess_data_async(request_type=dict)
-
-
-def test_assess_data_field_headers():
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = dataset_service.AssessDataRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
-        client.assess_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_assess_data_field_headers_async():
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = dataset_service.AssessDataRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
-        await client.assess_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        dataset_service.AssembleDataRequest,
-        dict,
-    ],
-)
-def test_assemble_data(request_type, transport: str = "grpc"):
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.assemble_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        request = dataset_service.AssembleDataRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, future.Future)
-
-
-def test_assemble_data_non_empty_request_with_auto_populated_field():
-    # This test is a coverage failsafe to make sure that UUID4 fields are
-    # automatically populated, according to AIP-4235, with non-empty requests.
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Populate all string fields in the request which are not UUID4
-    # since we want to check that UUID4 are populated automatically
-    # if they meet the requirements of AIP 4235.
-    request = dataset_service.AssembleDataRequest(
-        name="name_value",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client.assemble_data(request=request)
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == dataset_service.AssembleDataRequest(
-            name="name_value",
-        )
-
-
-def test_assemble_data_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = DatasetServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="grpc",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.assemble_data in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.assemble_data] = mock_rpc
-        request = {}
-        client.assemble_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods call wrapper_fn to build a cached
-        # client._transport.operations_client instance on first rpc call.
-        # Subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.assemble_data(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-@pytest.mark.asyncio
-async def test_assemble_data_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
-        client = DatasetServiceAsyncClient(
-            credentials=async_anonymous_credentials(),
-            transport=transport,
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert (
-            client._client._transport.assemble_data
-            in client._client._transport._wrapped_methods
-        )
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.AsyncMock()
-        mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.assemble_data
-        ] = mock_rpc
-
-        request = {}
-        await client.assemble_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods call wrapper_fn to build a cached
-        # client._transport.operations_client instance on first rpc call.
-        # Subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        await client.assemble_data(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-@pytest.mark.asyncio
-async def test_assemble_data_async(
-    transport: str = "grpc_asyncio", request_type=dataset_service.AssembleDataRequest
-):
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        response = await client.assemble_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        request = dataset_service.AssembleDataRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, future.Future)
-
-
-@pytest.mark.asyncio
-async def test_assemble_data_async_from_dict():
-    await test_assemble_data_async(request_type=dict)
-
-
-def test_assemble_data_field_headers():
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = dataset_service.AssembleDataRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
-        client.assemble_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_assemble_data_field_headers_async():
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = dataset_service.AssembleDataRequest()
-
-    request.name = "name_value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
-        await client.assemble_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
-
-
 def test_create_dataset_rest_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
@@ -13354,250 +12859,6 @@ def test_list_annotations_rest_pager(transport: str = "rest"):
             assert page_.raw_page.next_page_token == token
 
 
-def test_assess_data_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = DatasetServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.assess_data in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.assess_data] = mock_rpc
-
-        request = {}
-        client.assess_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.assess_data(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_assess_data_rest_required_fields(
-    request_type=dataset_service.AssessDataRequest,
-):
-    transport_class = transports.DatasetServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).assess_data._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).assess_data._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-
-            response = client.assess_data(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_assess_data_rest_unset_required_fields():
-    transport = transports.DatasetServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.assess_data._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
-def test_assemble_data_rest_use_cached_wrapped_rpc():
-    # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
-    # instead of constructing them on each call
-    with mock.patch("google.api_core.gapic_v1.method.wrap_method") as wrapper_fn:
-        client = DatasetServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport="rest",
-        )
-
-        # Should wrap all calls on client creation
-        assert wrapper_fn.call_count > 0
-        wrapper_fn.reset_mock()
-
-        # Ensure method has been cached
-        assert client._transport.assemble_data in client._transport._wrapped_methods
-
-        # Replace cached wrapped function with mock
-        mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.assemble_data] = mock_rpc
-
-        request = {}
-        client.assemble_data(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert mock_rpc.call_count == 1
-
-        # Operation methods build a cached wrapper on first rpc call
-        # subsequent calls should use the cached wrapper
-        wrapper_fn.reset_mock()
-
-        client.assemble_data(request)
-
-        # Establish that a new wrapper was not created for this call
-        assert wrapper_fn.call_count == 0
-        assert mock_rpc.call_count == 2
-
-
-def test_assemble_data_rest_required_fields(
-    request_type=dataset_service.AssembleDataRequest,
-):
-    transport_class = transports.DatasetServiceRestTransport
-
-    request_init = {}
-    request_init["name"] = ""
-    request = request_type(**request_init)
-    pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
-
-    # verify fields with default values are dropped
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).assemble_data._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with default values are now present
-
-    jsonified_request["name"] = "name_value"
-
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).assemble_data._get_unset_required_fields(jsonified_request)
-    jsonified_request.update(unset_fields)
-
-    # verify required fields with non-default values are left alone
-    assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
-
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-    request = request_type(**request_init)
-
-    # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
-        # We need to mock transcode() because providing default values
-        # for required fields will fail the real version if the http_options
-        # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
-            # A uri without fields and an empty body will force all the
-            # request fields to show up in the query_params.
-            pb_request = request_type.pb(request)
-            transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
-            }
-            transcode_result["body"] = pb_request
-            transcode.return_value = transcode_result
-
-            response_value = Response()
-            response_value.status_code = 200
-            json_return_value = json_format.MessageToJson(return_value)
-
-            response_value._content = json_return_value.encode("UTF-8")
-            req.return_value = response_value
-            req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-
-            response = client.assemble_data(request)
-
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
-
-
-def test_assemble_data_rest_unset_required_fields():
-    transport = transports.DatasetServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
-
-    unset_fields = transport.assemble_data._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
-
-
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.DatasetServiceGrpcTransport(
@@ -14119,48 +13380,6 @@ def test_list_annotations_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = dataset_service.ListAnnotationsRequest()
-
-        assert args[0] == request_msg
-
-
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-def test_assess_data_empty_call_grpc():
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
-        client.assess_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssessDataRequest()
-
-        assert args[0] == request_msg
-
-
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-def test_assemble_data_empty_call_grpc():
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
-        client.assemble_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssembleDataRequest()
 
         assert args[0] == request_msg
 
@@ -14724,56 +13943,6 @@ async def test_list_annotations_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = dataset_service.ListAnnotationsRequest()
-
-        assert args[0] == request_msg
-
-
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-@pytest.mark.asyncio
-async def test_assess_data_empty_call_grpc_asyncio():
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        await client.assess_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssessDataRequest()
-
-        assert args[0] == request_msg
-
-
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-@pytest.mark.asyncio
-async def test_assemble_data_empty_call_grpc_asyncio():
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport="grpc_asyncio",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
-        )
-        await client.assemble_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssembleDataRequest()
 
         assert args[0] == request_msg
 
@@ -17691,250 +16860,6 @@ def test_list_annotations_rest_interceptors(null_interceptor):
         post_with_metadata.assert_called_once()
 
 
-def test_assess_data_rest_bad_request(request_type=dataset_service.AssessDataRequest):
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        json_return_value = ""
-        response_value.json = mock.Mock(return_value={})
-        response_value.status_code = 400
-        response_value.request = mock.Mock()
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        client.assess_data(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        dataset_service.AssessDataRequest,
-        dict,
-    ],
-)
-def test_assess_data_rest_call_success(request_type):
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        response = client.assess_data(request)
-
-    # Establish that the response is the type that we expect.
-    json_return_value = json_format.MessageToJson(return_value)
-
-
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_assess_data_rest_interceptors(null_interceptor):
-    transport = transports.DatasetServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
-    )
-    client = DatasetServiceClient(transport=transport)
-
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.DatasetServiceRestInterceptor, "post_assess_data"
-    ) as post, mock.patch.object(
-        transports.DatasetServiceRestInterceptor, "post_assess_data_with_metadata"
-    ) as post_with_metadata, mock.patch.object(
-        transports.DatasetServiceRestInterceptor, "pre_assess_data"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        post_with_metadata.assert_not_called()
-        pb_message = dataset_service.AssessDataRequest.pb(
-            dataset_service.AssessDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = mock.Mock()
-        req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = json_format.MessageToJson(operations_pb2.Operation())
-        req.return_value.content = return_value
-
-        request = dataset_service.AssessDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-        post_with_metadata.return_value = operations_pb2.Operation(), metadata
-
-        client.assess_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-        post_with_metadata.assert_called_once()
-
-
-def test_assemble_data_rest_bad_request(
-    request_type=dataset_service.AssembleDataRequest,
-):
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        json_return_value = ""
-        response_value.json = mock.Mock(return_value={})
-        response_value.status_code = 400
-        response_value.request = mock.Mock()
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        client.assemble_data(request)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        dataset_service.AssembleDataRequest,
-        dict,
-    ],
-)
-def test_assemble_data_rest_call_success(request_type):
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        response = client.assemble_data(request)
-
-    # Establish that the response is the type that we expect.
-    json_return_value = json_format.MessageToJson(return_value)
-
-
-@pytest.mark.parametrize("null_interceptor", [True, False])
-def test_assemble_data_rest_interceptors(null_interceptor):
-    transport = transports.DatasetServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.DatasetServiceRestInterceptor(),
-    )
-    client = DatasetServiceClient(transport=transport)
-
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.DatasetServiceRestInterceptor, "post_assemble_data"
-    ) as post, mock.patch.object(
-        transports.DatasetServiceRestInterceptor, "post_assemble_data_with_metadata"
-    ) as post_with_metadata, mock.patch.object(
-        transports.DatasetServiceRestInterceptor, "pre_assemble_data"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        post_with_metadata.assert_not_called()
-        pb_message = dataset_service.AssembleDataRequest.pb(
-            dataset_service.AssembleDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = mock.Mock()
-        req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = json_format.MessageToJson(operations_pb2.Operation())
-        req.return_value.content = return_value
-
-        request = dataset_service.AssembleDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-        post_with_metadata.return_value = operations_pb2.Operation(), metadata
-
-        client.assemble_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-        post_with_metadata.assert_called_once()
-
-
 def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationRequest):
     client = DatasetServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -18963,46 +17888,6 @@ def test_list_annotations_empty_call_rest():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = dataset_service.ListAnnotationsRequest()
-
-        assert args[0] == request_msg
-
-
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-def test_assess_data_empty_call_rest():
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        client.assess_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssessDataRequest()
-
-        assert args[0] == request_msg
-
-
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-def test_assemble_data_empty_call_rest():
-    client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        client.assemble_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssembleDataRequest()
 
         assert args[0] == request_msg
 
@@ -22259,285 +21144,6 @@ async def test_list_annotations_rest_asyncio_interceptors(null_interceptor):
 
 
 @pytest.mark.asyncio
-async def test_assess_data_rest_asyncio_bad_request(
-    request_type=dataset_service.AssessDataRequest,
-):
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
-    )
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
-        response_value.status_code = 400
-        response_value.request = mock.Mock()
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        await client.assess_data(request)
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        dataset_service.AssessDataRequest,
-        dict,
-    ],
-)
-async def test_assess_data_rest_asyncio_call_success(request_type):
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        response = await client.assess_data(request)
-
-    # Establish that the response is the type that we expect.
-    json_return_value = json_format.MessageToJson(return_value)
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("null_interceptor", [True, False])
-async def test_assess_data_rest_asyncio_interceptors(null_interceptor):
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    transport = transports.AsyncDatasetServiceRestTransport(
-        credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
-    )
-    client = DatasetServiceAsyncClient(transport=transport)
-
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.AsyncDatasetServiceRestInterceptor, "post_assess_data"
-    ) as post, mock.patch.object(
-        transports.AsyncDatasetServiceRestInterceptor, "post_assess_data_with_metadata"
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncDatasetServiceRestInterceptor, "pre_assess_data"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        post_with_metadata.assert_not_called()
-        pb_message = dataset_service.AssessDataRequest.pb(
-            dataset_service.AssessDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = mock.Mock()
-        req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = json_format.MessageToJson(operations_pb2.Operation())
-        req.return_value.read = mock.AsyncMock(return_value=return_value)
-
-        request = dataset_service.AssessDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-        post_with_metadata.return_value = operations_pb2.Operation(), metadata
-
-        await client.assess_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-        post_with_metadata.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_assemble_data_rest_asyncio_bad_request(
-    request_type=dataset_service.AssembleDataRequest,
-):
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
-    )
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
-        response_value.status_code = 400
-        response_value.request = mock.Mock()
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        await client.assemble_data(request)
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        dataset_service.AssembleDataRequest,
-        dict,
-    ],
-)
-async def test_assemble_data_rest_asyncio_call_success(request_type):
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
-    )
-
-    # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/datasets/sample3"}
-    request = request_type(**request_init)
-
-    # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
-        # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
-
-        # Wrap the value into a proper Response obj
-        response_value = mock.Mock()
-        response_value.status_code = 200
-        json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
-        req.return_value = response_value
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        response = await client.assemble_data(request)
-
-    # Establish that the response is the type that we expect.
-    json_return_value = json_format.MessageToJson(return_value)
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("null_interceptor", [True, False])
-async def test_assemble_data_rest_asyncio_interceptors(null_interceptor):
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    transport = transports.AsyncDatasetServiceRestTransport(
-        credentials=async_anonymous_credentials(),
-        interceptor=None
-        if null_interceptor
-        else transports.AsyncDatasetServiceRestInterceptor(),
-    )
-    client = DatasetServiceAsyncClient(transport=transport)
-
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.AsyncDatasetServiceRestInterceptor, "post_assemble_data"
-    ) as post, mock.patch.object(
-        transports.AsyncDatasetServiceRestInterceptor,
-        "post_assemble_data_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncDatasetServiceRestInterceptor, "pre_assemble_data"
-    ) as pre:
-        pre.assert_not_called()
-        post.assert_not_called()
-        post_with_metadata.assert_not_called()
-        pb_message = dataset_service.AssembleDataRequest.pb(
-            dataset_service.AssembleDataRequest()
-        )
-        transcode.return_value = {
-            "method": "post",
-            "uri": "my_uri",
-            "body": pb_message,
-            "query_params": pb_message,
-        }
-
-        req.return_value = mock.Mock()
-        req.return_value.status_code = 200
-        req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = json_format.MessageToJson(operations_pb2.Operation())
-        req.return_value.read = mock.AsyncMock(return_value=return_value)
-
-        request = dataset_service.AssembleDataRequest()
-        metadata = [
-            ("key", "val"),
-            ("cephalopod", "squid"),
-        ]
-        pre.return_value = request, metadata
-        post.return_value = operations_pb2.Operation()
-        post_with_metadata.return_value = operations_pb2.Operation(), metadata
-
-        await client.assemble_data(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
-
-        pre.assert_called_once()
-        post.assert_called_once()
-        post_with_metadata.assert_called_once()
-
-
-@pytest.mark.asyncio
 async def test_get_location_rest_asyncio_bad_request(
     request_type=locations_pb2.GetLocationRequest,
 ):
@@ -23780,56 +22386,6 @@ async def test_list_annotations_empty_call_rest_asyncio():
         assert args[0] == request_msg
 
 
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-@pytest.mark.asyncio
-async def test_assess_data_empty_call_rest_asyncio():
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport="rest_asyncio",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assess_data), "__call__") as call:
-        await client.assess_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssessDataRequest()
-
-        assert args[0] == request_msg
-
-
-# This test is a coverage failsafe to make sure that totally empty calls,
-# i.e. request == None and no flattened fields passed, work.
-@pytest.mark.asyncio
-async def test_assemble_data_empty_call_rest_asyncio():
-    if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
-    client = DatasetServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport="rest_asyncio",
-    )
-
-    # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.assemble_data), "__call__") as call:
-        await client.assemble_data(request=None)
-
-        # Establish that the underlying stub method was called.
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        request_msg = dataset_service.AssembleDataRequest()
-
-        assert args[0] == request_msg
-
-
 def test_dataset_service_rest_asyncio_lro_client():
     if not HAS_ASYNC_REST_EXTRA:
         pytest.skip(
@@ -23917,8 +22473,6 @@ def test_dataset_service_base_transport():
         "delete_saved_query",
         "get_annotation_spec",
         "list_annotations",
-        "assess_data",
-        "assemble_data",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -24249,12 +22803,6 @@ def test_dataset_service_client_transport_session_collision(transport_name):
     session1 = client1.transport.list_annotations._session
     session2 = client2.transport.list_annotations._session
     assert session1 != session2
-    session1 = client1.transport.assess_data._session
-    session2 = client2.transport.assess_data._session
-    assert session1 != session2
-    session1 = client1.transport.assemble_data._session
-    session2 = client2.transport.assemble_data._session
-    assert session1 != session2
 
 
 def test_dataset_service_grpc_transport_channel():
@@ -24482,37 +23030,11 @@ def test_parse_annotation_spec_path():
     assert expected == actual
 
 
-def test_cached_content_path():
+def test_data_item_path():
     project = "cuttlefish"
     location = "mussel"
-    cached_content = "winkle"
-    expected = "projects/{project}/locations/{location}/cachedContents/{cached_content}".format(
-        project=project,
-        location=location,
-        cached_content=cached_content,
-    )
-    actual = DatasetServiceClient.cached_content_path(project, location, cached_content)
-    assert expected == actual
-
-
-def test_parse_cached_content_path():
-    expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "cached_content": "abalone",
-    }
-    path = DatasetServiceClient.cached_content_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = DatasetServiceClient.parse_cached_content_path(path)
-    assert expected == actual
-
-
-def test_data_item_path():
-    project = "squid"
-    location = "clam"
-    dataset = "whelk"
-    data_item = "octopus"
+    dataset = "winkle"
+    data_item = "nautilus"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}".format(
         project=project,
         location=location,
@@ -24525,10 +23047,10 @@ def test_data_item_path():
 
 def test_parse_data_item_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
-        "dataset": "cuttlefish",
-        "data_item": "mussel",
+        "project": "scallop",
+        "location": "abalone",
+        "dataset": "squid",
+        "data_item": "clam",
     }
     path = DatasetServiceClient.data_item_path(**expected)
 
@@ -24538,9 +23060,9 @@ def test_parse_data_item_path():
 
 
 def test_dataset_path():
-    project = "winkle"
-    location = "nautilus"
-    dataset = "scallop"
+    project = "whelk"
+    location = "octopus"
+    dataset = "oyster"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -24552,9 +23074,9 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "abalone",
-        "location": "squid",
-        "dataset": "clam",
+        "project": "nudibranch",
+        "location": "cuttlefish",
+        "dataset": "mussel",
     }
     path = DatasetServiceClient.dataset_path(**expected)
 
@@ -24564,10 +23086,10 @@ def test_parse_dataset_path():
 
 
 def test_dataset_version_path():
-    project = "whelk"
-    location = "octopus"
-    dataset = "oyster"
-    dataset_version = "nudibranch"
+    project = "winkle"
+    location = "nautilus"
+    dataset = "scallop"
+    dataset_version = "abalone"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}".format(
         project=project,
         location=location,
@@ -24582,10 +23104,10 @@ def test_dataset_version_path():
 
 def test_parse_dataset_version_path():
     expected = {
-        "project": "cuttlefish",
-        "location": "mussel",
-        "dataset": "winkle",
-        "dataset_version": "nautilus",
+        "project": "squid",
+        "location": "clam",
+        "dataset": "whelk",
+        "dataset_version": "octopus",
     }
     path = DatasetServiceClient.dataset_version_path(**expected)
 
@@ -24594,63 +23116,11 @@ def test_parse_dataset_version_path():
     assert expected == actual
 
 
-def test_endpoint_path():
-    project = "scallop"
-    location = "abalone"
-    endpoint = "squid"
-    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-        project=project,
-        location=location,
-        endpoint=endpoint,
-    )
-    actual = DatasetServiceClient.endpoint_path(project, location, endpoint)
-    assert expected == actual
-
-
-def test_parse_endpoint_path():
-    expected = {
-        "project": "clam",
-        "location": "whelk",
-        "endpoint": "octopus",
-    }
-    path = DatasetServiceClient.endpoint_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = DatasetServiceClient.parse_endpoint_path(path)
-    assert expected == actual
-
-
-def test_rag_corpus_path():
+def test_saved_query_path():
     project = "oyster"
     location = "nudibranch"
-    rag_corpus = "cuttlefish"
-    expected = "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}".format(
-        project=project,
-        location=location,
-        rag_corpus=rag_corpus,
-    )
-    actual = DatasetServiceClient.rag_corpus_path(project, location, rag_corpus)
-    assert expected == actual
-
-
-def test_parse_rag_corpus_path():
-    expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "rag_corpus": "nautilus",
-    }
-    path = DatasetServiceClient.rag_corpus_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = DatasetServiceClient.parse_rag_corpus_path(path)
-    assert expected == actual
-
-
-def test_saved_query_path():
-    project = "scallop"
-    location = "abalone"
-    dataset = "squid"
-    saved_query = "clam"
+    dataset = "cuttlefish"
+    saved_query = "mussel"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}".format(
         project=project,
         location=location,
@@ -24665,10 +23135,10 @@ def test_saved_query_path():
 
 def test_parse_saved_query_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
-        "dataset": "oyster",
-        "saved_query": "nudibranch",
+        "project": "winkle",
+        "location": "nautilus",
+        "dataset": "scallop",
+        "saved_query": "abalone",
     }
     path = DatasetServiceClient.saved_query_path(**expected)
 
@@ -24678,7 +23148,7 @@ def test_parse_saved_query_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -24688,7 +23158,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = DatasetServiceClient.common_billing_account_path(**expected)
 
@@ -24698,7 +23168,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -24708,7 +23178,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = DatasetServiceClient.common_folder_path(**expected)
 
@@ -24718,7 +23188,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -24728,7 +23198,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = DatasetServiceClient.common_organization_path(**expected)
 
@@ -24738,7 +23208,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -24748,7 +23218,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = DatasetServiceClient.common_project_path(**expected)
 
@@ -24758,8 +23228,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -24770,8 +23240,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = DatasetServiceClient.common_location_path(**expected)
 

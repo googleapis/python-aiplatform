@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "0.1.0"
+    "version": "1.84.0"
   },
   "snippets": [
     {
@@ -49946,12 +49946,12 @@
       "regionTag": "aiplatform_v1_generated_VertexRagDataService_ImportRagFiles_async",
       "segments": [
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "SHORT"
         },
@@ -49961,18 +49961,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 51,
+          "end": 50,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 58,
-          "start": 52,
+          "end": 57,
+          "start": 51,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 62,
-          "start": 59,
+          "end": 61,
+          "start": 58,
           "type": "RESPONSE_HANDLING"
         }
       ],
@@ -50030,12 +50030,12 @@
       "regionTag": "aiplatform_v1_generated_VertexRagDataService_ImportRagFiles_sync",
       "segments": [
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "FULL"
         },
         {
-          "end": 61,
+          "end": 60,
           "start": 27,
           "type": "SHORT"
         },
@@ -50045,18 +50045,18 @@
           "type": "CLIENT_INITIALIZATION"
         },
         {
-          "end": 51,
+          "end": 50,
           "start": 41,
           "type": "REQUEST_INITIALIZATION"
         },
         {
-          "end": 58,
-          "start": 52,
+          "end": 57,
+          "start": 51,
           "type": "REQUEST_EXECUTION"
         },
         {
-          "end": 62,
-          "start": 59,
+          "end": 61,
+          "start": 58,
           "type": "RESPONSE_HANDLING"
         }
       ],

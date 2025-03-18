@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -232,16 +232,6 @@ class DatasetServiceTransport(abc.ABC):
             self.list_annotations: gapic_v1.method.wrap_method(
                 self.list_annotations,
                 default_timeout=5.0,
-                client_info=client_info,
-            ),
-            self.assess_data: gapic_v1.method.wrap_method(
-                self.assess_data,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.assemble_data: gapic_v1.method.wrap_method(
-                self.assemble_data,
-                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_location: gapic_v1.method.wrap_method(
@@ -503,24 +493,6 @@ class DatasetServiceTransport(abc.ABC):
             dataset_service.ListAnnotationsResponse,
             Awaitable[dataset_service.ListAnnotationsResponse],
         ],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def assess_data(
-        self,
-    ) -> Callable[
-        [dataset_service.AssessDataRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def assemble_data(
-        self,
-    ) -> Callable[
-        [dataset_service.AssembleDataRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

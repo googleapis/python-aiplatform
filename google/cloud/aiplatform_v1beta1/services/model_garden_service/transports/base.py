@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -155,11 +155,6 @@ class ModelGardenServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.export_publisher_model: gapic_v1.method.wrap_method(
-                self.export_publisher_model,
-                default_timeout=None,
-                client_info=client_info,
-            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -263,15 +258,6 @@ class ModelGardenServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [model_garden_service.DeployPublisherModelRequest],
-        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def export_publisher_model(
-        self,
-    ) -> Callable[
-        [model_garden_service.ExportPublisherModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

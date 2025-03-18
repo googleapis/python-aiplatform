@@ -51,7 +51,7 @@ bq_info = client_info.ClientInfo(
 )
 
 
-# BigQuery write for Ray 2.42.0, 2.33.0, and 2.9.3
+# BigQuery write for Ray 2.33.0 and 2.9.3
 if Datasink is None:
     _BigQueryDatasink = None
 else:

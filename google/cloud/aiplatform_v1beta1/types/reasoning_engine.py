@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import env_var
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -38,21 +37,11 @@ class ReasoningEngineSpec(proto.Message):
 
     Attributes:
         package_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.PackageSpec):
-            Optional. User provided package spec of the ReasoningEngine.
-            Ignored when users directly specify a deployment image
-            through ``deployment_spec.first_party_image_override``, but
-            keeping the field_behavior to avoid introducing breaking
-            changes.
-        deployment_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.DeploymentSpec):
-            Optional. The specification of a Reasoning
-            Engine deployment.
+            Required. User provided package spec of the
+            ReasoningEngine.
         class_methods (MutableSequence[google.protobuf.struct_pb2.Struct]):
             Optional. Declarations for object class
             methods in OpenAPI specification format.
-        agent_framework (str):
-            Optional. The OSS agent framework used to
-            develop the agent. Currently supported values:
-            "langchain", "langgraph", "ag2", "custom".
     """
 
     class PackageSpec(proto.Message):
@@ -92,53 +81,15 @@ class ReasoningEngineSpec(proto.Message):
             number=4,
         )
 
-    class DeploymentSpec(proto.Message):
-        r"""The specification of a Reasoning Engine deployment.
-
-        Attributes:
-            env (MutableSequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
-                Optional. Environment variables to be set
-                with the Reasoning Engine deployment. The
-                environment variables can be updated through the
-                UpdateReasoningEngine API.
-            secret_env (MutableSequence[google.cloud.aiplatform_v1beta1.types.SecretEnvVar]):
-                Optional. Environment variables where the
-                value is a secret in Cloud Secret Manager.
-                To use this feature, add 'Secret Manager Secret
-                Accessor' role
-                (roles/secretmanager.secretAccessor) to AI
-                Platform Reasoning Engine Service Agent.
-        """
-
-        env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=1,
-            message=env_var.EnvVar,
-        )
-        secret_env: MutableSequence[env_var.SecretEnvVar] = proto.RepeatedField(
-            proto.MESSAGE,
-            number=2,
-            message=env_var.SecretEnvVar,
-        )
-
     package_spec: PackageSpec = proto.Field(
         proto.MESSAGE,
         number=2,
         message=PackageSpec,
     )
-    deployment_spec: DeploymentSpec = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message=DeploymentSpec,
-    )
     class_methods: MutableSequence[struct_pb2.Struct] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Struct,
-    )
-    agent_framework: str = proto.Field(
-        proto.STRING,
-        number=5,
     )
 
 
@@ -157,7 +108,7 @@ class ReasoningEngine(proto.Message):
             Optional. The description of the
             ReasoningEngine.
         spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec):
-            Optional. Configurations of the
+            Required. Configurations of the
             ReasoningEngine
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
