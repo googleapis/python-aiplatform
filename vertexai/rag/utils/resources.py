@@ -333,16 +333,55 @@ class Filter:
 
 
 @dataclasses.dataclass
+class LlmRanker:
+    """LlmRanker.
+
+    Attributes:
+        model_name: The model name used for ranking. Only Gemini models are
+            supported for now.
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RankService:
+    """RankService.
+
+    Attributes:
+        model_name: The model name of the rank service. Format:
+            ``semantic-ranker-512@latest``
+    """
+
+    model_name: Optional[str] = None
+
+
+@dataclasses.dataclass
+class Ranking:
+    """Ranking.
+
+    Attributes:
+        rank_service: Config for Rank Service.
+        llm_ranker: Config for LlmRanker.
+    """
+
+    rank_service: Optional[RankService] = None
+    llm_ranker: Optional[LlmRanker] = None
+
+
+@dataclasses.dataclass
 class RagRetrievalConfig:
     """RagRetrievalConfig.
 
     Attributes:
         top_k: The number of contexts to retrieve.
         filter: Config for filters.
+        ranking: Config for ranking.
     """
 
     top_k: Optional[int] = None
     filter: Optional[Filter] = None
+    ranking: Optional[Ranking] = None
 
 
 @dataclasses.dataclass
