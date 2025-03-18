@@ -25,7 +25,11 @@ from vertexai.tuning import _tuning
 
 def train(
     *,
-    source_model: Union[str, generative_models.GenerativeModel],
+    source_model: Union[
+        str,
+        generative_models.GenerativeModel,
+        generative_models.CustomModel,
+    ],
     train_dataset: str,
     validation_dataset: Optional[str] = None,
     tuned_model_display_name: Optional[str] = None,
@@ -87,7 +91,11 @@ def train(
 
     if isinstance(source_model, generative_models.GenerativeModel):
         source_model = source_model._prediction_resource_name.rpartition("/")[-1]
-
+    if isinstance(source_model, generative_models.CustomModel):
+        if source_model.custom_base_model:
+            source_model = source_model.custom_base_model
+        else:
+            source_model = source_model.base_model
     supervised_tuning_job = (
         SupervisedTuningJob._create(  # pylint: disable=protected-access
             base_model=source_model,

@@ -3554,3 +3554,46 @@ class _PreviewGenerativeModel(_GenerativeModel):
             response_validation=response_validation,
             responder=responder,
         )
+
+
+class CustomModel:
+    r"""A model that is used in supervised tuning.
+
+    Usage:
+        ```
+        model = CustomModel(base_model="meta/llama3.1-8b")
+        sft_tuning_job = sft.train(
+            source_model=model,
+            train_dataset="gs://my-bucket/train.jsonl",
+            validation_dataset="gs://my-bucket/validation.jsonl",
+            epochs=4,
+            learning_rate_multiplier=0.5,
+            tuned_model_display_name="my-tuned-model",
+            output_uri="gs://user-bucket/tuned-model",
+            )
+        )
+
+        while not sft_tuning_job.has_ended:
+            time.sleep(10)
+            sft_tuning_job.refresh()
+
+        tuned_model = aiplatform.Model(sft_tuning_job.tuned_model_name)
+        ```
+    """
+
+    def __init__(
+        self,
+        base_model: str = "",
+        custom_base_model: str = "",
+    ):
+        r"""Initializes CustomModel."""
+        self._base_model = base_model
+        self._custom_base_model = custom_base_model
+
+    @property
+    def base_model(self) -> str:
+        return self._base_model
+
+    @property
+    def custom_base_model(self) -> str:
+        return self._custom_base_model
