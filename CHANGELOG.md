@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.85.0](https://github.com/googleapis/python-aiplatform/compare/v1.84.0...v1.85.0) (2025-03-18)
+
+
+### Features
+
+* Add function_call.id and function_response.id ([3f6c824](https://github.com/googleapis/python-aiplatform/commit/3f6c8245acfd89ce0cc61ba18cf89c9608b716d7))
+* Add Python version 3.12 to Agent Engine ([1232132](https://github.com/googleapis/python-aiplatform/commit/1232132355c8c2c7b12e15d1a4bbbf55be39517a))
+* Add Ray 2.42 support to SDK Client Builder ([2a67076](https://github.com/googleapis/python-aiplatform/commit/2a670762d661e6cc053ccd2a96f9e231c3f51e5f))
+* Add reranker config to RAG v1 API ([3f6c824](https://github.com/googleapis/python-aiplatform/commit/3f6c8245acfd89ce0cc61ba18cf89c9608b716d7))
+* Add support for version 2.42 for RoV Bigquery read/write ([f4ce684](https://github.com/googleapis/python-aiplatform/commit/f4ce684d5f066b8052c0751aeaff08c938f43552))
+* Implement GA versions of agent engine prebuilt templates ([37b72c2](https://github.com/googleapis/python-aiplatform/commit/37b72c294b023ca821eebca43d07a772abf620a2))
+* Modify v1 sdk to support rerankers ([a6b7de5](https://github.com/googleapis/python-aiplatform/commit/a6b7de5adfd02d038f8d55a55d9599a33bb02c3e))
+
+
+### Bug Fixes
+
+* Allow Protobuf 6.x ([3f6c824](https://github.com/googleapis/python-aiplatform/commit/3f6c8245acfd89ce0cc61ba18cf89c9608b716d7))
+* Preserve system_instruction in LangchainAgent clone() ([63fc33e](https://github.com/googleapis/python-aiplatform/commit/63fc33ee75567503c77ca4bfc66d6932c938b22d))
+* Resolve issue where pre-release versions of dependencies are installed ([de83fe3](https://github.com/googleapis/python-aiplatform/commit/de83fe314b637f36aa4281b79ac7bcbf3bc9e3dc))
+
+
+### Documentation
+
+* Update SDK Job Submission with Ray v2.42 updated comments ([f281113](https://github.com/googleapis/python-aiplatform/commit/f2811130914cc7621dbce2a3f0dc7d1212690407))
+
 ## [1.84.0](https://github.com/googleapis/python-aiplatform/compare/v1.83.0...v1.84.0) (2025-03-11)
 
 
