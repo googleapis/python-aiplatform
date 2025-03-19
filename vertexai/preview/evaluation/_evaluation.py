@@ -1158,6 +1158,7 @@ def evaluate(
                     metric=metric.metric_name,
                     metric_prompt_template=metric.metric_prompt_template,
                     baseline_model=metric.baseline_model,
+                    system_instruction=metric.system_instruction,
                 )
             )
         else:
