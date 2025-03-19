@@ -147,8 +147,8 @@ def _reconcile_model_name(model_name: str) -> str:
                 )
             else:
                 return _get_publisher_model_resource_name(
-                    publisher="hf-" + simplified_name_match.group("publisher"),
-                    model=simplified_name_match.group("model") + "@001",
+                    publisher=simplified_name_match.group("publisher"),
+                    model=simplified_name_match.group("model"),
                 )
         else:
             raise ValueError(f"`{model_name}` is not a valid Open Model name")
@@ -594,7 +594,7 @@ class OpenModel:
         """Lists the verified deploy options for the model."""
         request = types.GetPublisherModelRequest(
             name=self._publisher_model_name,
-            is_hugging_face_model="@" not in self._publisher_model_name,
+            is_hugging_face_model=bool(self._is_hugging_face_model),
             include_equivalent_model_garden_model_deployment_configs=True,
         )
         response = self._us_central1_model_garden_client.get_publisher_model(request)
