@@ -33,10 +33,16 @@ _TEST_LOCATION = "us-central1"
 _TEST_MODEL_FULL_RESOURCE_NAME = (
     "publishers/google/models/paligemma@paligemma-224-float32"
 )
+_TEST_HUGGING_FACE_MODEL_FULL_RESOURCE_NAME = (
+    "publishers/meta-llama/models/llama-3.3-70b-instruct"
+)
 _TEST_PUBLISHER_MODEL_NAME = "publishers/google/models/paligemma"
 _TEST_HUGGING_FACE_PUBLISHER_MODEL_NAME = "publishers/hf-google/models/gemma-2-2b"
 _TEST_MODEL_SIMPLIFIED_RESOURCE_NAME = "google/paligemma@paligemma-224-float32"
 _TEST_MODEL_HUGGING_FACE_ID = "meta-llama/Llama-3.3-70B-Instruct"
+_TEST_MODEL_HUGGING_FACE_RESOURCE_NAME = (
+    "publishers/hf-meta-llama/models/llama-3.3-70b-instruct"
+)
 # Note: The full resource name is in lower case.
 _TEST_MODEL_HUGGING_FACE_FULL_RESOURCE_NAME = (
     "publishers/hf-meta-llama/models/llama-3.3-70b-instruct@001"
@@ -104,6 +110,24 @@ def get_publisher_model_mock():
             types.PublisherModel(name=_TEST_PUBLISHER_MODEL_NAME),
             types.PublisherModel(
                 name=_TEST_PUBLISHER_MODEL_NAME,
+                supported_actions=types.PublisherModel.CallToAction(
+                    multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
+                        multi_deploy_vertex=[
+                            types.PublisherModel.CallToAction.Deploy(
+                                dedicated_resources=types.DedicatedResources(
+                                    machine_spec=types.MachineSpec(
+                                        machine_type="g2-standard-16",
+                                        accelerator_type="NVIDIA_L4",
+                                        accelerator_count=1,
+                                    )
+                                )
+                            )
+                        ]
+                    )
+                ),
+            ),
+            types.PublisherModel(
+                name=_TEST_MODEL_HUGGING_FACE_RESOURCE_NAME,
                 supported_actions=types.PublisherModel.CallToAction(
                     multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
                         multi_deploy_vertex=[
@@ -754,6 +778,16 @@ class TestModelGarden:
             types.GetPublisherModelRequest(
                 name=_TEST_MODEL_FULL_RESOURCE_NAME,
                 is_hugging_face_model=False,
+                include_equivalent_model_garden_model_deployment_configs=True,
+            )
+        )
+
+        hf_model = model_garden.OpenModel(_TEST_MODEL_HUGGING_FACE_ID)
+        hf_model.list_deploy_options()
+        get_publisher_model_mock.assert_called_with(
+            types.GetPublisherModelRequest(
+                name=_TEST_HUGGING_FACE_MODEL_FULL_RESOURCE_NAME,
+                is_hugging_face_model=True,
                 include_equivalent_model_garden_model_deployment_configs=True,
             )
         )

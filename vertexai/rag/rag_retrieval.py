@@ -43,6 +43,11 @@ def retrieval_query(
         filter=vertexai.rag.rag_retrieval_config.filter(
             vector_distance_threshold=0.5
         ),
+        ranking=vertex.rag.Ranking(
+            llm_ranker=vertexai.rag.LlmRanker(
+                model_name="gemini-1.5-flash-002"
+            )
+        )
     )
 
     results = vertexai.rag.retrieval_query(
@@ -105,11 +110,11 @@ def retrieval_query(
 
     # If rag_retrieval_config is not specified, set it to default values.
     if not rag_retrieval_config:
-        api_retrival_config = aiplatform_v1.RagRetrievalConfig()
+        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
     else:
         # If rag_retrieval_config is specified, check for missing parameters.
-        api_retrival_config = aiplatform_v1.RagRetrievalConfig()
-        api_retrival_config.top_k = rag_retrieval_config.top_k
+        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
+        api_retrieval_config.top_k = rag_retrieval_config.top_k
         # Set vector_distance_threshold to config value if specified
         if rag_retrieval_config.filter:
             # Check if both vector_distance_threshold and vector_similarity_threshold
@@ -124,16 +129,30 @@ def retrieval_query(
                     " vector_similarity_threshold can be specified at a time"
                     " in rag_retrieval_config."
                 )
-            api_retrival_config.filter.vector_distance_threshold = (
+            api_retrieval_config.filter.vector_distance_threshold = (
                 rag_retrieval_config.filter.vector_distance_threshold
             )
-            api_retrival_config.filter.vector_similarity_threshold = (
+            api_retrieval_config.filter.vector_similarity_threshold = (
                 rag_retrieval_config.filter.vector_similarity_threshold
+            )
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrieval_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrieval_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
             )
 
     query = aiplatform_v1.RagQuery(
         text=text,
-        rag_retrieval_config=api_retrival_config,
+        rag_retrieval_config=api_retrieval_config,
     )
     request = aiplatform_v1.RetrieveContextsRequest(
         vertex_rag_store=vertex_rag_store,
