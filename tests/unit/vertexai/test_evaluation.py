@@ -2041,6 +2041,61 @@ class TestEvaluationUtils:
         )
         assert converted_metric_column_mapping == _EXPECTED_COLUMN_MAPPING
 
+    def test_upload_results(self, mock_storage_blob_from_string):
+        with mock.patch("json.dump") as mock_json_dump:
+            evaluation.utils.upload_evaluation_results(
+                MOCK_EVAL_RESULT,
+                _TEST_BUCKET,
+                _TEST_FILE_NAME,
+                "candidate_model",
+                "baseline_model",
+                "gs://test-bucket/test-dataset.csv",
+                [_TEST_POINTWISE_METRIC, _TEST_PAIRWISE_METRIC],
+            )
+
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/test-file-name/test-file-name.csv",
+            client=mock.ANY,
+        )
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/test-file-name/summary_metrics.json",
+            client=mock.ANY,
+        )
+        mock_json_dump.assert_called_once_with(
+            {
+                "summary_metrics": MOCK_EVAL_RESULT.summary_metrics,
+                "candidate_model_name": "candidate_model",
+                "baseline_model_name": "baseline_model",
+                "dataset_uri": "gs://test-bucket/test-dataset.csv",
+                "metric_descriptions": {
+                    "test_pointwise_metric": {
+                        "criteria": _CRITERIA,
+                        "rating_rubric": _POINTWISE_RATING_RUBRIC,
+                    },
+                    "test_pairwise_metric": {
+                        "criteria": _CRITERIA,
+                        "rating_rubric": _PAIRWISE_RATING_RUBRIC,
+                    },
+                },
+            },
+            mock.ANY,
+        )
+
+    def test_upload_results_with_default_file_name(self, mock_storage_blob_from_string):
+        with mock.patch.object(
+            aiplatform_utils, "timestamped_unique_name"
+        ) as mock_timestamped_unique_name:
+            mock_timestamped_unique_name.return_value = "2025-02-10-12-00-00-12345"
+            evaluation.utils.upload_evaluation_results(
+                MOCK_EVAL_RESULT,
+                _TEST_BUCKET,
+            )
+
+        mock_storage_blob_from_string.assert_any_call(
+            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/eval_results_2025-02-10-12-00-00-12345.csv",
+            client=mock.ANY,
+        )
+
 
 class TestPromptTemplate:
     def test_init(self):
@@ -2138,57 +2193,31 @@ class TestPromptTemplate:
             == _EXPECTED_PAIRWISE_PROMPT_TEMPLATE_WITH_DEFAULT_VALUES.strip()
         )
 
-    def test_upload_results(self, mock_storage_blob_from_string):
-        with mock.patch("json.dump") as mock_json_dump:
-            evaluation.utils.upload_evaluation_results(
-                MOCK_EVAL_RESULT,
-                _TEST_BUCKET,
-                _TEST_FILE_NAME,
-                "candidate_model",
-                "baseline_model",
-                "gs://test-bucket/test-dataset.csv",
-                [_TEST_POINTWISE_METRIC, _TEST_PAIRWISE_METRIC],
-            )
-
-        mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/test-file-name/test-file-name.csv",
-            client=mock.ANY,
-        )
-        mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/test-file-name/summary_metrics.json",
-            client=mock.ANY,
-        )
-        mock_json_dump.assert_called_once_with(
-            {
-                "summary_metrics": MOCK_EVAL_RESULT.summary_metrics,
-                "candidate_model_name": "candidate_model",
-                "baseline_model_name": "baseline_model",
-                "dataset_uri": "gs://test-bucket/test-dataset.csv",
-                "metric_descriptions": {
-                    "test_pointwise_metric": {
-                        "criteria": _CRITERIA,
-                        "rating_rubric": _POINTWISE_RATING_RUBRIC,
-                    },
-                    "test_pairwise_metric": {
-                        "criteria": _CRITERIA,
-                        "rating_rubric": _PAIRWISE_RATING_RUBRIC,
-                    },
-                },
-            },
-            mock.ANY,
-        )
-
-    def test_upload_results_with_default_file_name(self, mock_storage_blob_from_string):
-        with mock.patch.object(
-            aiplatform_utils, "timestamped_unique_name"
-        ) as mock_timestamped_unique_name:
-            mock_timestamped_unique_name.return_value = "2025-02-10-12-00-00-12345"
-            evaluation.utils.upload_evaluation_results(
-                MOCK_EVAL_RESULT,
-                _TEST_BUCKET,
-            )
-
-        mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/eval_results_2025-02-10-12-00-00-12345.csv",
-            client=mock.ANY,
-        )
+    def test_complex_prompt_template_variables(self):
+        template_str = """Metric prompt template
+instructions ...
+Here are some JSON structures
+{
+  "Function API spec": You may use default python libraries,
+  "example": test test
+}
+Output format prompt with JSON:
+The answer should be a json alone which follows the json structure below:
+{
+  "is_the_response_valid": [valid or invalid],
+  "reasoning":
+  "rewritten response":
+}
+Here are some actual variables:
+{var_1} {var2} {_var_3} {
+        var_5_mutli_line
+} {VAR_6} {7_var} {{var_9}}
+"""
+        prompt_template = evaluation.PromptTemplate(template_str)
+        assert prompt_template.variables == {
+            "var_1",
+            "var2",
+            "_var_3",
+            "VAR_6",
+            "var_9",
+        }
