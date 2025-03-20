@@ -10,6 +10,16 @@
         "grpc": {
           "libraryClient": "DatasetServiceClient",
           "rpcs": {
+            "AssembleData": {
+              "methods": [
+                "assemble_data"
+              ]
+            },
+            "AssessData": {
+              "methods": [
+                "assess_data"
+              ]
+            },
             "CreateDataset": {
               "methods": [
                 "create_dataset"
@@ -110,6 +120,16 @@
         "grpc-async": {
           "libraryClient": "DatasetServiceAsyncClient",
           "rpcs": {
+            "AssembleData": {
+              "methods": [
+                "assemble_data"
+              ]
+            },
+            "AssessData": {
+              "methods": [
+                "assess_data"
+              ]
+            },
             "CreateDataset": {
               "methods": [
                 "create_dataset"
@@ -210,6 +230,16 @@
         "rest": {
           "libraryClient": "DatasetServiceClient",
           "rpcs": {
+            "AssembleData": {
+              "methods": [
+                "assemble_data"
+              ]
+            },
+            "AssessData": {
+              "methods": [
+                "assess_data"
+              ]
+            },
             "CreateDataset": {
               "methods": [
                 "create_dataset"
@@ -3385,6 +3415,11 @@
                 "deploy_publisher_model"
               ]
             },
+            "ExportPublisherModel": {
+              "methods": [
+                "export_publisher_model"
+              ]
+            },
             "GetPublisherModel": {
               "methods": [
                 "get_publisher_model"
@@ -3410,6 +3445,11 @@
                 "deploy_publisher_model"
               ]
             },
+            "ExportPublisherModel": {
+              "methods": [
+                "export_publisher_model"
+              ]
+            },
             "GetPublisherModel": {
               "methods": [
                 "get_publisher_model"
@@ -3433,6 +3473,11 @@
             "DeployPublisherModel": {
               "methods": [
                 "deploy_publisher_model"
+              ]
+            },
+            "ExportPublisherModel": {
+              "methods": [
+                "export_publisher_model"
               ]
             },
             "GetPublisherModel": {

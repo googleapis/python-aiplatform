@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -4679,7 +4679,10 @@ def test_create_cached_content_rest_call_success(request_type):
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -5166,7 +5169,10 @@ def test_update_cached_content_rest_call_success(request_type):
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -6515,7 +6521,10 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
@@ -7034,7 +7043,10 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     }
                 ],
                 "retrieval": {
-                    "vertex_ai_search": {"datastore": "datastore_value"},
+                    "vertex_ai_search": {
+                        "datastore": "datastore_value",
+                        "engine": "engine_value",
+                    },
                     "vertex_rag_store": {
                         "rag_corpora": ["rag_corpora_value1", "rag_corpora_value2"],
                         "rag_resources": [
