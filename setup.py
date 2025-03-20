@@ -193,6 +193,20 @@ ag2_testing_extra_require = list(
     )
 )
 
+llama_index_extra_require = [
+    "llama-index",
+    "llama-index-llms-google-genai",
+    "openinference-instrumentation-llama-index >= 3.0, < 4.0",
+]
+
+llama_index_testing_extra_require = list(
+    set(
+        llama_index_extra_require
+        + reasoning_engine_extra_require
+        + ["absl-py", "pytest-xdist"]
+    )
+)
+
 tokenization_extra_require = ["sentencepiece >= 0.2.0"]
 tokenization_testing_extra_require = tokenization_extra_require + ["nltk"]
 
@@ -309,6 +323,8 @@ setuptools.setup(
         "tokenization": tokenization_extra_require,
         "ag2": ag2_extra_require,
         "ag2_testing": ag2_testing_extra_require,
+        "llama_index": llama_index_extra_require,
+        "llama_index_testing": llama_index_testing_extra_require,
     },
     python_requires=">=3.8",
     classifiers=[

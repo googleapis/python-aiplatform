@@ -29,11 +29,15 @@ from vertexai.preview.reasoning_engines.templates.langchain import (
 from vertexai.preview.reasoning_engines.templates.langgraph import (
     LanggraphAgent,
 )
+from vertexai.preview.reasoning_engines.templates.llama_index import (
+    LlamaIndexQueryPipelineAgent,
+)
 
 __all__ = (
     "AG2Agent",
     "LangchainAgent",
     "LanggraphAgent",
+    "LlamaIndexQueryPipelineAgent",
     "Queryable",
     "ReasoningEngine",
 )
