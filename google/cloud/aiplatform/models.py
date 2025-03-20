@@ -21,6 +21,7 @@ import re
 import shutil
 import tempfile
 import requests
+from requests_toolbelt.adapters.socket_options import TCPKeepAliveAdapter
 from typing import (
     Any,
     Dict,
@@ -2400,6 +2401,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             }
 
             url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
+            # count * interval need to be larger than 1 hr (3600s)
+            keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+            self.authorized_session.mount("https://", keep_alive)
             response = self.authorized_session.post(
                 url=url,
                 data=json.dumps(
@@ -2570,6 +2574,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "and model are ready before making a prediction."
                 )
             url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
+            # count * interval need to be larger than 1 hr (3600s)
+            keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+            self.authorized_session.mount("https://", keep_alive)
+
         return self.authorized_session.post(
             url=url, data=body, headers=headers, timeout=timeout
         )
@@ -3261,6 +3269,7 @@ class PrivateEndpoint(Endpoint):
             ImportError: If there is an issue importing the `urllib3` package.
         """
         try:
+            import socket
             import urllib3
         except ImportError:
             raise ImportError(
@@ -3280,6 +3289,17 @@ class PrivateEndpoint(Endpoint):
             )
 
         self._http_client = urllib3.PoolManager(cert_reqs="CERT_NONE")
+        if self.private_service_connect_config:
+            # Enable keepalive to avoid connection timeout. TCP_KEEPCNT * TCP_KEEPINTVL need to be larger than 1 hr (3600s)
+            self._http_client = urllib3.PoolManager(
+                cert_reqs="CERT_NONE",
+                socket_options=[
+                    (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+                    (socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 120),
+                    (socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 100),
+                    (socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 100),
+                ],
+            )
 
     @property
     def predict_http_uri(self) -> Optional[str]:

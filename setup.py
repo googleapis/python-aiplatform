@@ -89,11 +89,12 @@ prediction_extra_require = [
     "uvicorn[standard] >= 0.16.0",
 ]
 
-endpoint_extra_require = ["requests >= 2.28.1"]
+endpoint_extra_require = ["requests >= 2.28.1", "requests-toolbelt >= 1.0.0"]
 
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
     "requests >= 2.28.1",
+    "requests-toolbelt >= 1.0.0",
 ]
 
 autologging_extra_require = ["mlflow>=1.27.0,<=2.16.0"]
