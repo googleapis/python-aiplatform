@@ -54,6 +54,7 @@ DOCFX_DEPENDENCIES = (
 UNIT_TEST_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
+UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "asyncmock",
@@ -93,6 +94,7 @@ nox.options.sessions = [
     "unit_ray",
     "unit_langchain",
     "unit_ag2",
+    "unit_llama_index",
     "system",
     "cover",
     "lint",
@@ -208,6 +210,7 @@ def default(session):
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/vertex_ag2",
+        "--ignore=tests/unit/vertex_llama_index",
         "--ignore=tests/unit/architecture",
         os.path.join("tests", "unit"),
         *session.posargs,
@@ -327,6 +330,34 @@ def unit_ag2(session):
         "--cov-report=",
         "--cov-fail-under=0",
         os.path.join("tests", "unit", "vertex_ag2"),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS)
+def unit_llama_index(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(
+        CURRENT_DIRECTORY / "testing" / "constraints-llama-index.txt"
+    )
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install llama_index extras
+    session.install("-e", ".[llama_index_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_llama_index_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join("tests", "unit", "vertex_llama_index"),
         *session.posargs,
     )
 

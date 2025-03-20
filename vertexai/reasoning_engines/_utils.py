@@ -37,6 +37,13 @@ try:
 except ImportError:
     RunnableConfig = Any
 
+try:
+    from llama_index.core.base.response import schema as llama_index_schema
+
+    LlamaIndexResponse = llama_index_schema.Response
+except ImportError:
+    LlamaIndexResponse = Any
+
 JsonDict = Dict[str, Any]
 
 _LOGGER = base.Logger(__name__)
@@ -102,6 +109,18 @@ def dataclass_to_dict(obj: dataclasses.dataclass) -> JsonDict:
         dict[str, Any]: A dictionary containing the contents of the dataclass.
     """
     return json.loads(json.dumps(dataclasses.asdict(obj)))
+
+
+def llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
+    response = {}
+    if hasattr(obj, "response"):
+        response["response"] = obj.response
+    if hasattr(obj, "source_nodes"):
+        response["source_nodes"] = [node.model_dump_json() for node in obj.source_nodes]
+    if hasattr(obj, "metadata"):
+        response["metadata"] = obj.metadata
+
+    return json.loads(json.dumps(response))
 
 
 def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
@@ -381,6 +400,20 @@ def _import_openinference_autogen_or_warn() -> Optional[types.ModuleType]:
         _LOGGER.warning(
             "openinference-instrumentation-autogen is not installed. Please "
             "call 'pip install openinference-instrumentation-autogen'."
+        )
+    return None
+
+
+def _import_openinference_llama_index_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.llama_index module."""
+    try:
+        import openinference.instrumentation.llama_index  # noqa:F401
+
+        return openinference.instrumentation.llama_index
+    except ImportError:
+        _LOGGER.warning(
+            "openinference-instrumentation-llama_index is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[llama_index]'."
         )
     return None
 
