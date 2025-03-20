@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,6 +84,22 @@ class DatasetServiceRestInterceptor:
 
     .. code-block:: python
         class MyCustomDatasetServiceInterceptor(DatasetServiceRestInterceptor):
+            def pre_assemble_data(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_assemble_data(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
+            def pre_assess_data(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_assess_data(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_create_dataset(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -241,6 +257,102 @@ class DatasetServiceRestInterceptor:
 
 
     """
+
+    def pre_assemble_data(
+        self,
+        request: dataset_service.AssembleDataRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.AssembleDataRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Pre-rpc interceptor for assemble_data
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the DatasetService server.
+        """
+        return request, metadata
+
+    def post_assemble_data(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for assemble_data
+
+        DEPRECATED. Please use the `post_assemble_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the DatasetService server but before
+        it is returned to user code. This `post_assemble_data` interceptor runs
+        before the `post_assemble_data_with_metadata` interceptor.
+        """
+        return response
+
+    def post_assemble_data_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for assemble_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_assemble_data_with_metadata`
+        interceptor in new development instead of the `post_assemble_data` interceptor.
+        When both interceptors are used, this `post_assemble_data_with_metadata` interceptor runs after the
+        `post_assemble_data` interceptor. The (possibly modified) response returned by
+        `post_assemble_data` will be passed to
+        `post_assemble_data_with_metadata`.
+        """
+        return response, metadata
+
+    def pre_assess_data(
+        self,
+        request: dataset_service.AssessDataRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        dataset_service.AssessDataRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Pre-rpc interceptor for assess_data
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the DatasetService server.
+        """
+        return request, metadata
+
+    def post_assess_data(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for assess_data
+
+        DEPRECATED. Please use the `post_assess_data_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the DatasetService server but before
+        it is returned to user code. This `post_assess_data` interceptor runs
+        before the `post_assess_data_with_metadata` interceptor.
+        """
+        return response
+
+    def post_assess_data_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for assess_data
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the DatasetService server but before it is returned to user code.
+
+        We recommend only using this `post_assess_data_with_metadata`
+        interceptor in new development instead of the `post_assess_data` interceptor.
+        When both interceptors are used, this `post_assess_data_with_metadata` interceptor runs after the
+        `post_assess_data` interceptor. The (possibly modified) response returned by
+        `post_assess_data` will be passed to
+        `post_assess_data_with_metadata`.
+        """
+        return response, metadata
 
     def pre_create_dataset(
         self,
@@ -3591,6 +3703,318 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
         # Return the client from cache.
         return self._operations_client
 
+    class _AssembleData(
+        _BaseDatasetServiceRestTransport._BaseAssembleData, DatasetServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("DatasetServiceRestTransport.AssembleData")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: dataset_service.AssembleDataRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the assemble data method over HTTP.
+
+            Args:
+                request (~.dataset_service.AssembleDataRequest):
+                    The request object. Request message for
+                [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
+                Used only for MULTIMODAL datasets.
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseDatasetServiceRestTransport._BaseAssembleData._get_http_options()
+            )
+
+            request, metadata = self._interceptor.pre_assemble_data(request, metadata)
+            transcoded_request = _BaseDatasetServiceRestTransport._BaseAssembleData._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseDatasetServiceRestTransport._BaseAssembleData._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseDatasetServiceRestTransport._BaseAssembleData._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.DatasetServiceClient.AssembleData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.DatasetService",
+                        "rpcName": "AssembleData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = DatasetServiceRestTransport._AssembleData._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_assemble_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_assemble_data_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.DatasetServiceClient.assemble_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.DatasetService",
+                        "rpcName": "AssembleData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
+
+    class _AssessData(
+        _BaseDatasetServiceRestTransport._BaseAssessData, DatasetServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("DatasetServiceRestTransport.AssessData")
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: dataset_service.AssessDataRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the assess data method over HTTP.
+
+            Args:
+                request (~.dataset_service.AssessDataRequest):
+                    The request object. Request message for
+                [DatasetService.AssessData][google.cloud.aiplatform.v1beta1.DatasetService.AssessData].
+                Used only for MULTIMODAL datasets.
+                retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseDatasetServiceRestTransport._BaseAssessData._get_http_options()
+            )
+
+            request, metadata = self._interceptor.pre_assess_data(request, metadata)
+            transcoded_request = _BaseDatasetServiceRestTransport._BaseAssessData._get_transcoded_request(
+                http_options, request
+            )
+
+            body = (
+                _BaseDatasetServiceRestTransport._BaseAssessData._get_request_body_json(
+                    transcoded_request
+                )
+            )
+
+            # Jsonify the query params
+            query_params = (
+                _BaseDatasetServiceRestTransport._BaseAssessData._get_query_params_json(
+                    transcoded_request
+                )
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.DatasetServiceClient.AssessData",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.DatasetService",
+                        "rpcName": "AssessData",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = DatasetServiceRestTransport._AssessData._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            json_format.Parse(response.content, resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_assess_data(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = self._interceptor.post_assess_data_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.DatasetServiceClient.assess_data",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.DatasetService",
+                        "rpcName": "AssessData",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
+
     class _CreateDataset(
         _BaseDatasetServiceRestTransport._BaseCreateDataset, DatasetServiceRestStub
     ):
@@ -6477,6 +6901,22 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                 )
             return resp
+
+    @property
+    def assemble_data(
+        self,
+    ) -> Callable[[dataset_service.AssembleDataRequest], operations_pb2.Operation]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._AssembleData(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def assess_data(
+        self,
+    ) -> Callable[[dataset_service.AssessDataRequest], operations_pb2.Operation]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._AssessData(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def create_dataset(

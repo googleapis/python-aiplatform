@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1659,6 +1659,7 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
                 import_rag_files_config = aiplatform_v1.ImportRagFilesConfig()
                 import_rag_files_config.gcs_source.uris = ['uris_value1', 'uris_value2']
                 import_rag_files_config.partial_failure_gcs_sink.output_uri_prefix = "output_uri_prefix_value"
+                import_rag_files_config.import_result_gcs_sink.output_uri_prefix = "output_uri_prefix_value"
 
                 request = aiplatform_v1.ImportRagFilesRequest(
                     parent="parent_value",

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -224,6 +224,8 @@ from .types.endpoint_service import UpdateEndpointOperationMetadata
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
+from .types.env_var import SecretEnvVar
+from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
@@ -1821,6 +1823,8 @@ __all__ = (
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
     "SearchNearestEntitiesRequest",
     "SearchNearestEntitiesResponse",
+    "SecretEnvVar",
+    "SecretRef",
     "Segment",
     "ServiceAccountSpec",
     "SharePointSources",

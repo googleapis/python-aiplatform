@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -581,19 +581,28 @@ class VertexRagStore(proto.Message):
 
 
 class VertexAISearch(proto.Message):
-    r"""Retrieve from Vertex AI Search datastore for grounding.
-    See https://cloud.google.com/products/agent-builder
+    r"""Retrieve from Vertex AI Search datastore or engine for
+    grounding. datastore and engine are mutually exclusive. See
+    https://cloud.google.com/products/agent-builder
 
     Attributes:
         datastore (str):
-            Required. Fully-qualified Vertex AI Search data store
+            Optional. Fully-qualified Vertex AI Search data store
             resource ID. Format:
             ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}``
+        engine (str):
+            Optional. Fully-qualified Vertex AI Search engine resource
+            ID. Format:
+            ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}``
     """
 
     datastore: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    engine: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 

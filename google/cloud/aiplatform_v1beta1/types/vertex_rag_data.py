@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -992,6 +992,22 @@ class ImportRagFilesConfig(proto.Message):
             Deprecated. Prefer to use ``import_result_bq_sink``.
 
             This field is a member of `oneof`_ ``partial_failure_sink``.
+        import_result_gcs_sink (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            The Cloud Storage path to write import result
+            to.
+
+            This field is a member of `oneof`_ ``import_result_sink``.
+        import_result_bigquery_sink (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
+            The BigQuery destination to write import
+            result to. It should be a bigquery table
+            resource name (e.g.
+            "bq://projectId.bqDatasetId.bqTableId"). The
+            dataset must exist. If the table does not exist,
+            it will be created with the expected schema. If
+            the table exists, the schema will be validated
+            and data will be added to this existing table.
+
+            This field is a member of `oneof`_ ``import_result_sink``.
         rag_file_chunking_config (google.cloud.aiplatform_v1beta1.types.RagFileChunkingConfig):
             Specifies the size and overlap of chunks
             after importing RagFiles.
@@ -1053,6 +1069,18 @@ class ImportRagFilesConfig(proto.Message):
         proto.MESSAGE,
         number=12,
         oneof="partial_failure_sink",
+        message=io.BigQueryDestination,
+    )
+    import_result_gcs_sink: io.GcsDestination = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        oneof="import_result_sink",
+        message=io.GcsDestination,
+    )
+    import_result_bigquery_sink: io.BigQueryDestination = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        oneof="import_result_sink",
         message=io.BigQueryDestination,
     )
     rag_file_chunking_config: "RagFileChunkingConfig" = proto.Field(

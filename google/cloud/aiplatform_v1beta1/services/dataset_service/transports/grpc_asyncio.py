@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -878,7 +878,7 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
     ]:
         r"""Return a callable for the list annotations method over gRPC.
 
-        Lists Annotations belongs to a dataitem
+        Lists Annotations belongs to a dataitem.
 
         Returns:
             Callable[[~.ListAnnotationsRequest],
@@ -897,6 +897,64 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
                 response_deserializer=dataset_service.ListAnnotationsResponse.deserialize,
             )
         return self._stubs["list_annotations"]
+
+    @property
+    def assess_data(
+        self,
+    ) -> Callable[
+        [dataset_service.AssessDataRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the assess data method over gRPC.
+
+        Assesses the state or validity of the dataset with
+        respect to a given use case.
+
+        Returns:
+            Callable[[~.AssessDataRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "assess_data" not in self._stubs:
+            self._stubs["assess_data"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/AssessData",
+                request_serializer=dataset_service.AssessDataRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["assess_data"]
+
+    @property
+    def assemble_data(
+        self,
+    ) -> Callable[
+        [dataset_service.AssembleDataRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the assemble data method over gRPC.
+
+        Assembles each row of a multimodal dataset and writes
+        the result into a BigQuery table.
+
+        Returns:
+            Callable[[~.AssembleDataRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "assemble_data" not in self._stubs:
+            self._stubs["assemble_data"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/AssembleData",
+                request_serializer=dataset_service.AssembleDataRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["assemble_data"]
 
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
@@ -994,6 +1052,16 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
             self.list_annotations: self._wrap_method(
                 self.list_annotations,
                 default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.assess_data: self._wrap_method(
+                self.assess_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.assemble_data: self._wrap_method(
+                self.assemble_data,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.get_location: self._wrap_method(
