@@ -32,6 +32,7 @@ from vertexai.agent_engines._agent_engines import (
     Queryable,
     StreamQueryable,
 )
+from vertexai.agent_engines.templates.adk import ADKApp
 from vertexai.agent_engines.templates.ag2 import (
     AG2Agent,
 )
@@ -287,4 +288,5 @@ __all__ = (
     "LangchainAgent",
     "LanggraphAgent",
     "AG2Agent",
+    "ADKApp",
 )
