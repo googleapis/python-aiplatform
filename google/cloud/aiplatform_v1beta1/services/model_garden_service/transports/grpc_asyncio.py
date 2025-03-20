@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -466,6 +466,36 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
             )
         return self._stubs["deploy_publisher_model"]
 
+    @property
+    def export_publisher_model(
+        self,
+    ) -> Callable[
+        [model_garden_service.ExportPublisherModelRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the export publisher model method over gRPC.
+
+        Exports a publisher model to a user provided Google
+        Cloud Storage bucket.
+
+        Returns:
+            Callable[[~.ExportPublisherModelRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "export_publisher_model" not in self._stubs:
+            self._stubs["export_publisher_model"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelGardenService/ExportPublisherModel",
+                request_serializer=model_garden_service.ExportPublisherModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["export_publisher_model"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -486,6 +516,11 @@ class ModelGardenServiceGrpcAsyncIOTransport(ModelGardenServiceTransport):
             ),
             self.deploy_publisher_model: self._wrap_method(
                 self.deploy_publisher_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.export_publisher_model: self._wrap_method(
+                self.export_publisher_model,
                 default_timeout=None,
                 client_info=client_info,
             ),
