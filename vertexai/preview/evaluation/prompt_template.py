@@ -66,11 +66,16 @@ class PromptTemplate:
         Returns:
             A new PromptTemplate instance with the updated template string.
         """
-        replaced_values = {
-            key: kwargs.get(key, "{" + key + "}") for key in self.variables
-        }
-        new_template = self.template.format(**replaced_values)
-        return PromptTemplate(new_template)
+        assembled_string = self.template
+        for variable_name, value in kwargs.items():
+            if variable_name not in self.variables:
+                raise ValueError(
+                    f"Invalid variable name '{variable_name}'. "
+                    f"Valid variables are: {self.variables}"
+                )
+            placeholder = "{" + variable_name + "}"
+            assembled_string = assembled_string.replace(placeholder, str(value))
+        return PromptTemplate(assembled_string)
 
     def __str__(self) -> str:
         """Returns the template string."""
