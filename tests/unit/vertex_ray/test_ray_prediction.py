@@ -79,12 +79,15 @@ def save_tf_model():
 
 @pytest.fixture()
 def ray_sklearn_checkpoint():
-    estimator = test_prediction_utils.get_sklearn_estimator()
-    temp_dir = tempfile.mkdtemp()
-    checkpoint = ray.train.sklearn.SklearnCheckpoint.from_estimator(
-        estimator, path=temp_dir
-    )
-    return checkpoint
+    if ray.__version__ >= "2.42.0":
+        return None
+    else:
+        estimator = test_prediction_utils.get_sklearn_estimator()
+        temp_dir = tempfile.mkdtemp()
+        checkpoint = ray.train.sklearn.SklearnCheckpoint.from_estimator(
+            estimator, path=temp_dir
+        )
+        return checkpoint
 
 
 @pytest.fixture()
@@ -274,6 +277,7 @@ class TestPredictionFunctionality:
 
     # Sklearn Tests
     @tc.rovminversion
+    @tc.predictionrayversion
     def test_convert_checkpoint_to_sklearn_raise_exception(
         self, ray_checkpoint_from_dict
     ) -> None:
@@ -288,6 +292,7 @@ class TestPredictionFunctionality:
         )
 
     @tc.rovminversion
+    @tc.predictionrayversion
     def test_convert_checkpoint_to_sklearn_model_succeed(
         self, ray_sklearn_checkpoint
     ) -> None:
@@ -303,6 +308,7 @@ class TestPredictionFunctionality:
         assert y_pred[0] is not None
 
     @tc.rovminversion
+    @tc.predictionrayversion
     def test_register_sklearn_succeed(
         self,
         ray_sklearn_checkpoint,
@@ -327,6 +333,7 @@ class TestPredictionFunctionality:
         gcs_utils_upload_to_gcs.assert_called_once()
 
     @tc.rovminversion
+    @tc.predictionrayversion
     def test_register_sklearn_initialized_succeed(
         self,
         ray_sklearn_checkpoint,
