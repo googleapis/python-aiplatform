@@ -259,6 +259,9 @@ from .types.evaluation_service import CometInput
 from .types.evaluation_service import CometInstance
 from .types.evaluation_service import CometResult
 from .types.evaluation_service import CometSpec
+from .types.evaluation_service import ContentMap
+from .types.evaluation_service import CustomOutput
+from .types.evaluation_service import CustomOutputFormatConfig
 from .types.evaluation_service import EvaluateDatasetOperationMetadata
 from .types.evaluation_service import EvaluateDatasetRequest
 from .types.evaluation_service import EvaluateDatasetResponse
@@ -321,11 +324,17 @@ from .types.evaluation_service import QuestionAnsweringRelevanceInput
 from .types.evaluation_service import QuestionAnsweringRelevanceInstance
 from .types.evaluation_service import QuestionAnsweringRelevanceResult
 from .types.evaluation_service import QuestionAnsweringRelevanceSpec
+from .types.evaluation_service import RawOutput
 from .types.evaluation_service import RougeInput
 from .types.evaluation_service import RougeInstance
 from .types.evaluation_service import RougeMetricValue
 from .types.evaluation_service import RougeResults
 from .types.evaluation_service import RougeSpec
+from .types.evaluation_service import RubricBasedInstructionFollowingInput
+from .types.evaluation_service import RubricBasedInstructionFollowingInstance
+from .types.evaluation_service import RubricBasedInstructionFollowingResult
+from .types.evaluation_service import RubricBasedInstructionFollowingSpec
+from .types.evaluation_service import RubricCritiqueResult
 from .types.evaluation_service import SafetyInput
 from .types.evaluation_service import SafetyInstance
 from .types.evaluation_service import SafetyResult
@@ -1322,6 +1331,7 @@ __all__ = (
     "ContainerRegistryDestination",
     "ContainerSpec",
     "Content",
+    "ContentMap",
     "Context",
     "CopyModelOperationMetadata",
     "CopyModelRequest",
@@ -1402,6 +1412,8 @@ __all__ = (
     "CsvSource",
     "CustomJob",
     "CustomJobSpec",
+    "CustomOutput",
+    "CustomOutputFormatConfig",
     "DataItem",
     "DataItemView",
     "DataLabelingJob",
@@ -2011,6 +2023,7 @@ __all__ = (
     "RagQuery",
     "RagRetrievalConfig",
     "RagVectorDbConfig",
+    "RawOutput",
     "RawPredictRequest",
     "RayLogsSpec",
     "RayMetricSpec",
@@ -2059,6 +2072,11 @@ __all__ = (
     "RougeMetricValue",
     "RougeResults",
     "RougeSpec",
+    "RubricBasedInstructionFollowingInput",
+    "RubricBasedInstructionFollowingInstance",
+    "RubricBasedInstructionFollowingResult",
+    "RubricBasedInstructionFollowingSpec",
+    "RubricCritiqueResult",
     "RuntimeArtifact",
     "RuntimeConfig",
     "SafetyInput",
