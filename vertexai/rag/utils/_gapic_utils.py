@@ -407,6 +407,20 @@ def prepare_import_files_request(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
 
+    if partial_failures_sink is not None:
+        if partial_failures_sink.startswith("gs://"):
+            import_rag_files_config.partial_failure_gcs_sink.output_uri_prefix = (
+                partial_failures_sink
+            )
+        elif partial_failures_sink.startswith("bq://"):
+            import_rag_files_config.partial_failure_bigquery_sink.output_uri = (
+                partial_failures_sink
+            )
+        else:
+            raise ValueError(
+                "partial_failures_sink must be a GCS path or a BigQuery table."
+            )
+
     if source is not None:
         gapic_source = convert_source_for_rag_import(source)
         if isinstance(gapic_source, GapicSlackSource):
