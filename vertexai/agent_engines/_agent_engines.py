@@ -151,7 +151,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
-        agent_engine: Union[Queryable, OperationRegistrable],
+        agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
         *,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -197,7 +197,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             agent_engine (AgentEngineInterface):
-                Required. The Agent Engine to be created.
+                Optional. The Agent Engine to be created.
             requirements (Union[str, Sequence[str]]):
                 Optional. The set of PyPI dependencies needed. It can either be
                 the path to a single file (requirements.txt), or an ordered list
@@ -222,6 +222,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             ValueError: If the `location` was not set using `vertexai.init`.
             ValueError: If the `staging_bucket` was not set using vertexai.init.
             ValueError: If the `staging_bucket` does not start with "gs://".
+            ValueError: If `extra_packages` is specified but `agent_engine` is None.
+            ValueError: If `requirements` is specified but `agent_engine` is None.
             FileNotFoundError: If `extra_packages` includes a file or directory
             that does not exist.
             IOError: If requirements is a string that corresponds to a
@@ -229,7 +231,13 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         """
         sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         _validate_sys_version_or_raise(sys_version)
-        agent_engine = _validate_agent_engine_or_raise(agent_engine)
+        if agent_engine is not None:
+            agent_engine = _validate_agent_engine_or_raise(agent_engine)
+        if agent_engine is None:
+            if requirements is not None:
+                raise ValueError("requirements must be None if agent_engine is None.")
+            if extra_packages is not None:
+                raise ValueError("extra_packages must be None if agent_engine is None.")
         requirements = _validate_requirements_or_raise(agent_engine, requirements)
         extra_packages = _validate_extra_packages_or_raise(extra_packages)
         gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
@@ -251,43 +259,45 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             gcs_dir_name=gcs_dir_name,
             extra_packages=extra_packages,
         )
-        # Update the package spec.
-        package_spec = aip_types.ReasoningEngineSpec.PackageSpec(
-            python_version=sys_version,
-            pickle_object_gcs_uri="{}/{}/{}".format(
-                staging_bucket,
-                gcs_dir_name,
-                _BLOB_FILENAME,
-            ),
+        reasoning_engine = aip_types.ReasoningEngine(
+            display_name=display_name,
+            description=description,
         )
-        if extra_packages:
-            package_spec.dependency_files_gcs_uri = "{}/{}/{}".format(
-                staging_bucket,
-                gcs_dir_name,
-                _EXTRA_PACKAGES_FILE,
+        if agent_engine is not None:
+            # Update the package spec.
+            package_spec = aip_types.ReasoningEngineSpec.PackageSpec(
+                python_version=sys_version,
+                pickle_object_gcs_uri="{}/{}/{}".format(
+                    staging_bucket,
+                    gcs_dir_name,
+                    _BLOB_FILENAME,
+                ),
             )
-        if requirements:
-            package_spec.requirements_gcs_uri = "{}/{}/{}".format(
-                staging_bucket,
-                gcs_dir_name,
-                _REQUIREMENTS_FILE,
+            if extra_packages:
+                package_spec.dependency_files_gcs_uri = "{}/{}/{}".format(
+                    staging_bucket,
+                    gcs_dir_name,
+                    _EXTRA_PACKAGES_FILE,
+                )
+            if requirements:
+                package_spec.requirements_gcs_uri = "{}/{}/{}".format(
+                    staging_bucket,
+                    gcs_dir_name,
+                    _REQUIREMENTS_FILE,
+                )
+            agent_engine_spec = aip_types.ReasoningEngineSpec(
+                package_spec=package_spec,
             )
-        agent_engine_spec = aip_types.ReasoningEngineSpec(
-            package_spec=package_spec,
-        )
-        class_methods_spec = _generate_class_methods_spec_or_raise(
-            agent_engine, _get_registered_operations(agent_engine)
-        )
-        agent_engine_spec.class_methods.extend(class_methods_spec)
+            class_methods_spec = _generate_class_methods_spec_or_raise(
+                agent_engine, _get_registered_operations(agent_engine)
+            )
+            agent_engine_spec.class_methods.extend(class_methods_spec)
+            reasoning_engine.spec = agent_engine_spec
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
             ),
-            reasoning_engine=aip_types.ReasoningEngine(
-                display_name=display_name,
-                description=description,
-                spec=agent_engine_spec,
-            ),
+            reasoning_engine=reasoning_engine,
         )
         _LOGGER.log_create_with_lro(cls, operation_future)
         _LOGGER.info(
@@ -309,10 +319,11 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             credentials=sdk_resource.credentials,
             location_override=sdk_resource.location,
         )
-        try:
-            _register_api_methods_or_raise(sdk_resource)
-        except Exception as e:
-            _LOGGER.warning("Failed to register API methods: {%s}", e)
+        if agent_engine is not None:
+            try:
+                _register_api_methods_or_raise(sdk_resource)
+            except Exception as e:
+                _LOGGER.warning("Failed to register API methods: {%s}", e)
         sdk_resource._operation_schemas = None
         return sdk_resource
 
