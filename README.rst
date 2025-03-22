@@ -5,11 +5,29 @@ Vertex AI SDK for Python
 Gemini API and Generative AI on Vertex AI
 -----------------------------------------
 
-.. note::
+> [!IMPORTANT]
 
-   For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
+> For Gemini API and Generative AI on Vertex AI, please reference `Vertex Generative AI SDK for Python`_
 .. _Vertex Generative AI SDK for Python: https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest
+From Gemini 2.0 onwards this SDK will no longer be developing new Gemini API
+features. Any new Gemini API code should be written using the new SDK, `google-genai` ([github](https://github.com/googleapis/python-genai), [pypi](https://pypi.org/project/google-genai/)). See the migration guide below to upgrade to the new SDK.
 
+# Upgrade the Google GenAI SDK for Python
+
+With Gemini 2 we are offering a [new SDK](https://github.com/googleapis/python-genai)
+([google-genai](https://pypi.org/project/google-genai/)). The updated SDK is fully compatible with all Gemini API models and features, including recent additions like the [live API](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/multimodal-live#get-started) (audio + video streaming), improved tool usage (
+[code execution](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/code-execution#googlegenaisdk_tools_code_exec_with_txt-python_genai_sdk),
+[function calling](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling#examples_of_function_calling) and integrated
+[Google search grounding](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/ground-with-google-search#googlegenaisdk_tools_google_search_with_txt-python_genai_sdk)),
+and media generation ([Imagen](https://cloud.google.com/vertex-ai/generative-ai/docs/image/overview)).
+This SDK allows you to connect to the Gemini API through either
+[Google AI Studio](https://aistudio.google.com/prompts/new_chat?model=gemini-2.0-flash-exp) or
+[Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/gemini-v2).
+
+The [google-cloud-aiplatform](https://pypi.org/project/google-cloud-aiplatform)
+package will continue to support the original Gemini models and Vertex AI services.
+It <em>can</em> also be used with Gemini 2 models, just with a limited feature
+set. All new Gemini 2 features will be developed in the new Google GenAI SDK.
 -----------------------------------------
 
 |GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
