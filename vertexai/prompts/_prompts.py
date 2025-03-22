@@ -169,6 +169,7 @@ class Prompt:
         self._prompt_name = None
         self._version_id = None
         self._version_name = None
+        self._used_prompt_management = None
 
         self.prompt_data = prompt_data
         self.variables = variables if variables else [{}]
@@ -610,6 +611,12 @@ class Prompt:
         model = GenerativeModel(
             model_name=model_name, system_instruction=system_instruction
         )
+
+        if self._used_prompt_management:
+            # Want to update `appended_gapic_version` field here with the
+            # boolean value...
+            print("Branch CL generate_content AFTER _used_prompt_management")
+
         return model.generate_content(
             contents=contents,
             generation_config=generation_config,
