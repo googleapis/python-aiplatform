@@ -473,6 +473,8 @@ class GenerationConfig(proto.Message):
             Optional. The speech generation config.
 
             This field is a member of `oneof`_ ``_speech_config``.
+        model_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ModelConfig):
+            Optional. Config for model selection.
     """
 
     class Modality(proto.Enum):
@@ -609,6 +611,38 @@ class GenerationConfig(proto.Message):
             message="GenerationConfig.RoutingConfig.ManualRoutingMode",
         )
 
+    class ModelConfig(proto.Message):
+        r"""Config for model selection.
+
+        Attributes:
+            feature_selection_preference (google.cloud.aiplatform_v1beta1.types.GenerationConfig.ModelConfig.FeatureSelectionPreference):
+                Required. Feature selection preference.
+        """
+
+        class FeatureSelectionPreference(proto.Enum):
+            r"""Options for feature selection preference.
+
+            Values:
+                FEATURE_SELECTION_PREFERENCE_UNSPECIFIED (0):
+                    Unspecified feature selection preference.
+                PRIORITIZE_QUALITY (1):
+                    Prefer higher quality over lower cost.
+                BALANCED (2):
+                    Balanced feature selection preference.
+                PRIORITIZE_COST (3):
+                    Prefer lower cost over higher quality.
+            """
+            FEATURE_SELECTION_PREFERENCE_UNSPECIFIED = 0
+            PRIORITIZE_QUALITY = 1
+            BALANCED = 2
+            PRIORITIZE_COST = 3
+
+        feature_selection_preference: "GenerationConfig.ModelConfig.FeatureSelectionPreference" = proto.Field(
+            proto.ENUM,
+            number=1,
+            enum="GenerationConfig.ModelConfig.FeatureSelectionPreference",
+        )
+
     temperature: float = proto.Field(
         proto.FLOAT,
         number=1,
@@ -700,6 +734,11 @@ class GenerationConfig(proto.Message):
         number=23,
         optional=True,
         message="SpeechConfig",
+    )
+    model_config: ModelConfig = proto.Field(
+        proto.MESSAGE,
+        number=27,
+        message=ModelConfig,
     )
 
 
