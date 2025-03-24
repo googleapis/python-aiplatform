@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 import sys
 
 from google.cloud.aiplatform.vertex_ray.bigquery_datasource import (
-    BigQueryDatasource,
+    _BigQueryDatasource,
 )
 from google.cloud.aiplatform.vertex_ray.client_builder import (
     VertexRayClientBuilder as ClientBuilder,
@@ -44,13 +44,13 @@ from google.cloud.aiplatform.vertex_ray.dashboard_sdk import (
     get_job_submission_client_cluster_info,
 )
 
-if sys.version_info[1] != 10:
+if sys.version_info[1] not in (10, 11):
     print(
-        "[Ray on Vertex]: The client environment with Python version 3.10 is required."
+        "[Ray on Vertex]: The client environment with Python version 3.10 or 3.11 is required."
     )
 
 __all__ = (
-    "BigQueryDatasource",
+    "_BigQueryDatasource",
     "data",
     "ClientBuilder",
     "get_job_submission_client_cluster_info",
