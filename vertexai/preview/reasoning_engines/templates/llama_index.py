@@ -80,7 +80,7 @@ def _default_runnable_builder(
     system_instruction: Optional[str] = None,
     prompt: Optional["QueryComponent"] = None,
     retriever: Optional["QueryComponent"] = None,
-    summarizer: Optional["QueryComponent"] = None,
+    response_synthesizer: Optional["QueryComponent"] = None,
     runnable_kwargs: Optional[Mapping[str, Any]] = None,
 ) -> "QueryPipeline":
     """Creates a default runnable builder for LlamaIndex."""
@@ -101,17 +101,17 @@ def _default_runnable_builder(
     }
     if retriever:
         pipeline_modules["retriever"] = retriever
-    if summarizer:
-        pipeline_modules["summarizer"] = summarizer
+    if response_synthesizer:
+        pipeline_modules["response_synthesizer"] = response_synthesizer
 
     pipeline.add_modules(pipeline_modules)
     pipeline.add_link("prompt", "model")
     if "retriever" in pipeline_modules:
         pipeline.add_link("model", "retriever")
-    if "summarizer" in pipeline_modules:
-        pipeline.add_link("model", "summarizer", dest_key="query_str")
+    if "response_synthesizer" in pipeline_modules:
+        pipeline.add_link("model", "response_synthesizer", dest_key="query_str")
         if "retriever" in pipeline_modules:
-            pipeline.add_link("retriever", "summarizer", dest_key="nodes")
+            pipeline.add_link("retriever", "response_synthesizer", dest_key="nodes")
 
     return pipeline
 
@@ -199,8 +199,8 @@ class LlamaIndexQueryPipelineAgent:
         model_builder: Optional[Callable[..., "FunctionCallingLLM"]] = None,
         retriever_kwargs: Optional[Mapping[str, Any]] = None,
         retriever_builder: Optional[Callable[..., "QueryComponent"]] = None,
-        summarizer_kwargs: Optional[Mapping[str, Any]] = None,
-        summarizer_builder: Optional[Callable[..., "QueryComponent"]] = None,
+        response_synthesizer_kwargs: Optional[Mapping[str, Any]] = None,
+        response_synthesizer_builder: Optional[Callable[..., "QueryComponent"]] = None,
         runnable_kwargs: Optional[Mapping[str, Any]] = None,
         runnable_builder: Optional[Callable[..., "QueryPipeline"]] = None,
         enable_tracing: bool = False,
@@ -217,7 +217,9 @@ class LlamaIndexQueryPipelineAgent:
             prompt=prompt,
             model=model,
             retriever=retriever_builder(model, retriever_kwargs),
-            summarizer=summarizer_builder(model, summarizer_kwargs),
+            response_synthesizer=response_synthesizer_builder(
+                model, response_synthesizer_kwargs
+            ),
             runnable_kwargs=runnable_kwargs,
         )
         ```
@@ -280,13 +282,15 @@ class LlamaIndexQueryPipelineAgent:
                 "prompt": prompt,
                 "model": model,
                 "retriever": retriever_builder(retriever_kwargs),
-                "summarizer": summarizer_builder(summarizer_kwargs),
+                "response_synthesizer": response_synthesizer_builder(
+                    response_synthesizer_kwargs
+                ),
             },
         )
         pipeline.add_link("prompt", "model")
         pipeline.add_link("model", "retriever")
-        pipeline.add_link("model", "summarizer", dest_key="query_str")
-        pipeline.add_link("retriever", "summarizer", dest_key="nodes")
+        pipeline.add_link("model", "response_synthesizer", dest_key="query_str")
+        pipeline.add_link("retriever", "response_synthesizer", dest_key="nodes")
         ```
 
         Args:
@@ -329,10 +333,10 @@ class LlamaIndexQueryPipelineAgent:
                 Optional. Keyword arguments for the retriever constructor.
             retriever_builder (Callable):
                 Optional. Callable that returns a retriever object.
-            summarizer_kwargs (Mapping[str, Any]):
-                Optional. Keyword arguments for the summarizer constructor.
-            summarizer_builder (Callable):
-                Optional. Callable that returns a summarizer object.
+            response_synthesizer_kwargs (Mapping[str, Any]):
+                Optional. Keyword arguments for the response synthesizer constructor.
+            response_synthesizer_builder (Callable):
+                Optional. Callable that returns a response_synthesizer object.
             runnable_kwargs (Mapping[str, Any]):
                 Optional. Keyword arguments for the runnable constructor.
             runnable_builder (Callable):
@@ -356,9 +360,9 @@ class LlamaIndexQueryPipelineAgent:
         self._retriever_kwargs = retriever_kwargs or {}
         self._retriever_builder = retriever_builder
 
-        self._summarizer = None
-        self._summarizer_kwargs = summarizer_kwargs or {}
-        self._summarizer_builder = summarizer_builder
+        self._response_synthesizer = None
+        self._response_synthesizer_kwargs = response_synthesizer_kwargs or {}
+        self._response_synthesizer_builder = response_synthesizer_builder
 
         self._runnable = None
         self._runnable_kwargs = runnable_kwargs or {}
@@ -371,7 +375,7 @@ class LlamaIndexQueryPipelineAgent:
         """Sets up the agent for execution of queries at runtime.
 
         It initializes the model, connects it with the prompt template,
-        retriever and summarizer.
+        retriever and response_synthesizer.
 
         This method should not be called for an object that being passed to
         the ReasoningEngine service for deployment, as it initializes clients
@@ -478,10 +482,10 @@ class LlamaIndexQueryPipelineAgent:
                 retriever_kwargs=self._retriever_kwargs,
             )
 
-        if self._summarizer_builder:
-            self._summarizer = self._summarizer_builder(
+        if self._response_synthesizer_builder:
+            self._response_synthesizer = self._response_synthesizer_builder(
                 model=self._model,
-                summarizer_kwargs=self._summarizer_kwargs,
+                response_synthesizer_kwargs=self._response_synthesizer_kwargs,
             )
 
         runnable_builder = self._runnable_builder or _default_runnable_builder
@@ -490,7 +494,7 @@ class LlamaIndexQueryPipelineAgent:
             model=self._model,
             system_instruction=self._system_instruction,
             retriever=self._retriever,
-            summarizer=self._summarizer,
+            response_synthesizer=self._response_synthesizer,
             runnable_kwargs=self._runnable_kwargs,
         )
 
@@ -506,8 +510,10 @@ class LlamaIndexQueryPipelineAgent:
             model_builder=self._model_builder,
             retriever_kwargs=copy.deepcopy(self._retriever_kwargs),
             retriever_builder=self._retriever_builder,
-            summarizer_kwargs=copy.deepcopy(self._summarizer_kwargs),
-            summarizer_builder=self._summarizer_builder,
+            response_synthesizer_kwargs=copy.deepcopy(
+                self._response_synthesizer_kwargs
+            ),
+            response_synthesizer_builder=self._response_synthesizer_builder,
             runnable_kwargs=copy.deepcopy(self._runnable_kwargs),
             runnable_builder=self._runnable_builder,
             enable_tracing=self._enable_tracing,
