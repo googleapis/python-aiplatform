@@ -1125,6 +1125,25 @@ from .service_networking import (
     PSCAutomationConfig,
     PscInterfaceConfig,
 )
+from .session import (
+    EventActions,
+    EventMetadata,
+    Session,
+    SessionEvent,
+)
+from .session_service import (
+    AppendEventRequest,
+    AppendEventResponse,
+    CreateSessionOperationMetadata,
+    CreateSessionRequest,
+    DeleteSessionRequest,
+    GetSessionRequest,
+    ListEventsRequest,
+    ListEventsResponse,
+    ListSessionsRequest,
+    ListSessionsResponse,
+    UpdateSessionRequest,
+)
 from .specialist_pool import (
     SpecialistPool,
 )
@@ -2241,6 +2260,21 @@ __all__ = (
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
     "PscInterfaceConfig",
+    "EventActions",
+    "EventMetadata",
+    "Session",
+    "SessionEvent",
+    "AppendEventRequest",
+    "AppendEventResponse",
+    "CreateSessionOperationMetadata",
+    "CreateSessionRequest",
+    "DeleteSessionRequest",
+    "GetSessionRequest",
+    "ListEventsRequest",
+    "ListEventsResponse",
+    "ListSessionsRequest",
+    "ListSessionsResponse",
+    "UpdateSessionRequest",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",

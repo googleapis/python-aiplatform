@@ -94,6 +94,8 @@ from .services.reasoning_engine_service import ReasoningEngineServiceClient
 from .services.reasoning_engine_service import ReasoningEngineServiceAsyncClient
 from .services.schedule_service import ScheduleServiceClient
 from .services.schedule_service import ScheduleServiceAsyncClient
+from .services.session_service import SessionServiceClient
+from .services.session_service import SessionServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 from .services.tensorboard_service import TensorboardServiceClient
@@ -1013,6 +1015,21 @@ from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
 from .types.service_networking import PscInterfaceConfig
+from .types.session import EventActions
+from .types.session import EventMetadata
+from .types.session import Session
+from .types.session import SessionEvent
+from .types.session_service import AppendEventRequest
+from .types.session_service import AppendEventResponse
+from .types.session_service import CreateSessionOperationMetadata
+from .types.session_service import CreateSessionRequest
+from .types.session_service import DeleteSessionRequest
+from .types.session_service import GetSessionRequest
+from .types.session_service import ListEventsRequest
+from .types.session_service import ListEventsResponse
+from .types.session_service import ListSessionsRequest
+from .types.session_service import ListSessionsResponse
+from .types.session_service import UpdateSessionRequest
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -1225,6 +1242,7 @@ __all__ = (
     "ReasoningEngineExecutionServiceAsyncClient",
     "ReasoningEngineServiceAsyncClient",
     "ScheduleServiceAsyncClient",
+    "SessionServiceAsyncClient",
     "SpecialistPoolServiceAsyncClient",
     "TensorboardServiceAsyncClient",
     "VertexRagDataServiceAsyncClient",
@@ -1242,6 +1260,8 @@ __all__ = (
     "Annotation",
     "AnnotationSpec",
     "ApiAuth",
+    "AppendEventRequest",
+    "AppendEventResponse",
     "Artifact",
     "ArtifactTypeSchema",
     "AssembleDataOperationMetadata",
@@ -1397,6 +1417,8 @@ __all__ = (
     "CreateReasoningEngineRequest",
     "CreateRegistryFeatureOperationMetadata",
     "CreateScheduleRequest",
+    "CreateSessionOperationMetadata",
+    "CreateSessionRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
     "CreateStudyRequest",
@@ -1467,6 +1489,7 @@ __all__ = (
     "DeleteReasoningEngineRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
+    "DeleteSessionRequest",
     "DeleteSpecialistPoolRequest",
     "DeleteStudyRequest",
     "DeleteTensorboardExperimentRequest",
@@ -1524,6 +1547,8 @@ __all__ = (
     "EvaluationDataset",
     "EvaluationServiceClient",
     "Event",
+    "EventActions",
+    "EventMetadata",
     "ExactMatchInput",
     "ExactMatchInstance",
     "ExactMatchMetricValue",
@@ -1670,6 +1695,7 @@ __all__ = (
     "GetRagFileRequest",
     "GetReasoningEngineRequest",
     "GetScheduleRequest",
+    "GetSessionRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
     "GetTensorboardExperimentRequest",
@@ -1747,6 +1773,8 @@ __all__ = (
     "ListEndpointsResponse",
     "ListEntityTypesRequest",
     "ListEntityTypesResponse",
+    "ListEventsRequest",
+    "ListEventsResponse",
     "ListExecutionsRequest",
     "ListExecutionsResponse",
     "ListExtensionsRequest",
@@ -1821,6 +1849,8 @@ __all__ = (
     "ListSavedQueriesResponse",
     "ListSchedulesRequest",
     "ListSchedulesResponse",
+    "ListSessionsRequest",
+    "ListSessionsResponse",
     "ListSpecialistPoolsRequest",
     "ListSpecialistPoolsResponse",
     "ListStudiesRequest",
@@ -2115,6 +2145,9 @@ __all__ = (
     "SecretRef",
     "Segment",
     "ServiceAccountSpec",
+    "Session",
+    "SessionEvent",
+    "SessionServiceClient",
     "SharePointSources",
     "ShieldedVmConfig",
     "SlackSource",
@@ -2300,6 +2333,7 @@ __all__ = (
     "UpdateReasoningEngineOperationMetadata",
     "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",
+    "UpdateSessionRequest",
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
     "UpdateTensorboardExperimentRequest",
