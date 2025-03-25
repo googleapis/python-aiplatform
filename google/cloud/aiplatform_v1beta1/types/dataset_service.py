@@ -1153,10 +1153,26 @@ class AssessDataRequest(proto.Message):
             resource usage assessment.
 
             This field is a member of `oneof`_ ``assessment_config``.
+        batch_prediction_validation_assessment_config (google.cloud.aiplatform_v1beta1.types.AssessDataRequest.BatchPredictionValidationAssessmentConfig):
+            Optional. Configuration for the batch
+            prediction validation assessment.
+
+            This field is a member of `oneof`_ ``assessment_config``.
+        batch_prediction_resource_usage_assessment_config (google.cloud.aiplatform_v1beta1.types.AssessDataRequest.BatchPredictionResourceUsageAssessmentConfig):
+            Optional. Configuration for the batch
+            prediction resource usage assessment.
+
+            This field is a member of `oneof`_ ``assessment_config``.
         gemini_template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
             Optional. Config for assembling templates
             with a Gemini API structure to assess assembled
             data.
+
+            This field is a member of `oneof`_ ``read_config``.
+        request_column_name (str):
+            Optional. The column name in the underlying
+            table that contains already fully assembled
+            requests.
 
             This field is a member of `oneof`_ ``read_config``.
         name (str):
@@ -1216,6 +1232,35 @@ class AssessDataRequest(proto.Message):
             number=1,
         )
 
+    class BatchPredictionValidationAssessmentConfig(proto.Message):
+        r"""Configuration for the batch prediction validation assessment.
+
+        Attributes:
+            model_name (str):
+                Required. The name of the model used for
+                batch prediction.
+        """
+
+        model_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    class BatchPredictionResourceUsageAssessmentConfig(proto.Message):
+        r"""Configuration for the batch prediction resource usage
+        assessment.
+
+        Attributes:
+            model_name (str):
+                Required. The name of the model used for
+                batch prediction.
+        """
+
+        model_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
     tuning_validation_assessment_config: TuningValidationAssessmentConfig = proto.Field(
         proto.MESSAGE,
         number=2,
@@ -1230,11 +1275,28 @@ class AssessDataRequest(proto.Message):
             message=TuningResourceUsageAssessmentConfig,
         )
     )
+    batch_prediction_validation_assessment_config: BatchPredictionValidationAssessmentConfig = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="assessment_config",
+        message=BatchPredictionValidationAssessmentConfig,
+    )
+    batch_prediction_resource_usage_assessment_config: BatchPredictionResourceUsageAssessmentConfig = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        oneof="assessment_config",
+        message=BatchPredictionResourceUsageAssessmentConfig,
+    )
     gemini_template_config: "GeminiTemplateConfig" = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="read_config",
         message="GeminiTemplateConfig",
+    )
+    request_column_name: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="read_config",
     )
     name: str = proto.Field(
         proto.STRING,
@@ -1262,6 +1324,16 @@ class AssessDataResponse(proto.Message):
         tuning_resource_usage_assessment_result (google.cloud.aiplatform_v1beta1.types.AssessDataResponse.TuningResourceUsageAssessmentResult):
             Optional. The result of the tuning resource
             usage assessment.
+
+            This field is a member of `oneof`_ ``assessment_result``.
+        batch_prediction_validation_assessment_result (google.cloud.aiplatform_v1beta1.types.AssessDataResponse.BatchPredictionValidationAssessmentResult):
+            Optional. The result of the batch prediction
+            validation assessment.
+
+            This field is a member of `oneof`_ ``assessment_result``.
+        batch_prediction_resource_usage_assessment_result (google.cloud.aiplatform_v1beta1.types.AssessDataResponse.BatchPredictionResourceUsageAssessmentResult):
+            Optional. The result of the batch prediction
+            resource usage assessment.
 
             This field is a member of `oneof`_ ``assessment_result``.
     """
@@ -1300,6 +1372,30 @@ class AssessDataResponse(proto.Message):
             number=2,
         )
 
+    class BatchPredictionValidationAssessmentResult(proto.Message):
+        r"""The result of the batch prediction validation assessment."""
+
+    class BatchPredictionResourceUsageAssessmentResult(proto.Message):
+        r"""The result of the batch prediction resource usage assessment.
+
+        Attributes:
+            token_count (int):
+                Number of tokens in the batch prediction
+                dataset.
+            audio_token_count (int):
+                Number of audio tokens in the batch
+                prediction dataset.
+        """
+
+        token_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        audio_token_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
     tuning_validation_assessment_result: TuningValidationAssessmentResult = proto.Field(
         proto.MESSAGE,
         number=1,
@@ -1313,6 +1409,18 @@ class AssessDataResponse(proto.Message):
             oneof="assessment_result",
             message=TuningResourceUsageAssessmentResult,
         )
+    )
+    batch_prediction_validation_assessment_result: BatchPredictionValidationAssessmentResult = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="assessment_result",
+        message=BatchPredictionValidationAssessmentResult,
+    )
+    batch_prediction_resource_usage_assessment_result: BatchPredictionResourceUsageAssessmentResult = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="assessment_result",
+        message=BatchPredictionResourceUsageAssessmentResult,
     )
 
 
@@ -1475,6 +1583,10 @@ class AssembleDataRequest(proto.Message):
     [DatasetService.AssembleData][google.cloud.aiplatform.v1beta1.DatasetService.AssembleData].
     Used only for MULTIMODAL datasets.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -1482,6 +1594,13 @@ class AssembleDataRequest(proto.Message):
         gemini_template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
             Optional. Config for assembling templates
             with a Gemini API structure.
+
+            This field is a member of `oneof`_ ``read_config``.
+        request_column_name (str):
+            Optional. The column name in the underlying
+            table that contains already fully assembled
+            requests. If this field is set, the original
+            request will be copied to the output table.
 
             This field is a member of `oneof`_ ``read_config``.
         name (str):
@@ -1495,6 +1614,11 @@ class AssembleDataRequest(proto.Message):
         number=2,
         oneof="read_config",
         message="GeminiTemplateConfig",
+    )
+    request_column_name: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="read_config",
     )
     name: str = proto.Field(
         proto.STRING,

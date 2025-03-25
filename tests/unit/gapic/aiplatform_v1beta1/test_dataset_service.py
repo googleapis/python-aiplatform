@@ -8916,6 +8916,7 @@ def test_assess_data_non_empty_request_with_auto_populated_field():
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = dataset_service.AssessDataRequest(
+        request_column_name="request_column_name_value",
         name="name_value",
     )
 
@@ -8928,6 +8929,7 @@ def test_assess_data_non_empty_request_with_auto_populated_field():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == dataset_service.AssessDataRequest(
+            request_column_name="request_column_name_value",
             name="name_value",
         )
 
@@ -9161,6 +9163,7 @@ def test_assemble_data_non_empty_request_with_auto_populated_field():
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = dataset_service.AssembleDataRequest(
+        request_column_name="request_column_name_value",
         name="name_value",
     )
 
@@ -9173,6 +9176,7 @@ def test_assemble_data_non_empty_request_with_auto_populated_field():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         assert args[0] == dataset_service.AssembleDataRequest(
+            request_column_name="request_column_name_value",
             name="name_value",
         )
 
