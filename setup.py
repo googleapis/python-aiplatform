@@ -89,7 +89,7 @@ prediction_extra_require = [
     "uvicorn[standard] >= 0.16.0",
 ]
 
-endpoint_extra_require = ["requests >= 2.28.1"]
+endpoint_extra_require = ["requests >= 2.28.1", "requests-toolbelt <= 1.0.0"]
 
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
@@ -258,7 +258,7 @@ testing_extra_require = (
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0; python_version<='3.11'",
         "torch >= 2.2.0; python_version>'3.11'",
-        "requests-toolbelt < 1.0.0",
+        "requests-toolbelt <= 1.0.0",
         "immutabledict",
         "xgboost",
     ]
