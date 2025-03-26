@@ -2353,6 +2353,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction with returned predictions and Model ID.
+
+        Raises:
+            ImportError: If there is an issue importing the `TCPKeepAliveAdapter` package.
         """
         self.wait()
         if use_raw_predict:
@@ -2388,6 +2391,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "Please make sure endpoint has dedicated endpoint enabled"
                     "and model are ready before making a prediction."
                 )
+            try:
+                from requests_toolbelt.adapters.socket_options import (
+                    TCPKeepAliveAdapter,
+                )
+            except ImportError:
+                raise ImportError(
+                    "Cannot import the requests-toolbelt library. Please install requests-toolbelt."
+                )
 
             if not self.authorized_session:
                 self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
@@ -2400,6 +2411,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             }
 
             url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
+            # count * interval need to be larger than 1 hr (3600s)
+            keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+            self.authorized_session.mount("https://", keep_alive)
             response = self.authorized_session.post(
                 url=url,
                 data=json.dumps(
@@ -2546,6 +2560,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         Returns:
             A requests.models.Response object containing the status code and prediction results.
+
+        Raises:
+            ImportError: If there is an issue importing the `TCPKeepAliveAdapter` package.
         """
         if not self.authorized_session:
             self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
@@ -2559,6 +2576,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         url = self.raw_predict_request_url
 
         if use_dedicated_endpoint:
+            try:
+                from requests_toolbelt.adapters.socket_options import (
+                    TCPKeepAliveAdapter,
+                )
+            except ImportError:
+                raise ImportError(
+                    "Cannot import the requests-toolbelt library. Please install requests-toolbelt."
+                )
             self._sync_gca_resource_if_skipped()
             if (
                 not self._gca_resource.dedicated_endpoint_enabled
@@ -2570,6 +2595,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "and model are ready before making a prediction."
                 )
             url = f"https://{self._gca_resource.dedicated_endpoint_dns}/v1/{self.resource_name}:rawPredict"
+            # count * interval need to be larger than 1 hr (3600s)
+            keep_alive = TCPKeepAliveAdapter(idle=120, count=100, interval=100)
+            self.authorized_session.mount("https://", keep_alive)
+
         return self.authorized_session.post(
             url=url, data=body, headers=headers, timeout=timeout
         )
