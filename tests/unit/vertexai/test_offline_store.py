@@ -19,15 +19,19 @@ from typing import List, Optional
 from unittest import mock
 import pytest
 import sys
+from google import auth
 from vertexai.resources.preview.feature_store import (
     offline_store,
     FeatureGroup,
     Feature,
 )
 
-pytestmark = pytest.mark.skipif(
-    sys.version_info == (3, 8), reason="bigframes is not supported in Python 3.8"
-)
+pytestmark = [
+    pytest.mark.skipif(
+        sys.version_info < (3, 10), reason="bigframes is not supported in Python < 3.10"
+    ),
+    pytest.mark.usefixtures("google_auth_mock"),
+]
 
 try:
     import pandas as pd
@@ -131,7 +135,16 @@ import bigframes  # noqa: E402
 import bigframes.pandas as bpd  # noqa: E402
 
 
-pytestmark = pytest.mark.usefixtures("google_auth_mock")
+@pytest.fixture()
+def google_auth_mock():
+    with mock.patch.object(auth, "default") as google_auth_mock:
+        credentials_mock = mock.Mock()
+        credentials_mock.with_quota_project.return_value = None
+        google_auth_mock.return_value = (
+            credentials_mock,
+            "test-project",
+        )
+        yield google_auth_mock
 
 
 @pytest.fixture()
