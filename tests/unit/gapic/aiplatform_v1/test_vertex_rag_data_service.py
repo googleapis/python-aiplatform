@@ -7715,6 +7715,7 @@ def test_create_rag_corpus_rest_call_success(request_type):
                 }
             },
         },
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7940,6 +7941,7 @@ def test_update_rag_corpus_rest_call_success(request_type):
                 }
             },
         },
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10076,6 +10078,7 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
                 }
             },
         },
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -10317,6 +10320,7 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
                 }
             },
         },
+        "vertex_ai_search_config": {"serving_config": "serving_config_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

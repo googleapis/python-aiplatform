@@ -1108,6 +1108,7 @@ from .vertex_rag_data import (
     RagFileTransformationConfig,
     RagVectorDbConfig,
     UploadRagFileConfig,
+    VertexAiSearchConfig,
 )
 from .vertex_rag_data_service import (
     CreateRagCorpusOperationMetadata,
@@ -2030,6 +2031,7 @@ __all__ = (
     "RagFileTransformationConfig",
     "RagVectorDbConfig",
     "UploadRagFileConfig",
+    "VertexAiSearchConfig",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",
     "DeleteRagCorpusRequest",

@@ -979,6 +979,7 @@ from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
@@ -1993,6 +1994,7 @@ __all__ = (
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexAiSearchConfig",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",

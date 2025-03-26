@@ -30,6 +30,7 @@ __protobuf__ = proto.module(
         "RagEmbeddingModelConfig",
         "RagVectorDbConfig",
         "FileStatus",
+        "VertexAiSearchConfig",
         "CorpusStatus",
         "RagCorpus",
         "RagFile",
@@ -238,6 +239,24 @@ class FileStatus(proto.Message):
     )
 
 
+class VertexAiSearchConfig(proto.Message):
+    r"""Config for the Vertex AI Search.
+
+    Attributes:
+        serving_config (str):
+            Vertex AI Search Serving Config resource full name. For
+            example,
+            ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
+            or
+            ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}``.
+    """
+
+    serving_config: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
 class CorpusStatus(proto.Message):
     r"""RagCorpus status.
 
@@ -284,6 +303,10 @@ class RagCorpus(proto.Message):
     r"""A RagCorpus is a RagFile container and a project can have
     multiple RagCorpora.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -308,6 +331,11 @@ class RagCorpus(proto.Message):
         vector_db_config (google.cloud.aiplatform_v1.types.RagVectorDbConfig):
             Optional. Immutable. The config for the
             Vector DBs.
+
+            This field is a member of `oneof`_ ``backend_config``.
+        vertex_ai_search_config (google.cloud.aiplatform_v1.types.VertexAiSearchConfig):
+            Optional. Immutable. The config for the
+            Vertex AI Search.
 
             This field is a member of `oneof`_ ``backend_config``.
     """
@@ -344,6 +372,12 @@ class RagCorpus(proto.Message):
         number=9,
         oneof="backend_config",
         message="RagVectorDbConfig",
+    )
+    vertex_ai_search_config: "VertexAiSearchConfig" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        oneof="backend_config",
+        message="VertexAiSearchConfig",
     )
 
 
