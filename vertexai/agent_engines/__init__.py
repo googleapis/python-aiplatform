@@ -32,6 +32,9 @@ from vertexai.agent_engines._agent_engines import (
     Queryable,
     StreamQueryable,
 )
+from vertexai.agent_engines.templates.devkit import (
+    DevkitAgent,
+)
 from vertexai.agent_engines.templates.ag2 import (
     AG2Agent,
 )
@@ -287,4 +290,5 @@ __all__ = (
     "LangchainAgent",
     "LanggraphAgent",
     "AG2Agent",
+    "DevkitAgent",
 )

@@ -458,6 +458,24 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             _LOGGER.warning("Failed to register API methods: {%s}", e)
         return self
 
+    def delete(
+        self,
+        force: bool = False,
+        kwargs: Optional[dict[str, Any]] = None,
+    ) -> None:
+        """Deletes the ReasoningEngine."""
+        kwargs = kwargs or {}
+        operation_future = self.api_client.delete_reasoning_engine(
+            request=aip_types.DeleteReasoningEngineRequest(
+                name=self.resource_name, force=force, **kwargs,
+            ),
+        )
+        _LOGGER.info(
+            f"Delete Agent Engine backing LRO: {operation_future.operation.name}"
+        )
+        operation_future.result()
+        _LOGGER.info(f"Agent Engine deleted. Resource name: {self.resource_name}")
+
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
         """Returns the (Open)API schemas for the Agent Engine."""
         spec = _utils.to_dict(self._gca_resource.spec)
