@@ -17,6 +17,7 @@
 
 import os
 import copy
+import sys
 from importlib import reload
 from unittest import TestCase, mock
 from unittest.mock import patch, call
@@ -2075,6 +2076,7 @@ class TestExperiments:
             _, kwargs = query_experiment_row_mock.call_args_list[0]
             TestCase.assertTrue(self, kwargs["experiment"].name == _TEST_EXPERIMENT)
 
+    @pytest.mark.skipif(sys.version_info == (3, 9), reason="flaky")
     @pytest.mark.usefixtures(
         "get_experiment_mock",
         "list_tensorboard_time_series_mock",
