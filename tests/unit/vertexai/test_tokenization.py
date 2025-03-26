@@ -20,14 +20,19 @@ import shutil
 import tempfile
 from typing import List
 from unittest import mock
+import uuid
+from google.cloud.aiplatform_v1beta1.types import (
+    content as gapic_content_types,
+    openapi,
+    tool as gapic_tool_types,
+)
 from vertexai.generative_models import (
     Content,
+    FunctionDeclaration,
     Image,
     Part,
-    FunctionDeclaration,
     Tool,
 )
-
 from vertexai.tokenization import _tokenizer_loading
 from vertexai.tokenization._tokenizers import (
     CountTokensResult,
@@ -38,11 +43,6 @@ from vertexai.tokenization._tokenizers import (
 import pytest
 import sentencepiece as spm
 from sentencepiece import sentencepiece_model_pb2, sentencepiece_pb2
-from google.cloud.aiplatform_v1beta1.types import (
-    content as gapic_content_types,
-    tool as gapic_tool_types,
-    openapi,
-)
 from google.protobuf import struct_pb2
 
 
@@ -322,55 +322,81 @@ def get_current_weather(location: str, unit: str = "centigrade"):
 
 @pytest.mark.usefixtures("mock_requests_get", "mock_hashlib_sha256")
 class TestTokenizers:
-    """Unit tests for the tokenizers."""
+  """Unit tests for the tokenizers."""
 
-    def setup_method(self):
-        model_dir = os.path.join(tempfile.gettempdir(), "vertexai_tokenizer_model")
-        if os.path.exists(model_dir):
-            shutil.rmtree(model_dir)
-        if not os.path.exists(model_dir):
-            os.mkdir(model_dir)
-
-    def test_valid_contents_type_for_bytes_token_type(self, mock_sp_processor):
-        _tokenizer_loading.get_sentencepiece.cache_clear()
-        assert get_tokenizer_for_model(_MODEL_NAME).compute_tokens(
-            [_SENTENCE_4]
-        ).tokens_info == (
-            [TokensInfo(token_ids=[0, 1], tokens=[b"A", b"B"], role="user")]
+  def setup_method(self):
+    # create the directory robustly to avoid FileExistsError due to race condition.
+    # The race condition is caused by parallel test execution.
+    # 1. if os.path.exists(model_dir) runs, assume it was `True`
+    # 2. shutil.rmtree(model_dir) start executing
+    # 3. if not os.path.exists(model_dir) runs. At this precise moment,
+    #    `rmtree` has finished, so the check returns `True`
+    # 4. The code proceeds to create execute os.mkdir(model_dir)
+    # 5. But between step 3 and 4, another process on a different python
+    #    version manages to re-create the model_dir
+    # 6. When `os.mkdir(model_dir)` finally executes, the directory now exists.
+    # to fix this, add a uuid to the model_dir name.
+    uuid_str = str(uuid.uuid4())
+    self.model_dir = os.path.join(
+        tempfile.gettempdir(), f"vertexai_tokenizer_model_{uuid_str}"
+    )
+    if os.path.exists(self.model_dir):
+      try:
+        shutil.rmtree(self.model_dir)
+      except OSError as e:
+        print(
+            f"Warning: Failed to remove directory {self.model_dir} "
+            f"in setup: {e}"
         )
-        assert get_tokenizer_for_model(_MODEL_NAME).count_tokens(
+    if not os.path.exists(self.model_dir):
+      try:
+        os.mkdir(self.model_dir)
+      except OSError as e:
+        print(
+            f"Error: Failed to create directory {self.model_dir} in setup: {e}"
+        )
+        raise
+
+  def test_valid_contents_type_for_bytes_token_type(self, mock_sp_processor):
+    _tokenizer_loading.get_sentencepiece.cache_clear()
+    assert get_tokenizer_for_model(_MODEL_NAME).compute_tokens(
+        [_SENTENCE_4]
+    ).tokens_info == (
+        [TokensInfo(token_ids=[0, 1], tokens=[b"A", b"B"], role="user")]
+    )
+    assert get_tokenizer_for_model(_MODEL_NAME).count_tokens(
             [_SENTENCE_4]
         ) == CountTokensResult(total_tokens=2)
-        mock_sp_processor.return_value.EncodeAsImmutableProto.assert_called_once_with(
+    mock_sp_processor.return_value.EncodeAsImmutableProto.assert_called_once_with(
             [_SENTENCE_4]
         )
 
-    @pytest.mark.parametrize(
+  @pytest.mark.parametrize(
         "contents, encode_input, encode_output, roles",
         _VALID_CONTENTS_TYPE,
     )
-    def test_count_tokens_valid_contents_type(
+  def test_count_tokens_valid_contents_type(
         self, mock_sp_processor, contents, encode_input, encode_output, roles
     ):
-        _tokenizer_loading.get_sentencepiece.cache_clear()
-        expected_count = CountTokensResult(
+    _tokenizer_loading.get_sentencepiece.cache_clear()
+    expected_count = CountTokensResult(
             sum(len(output["ids"]) for output in encode_output)
         )
-        assert (
+    assert (
             get_tokenizer_for_model(_MODEL_NAME).count_tokens(contents)
             == expected_count
         )
-        mock_sp_processor.return_value.encode.assert_called_once_with(encode_input)
+    mock_sp_processor.return_value.encode.assert_called_once_with(encode_input)
 
-    @pytest.mark.parametrize(
+  @pytest.mark.parametrize(
         "contents, encode_input, encode_output, roles",
         _VALID_CONTENTS_TYPE,
     )
-    def testcompute_tokens_valid_contents_type(
+  def testcompute_tokens_valid_contents_type(
         self, mock_sp_processor, contents, encode_input, encode_output, roles
     ):
-        _tokenizer_loading.get_sentencepiece.cache_clear()
-        assert (
+    _tokenizer_loading.get_sentencepiece.cache_clear()
+    assert (
             get_tokenizer_for_model(_MODEL_NAME).compute_tokens(contents)
         ).tokens_info == (
             [
@@ -381,35 +407,35 @@ class TestTokenizers:
             else [TokensInfo(token_ids=[], tokens=[], role="user")]
         )
 
-        mock_sp_processor.return_value.EncodeAsImmutableProto.assert_called_once_with(
+    mock_sp_processor.return_value.EncodeAsImmutableProto.assert_called_once_with(
             encode_input
         )
 
-    @pytest.mark.parametrize(
+  @pytest.mark.parametrize(
         "contents",
         _LIST_OF_UNSUPPORTED_CONTENTS,
     )
-    def test_count_tokens_unsupported_contents_type(
+  def test_count_tokens_unsupported_contents_type(
         self,
         mock_sp_processor,
         contents,
     ):
-        _tokenizer_loading.get_sentencepiece.cache_clear()
-        with pytest.raises(ValueError) as e:
-            get_tokenizer_for_model(_MODEL_NAME).count_tokens(contents)
-        e.match("Tokenizers do not support non-text content types.")
+    _tokenizer_loading.get_sentencepiece.cache_clear()
+    with pytest.raises(ValueError) as e:
+      get_tokenizer_for_model(_MODEL_NAME).count_tokens(contents)
+    e.match("Tokenizers do not support non-text content types.")
 
-    def test_system_instruction_count_tokens(self, mock_sp_processor):
-        _tokenizer_loading.get_sentencepiece.cache_clear()
-        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
-        result = tokenizer.count_tokens(
+  def test_system_instruction_count_tokens(self, mock_sp_processor):
+    _tokenizer_loading.get_sentencepiece.cache_clear()
+    tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+    result = tokenizer.count_tokens(
             ["hello world"], system_instruction=["You are a chatbot."]
         )
-        assert result.total_tokens == 6
+    assert result.total_tokens == 6
 
-    def test_function_call_count_tokens(self, mock_sp_processor):
-        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
-        part = Part._from_gapic(
+  def test_function_call_count_tokens(self, mock_sp_processor):
+    tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+    part = Part._from_gapic(
             gapic_content_types.Part(
                 function_call=gapic_tool_types.FunctionCall(
                     name="test_function_call",
@@ -418,13 +444,13 @@ class TestTokenizers:
             )
         )
 
-        result = tokenizer.count_tokens(part)
+    result = tokenizer.count_tokens(part)
 
-        assert result.total_tokens
+    assert result.total_tokens
 
-    def test_function_response_count_tokens(self, mock_sp_processor):
-        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
-        part = Part._from_gapic(
+  def test_function_response_count_tokens(self, mock_sp_processor):
+    tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+    part = Part._from_gapic(
             gapic_content_types.Part(
                 function_response=gapic_tool_types.FunctionResponse(
                     name="test_function_response", response=_STRUCT
@@ -432,105 +458,134 @@ class TestTokenizers:
             )
         )
 
-        result = tokenizer.count_tokens(part)
+    result = tokenizer.count_tokens(part)
 
-        assert result.total_tokens
+    assert result.total_tokens
 
-    def test_tools_count_tokens(self, mock_sp_processor):
-        tokenizer = get_tokenizer_for_model(_MODEL_NAME)
-        get_current_weather_func = FunctionDeclaration.from_func(get_current_weather)
-        weather_tool = Tool(
+  def test_tools_count_tokens(self, mock_sp_processor):
+    tokenizer = get_tokenizer_for_model(_MODEL_NAME)
+    get_current_weather_func = FunctionDeclaration.from_func(get_current_weather)
+    weather_tool = Tool(
             function_declarations=[get_current_weather_func],
         )
 
-        result = tokenizer.count_tokens(contents=[], tools=[weather_tool])
+    result = tokenizer.count_tokens(contents=[], tools=[weather_tool])
 
-        assert result.total_tokens
+    assert result.total_tokens
 
-    def test_image_mime_types(self, mock_sp_processor):
-        # Importing external library lazily to reduce the scope of import errors.
-        from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
+  def test_image_mime_types(self, mock_sp_processor):
+    # Importing external library lazily to reduce the scope of import errors.
+    from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
 
-        pil_image: PIL_Image.Image = PIL_Image.new(mode="RGB", size=(200, 200))
-        image_bytes_io = io.BytesIO()
-        pil_image.save(image_bytes_io, format="PNG")
-        _tokenizer_loading.get_sentencepiece.cache_clear()
-        with pytest.raises(ValueError) as e:
-            get_tokenizer_for_model(_MODEL_NAME).count_tokens(
+    pil_image: PIL_Image.Image = PIL_Image.new(mode="RGB", size=(200, 200))
+    image_bytes_io = io.BytesIO()
+    pil_image.save(image_bytes_io, format="PNG")
+    _tokenizer_loading.get_sentencepiece.cache_clear()
+    with pytest.raises(ValueError) as e:
+      get_tokenizer_for_model(_MODEL_NAME).count_tokens(
                 Image.from_bytes(image_bytes_io.getvalue())
             )
-        e.match("Tokenizers do not support Image content type.")
+    e.match("Tokenizers do not support Image content type.")
 
 
-@pytest.mark.skip("flaky")
 class TestModelLoad:
-    def setup_method(self):
-        model_dir = os.path.join(tempfile.gettempdir(), "vertexai_tokenizer_model")
-        if os.path.exists(model_dir):
-            shutil.rmtree(model_dir)
-        if not os.path.exists(model_dir):
-            os.mkdir(model_dir)
+  """Unit tests for the model loading."""
 
-    def get_cache_path(self, file_url: str):
-        model_dir = os.path.join(tempfile.gettempdir(), "vertexai_tokenizer_model")
-        filename = hashlib.sha1(file_url.encode()).hexdigest()
-        return os.path.join(model_dir, filename)
+  def setup_method(self):
+    # create the directory robustly to avoid FileExistsError due to race condition.
+    # The race condition is caused by parallel test execution.
+    # 1. if os.path.exists(model_dir) runs, assume it was `True`
+    # 2. shutil.rmtree(model_dir) start executing
+    # 3. if not os.path.exists(model_dir) runs. At this precise moment,
+    #    `rmtree` has finished, so the check returns `True`
+    # 4. The code proceeds to create execute os.mkdir(model_dir)
+    # 5. But between step 3 and 4, another process on a different python
+    #    version manages to re-create the model_dir
+    # 6. When `os.mkdir(model_dir)` finally executes, the directory now exists.
+    # to fix this, add a uuid to the model_dir name.
 
-    def test_download_and_save_to_cache(self, mock_hashlib_sha256, mock_requests_get):
-        _tokenizer_loading._load_model_proto_bytes(_TOKENIZER_NAME)
-        cache_path = self.get_cache_path(
+    uuid_str = str(uuid.uuid4())
+    self.model_dir = os.path.join(
+        tempfile.gettempdir(), f"vertexai_tokenizer_model_{uuid_str}"
+    )
+    if os.path.exists(self.model_dir):
+      try:
+        shutil.rmtree(self.model_dir)
+      except OSError as e:
+        print(
+            f"Warning: Failed to remove directory {self.model_dir} "
+            f"in setup: {e}"
+        )
+    if not os.path.exists(self.model_dir):
+      try:
+        os.mkdir(self.model_dir)
+      except OSError as e:
+        print(
+            f"Error: Failed to create directory {self.model_dir} in setup: {e}"
+        )
+        raise
+
+  def get_cache_path(self, file_url: str):
+    filename = hashlib.sha1(file_url.encode()).hexdigest()
+    return os.path.join(self.model_dir, filename)
+
+  def test_download_and_save_to_cache(
+      self, mock_hashlib_sha256, mock_requests_get
+  ):
+    _tokenizer_loading._load_model_proto_bytes(_TOKENIZER_NAME)
+    cache_path = self.get_cache_path(
+        _tokenizer_loading._TOKENIZERS[_TOKENIZER_NAME].model_url
+    )
+    assert os.path.exists(cache_path)
+    mock_requests_get.assert_called_once()
+    with open(cache_path, "rb") as f:
+      assert f.read() == _TOKENIZER_MODEL.SerializeToString()
+
+  @mock.patch("hashlib.sha256", autospec=True)
+  def test_download_file_is_corrupted(self, hash_mock, mock_requests_get):
+    hash_mock.return_value.hexdigest.return_value = "inconsistent_hash"
+    with pytest.raises(ValueError) as e:
+      _tokenizer_loading._load_model_proto_bytes(_TOKENIZER_NAME)
+    e.match(regexp=r"Downloaded model file is corrupted.*")
+
+    mock_requests_get.assert_called_once()
+
+  def test_load_model_proto_from_cache(self, mock_hashlib_sha256, mock_requests_get):
+    cache_path = self.get_cache_path(
             _tokenizer_loading._TOKENIZERS[_TOKENIZER_NAME].model_url
         )
-        assert os.path.exists(cache_path)
-        mock_requests_get.assert_called_once()
-        with open(cache_path, "rb") as f:
-            assert f.read() == _TOKENIZER_MODEL.SerializeToString()
-
-    @mock.patch("hashlib.sha256", autospec=True)
-    def test_download_file_is_corrupted(self, hash_mock, mock_requests_get):
-        hash_mock.return_value.hexdigest.return_value = "inconsistent_hash"
-        with pytest.raises(ValueError) as e:
-            _tokenizer_loading._load_model_proto_bytes(_TOKENIZER_NAME)
-        e.match(regexp=r"Downloaded model file is corrupted.*")
-
-        mock_requests_get.assert_called_once()
-
-    def test_load_model_proto_from_cache(self, mock_hashlib_sha256, mock_requests_get):
-        cache_path = self.get_cache_path(
-            _tokenizer_loading._TOKENIZERS[_TOKENIZER_NAME].model_url
-        )
-        model_contents = sentencepiece_model_pb2.ModelProto(
+    model_contents = sentencepiece_model_pb2.ModelProto(
             pieces=[sentencepiece_model_pb2.ModelProto.SentencePiece(piece="a")]
         ).SerializeToString()
-        with open(cache_path, "wb") as f:
-            f.write(model_contents)
-        assert (
+    with open(cache_path, "wb") as f:
+      f.write(model_contents)
+    assert (
             _tokenizer_loading._load_model_proto_bytes(_TOKENIZER_NAME)
             == model_contents
         )
-        assert os.path.exists(cache_path)
-        mock_requests_get.assert_not_called()
+    assert os.path.exists(cache_path)
+    mock_requests_get.assert_not_called()
 
-    @mock.patch("hashlib.sha256", autospec=True)
-    def test_load_model_proto_from_corrupted_cache(self, hash_mock, mock_requests_get):
-        cache_path = self.get_cache_path(
+  @mock.patch("hashlib.sha256", autospec=True)
+  def test_load_model_proto_from_corrupted_cache(self, hash_mock, mock_requests_get):
+    cache_path = self.get_cache_path(
             _tokenizer_loading._TOKENIZERS[_TOKENIZER_NAME].model_url
         )
-        model_contents = sentencepiece_model_pb2.ModelProto(
+    model_contents = sentencepiece_model_pb2.ModelProto(
             pieces=[sentencepiece_model_pb2.ModelProto.SentencePiece(piece="a")]
         ).SerializeToString()
-        with open(cache_path, "wb") as f:
-            f.write(model_contents)
-        hash_mock.return_value.hexdigest.side_effect = [
+    with open(cache_path, "wb") as f:
+      f.write(model_contents)
+    hash_mock.return_value.hexdigest.side_effect = [
             "inconsistent_hash",  # first read from cache
             _tokenizer_loading._TOKENIZERS[
                 _TOKENIZER_NAME
             ].model_hash,  # then read from network
         ]
-        _tokenizer_loading._load_model_proto_bytes(_TOKENIZER_NAME)
-        mock_requests_get.assert_called_once()
-        with open(cache_path, "rb") as f:
-            assert f.read() == _TOKENIZER_MODEL.SerializeToString()
+    _tokenizer_loading._load_model_proto_bytes(_TOKENIZER_NAME)
+    mock_requests_get.assert_called_once()
+    with open(cache_path, "rb") as f:
+      assert f.read() == _TOKENIZER_MODEL.SerializeToString()
 
 
 class TestTextsAccumulator:
