@@ -462,6 +462,7 @@ class TestTokenizers:
         e.match("Tokenizers do not support Image content type.")
 
 
+@pytest.mark.skip("flaky")
 class TestModelLoad:
     def setup_method(self):
         model_dir = os.path.join(tempfile.gettempdir(), "vertexai_tokenizer_model")

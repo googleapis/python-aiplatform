@@ -25,6 +25,10 @@ from vertexai.resources.preview.feature_store import (
     Feature,
 )
 
+pytestmark = pytest.mark.skipif(
+    sys.version_info == (3, 8), reason="bigframes is not supported in Python 3.8"
+)
+
 try:
     import pandas as pd
 except ImportError:
