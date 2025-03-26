@@ -146,7 +146,7 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
         </script>
     """
 
-    from IPython.core.display import display
+    from IPython.display import display
     from IPython.display import HTML
 
     display(HTML(html))
