@@ -651,6 +651,160 @@
         }
       }
     },
+    "ExampleStoreService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ExampleStoreServiceClient",
+          "rpcs": {
+            "CreateExampleStore": {
+              "methods": [
+                "create_example_store"
+              ]
+            },
+            "DeleteExampleStore": {
+              "methods": [
+                "delete_example_store"
+              ]
+            },
+            "FetchExamples": {
+              "methods": [
+                "fetch_examples"
+              ]
+            },
+            "GetExampleStore": {
+              "methods": [
+                "get_example_store"
+              ]
+            },
+            "ListExampleStores": {
+              "methods": [
+                "list_example_stores"
+              ]
+            },
+            "RemoveExamples": {
+              "methods": [
+                "remove_examples"
+              ]
+            },
+            "SearchExamples": {
+              "methods": [
+                "search_examples"
+              ]
+            },
+            "UpdateExampleStore": {
+              "methods": [
+                "update_example_store"
+              ]
+            },
+            "UpsertExamples": {
+              "methods": [
+                "upsert_examples"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ExampleStoreServiceAsyncClient",
+          "rpcs": {
+            "CreateExampleStore": {
+              "methods": [
+                "create_example_store"
+              ]
+            },
+            "DeleteExampleStore": {
+              "methods": [
+                "delete_example_store"
+              ]
+            },
+            "FetchExamples": {
+              "methods": [
+                "fetch_examples"
+              ]
+            },
+            "GetExampleStore": {
+              "methods": [
+                "get_example_store"
+              ]
+            },
+            "ListExampleStores": {
+              "methods": [
+                "list_example_stores"
+              ]
+            },
+            "RemoveExamples": {
+              "methods": [
+                "remove_examples"
+              ]
+            },
+            "SearchExamples": {
+              "methods": [
+                "search_examples"
+              ]
+            },
+            "UpdateExampleStore": {
+              "methods": [
+                "update_example_store"
+              ]
+            },
+            "UpsertExamples": {
+              "methods": [
+                "upsert_examples"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ExampleStoreServiceClient",
+          "rpcs": {
+            "CreateExampleStore": {
+              "methods": [
+                "create_example_store"
+              ]
+            },
+            "DeleteExampleStore": {
+              "methods": [
+                "delete_example_store"
+              ]
+            },
+            "FetchExamples": {
+              "methods": [
+                "fetch_examples"
+              ]
+            },
+            "GetExampleStore": {
+              "methods": [
+                "get_example_store"
+              ]
+            },
+            "ListExampleStores": {
+              "methods": [
+                "list_example_stores"
+              ]
+            },
+            "RemoveExamples": {
+              "methods": [
+                "remove_examples"
+              ]
+            },
+            "SearchExamples": {
+              "methods": [
+                "search_examples"
+              ]
+            },
+            "UpdateExampleStore": {
+              "methods": [
+                "update_example_store"
+              ]
+            },
+            "UpsertExamples": {
+              "methods": [
+                "upsert_examples"
+              ]
+            }
+          }
+        }
+      }
+    },
     "ExtensionExecutionService": {
       "clients": {
         "grpc": {
@@ -5054,6 +5208,130 @@
             "UpdateSchedule": {
               "methods": [
                 "update_schedule"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "SessionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "SessionServiceClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "SessionServiceAsyncClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "SessionServiceClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
               ]
             }
           }
