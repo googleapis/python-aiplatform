@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2023 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -72,17 +72,39 @@ ds.materialize()
 # Write
 vertex_ray.data.write_bigquery(
     ds,
-    dataset="bugbashbq1.system_test_ray29_write",
+    dataset="bugbashbq1.system_test_ray233_write",
 )
 """
 
-my_script = {"2.9": my_script_ray29, "2.33": my_script_ray233}
+my_script_ray242 = """
+import ray
+import vertex_ray
+
+override_num_blocks = 10
+query = "SELECT * FROM `bigquery-public-data.ml_datasets.ulb_fraud_detection` LIMIT 10000000"
+
+ds = vertex_ray.data.read_bigquery(
+    override_num_blocks=override_num_blocks,
+    query=query,
+)
+
+# The reads are lazy, so the end time cannot be captured until ds.materialize() is called
+ds.materialize()
+
+# Write
+vertex_ray.data.write_bigquery(
+    ds,
+    dataset="bugbashbq1.system_test_ray242_write",
+)
+"""
+
+my_script = {"2.9": my_script_ray29, "2.33": my_script_ray233, "2.42": my_script_ray242}
 
 
 class TestRayData(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-ray-data"
 
-    @pytest.mark.parametrize("cluster_ray_version", ["2.9", "2.33"])
+    @pytest.mark.parametrize("cluster_ray_version", ["2.9", "2.33", "2.42"])
     def test_ray_data(self, cluster_ray_version):
         head_node_type = vertex_ray.Resources()
         worker_node_types = [
