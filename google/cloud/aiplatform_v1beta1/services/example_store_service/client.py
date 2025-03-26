@@ -62,20 +62,24 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
+from google.cloud.aiplatform_v1beta1.services.example_store_service import pagers
+from google.cloud.aiplatform_v1beta1.types import example_store
+from google.cloud.aiplatform_v1beta1.types import example_store as gca_example_store
+from google.cloud.aiplatform_v1beta1.types import example_store_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import MigrationServiceGrpcTransport
-from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
-from .transports.rest import MigrationServiceRestTransport
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from .transports.base import ExampleStoreServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc import ExampleStoreServiceGrpcTransport
+from .transports.grpc_asyncio import ExampleStoreServiceGrpcAsyncIOTransport
+from .transports.rest import ExampleStoreServiceRestTransport
 
 try:
-    from .transports.rest_asyncio import AsyncMigrationServiceRestTransport
+    from .transports.rest_asyncio import AsyncExampleStoreServiceRestTransport
 
     HAS_ASYNC_REST_DEPENDENCIES = True
 except ImportError as e:  # pragma: NO COVER
@@ -83,8 +87,8 @@ except ImportError as e:  # pragma: NO COVER
     ASYNC_REST_EXCEPTION = e
 
 
-class MigrationServiceClientMeta(type):
-    """Metaclass for the MigrationService client.
+class ExampleStoreServiceClientMeta(type):
+    """Metaclass for the ExampleStoreService client.
 
     This provides class-level methods for building and retrieving
     support objects (e.g. transport) without polluting the client instance
@@ -93,17 +97,17 @@ class MigrationServiceClientMeta(type):
 
     _transport_registry = (
         OrderedDict()
-    )  # type: Dict[str, Type[MigrationServiceTransport]]
-    _transport_registry["grpc"] = MigrationServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
-    _transport_registry["rest"] = MigrationServiceRestTransport
+    )  # type: Dict[str, Type[ExampleStoreServiceTransport]]
+    _transport_registry["grpc"] = ExampleStoreServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = ExampleStoreServiceGrpcAsyncIOTransport
+    _transport_registry["rest"] = ExampleStoreServiceRestTransport
     if HAS_ASYNC_REST_DEPENDENCIES:  # pragma: NO COVER
-        _transport_registry["rest_asyncio"] = AsyncMigrationServiceRestTransport
+        _transport_registry["rest_asyncio"] = AsyncExampleStoreServiceRestTransport
 
     def get_transport_class(
         cls,
         label: Optional[str] = None,
-    ) -> Type[MigrationServiceTransport]:
+    ) -> Type[ExampleStoreServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -126,10 +130,8 @@ class MigrationServiceClientMeta(type):
         return next(iter(cls._transport_registry.values()))
 
 
-class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
-    """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
-    """
+class ExampleStoreServiceClient(metaclass=ExampleStoreServiceClientMeta):
+    """A service for managing and retrieving few-shot examples."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
@@ -181,7 +183,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            ExampleStoreServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_info(info)
         kwargs["credentials"] = credentials
@@ -199,7 +201,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            ExampleStoreServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -208,160 +210,33 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @property
-    def transport(self) -> MigrationServiceTransport:
+    def transport(self) -> ExampleStoreServiceTransport:
         """Returns the transport used by the client instance.
 
         Returns:
-            MigrationServiceTransport: The transport used by the client
+            ExampleStoreServiceTransport: The transport used by the client
                 instance.
         """
         return self._transport
 
     @staticmethod
-    def annotated_dataset_path(
-        project: str,
-        dataset: str,
-        annotated_dataset: str,
-    ) -> str:
-        """Returns a fully-qualified annotated_dataset string."""
-        return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-            project=project,
-            dataset=dataset,
-            annotated_dataset=annotated_dataset,
-        )
-
-    @staticmethod
-    def parse_annotated_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a annotated_dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
+    def example_store_path(
         project: str,
         location: str,
-        dataset: str,
+        example_store: str,
     ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        """Returns a fully-qualified example_store string."""
+        return "projects/{project}/locations/{location}/exampleStores/{example_store}".format(
             project=project,
             location=location,
-            dataset=dataset,
+            example_store=example_store,
         )
 
     @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
+    def parse_example_store_path(path: str) -> Dict[str, str]:
+        """Parses a example_store path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def version_path(
-        project: str,
-        model: str,
-        version: str,
-    ) -> str:
-        """Returns a fully-qualified version string."""
-        return "projects/{project}/models/{model}/versions/{version}".format(
-            project=project,
-            model=model,
-            version=version,
-        )
-
-    @staticmethod
-    def parse_version_path(path: str) -> Dict[str, str]:
-        """Parses a version path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/models/(?P<model>.+?)/versions/(?P<version>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/exampleStores/(?P<example_store>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -585,14 +460,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         elif use_mtls_endpoint == "always" or (
             use_mtls_endpoint == "auto" and client_cert_source
         ):
-            _default_universe = MigrationServiceClient._DEFAULT_UNIVERSE
+            _default_universe = ExampleStoreServiceClient._DEFAULT_UNIVERSE
             if universe_domain != _default_universe:
                 raise MutualTLSChannelError(
                     f"mTLS is not supported in any universe other than {_default_universe}."
                 )
-            api_endpoint = MigrationServiceClient.DEFAULT_MTLS_ENDPOINT
+            api_endpoint = ExampleStoreServiceClient.DEFAULT_MTLS_ENDPOINT
         else:
-            api_endpoint = MigrationServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
+            api_endpoint = ExampleStoreServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
                 UNIVERSE_DOMAIN=universe_domain
             )
         return api_endpoint
@@ -613,7 +488,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Raises:
             ValueError: If the universe domain is an empty string.
         """
-        universe_domain = MigrationServiceClient._DEFAULT_UNIVERSE
+        universe_domain = ExampleStoreServiceClient._DEFAULT_UNIVERSE
         if client_universe_domain is not None:
             universe_domain = client_universe_domain
         elif universe_domain_env is not None:
@@ -686,13 +561,15 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         credentials: Optional[ga_credentials.Credentials] = None,
         transport: Optional[
             Union[
-                str, MigrationServiceTransport, Callable[..., MigrationServiceTransport]
+                str,
+                ExampleStoreServiceTransport,
+                Callable[..., ExampleStoreServiceTransport],
             ]
         ] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the migration service client.
+        """Instantiates the example store service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -700,10 +577,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Optional[Union[str,MigrationServiceTransport,Callable[..., MigrationServiceTransport]]]):
+            transport (Optional[Union[str,ExampleStoreServiceTransport,Callable[..., ExampleStoreServiceTransport]]]):
                 The transport to use, or a Callable that constructs and returns a new transport.
                 If a Callable is given, it will be called with the same set of initialization
-                arguments as used in the MigrationServiceTransport constructor.
+                arguments as used in the ExampleStoreServiceTransport constructor.
                 If set to None, a transport is chosen automatically.
             client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]):
                 Custom options for the client.
@@ -756,11 +633,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             self._use_client_cert,
             self._use_mtls_endpoint,
             self._universe_domain_env,
-        ) = MigrationServiceClient._read_environment_variables()
-        self._client_cert_source = MigrationServiceClient._get_client_cert_source(
+        ) = ExampleStoreServiceClient._read_environment_variables()
+        self._client_cert_source = ExampleStoreServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
-        self._universe_domain = MigrationServiceClient._get_universe_domain(
+        self._universe_domain = ExampleStoreServiceClient._get_universe_domain(
             universe_domain_opt, self._universe_domain_env
         )
         self._api_endpoint = None  # updated below, depending on `transport`
@@ -781,9 +658,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
-        transport_provided = isinstance(transport, MigrationServiceTransport)
+        transport_provided = isinstance(transport, ExampleStoreServiceTransport)
         if transport_provided:
-            # transport is a MigrationServiceTransport instance.
+            # transport is a ExampleStoreServiceTransport instance.
             if credentials or self._client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -794,12 +671,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                     "When providing a transport instance, provide its scopes "
                     "directly."
                 )
-            self._transport = cast(MigrationServiceTransport, transport)
+            self._transport = cast(ExampleStoreServiceTransport, transport)
             self._api_endpoint = self._transport.host
 
         self._api_endpoint = (
             self._api_endpoint
-            or MigrationServiceClient._get_api_endpoint(
+            or ExampleStoreServiceClient._get_api_endpoint(
                 self._client_options.api_endpoint,
                 self._client_cert_source,
                 self._universe_domain,
@@ -809,12 +686,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         if not transport_provided:
             transport_init: Union[
-                Type[MigrationServiceTransport],
-                Callable[..., MigrationServiceTransport],
+                Type[ExampleStoreServiceTransport],
+                Callable[..., ExampleStoreServiceTransport],
             ] = (
-                MigrationServiceClient.get_transport_class(transport)
+                ExampleStoreServiceClient.get_transport_class(transport)
                 if isinstance(transport, str) or transport is None
-                else cast(Callable[..., MigrationServiceTransport], transport)
+                else cast(Callable[..., ExampleStoreServiceTransport], transport)
             )
 
             if "rest_asyncio" in str(transport_init):
@@ -868,9 +745,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 std_logging.DEBUG
             ):  # pragma: NO COVER
                 _LOGGER.debug(
-                    "Created client `google.cloud.aiplatform_v1beta1.MigrationServiceClient`.",
+                    "Created client `google.cloud.aiplatform_v1beta1.ExampleStoreServiceClient`.",
                     extra={
-                        "serviceName": "google.cloud.aiplatform.v1beta1.MigrationService",
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ExampleStoreService",
                         "universeDomain": getattr(
                             self._transport._credentials, "universe_domain", ""
                         ),
@@ -881,161 +758,24 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                     }
                     if hasattr(self._transport, "_credentials")
                     else {
-                        "serviceName": "google.cloud.aiplatform.v1beta1.MigrationService",
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ExampleStoreService",
                         "credentialsType": None,
                     },
                 )
 
-    def search_migratable_resources(
+    def create_example_store(
         self,
         request: Optional[
-            Union[migration_service.SearchMigratableResourcesRequest, dict]
+            Union[example_store_service.CreateExampleStoreRequest, dict]
         ] = None,
         *,
         parent: Optional[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
-        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
-    ) -> pagers.SearchMigratableResourcesPager:
-        r"""Searches all of the resources in
-        automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to Vertex AI's
-        given location.
-
-        .. code-block:: python
-
-            # This snippet has been automatically generated and should be regarded as a
-            # code template only.
-            # It will require modifications to work:
-            # - It may require correct/in-range values for request initialization.
-            # - It may require specifying regional endpoints when creating the service
-            #   client as shown in:
-            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
-            from google.cloud import aiplatform_v1beta1
-
-            def sample_search_migratable_resources():
-                # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
-
-                # Initialize request argument(s)
-                request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
-                    parent="parent_value",
-                )
-
-                # Make the request
-                page_result = client.search_migratable_resources(request=request)
-
-                # Handle the response
-                for response in page_result:
-                    print(response)
-
-        Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
-                The request object. Request message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
-            parent (str):
-                Required. The location that the migratable resources
-                should be searched from. It's the Vertex AI location
-                that the resources can be migrated to, not the
-                resources' original location. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
-                sent along with the request as metadata. Normally, each value must be of type `str`,
-                but for metadata keys ending with the suffix `-bin`, the corresponding values must
-                be of type `bytes`.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
-                Response message for
-                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # - Quick check: If we got a request object, we should *not* have
-        #   gotten any keyword arguments that map to the request.
-        flattened_params = [parent]
-        has_flattened_params = (
-            len([param for param in flattened_params if param is not None]) > 0
-        )
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # - Use the request object if provided (there's no risk of modifying the input as
-        #   there are no flattened fields), or create one.
-        if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
-            request = migration_service.SearchMigratableResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.search_migratable_resources
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Validate the universe domain.
-        self._validate_universe_domain()
-
-        # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.SearchMigratableResourcesPager(
-            method=rpc,
-            request=request,
-            response=response,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def batch_migrate_resources(
-        self,
-        request: Optional[
-            Union[migration_service.BatchMigrateResourcesRequest, dict]
-        ] = None,
-        *,
-        parent: Optional[str] = None,
-        migrate_resource_requests: Optional[
-            MutableSequence[migration_service.MigrateResourceRequest]
-        ] = None,
+        example_store: Optional[gca_example_store.ExampleStore] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
     ) -> operation.Operation:
-        r"""Batch migrates resources from ml.googleapis.com,
-        automl.googleapis.com, and datalabeling.googleapis.com
-        to Vertex AI.
+        r"""Create an ExampleStore.
 
         .. code-block:: python
 
@@ -1048,23 +788,22 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_migrate_resources():
+            def sample_create_example_store():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
 
                 # Initialize request argument(s)
-                migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
-                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
+                example_store = aiplatform_v1beta1.ExampleStore()
+                example_store.display_name = "display_name_value"
+                example_store.example_store_config.vertex_embedding_model = "vertex_embedding_model_value"
 
-                request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
+                request = aiplatform_v1beta1.CreateExampleStoreRequest(
                     parent="parent_value",
-                    migrate_resource_requests=migrate_resource_requests,
+                    example_store=example_store,
                 )
 
                 # Make the request
-                operation = client.batch_migrate_resources(request=request)
+                operation = client.create_example_store(request=request)
 
                 print("Waiting for operation to complete...")
 
@@ -1074,25 +813,22 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateExampleStoreRequest, dict]):
                 The request object. Request message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+                [ExampleStoreService.CreateExampleStore][google.cloud.aiplatform.v1beta1.ExampleStoreService.CreateExampleStore].
             parent (str):
-                Required. The location of the migrated resource will
-                live in. Format:
+                Required. The resource name of the Location to create
+                the ExampleStore in. Format:
                 ``projects/{project}/locations/{location}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
-                Required. The request messages
-                specifying the resources to migrate.
-                They must be in the same location as the
-                destination. Up to 50 resources can be
-                migrated in one batch.
+            example_store (google.cloud.aiplatform_v1beta1.types.ExampleStore):
+                Required. The Example Store to be
+                created.
 
-                This corresponds to the ``migrate_resource_requests`` field
+                This corresponds to the ``example_store`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1107,14 +843,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse` Response message for
-                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.ExampleStore`
+                Represents an executable service to manage and retrieve
+                examples.
 
         """
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        flattened_params = [parent, migrate_resource_requests]
+        flattened_params = [parent, example_store]
         has_flattened_params = (
             len([param for param in flattened_params if param is not None]) > 0
         )
@@ -1126,18 +864,18 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # - Use the request object if provided (there's no risk of modifying the input as
         #   there are no flattened fields), or create one.
-        if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
-            request = migration_service.BatchMigrateResourcesRequest(request)
+        if not isinstance(request, example_store_service.CreateExampleStoreRequest):
+            request = example_store_service.CreateExampleStoreRequest(request)
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
             if parent is not None:
                 request.parent = parent
-            if migrate_resource_requests is not None:
-                request.migrate_resource_requests = migrate_resource_requests
+            if example_store is not None:
+                request.example_store = example_store
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.batch_migrate_resources]
+        rpc = self._transport._wrapped_methods[self._transport.create_example_store]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -1160,14 +898,907 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         response = operation.from_gapic(
             response,
             self._transport.operations_client,
-            migration_service.BatchMigrateResourcesResponse,
-            metadata_type=migration_service.BatchMigrateResourcesOperationMetadata,
+            gca_example_store.ExampleStore,
+            metadata_type=example_store_service.CreateExampleStoreOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def __enter__(self) -> "MigrationServiceClient":
+    def get_example_store(
+        self,
+        request: Optional[
+            Union[example_store_service.GetExampleStoreRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> example_store.ExampleStore:
+        r"""Get an ExampleStore.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_example_store():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetExampleStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_example_store(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetExampleStoreRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.GetExampleStore][google.cloud.aiplatform.v1beta1.ExampleStoreService.GetExampleStore].
+            name (str):
+                Required. The resource name of the ExampleStore. Format:
+                ``projects/{project}/locations/{location}/exampleStores/{example_store}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.ExampleStore:
+                Represents an executable service to
+                manage and retrieve examples.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.GetExampleStoreRequest):
+            request = example_store_service.GetExampleStoreRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_example_store]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def update_example_store(
+        self,
+        request: Optional[
+            Union[example_store_service.UpdateExampleStoreRequest, dict]
+        ] = None,
+        *,
+        example_store: Optional[gca_example_store.ExampleStore] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> operation.Operation:
+        r"""Update an ExampleStore.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_example_store():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                example_store = aiplatform_v1beta1.ExampleStore()
+                example_store.display_name = "display_name_value"
+                example_store.example_store_config.vertex_embedding_model = "vertex_embedding_model_value"
+
+                request = aiplatform_v1beta1.UpdateExampleStoreRequest(
+                    example_store=example_store,
+                )
+
+                # Make the request
+                operation = client.update_example_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateExampleStoreRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.UpdateExampleStore][google.cloud.aiplatform.v1beta1.ExampleStoreService.UpdateExampleStore].
+            example_store (google.cloud.aiplatform_v1beta1.types.ExampleStore):
+                Required. The Example Store which
+                replaces the resource on the server.
+
+                This corresponds to the ``example_store`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            update_mask (google.protobuf.field_mask_pb2.FieldMask):
+                Optional. Mask specifying which fields to update.
+                Supported fields:
+
+                ::
+
+                   * `display_name`
+                   * `description`
+
+                This corresponds to the ``update_mask`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.ExampleStore`
+                Represents an executable service to manage and retrieve
+                examples.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [example_store, update_mask]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.UpdateExampleStoreRequest):
+            request = example_store_service.UpdateExampleStoreRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if example_store is not None:
+                request.example_store = example_store
+            if update_mask is not None:
+                request.update_mask = update_mask
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.update_example_store]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("example_store.name", request.example_store.name),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            gca_example_store.ExampleStore,
+            metadata_type=example_store_service.UpdateExampleStoreOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_example_store(
+        self,
+        request: Optional[
+            Union[example_store_service.DeleteExampleStoreRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> operation.Operation:
+        r"""Delete an ExampleStore.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_example_store():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteExampleStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_example_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteExampleStoreRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.DeleteExampleStore][google.cloud.aiplatform.v1beta1.ExampleStoreService.DeleteExampleStore].
+            name (str):
+                Required. The resource name of the ExampleStore to be
+                deleted. Format:
+                ``projects/{project}/locations/{location}/exampleStores/{example_store}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.DeleteExampleStoreRequest):
+            request = example_store_service.DeleteExampleStoreRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_example_store]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=example_store_service.DeleteExampleStoreOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_example_stores(
+        self,
+        request: Optional[
+            Union[example_store_service.ListExampleStoresRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> pagers.ListExampleStoresPager:
+        r"""List ExampleStores in a Location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_example_stores():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListExampleStoresRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_example_stores(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListExampleStoresRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.ListExampleStores][google.cloud.aiplatform.v1beta1.ExampleStoreService.ListExampleStores].
+            parent (str):
+                Required. The resource name of the Location to list the
+                ExampleStores from. Format:
+                ``projects/{project}/locations/{location}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.example_store_service.pagers.ListExampleStoresPager:
+                Response message for
+                   [ExampleStoreService.ListExampleStores][google.cloud.aiplatform.v1beta1.ExampleStoreService.ListExampleStores].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.ListExampleStoresRequest):
+            request = example_store_service.ListExampleStoresRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_example_stores]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListExampleStoresPager(
+            method=rpc,
+            request=request,
+            response=response,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def upsert_examples(
+        self,
+        request: Optional[
+            Union[example_store_service.UpsertExamplesRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> example_store_service.UpsertExamplesResponse:
+        r"""Create or update Examples in the Example Store.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_upsert_examples():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                examples = aiplatform_v1beta1.Example()
+                examples.stored_contents_example.contents_example.contents.parts.text = "text_value"
+                examples.stored_contents_example.contents_example.expected_contents.content.parts.text = "text_value"
+
+                request = aiplatform_v1beta1.UpsertExamplesRequest(
+                    example_store="example_store_value",
+                    examples=examples,
+                )
+
+                # Make the request
+                response = client.upsert_examples(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpsertExamplesRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.UpsertExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.UpsertExamples].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.UpsertExamplesResponse:
+                Response message for
+                   [ExampleStoreService.UpsertExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.UpsertExamples].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.UpsertExamplesRequest):
+            request = example_store_service.UpsertExamplesRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.upsert_examples]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("example_store", request.example_store),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def remove_examples(
+        self,
+        request: Optional[
+            Union[example_store_service.RemoveExamplesRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> example_store_service.RemoveExamplesResponse:
+        r"""Remove Examples from the Example Store.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_remove_examples():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.RemoveExamplesRequest(
+                    example_store="example_store_value",
+                )
+
+                # Make the request
+                response = client.remove_examples(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.RemoveExamplesRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.RemoveExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.RemoveExamples].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.RemoveExamplesResponse:
+                Response message for
+                   [ExampleStoreService.RemoveExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.RemoveExamples].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.RemoveExamplesRequest):
+            request = example_store_service.RemoveExamplesRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.remove_examples]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("example_store", request.example_store),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def search_examples(
+        self,
+        request: Optional[
+            Union[example_store_service.SearchExamplesRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> example_store_service.SearchExamplesResponse:
+        r"""Search for similar Examples for given selection
+        criteria.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_search_examples():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                stored_contents_example_parameters = aiplatform_v1beta1.StoredContentsExampleParameters()
+                stored_contents_example_parameters.search_key = "search_key_value"
+
+                request = aiplatform_v1beta1.SearchExamplesRequest(
+                    stored_contents_example_parameters=stored_contents_example_parameters,
+                    example_store="example_store_value",
+                )
+
+                # Make the request
+                response = client.search_examples(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.SearchExamplesRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.SearchExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.SearchExamples].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.SearchExamplesResponse:
+                Response message for
+                   [ExampleStoreService.SearchExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.SearchExamples].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.SearchExamplesRequest):
+            request = example_store_service.SearchExamplesRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.search_examples]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("example_store", request.example_store),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def fetch_examples(
+        self,
+        request: Optional[
+            Union[example_store_service.FetchExamplesRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> pagers.FetchExamplesPager:
+        r"""Get Examples from the Example Store.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_fetch_examples():
+                # Create a client
+                client = aiplatform_v1beta1.ExampleStoreServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.FetchExamplesRequest(
+                    example_store="example_store_value",
+                )
+
+                # Make the request
+                page_result = client.fetch_examples(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.FetchExamplesRequest, dict]):
+                The request object. Request message for
+                [ExampleStoreService.FetchExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.FetchExamples].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.example_store_service.pagers.FetchExamplesPager:
+                Response message for
+                   [ExampleStoreService.FetchExamples][google.cloud.aiplatform.v1beta1.ExampleStoreService.FetchExamples].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, example_store_service.FetchExamplesRequest):
+            request = example_store_service.FetchExamplesRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.fetch_examples]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("example_store", request.example_store),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.FetchExamplesPager(
+            method=rpc,
+            request=request,
+            response=response,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def __enter__(self) -> "ExampleStoreServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1913,4 +2544,4 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
 )
 
 
-__all__ = ("MigrationServiceClient",)
+__all__ = ("ExampleStoreServiceClient",)

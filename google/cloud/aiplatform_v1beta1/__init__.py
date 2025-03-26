@@ -30,6 +30,8 @@ from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.evaluation_service import EvaluationServiceClient
 from .services.evaluation_service import EvaluationServiceAsyncClient
+from .services.example_store_service import ExampleStoreServiceClient
+from .services.example_store_service import ExampleStoreServiceAsyncClient
 from .services.extension_execution_service import ExtensionExecutionServiceClient
 from .services.extension_execution_service import ExtensionExecutionServiceAsyncClient
 from .services.extension_registry_service import ExtensionRegistryServiceClient
@@ -407,6 +409,31 @@ from .types.evaluation_service import TrajectorySingleToolUseResults
 from .types.evaluation_service import TrajectorySingleToolUseSpec
 from .types.evaluation_service import PairwiseChoice
 from .types.event import Event
+from .types.example import ContentsExample
+from .types.example import StoredContentsExample
+from .types.example_store import ExamplesArrayFilter
+from .types.example_store import ExampleStore
+from .types.example_store import ExampleStoreConfig
+from .types.example_store import StoredContentsExampleFilter
+from .types.example_store import StoredContentsExampleParameters
+from .types.example_store_service import CreateExampleStoreOperationMetadata
+from .types.example_store_service import CreateExampleStoreRequest
+from .types.example_store_service import DeleteExampleStoreOperationMetadata
+from .types.example_store_service import DeleteExampleStoreRequest
+from .types.example_store_service import Example
+from .types.example_store_service import FetchExamplesRequest
+from .types.example_store_service import FetchExamplesResponse
+from .types.example_store_service import GetExampleStoreRequest
+from .types.example_store_service import ListExampleStoresRequest
+from .types.example_store_service import ListExampleStoresResponse
+from .types.example_store_service import RemoveExamplesRequest
+from .types.example_store_service import RemoveExamplesResponse
+from .types.example_store_service import SearchExamplesRequest
+from .types.example_store_service import SearchExamplesResponse
+from .types.example_store_service import UpdateExampleStoreOperationMetadata
+from .types.example_store_service import UpdateExampleStoreRequest
+from .types.example_store_service import UpsertExamplesRequest
+from .types.example_store_service import UpsertExamplesResponse
 from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import BlurBaselineConfig
@@ -1216,6 +1243,7 @@ __all__ = (
     "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
     "EvaluationServiceAsyncClient",
+    "ExampleStoreServiceAsyncClient",
     "ExtensionExecutionServiceAsyncClient",
     "ExtensionRegistryServiceAsyncClient",
     "FeatureOnlineStoreAdminServiceAsyncClient",
@@ -1352,6 +1380,7 @@ __all__ = (
     "ContainerSpec",
     "Content",
     "ContentMap",
+    "ContentsExample",
     "Context",
     "CopyModelOperationMetadata",
     "CopyModelRequest",
@@ -1377,6 +1406,8 @@ __all__ = (
     "CreateEndpointRequest",
     "CreateEntityTypeOperationMetadata",
     "CreateEntityTypeRequest",
+    "CreateExampleStoreOperationMetadata",
+    "CreateExampleStoreRequest",
     "CreateExecutionRequest",
     "CreateFeatureGroupOperationMetadata",
     "CreateFeatureGroupRequest",
@@ -1456,6 +1487,8 @@ __all__ = (
     "DeleteDeploymentResourcePoolRequest",
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
+    "DeleteExampleStoreOperationMetadata",
+    "DeleteExampleStoreRequest",
     "DeleteExecutionRequest",
     "DeleteExtensionRequest",
     "DeleteFeatureGroupRequest",
@@ -1554,7 +1587,12 @@ __all__ = (
     "ExactMatchMetricValue",
     "ExactMatchResults",
     "ExactMatchSpec",
+    "Example",
+    "ExampleStore",
+    "ExampleStoreConfig",
+    "ExampleStoreServiceClient",
     "Examples",
+    "ExamplesArrayFilter",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
     "ExecutableCode",
@@ -1618,6 +1656,8 @@ __all__ = (
     "FeaturestoreMonitoringConfig",
     "FeaturestoreOnlineServingServiceClient",
     "FeaturestoreServiceClient",
+    "FetchExamplesRequest",
+    "FetchExamplesResponse",
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
     "FileData",
@@ -1662,6 +1702,7 @@ __all__ = (
     "GetDeploymentResourcePoolRequest",
     "GetEndpointRequest",
     "GetEntityTypeRequest",
+    "GetExampleStoreRequest",
     "GetExecutionRequest",
     "GetExtensionRequest",
     "GetFeatureGroupRequest",
@@ -1775,6 +1816,8 @@ __all__ = (
     "ListEntityTypesResponse",
     "ListEventsRequest",
     "ListEventsResponse",
+    "ListExampleStoresRequest",
+    "ListExampleStoresResponse",
     "ListExecutionsRequest",
     "ListExecutionsResponse",
     "ListExtensionsRequest",
@@ -2082,6 +2125,8 @@ __all__ = (
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
+    "RemoveExamplesRequest",
+    "RemoveExamplesResponse",
     "ReservationAffinity",
     "ResourcePool",
     "ResourceRuntime",
@@ -2128,6 +2173,8 @@ __all__ = (
     "SearchDataItemsRequest",
     "SearchDataItemsResponse",
     "SearchEntryPoint",
+    "SearchExamplesRequest",
+    "SearchExamplesResponse",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
     "SearchMigratableResourcesRequest",
@@ -2162,6 +2209,9 @@ __all__ = (
     "StopNotebookRuntimeRequest",
     "StopNotebookRuntimeResponse",
     "StopTrialRequest",
+    "StoredContentsExample",
+    "StoredContentsExampleFilter",
+    "StoredContentsExampleParameters",
     "StratifiedSplit",
     "StreamDirectPredictRequest",
     "StreamDirectPredictResponse",
@@ -2300,6 +2350,8 @@ __all__ = (
     "UpdateEndpointOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
+    "UpdateExampleStoreOperationMetadata",
+    "UpdateExampleStoreRequest",
     "UpdateExecutionRequest",
     "UpdateExplanationDatasetOperationMetadata",
     "UpdateExplanationDatasetRequest",
@@ -2352,6 +2404,8 @@ __all__ = (
     "UploadRagFileResponse",
     "UpsertDatapointsRequest",
     "UpsertDatapointsResponse",
+    "UpsertExamplesRequest",
+    "UpsertExamplesResponse",
     "UserActionReference",
     "Value",
     "VertexAISearch",
