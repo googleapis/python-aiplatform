@@ -971,6 +971,7 @@ from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
 from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
@@ -1741,6 +1742,7 @@ __all__ = (
     "QuestionAnsweringRelevanceInstance",
     "QuestionAnsweringRelevanceResult",
     "QuestionAnsweringRelevanceSpec",
+    "RagChunk",
     "RagContexts",
     "RagCorpus",
     "RagEmbeddingModelConfig",
