@@ -13,18 +13,19 @@
 # limitations under the License.
 #
 import importlib
-from unittest import mock
 import json
+from unittest import mock
 
 from google import auth
 import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai.preview.reasoning_engines.templates import llama_index
 from vertexai.reasoning_engines import _utils
-import pytest
 
 from llama_index.core import prompts
 from llama_index.core.base.llms import types
+
+import pytest
 
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
@@ -232,3 +233,88 @@ class TestLlamaIndexQueryPipelineAgent:
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # agent.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+
+
+class TestToJsonSerializableLlamaIndexObject:
+    """Tests for `_utils.to_json_serializable_llama_index_object`."""
+
+    def test_llama_index_response(self):
+        mock_response: _utils.LlamaIndexResponse = mock.Mock(
+            spec=_utils.LlamaIndexResponse
+        )
+        mock_response.response = "test response"
+        mock_response.source_nodes = [
+            mock.Mock(
+                spec=_utils.LlamaIndexBaseModel,
+                model_dump_json=lambda: '{"name": "model1"}',
+            ),
+            mock.Mock(
+                spec=_utils.LlamaIndexBaseModel,
+                model_dump_json=lambda: '{"name": "model2"}',
+            ),
+        ]
+        mock_response.metadata = {"key": "value"}
+
+        want = {
+            "response": "test response",
+            "source_nodes": ['{"name": "model1"}', '{"name": "model2"}'],
+            "metadata": {"key": "value"},
+        }
+        got = _utils.to_json_serializable_llama_index_object(mock_response)
+        assert got == want
+
+    def test_llama_index_chat_response(self):
+        mock_chat_response: _utils.LlamaIndexChatResponse = mock.Mock(
+            spec=_utils.LlamaIndexChatResponse
+        )
+        mock_chat_response.message = mock.Mock(
+            spec=_utils.LlamaIndexBaseModel,
+            model_dump_json=lambda: '{"content": "chat message"}',
+        )
+
+        want = {"content": "chat message"}
+        got = _utils.to_json_serializable_llama_index_object(mock_chat_response)
+        assert got == want
+
+    def test_llama_index_base_model(self):
+        mock_base_model: _utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_utils.LlamaIndexBaseModel
+        )
+        mock_base_model.model_dump_json = lambda: '{"name": "test_model"}'
+
+        want = {"name": "test_model"}
+        got = _utils.to_json_serializable_llama_index_object(mock_base_model)
+        assert got == want
+
+    def test_sequence_of_llama_index_base_model(self):
+        mock_base_model1: _utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_utils.LlamaIndexBaseModel
+        )
+        mock_base_model1.model_dump_json = lambda: '{"name": "test_model1"}'
+        mock_base_model2: _utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_utils.LlamaIndexBaseModel
+        )
+        mock_base_model2.model_dump_json = lambda: '{"name": "test_model2"}'
+        mock_base_model_list = [mock_base_model1, mock_base_model2]
+
+        want = [{"name": "test_model1"}, {"name": "test_model2"}]
+        got = _utils.to_json_serializable_llama_index_object(mock_base_model_list)
+        assert got == want
+
+    def test_sequence_of_mixed_types(self):
+        mock_base_model: _utils.LlamaIndexBaseModel = mock.Mock(
+            spec=_utils.LlamaIndexBaseModel
+        )
+        mock_base_model.model_dump_json = lambda: '{"name": "test_model"}'
+        mock_string = "test_string"
+        mock_list = [mock_base_model, mock_string]
+
+        want = [{"name": "test_model"}, "test_string"]
+        got = _utils.to_json_serializable_llama_index_object(mock_list)
+        assert got == want
+
+    def test_other_type(self):
+        test_dict = {"name": "test_model"}
+        want = "{'name': 'test_model'}"
+        got = _utils.to_json_serializable_llama_index_object(test_dict)
+        assert got == want

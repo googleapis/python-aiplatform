@@ -523,7 +523,7 @@ class LlamaIndexQueryPipelineAgent:
         self,
         input: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Union[Dict[str, Any], Sequence[Dict[str, Any]]]:
+    ) -> Union[str, Dict[str, Any], Sequence[Union[str, Dict[str, Any]]]]:
         """Queries the Agent with the given input and config.
 
         Args:
@@ -536,9 +536,7 @@ class LlamaIndexQueryPipelineAgent:
         Returns:
             The output of querying the Agent with the given input and config.
         """
-        import json
         from vertexai.reasoning_engines import _utils
-        from llama_index.core.base.response import schema
 
         if isinstance(input, str):
             input = {"input": input}
@@ -546,9 +544,6 @@ class LlamaIndexQueryPipelineAgent:
         if not self._runnable:
             self.set_up()
 
-        response = self._runnable.run(**input, **kwargs)
-        if isinstance(response, schema.Response):
-            return _utils.llama_index_response_to_dict(response)
-        if isinstance(response, Sequence):
-            return [json.loads(r.model_dump_json()) for r in response]
-        return json.loads(response.model_dump_json())
+        return _utils.to_json_serializable_llama_index_object(
+            self._runnable.run(**input, **kwargs)
+        )
