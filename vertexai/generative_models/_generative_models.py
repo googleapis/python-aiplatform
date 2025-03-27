@@ -2330,26 +2330,73 @@ def _convert_schema_dict_to_gapic(schema_dict: Dict[str, Any]) -> Dict[str, Any]
     return gapic_schema_dict
 
 
+def _remove_dollar_from_keys(schema_dict: Dict[str, Any]) -> None:
+    """Renames, e.g., "$defs" to "defs" in-place."""
+    for dollar_name in ["$defs", "$ref"]:
+        value = schema_dict.pop(dollar_name, None)
+        if value is not None:
+            schema_dict[dollar_name[1:]] = value
+
+
+def _as_camel_case(name: str) -> str:
+    """Returns the `name`, which may be in snake_case, in lowerCamelCase."""
+    words = name.split("_")
+    return words.pop(0) + "".join(word.title() for word in words)
+
+
+def _rename_snake_to_camel_keys(schema_dict: Dict[str, Any]) -> None:
+    """Renames, e.g., "max_items" to "maxItems" in-place."""
+    keys = list(schema_dict)  # cache so we can update while iterating
+    for key in keys:
+        value = schema_dict.pop(key)
+        schema_dict[_as_camel_case(key)] = value
+
+
 def _fix_schema_dict_for_gapic_in_place(schema_dict: Dict[str, Any]) -> None:
     """Converts a JsonSchema to a dict that the Schema proto class accepts."""
+    # Standardize keys so we don't have to consider multiple spellings below.
+    _remove_dollar_from_keys(schema_dict)
+    _rename_snake_to_camel_keys(schema_dict)
+
     if "type" in schema_dict:
         schema_dict["type"] = schema_dict["type"].upper()
 
     if items_schema := schema_dict.get("items"):
         _fix_schema_dict_for_gapic_in_place(items_schema)
 
+    if prefixes := schema_dict.get("prefixItems"):
+        for prefix_schema in prefixes:
+            _fix_schema_dict_for_gapic_in_place(prefix_schema)
+
     if properties := schema_dict.get("properties"):
         for property_schema in properties.values():
             _fix_schema_dict_for_gapic_in_place(property_schema)
-        if (
-            "property_ordering" not in schema_dict
-            and "propertyOrdering" not in schema_dict
-        ):
-            schema_dict["property_ordering"] = list(properties.keys())
+        if "propertyOrdering" not in schema_dict:
+            schema_dict["propertyOrdering"] = list(properties.keys())
 
-    if any_of := (schema_dict.get("any_of") or schema_dict.get("anyOf")):
+    # The "additionalProperties" field may be set to a sub-schema or a boolean.
+    # To avoid this polymorphism, we eliminate boolean values as follows:
+    #   False: This means that no additional properties are allowed, besides
+    #          those listed in "properties".  We remove this because that is
+    #          already our default behavior.
+    #    True: This means that additional properties are allowed with any value
+    #          type.  We replace this with an equivalent empty dict:
+    #          https://screenshot.googleplex.com/yvgmAmZay5Dw7qY
+    if (additional := schema_dict.get("additionalProperties")) is not None:
+        if additional is False:
+            del schema_dict["additionalProperties"]
+        elif additional is True:
+            schema_dict["additionalProperties"] = {}
+        else:
+            _fix_schema_dict_for_gapic_in_place(additional)
+
+    if any_of := schema_dict.get("anyOf"):
         for any_of_schema in any_of:
             _fix_schema_dict_for_gapic_in_place(any_of_schema)
+
+    if defs := schema_dict.get("defs"):
+        for def_schema in defs.values():
+            _fix_schema_dict_for_gapic_in_place(def_schema)
 
 
 class CallableFunctionDeclaration(FunctionDeclaration):

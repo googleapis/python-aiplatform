@@ -38,6 +38,7 @@ from vertexai.generative_models._generative_models import (
     gapic_prediction_service_types,
     gapic_content_types,
     gapic_tool_types,
+    _fix_schema_dict_for_gapic_in_place,
 )
 from google.cloud.aiplatform_v1.types.cached_content import (
     CachedContent as GapicCachedContent,
@@ -1536,6 +1537,158 @@ class TestGenerativeModels:
             parameters=_RENAMING_INPUT_SCHEMA,
         )
         assert function.to_dict()["parameters"] == _RENAMING_EXPECTED_SCHEMA
+
+    def test_prefix_items_renaming(self):
+        actual = {
+            "type": "array",
+            "prefixItems": [
+                {"type": "boolean"},
+                {
+                    "type": "arraY",
+                    "prefix_items": [
+                        {"type": "INTeger"},
+                        {"type": "string"},
+                        {"type": "number"},
+                    ],
+                },
+            ],
+        }
+        _fix_schema_dict_for_gapic_in_place(actual)
+        expected = {
+            "type": "ARRAY",
+            "prefixItems": [
+                {"type": "BOOLEAN"},
+                {
+                    "type": "ARRAY",
+                    "prefixItems": [
+                        {"type": "INTEGER"},
+                        {"type": "STRING"},
+                        {"type": "NUMBER"},
+                    ],
+                },
+            ],
+        }
+        assert actual == expected
+
+    def test_additional_properties_renaming(self):
+        actual = {
+            "type": "object",
+            "properties": {
+                "snake_case_false_pruned": {
+                    "type": "object",
+                    "additional_properties": False,
+                },
+                "snake_case_true_replaced_with_empty_dict": {
+                    "type": "object",
+                    "additional_properties": True,
+                },
+                "snake_case_sub_schema_processed": {
+                    "type": "object",
+                    "additional_properties": {"type": "string"},
+                },
+                "camelCase_false_pruned": {
+                    "type": "object",
+                    "additionalProperties": False,
+                },
+                "camelCase_true_replaced_with_empty_dict": {
+                    "type": "object",
+                    "additionalProperties": True,
+                },
+                "camelCase_sub_schema_processed": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"},
+                },
+            },
+        }
+        _fix_schema_dict_for_gapic_in_place(actual)
+        expected = {
+            "type": "OBJECT",
+            "properties": {
+                "snake_case_false_pruned": {
+                    "type": "OBJECT",
+                },
+                "snake_case_true_replaced_with_empty_dict": {
+                    "type": "OBJECT",
+                    "additionalProperties": {},
+                },
+                "snake_case_sub_schema_processed": {
+                    "type": "OBJECT",
+                    "additionalProperties": {"type": "STRING"},
+                },
+                "camelCase_false_pruned": {
+                    "type": "OBJECT",
+                },
+                "camelCase_true_replaced_with_empty_dict": {
+                    "type": "OBJECT",
+                    "additionalProperties": {},
+                },
+                "camelCase_sub_schema_processed": {
+                    "type": "OBJECT",
+                    "additionalProperties": {"type": "STRING"},
+                },
+            },
+            "propertyOrdering": [
+                "snake_case_false_pruned",
+                "snake_case_true_replaced_with_empty_dict",
+                "snake_case_sub_schema_processed",
+                "camelCase_false_pruned",
+                "camelCase_true_replaced_with_empty_dict",
+                "camelCase_sub_schema_processed",
+            ],
+        }
+        assert actual == expected
+
+    def test_defs_ref_renaming(self):
+        for actual, expected in [
+            (
+                {
+                    "type": "integer",
+                    "$defs": {
+                        "Foo": {"type": "string"},
+                        "Foos": {
+                            "type": "array",
+                            "items": {"$ref": "#/$defs/Foo"},
+                        },
+                    },
+                },
+                {
+                    "type": "INTEGER",
+                    "defs": {
+                        "Foo": {"type": "STRING"},
+                        "Foos": {
+                            "type": "ARRAY",
+                            # NB: Reference expansion accepts paths with "$defs"
+                            # or "defs", so this needn't be normalized.
+                            "items": {"ref": "#/$defs/Foo"},
+                        },
+                    },
+                },
+            ),
+            (
+                {
+                    "type": "integer",
+                    "defs": {
+                        "Foo": {"type": "string"},
+                        "Foos": {
+                            "type": "array",
+                            "items": {"ref": "#/defs/Foo"},
+                        },
+                    },
+                },
+                {
+                    "type": "INTEGER",
+                    "defs": {
+                        "Foo": {"type": "STRING"},
+                        "Foos": {
+                            "type": "ARRAY",
+                            "items": {"ref": "#/defs/Foo"},
+                        },
+                    },
+                },
+            ),
+        ]:
+            _fix_schema_dict_for_gapic_in_place(actual)
+            assert actual == expected
 
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {
