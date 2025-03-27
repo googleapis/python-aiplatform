@@ -1,5 +1,58 @@
 # Changelog
 
+## [1.86.0](https://github.com/googleapis/python-aiplatform/compare/v1.85.0...v1.86.0) (2025-03-26)
+
+
+### Features
+
+* Add a ExportPublisherModel API ([#5055](https://github.com/googleapis/python-aiplatform/issues/5055)) ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add AssessData and AssembleData RPCs to DatasetService ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add batch prediction assessments to multimodal dataset RPCs ([a6d975e](https://github.com/googleapis/python-aiplatform/commit/a6d975e2ff3a97ff05757e2a5ac5576dd48feb24))
+* Add env variables and agent framework to ReasoningEngineSpec ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add env variables and agent framework to ReasoningEngineSpec in v1beta1 ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add example, example_store, and example_store_service protos ([a6d975e](https://github.com/googleapis/python-aiplatform/commit/a6d975e2ff3a97ff05757e2a5ac5576dd48feb24))
+* Add import result bq sink to the import files API ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add import result bq sink to the import files API ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add import result gcs sink to the import files API ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add import result gcs sink to the import files API ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add model_config field for model selection preference ([a6d975e](https://github.com/googleapis/python-aiplatform/commit/a6d975e2ff3a97ff05757e2a5ac5576dd48feb24))
+* Add multihost_gpu_node_count to Vertex SDK. ([03d9bf7](https://github.com/googleapis/python-aiplatform/commit/03d9bf724d39f4e81356265679e3e4cc810afea7))
+* Add ray 2.33 and 2.42 unit tests as required checks ([51dbe94](https://github.com/googleapis/python-aiplatform/commit/51dbe943e9ace017f90a4bf32bc061b87b185054))
+* Add session.proto and session_service.proto ([a6d975e](https://github.com/googleapis/python-aiplatform/commit/a6d975e2ff3a97ff05757e2a5ac5576dd48feb24))
+* Add support for version 2.42 for RoV Bigquery read/write ([6090205](https://github.com/googleapis/python-aiplatform/commit/60902052fef2772dbc86b7e186cd8199250bb338))
+* Add the initial version of the LlamaIndex agent prebuilt template. ([f1f2ea5](https://github.com/googleapis/python-aiplatform/commit/f1f2ea53e4af48205c63d110825c12365e82d996))
+* Add the initial version of the LlamaIndex agent prebuilt template. ([8cbea81](https://github.com/googleapis/python-aiplatform/commit/8cbea819557703c9051370cdea5b22aebb87fb37))
+* Add VertexAISearch.engine option ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Change format string assembly logic for prompt templates. ([43ebe97](https://github.com/googleapis/python-aiplatform/commit/43ebe9793d8dd5a96c59111f93c122413b3e9030))
+* Copy output uploading features from GA Eval SDK to preview. ([d6f99cb](https://github.com/googleapis/python-aiplatform/commit/d6f99cb51825f53e96662c84dad3ab061759da55))
+* Enable force deletion in ReasoningEngine ([a6d975e](https://github.com/googleapis/python-aiplatform/commit/a6d975e2ff3a97ff05757e2a5ac5576dd48feb24))
+* Enable force deletion in ReasoningEngine v1beta1 ([a6d975e](https://github.com/googleapis/python-aiplatform/commit/a6d975e2ff3a97ff05757e2a5ac5576dd48feb24))
+* Modify v1 sdk to support rerankers ([ececfb3](https://github.com/googleapis/python-aiplatform/commit/ececfb384c14717567e90b83195af6c1e8e416c1))
+* Update GenAI Evaluation QPS to 10. ([0995ce2](https://github.com/googleapis/python-aiplatform/commit/0995ce22d4a600d25d3f0aea290b28806bcf4b7b))
+* Update GenAI Evaluation QPS to 10. ([a59b0a6](https://github.com/googleapis/python-aiplatform/commit/a59b0a6952a2c2fd70aa1c59000d0e2ead1844c2))
+* Update multimodal evaluation (content_map_instance), rubric generation (rubric_based_instance, etc) and raw_output(raw_output, custom_output, etc) proto change in online eval API ([a6d975e](https://github.com/googleapis/python-aiplatform/commit/a6d975e2ff3a97ff05757e2a5ac5576dd48feb24))
+* Update Ray system tests to be compatible with new RoV 2.42 changes ([fbb9560](https://github.com/googleapis/python-aiplatform/commit/fbb9560c94dcc12525e3f319d5671317d8e0badb))
+* Update setup.py for including Ray v2.42 ([827b484](https://github.com/googleapis/python-aiplatform/commit/827b4840b3ae01637fb48429a8470ff8c6e29b4b))
+
+
+### Bug Fixes
+
+* Format of the input to GetPublisherModelRequest for Hugging Face models. ([8f7e8b9](https://github.com/googleapis/python-aiplatform/commit/8f7e8b91091148789c8ed4373b7dbb58fd1f04e5))
+* Format of the input to GetPublisherModelRequest for Hugging Face models. ([96d2ecb](https://github.com/googleapis/python-aiplatform/commit/96d2ecbb527cc52c71bbeddc2394eaf9c4f91e06))
+* GenAI Eval: fix a prompt template variable parsing issue when multiline json structures are present ([5da362f](https://github.com/googleapis/python-aiplatform/commit/5da362fd380356a239d4e5b84a01fccae4738b32))
+* GenAI Eval: fix a prompt template variable parsing issue when multiline json structures are present ([fd12cb8](https://github.com/googleapis/python-aiplatform/commit/fd12cb8148cbc0dc7d55dde49b07573f22a4ddaa))
+* GenAI Evaluation: Fix system instruction not being added to PairwiseMetric. ([5c60d95](https://github.com/googleapis/python-aiplatform/commit/5c60d955342004876bace8c015fbf1816cf2fe53))
+* GenAI Evaluation: Fix system instruction not being added to PairwiseMetric. ([c65879d](https://github.com/googleapis/python-aiplatform/commit/c65879d7874fda62718f6b542d7828ef5fa37367))
+* Update ipython import according to the latest ipython docs ([533012a](https://github.com/googleapis/python-aiplatform/commit/533012a8aac0808fe0b46cff43fc7587479d2310))
+
+
+### Documentation
+
+* Add `deployment_spec` and `agent_framework` field to `ReasoningEngineSpec`. ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Add `deployment_spec` and `agent_framework` field to `ReasoningEngineSpec`. ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Update comment for `package_spec` from required to optional in `ReasoningEngineSpec`. ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+* Update comment for `package_spec` from required to optional in `ReasoningEngineSpec`. ([4c69301](https://github.com/googleapis/python-aiplatform/commit/4c69301f17f4555c283ab9e097333c363cfe58d3))
+
 ## [1.85.0](https://github.com/googleapis/python-aiplatform/compare/v1.84.0...v1.85.0) (2025-03-18)
 
 

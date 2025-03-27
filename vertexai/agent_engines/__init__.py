@@ -59,7 +59,7 @@ def get(resource_name: str) -> AgentEngine:
 
 
 def create(
-    agent_engine: Union[Queryable, OperationRegistrable],
+    agent_engine: Optional[Union[Queryable, OperationRegistrable]] = None,
     *,
     requirements: Optional[Union[str, Sequence[str]]] = None,
     display_name: Optional[str] = None,

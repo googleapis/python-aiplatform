@@ -304,29 +304,21 @@ _TEST_AGENT_ENGINE_QUERY_SCHEMA = _utils.to_proto(
     )
 )
 _TEST_AGENT_ENGINE_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_STANDARD_API_MODE
+_TEST_AGENT_ENGINE_PACKAGE_SPEC = types.ReasoningEngineSpec.PackageSpec(
+    python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
+    pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
+    dependency_files_gcs_uri=_TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
+    requirements_gcs_uri=_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+)
 _TEST_INPUT_AGENT_ENGINE_OBJ = types.ReasoningEngine(
     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-    spec=types.ReasoningEngineSpec(
-        package_spec=types.ReasoningEngineSpec.PackageSpec(
-            python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
-            pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
-            dependency_files_gcs_uri=_TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
-            requirements_gcs_uri=_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
-        ),
-    ),
+    spec=types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC),
 )
 _TEST_INPUT_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
 _TEST_AGENT_ENGINE_OBJ = types.ReasoningEngine(
     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-    spec=types.ReasoningEngineSpec(
-        package_spec=types.ReasoningEngineSpec.PackageSpec(
-            python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
-            pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
-            dependency_files_gcs_uri=_TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
-            requirements_gcs_uri=_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
-        ),
-    ),
+    spec=types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC),
 )
 _TEST_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
 _TEST_UPDATE_AGENT_ENGINE_OBJ = types.ReasoningEngine(
@@ -601,17 +593,6 @@ def stream_query_agent_engine_mock():
         return_value=mock_streamer(),
     ) as stream_query_agent_engine_mock:
         yield stream_query_agent_engine_mock
-
-
-# Function scope is required for the pytest parameterized tests.
-@pytest.fixture(scope="function")
-def types_agent_engine_mock():
-    with mock.patch.object(
-        types,
-        "ReasoningEngine",
-        return_value=types.ReasoningEngine(name=_TEST_AGENT_ENGINE_RESOURCE_NAME),
-    ) as types_agent_engine_mock:
-        yield types_agent_engine_mock
 
 
 @pytest.fixture(scope="function")
@@ -1234,24 +1215,22 @@ class TestAgentEngine:
         test_case_name,
         test_engine,
         want_class_methods,
-        types_agent_engine_mock,
+        create_agent_engine_mock,
     ):
-        agent_engines.create(test_engine)
-        want_spec = types.ReasoningEngineSpec(
-            package_spec=types.ReasoningEngineSpec.PackageSpec(
-                python_version=(f"{sys.version_info.major}.{sys.version_info.minor}"),
-                requirements_gcs_uri=_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
-                pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
-            )
+        agent_engines.create(
+            test_engine,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
         )
-        want_spec.class_methods.extend(want_class_methods)
-        assert_called_with_diff(
-            types_agent_engine_mock,
-            {
-                "display_name": None,
-                "description": None,
-                "spec": want_spec,
-            },
+        spec = types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC)
+        spec.class_methods.extend(want_class_methods)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=spec,
+            ),
         )
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
