@@ -360,6 +360,7 @@ def prepare_import_files_request(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
     parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesRequest:
@@ -406,6 +407,22 @@ def prepare_import_files_request(
         rag_file_parsing_config=rag_file_parsing_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
     )
+
+    import_result_sink = import_result_sink or partial_failures_sink
+
+    if import_result_sink is not None:
+        if import_result_sink.startswith("gs://"):
+            import_rag_files_config.partial_failure_gcs_sink.output_uri_prefix = (
+                import_result_sink
+            )
+        elif import_result_sink.startswith("bq://"):
+            import_rag_files_config.partial_failure_bigquery_sink.output_uri = (
+                import_result_sink
+            )
+        else:
+            raise ValueError(
+                "import_result_sink must be a GCS path or a BigQuery table."
+            )
 
     if source is not None:
         gapic_source = convert_source_for_rag_import(source)
