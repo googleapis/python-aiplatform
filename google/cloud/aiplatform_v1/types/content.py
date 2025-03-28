@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import openapi
 from google.cloud.aiplatform_v1.types import tool
+from google.cloud.aiplatform_v1.types import vertex_rag_data
 from google.protobuf import duration_pb2  # type: ignore
 from google.type import date_pb2  # type: ignore
 
@@ -1096,6 +1097,12 @@ class GroundingChunk(proto.Message):
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
+            rag_chunk (google.cloud.aiplatform_v1.types.RagChunk):
+                Additional context for the RAG retrieval
+                result. This is only populated when using the
+                RAG retrieval tool.
+
+                This field is a member of `oneof`_ ``context_details``.
             uri (str):
                 URI reference of the attribution.
 
@@ -1110,6 +1117,12 @@ class GroundingChunk(proto.Message):
                 This field is a member of `oneof`_ ``_text``.
         """
 
+        rag_chunk: vertex_rag_data.RagChunk = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            oneof="context_details",
+            message=vertex_rag_data.RagChunk,
+        )
         uri: str = proto.Field(
             proto.STRING,
             number=1,

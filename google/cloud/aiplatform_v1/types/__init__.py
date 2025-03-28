@@ -1100,6 +1100,7 @@ from .vertex_rag_data import (
     CorpusStatus,
     FileStatus,
     ImportRagFilesConfig,
+    RagChunk,
     RagCorpus,
     RagEmbeddingModelConfig,
     RagFile,
@@ -1108,6 +1109,7 @@ from .vertex_rag_data import (
     RagFileTransformationConfig,
     RagVectorDbConfig,
     UploadRagFileConfig,
+    VertexAiSearchConfig,
 )
 from .vertex_rag_data_service import (
     CreateRagCorpusOperationMetadata,
@@ -2022,6 +2024,7 @@ __all__ = (
     "CorpusStatus",
     "FileStatus",
     "ImportRagFilesConfig",
+    "RagChunk",
     "RagCorpus",
     "RagEmbeddingModelConfig",
     "RagFile",
@@ -2030,6 +2033,7 @@ __all__ = (
     "RagFileTransformationConfig",
     "RagVectorDbConfig",
     "UploadRagFileConfig",
+    "VertexAiSearchConfig",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",
     "DeleteRagCorpusRequest",

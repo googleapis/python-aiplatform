@@ -34,6 +34,7 @@ __protobuf__ = proto.module(
         "CorpusStatus",
         "RagCorpus",
         "RagFile",
+        "RagChunk",
         "RagFileChunkingConfig",
         "RagFileTransformationConfig",
         "RagFileParsingConfig",
@@ -470,6 +471,16 @@ class RagCorpus(proto.Message):
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
+        vector_db_config (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig):
+            Optional. Immutable. The config for the
+            Vector DBs.
+
+            This field is a member of `oneof`_ ``backend_config``.
+        vertex_ai_search_config (google.cloud.aiplatform_v1beta1.types.VertexAiSearchConfig):
+            Optional. Immutable. The config for the
+            Vertex AI Search.
+
+            This field is a member of `oneof`_ ``backend_config``.
         name (str):
             Output only. The resource name of the
             RagCorpus.
@@ -493,21 +504,23 @@ class RagCorpus(proto.Message):
             was last updated.
         corpus_status (google.cloud.aiplatform_v1beta1.types.CorpusStatus):
             Output only. RagCorpus state.
-        vector_db_config (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig):
-            Optional. Immutable. The config for the
-            Vector DBs.
-
-            This field is a member of `oneof`_ ``backend_config``.
-        vertex_ai_search_config (google.cloud.aiplatform_v1beta1.types.VertexAiSearchConfig):
-            Optional. Immutable. The config for the
-            Vertex AI Search.
-
-            This field is a member of `oneof`_ ``backend_config``.
         rag_files_count (int):
-            Output only. The number of RagFiles in the
+            Output only. Number of RagFiles in the
             RagCorpus.
     """
 
+    vector_db_config: "RagVectorDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        oneof="backend_config",
+        message="RagVectorDbConfig",
+    )
+    vertex_ai_search_config: "VertexAiSearchConfig" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        oneof="backend_config",
+        message="VertexAiSearchConfig",
+    )
     name: str = proto.Field(
         proto.STRING,
         number=1,
@@ -544,18 +557,6 @@ class RagCorpus(proto.Message):
         proto.MESSAGE,
         number=8,
         message="CorpusStatus",
-    )
-    vector_db_config: "RagVectorDbConfig" = proto.Field(
-        proto.MESSAGE,
-        number=9,
-        oneof="backend_config",
-        message="RagVectorDbConfig",
-    )
-    vertex_ai_search_config: "VertexAiSearchConfig" = proto.Field(
-        proto.MESSAGE,
-        number=10,
-        oneof="backend_config",
-        message="VertexAiSearchConfig",
     )
     rag_files_count: int = proto.Field(
         proto.INT32,
@@ -718,6 +719,56 @@ class RagFile(proto.Message):
     )
 
 
+class RagChunk(proto.Message):
+    r"""A RagChunk includes the content of a chunk of a RagFile, and
+    associated metadata.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        text (str):
+            The content of the chunk.
+        page_span (google.cloud.aiplatform_v1beta1.types.RagChunk.PageSpan):
+            If populated, represents where the chunk
+            starts and ends in the document.
+
+            This field is a member of `oneof`_ ``_page_span``.
+    """
+
+    class PageSpan(proto.Message):
+        r"""Represents where the chunk starts and ends in the document.
+
+        Attributes:
+            first_page (int):
+                Page where chunk starts in the document.
+                Inclusive. 1-indexed.
+            last_page (int):
+                Page where chunk ends in the document.
+                Inclusive. 1-indexed.
+        """
+
+        first_page: int = proto.Field(
+            proto.INT32,
+            number=1,
+        )
+        last_page: int = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+
+    text: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    page_span: PageSpan = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message=PageSpan,
+    )
+
+
 class RagFileChunkingConfig(proto.Message):
     r"""Specifies the size and overlap of chunks for RagFiles.
 
@@ -862,7 +913,8 @@ class RagFileParsingConfig(proto.Message):
         Attributes:
             model_name (str):
                 The name of a LLM model used for parsing. Format:
-                ``gemini-1.5-pro-002``
+
+                -  ``projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}``
             max_parsing_requests_per_min (int):
                 The maximum number of requests the job is
                 allowed to make to the LLM model per minute.

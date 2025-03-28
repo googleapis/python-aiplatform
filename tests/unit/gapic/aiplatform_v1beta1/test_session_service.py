@@ -80,6 +80,7 @@ from google.cloud.aiplatform_v1beta1.types import session
 from google.cloud.aiplatform_v1beta1.types import session as gca_session
 from google.cloud.aiplatform_v1beta1.types import session_service
 from google.cloud.aiplatform_v1beta1.types import tool
+from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -6762,6 +6763,10 @@ def test_append_event_rest_call_success(request_type):
                     {
                         "web": {"uri": "uri_value", "title": "title_value"},
                         "retrieved_context": {
+                            "rag_chunk": {
+                                "text": "text_value",
+                                "page_span": {"first_page": 1060, "last_page": 944},
+                            },
                             "uri": "uri_value",
                             "title": "title_value",
                             "text": "text_value",
@@ -8894,6 +8899,10 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                     {
                         "web": {"uri": "uri_value", "title": "title_value"},
                         "retrieved_context": {
+                            "rag_chunk": {
+                                "text": "text_value",
+                                "page_span": {"first_page": 1060, "last_page": 944},
+                            },
                             "uri": "uri_value",
                             "title": "title_value",
                             "text": "text_value",

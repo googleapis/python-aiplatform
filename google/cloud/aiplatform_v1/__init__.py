@@ -971,6 +971,7 @@ from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
 from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagFile
@@ -979,6 +980,7 @@ from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import VertexAiSearchConfig
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
@@ -1740,6 +1742,7 @@ __all__ = (
     "QuestionAnsweringRelevanceInstance",
     "QuestionAnsweringRelevanceResult",
     "QuestionAnsweringRelevanceSpec",
+    "RagChunk",
     "RagContexts",
     "RagCorpus",
     "RagEmbeddingModelConfig",
@@ -1993,6 +1996,7 @@ __all__ = (
     "UserActionReference",
     "Value",
     "VertexAISearch",
+    "VertexAiSearchConfig",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",

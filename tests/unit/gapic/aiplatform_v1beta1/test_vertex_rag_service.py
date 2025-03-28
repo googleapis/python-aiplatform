@@ -72,6 +72,7 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_service import transpor
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
 from google.cloud.aiplatform_v1beta1.types import tool
+from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
