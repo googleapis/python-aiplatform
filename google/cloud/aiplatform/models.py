@@ -699,6 +699,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     @property
     def _prediction_client(self) -> utils.PredictionClientWithOverride:
+        api_key = initializer.global_config.api_key
+        if api_key and initializer.global_config.project:
+            api_key = None
         # The attribute might not exist due to issues in
         # `VertexAiResourceNounWithFutureManager._sync_object_with_future_result`
         # We should switch to @functools.cached_property once its available.
@@ -706,8 +709,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             self._prediction_client_value = initializer.global_config.create_client(
                 client_class=utils.PredictionClientWithOverride,
                 credentials=self.credentials,
-                location_override=self.location,
+                location_override=self.location if not api_key else None,
                 prediction_client=True,
+                api_key=api_key,
             )
         return self._prediction_client_value
 
