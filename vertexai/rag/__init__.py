@@ -59,6 +59,7 @@ from vertexai.rag.utils.resources import (
     SlackChannel,
     SlackChannelsSource,
     TransformationConfig,
+    VertexAiSearchConfig,
     VertexPredictionEndpoint,
     VertexVectorSearch,
 )
@@ -87,6 +88,7 @@ __all__ = (
     "SlackChannel",
     "SlackChannelsSource",
     "TransformationConfig",
+    "VertexAiSearchConfig",
     "VertexRagStore",
     "VertexPredictionEndpoint",
     "VertexVectorSearch",

@@ -144,6 +144,21 @@ class Pinecone:
 
 
 @dataclasses.dataclass
+class VertexAiSearchConfig:
+    """VertexAiSearchConfig.
+
+    Attributes:
+        serving_config: The resource name of the Vertex AI Search serving config.
+            Format:
+                ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}/servingConfigs/{serving_config}``
+            or
+                ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}/servingConfigs/{serving_config}``
+    """
+
+    serving_config: Optional[str] = None
+
+
+@dataclasses.dataclass
 class RagVectorDbConfig:
     """RagVectorDbConfig.
 
@@ -172,6 +187,7 @@ class RagCorpus:
             ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}``
         display_name: Display name that was configured at client side.
         description: The description of the RagCorpus.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
         backend_config: The backend config of the RagCorpus. It can be a data
             store and/or retrieval engine.
     """
@@ -179,6 +195,7 @@ class RagCorpus:
     name: Optional[str] = None
     display_name: Optional[str] = None
     description: Optional[str] = None
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
     backend_config: Optional[
         Union[
             RagVectorDbConfig,

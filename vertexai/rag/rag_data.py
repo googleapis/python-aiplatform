@@ -50,6 +50,7 @@ from vertexai.rag.utils.resources import (
     RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
+    VertexAiSearchConfig,
     TransformationConfig,
 )
 
@@ -57,6 +58,7 @@ from vertexai.rag.utils.resources import (
 def create_corpus(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[
         Union[
             RagVectorDbConfig,
@@ -83,6 +85,9 @@ def create_corpus(
             the RagCorpus. The name can be up to 128 characters long and can
             consist of any UTF-8 characters.
         description: The description of the RagCorpus.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+            Note: backend_config cannot be set if vertex_ai_search_config is
+            specified.
         backend_config: The backend config of the RagCorpus, specifying a
           data store and/or embedding model.
     Returns:
@@ -91,15 +96,27 @@ def create_corpus(
         RuntimeError: Failed in RagCorpus creation due to exception.
         RuntimeError: Failed in RagCorpus creation due to operation error.
     """
+    if vertex_ai_search_config and backend_config:
+        raise ValueError(
+            "Only one of vertex_ai_search_config or backend_config can be set."
+        )
+
     if not display_name:
         display_name = "vertex-" + utils.timestamped_unique_name()
     parent = initializer.global_config.common_location_path(project=None, location=None)
 
     rag_corpus = GapicRagCorpus(display_name=display_name, description=description)
-    _gapic_utils.set_backend_config(
-        backend_config=backend_config,
-        rag_corpus=rag_corpus,
-    )
+
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
+        )
+    elif vertex_ai_search_config:
+        _gapic_utils.set_vertex_ai_search_config(
+            vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
 
     request = CreateRagCorpusRequest(
         parent=parent,
@@ -118,6 +135,7 @@ def update_corpus(
     corpus_name: str,
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[
         Union[
             RagVectorDbConfig,
@@ -149,6 +167,10 @@ def update_corpus(
           and can consist of any UTF-8 characters.
         description: The description of the RagCorpus. If not provided, the
           description will not be updated.
+        vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
+          If not provided, the Vertex AI Search config will not be updated.
+          Note: backend_config cannot be set if vertex_ai_search_config is
+          specified.
         backend_config: The backend config of the RagCorpus, specifying a
           data store and/or embedding model.
 
@@ -158,6 +180,11 @@ def update_corpus(
         RuntimeError: Failed in RagCorpus update due to exception.
         RuntimeError: Failed in RagCorpus update due to operation error.
     """
+    if vertex_ai_search_config and backend_config:
+        raise ValueError(
+            "Only one of vertex_ai_search_config or backend_config can be set."
+        )
+
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     if display_name and description:
         rag_corpus = GapicRagCorpus(
@@ -170,10 +197,17 @@ def update_corpus(
     else:
         rag_corpus = GapicRagCorpus(name=corpus_name)
 
-    _gapic_utils.set_backend_config(
-        backend_config=backend_config,
-        rag_corpus=rag_corpus,
-    )
+    if backend_config:
+        _gapic_utils.set_backend_config(
+            backend_config=backend_config,
+            rag_corpus=rag_corpus,
+        )
+
+    if vertex_ai_search_config:
+        _gapic_utils.set_vertex_ai_search_config(
+            vertex_ai_search_config=vertex_ai_search_config,
+            rag_corpus=rag_corpus,
+        )
 
     request = UpdateRagCorpusRequest(
         rag_corpus=rag_corpus,
