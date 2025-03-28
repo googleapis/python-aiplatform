@@ -572,8 +572,8 @@ def _validate_agent_engine_or_raise(
 
 def _validate_requirements_or_raise(
     agent_engine: Union[Queryable, OperationRegistrable],
-    requirements: Optional[list[str]] = None,
-) -> list[str]:
+    requirements: Optional[Sequence[str]] = None,
+) -> Sequence[str]:
     """Tries to validate the requirements."""
     if requirements is None:
         requirements = []
