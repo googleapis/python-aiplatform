@@ -395,6 +395,7 @@ def import_files(
     transformation_config: Optional[TransformationConfig] = None,
     timeout: int = 600,
     max_embedding_requests_per_min: int = 1000,
+    import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
     parser: Optional[LayoutParserConfig] = None,
 ) -> ImportRagFilesResponse:
@@ -509,8 +510,17 @@ def import_files(
             here. If unspecified, a default value of 1,000
             QPM would be used.
         timeout: Default is 600 seconds.
-        partial_failures_sink: Either a GCS path to store partial failures or a
-            BigQuery table to store partial failures. The format is
+        import_result_sink: Either a GCS path to store import results or a
+            BigQuery table to store import results. The format is
+            "gs://my-bucket/my/object.ndjson" for GCS or
+            "bq://my-project.my-dataset.my-table" for BigQuery. An existing GCS
+            object cannot be used. However, the BigQuery table may or may not
+            exist - if it does not exist, it will be created. If it does exist,
+            the schema will be checked and the import results will be appended
+            to the table.
+        partial_failures_sink: Deprecated. Prefer to use `import_result_sink`.
+            Either a GCS path to store partial failures or a BigQuery table to
+            store partial failures. The format is
             "gs://my-bucket/my/object.ndjson" for GCS or
             "bq://my-project.my-dataset.my-table" for BigQuery. An existing GCS
             object cannot be used. However, the BigQuery table may or may not
@@ -534,6 +544,7 @@ def import_files(
         source=source,
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        import_result_sink=import_result_sink,
         partial_failures_sink=partial_failures_sink,
         parser=parser,
     )
@@ -552,6 +563,7 @@ async def import_files_async(
     source: Optional[Union[SlackChannelsSource, JiraSource, SharePointSources]] = None,
     transformation_config: Optional[TransformationConfig] = None,
     max_embedding_requests_per_min: int = 1000,
+    import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
     parser: Optional[LayoutParserConfig] = None,
 ) -> operation_async.AsyncOperation:
@@ -666,8 +678,17 @@ async def import_files_async(
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
-        partial_failures_sink: Either a GCS path to store partial failures or a
-            BigQuery table to store partial failures. The format is
+        import_result_sink: Either a GCS path to store import results or a
+            BigQuery table to store import results. The format is
+            "gs://my-bucket/my/object.ndjson" for GCS or
+            "bq://my-project.my-dataset.my-table" for BigQuery. An existing GCS
+            object cannot be used. However, the BigQuery table may or may not
+            exist - if it does not exist, it will be created. If it does exist,
+            the schema will be checked and the import results will be appended
+            to the table.
+        partial_failures_sink: Deprecated. Prefer to use `import_result_sink`.
+            Either a GCS path to store partial failures or a BigQuery table to
+            store partial failures. The format is
             "gs://my-bucket/my/object.ndjson" for GCS or
             "bq://my-project.my-dataset.my-table" for BigQuery. An existing GCS
             object cannot be used. However, the BigQuery table may or may not
@@ -691,6 +712,7 @@ async def import_files_async(
         source=source,
         transformation_config=transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
+        import_result_sink=import_result_sink,
         partial_failures_sink=partial_failures_sink,
         parser=parser,
     )

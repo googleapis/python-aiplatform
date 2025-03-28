@@ -21,6 +21,7 @@ from unittest import mock
 from google import auth
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
+from google.cloud import bigquery
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -42,6 +43,7 @@ from google.protobuf import field_mask_pb2
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+_TEST_ALTERNATE_LOCATION = "europe-west6"
 _TEST_ID = "1028944691210842416"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/datasets/{_TEST_ID}"
@@ -53,6 +55,8 @@ _TEST_PROMPT_RESOURCE_NAME = (
 )
 
 _TEST_SOURCE_URI_BQ = "bq://my-project.my-dataset.table"
+_TEST_TARGET_BQ_DATASET = f"{_TEST_PROJECT}.target-dataset"
+_TEST_TARGET_BQ_TABLE = f"{_TEST_TARGET_BQ_DATASET}.target-table"
 _TEST_DISPLAY_NAME = "my_dataset_1234"
 _TEST_METADATA_SCHEMA_URI_MULTIMODAL = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/multimodal_1.0.0.yaml"
@@ -169,6 +173,24 @@ def bigframes_import_mock():
 
 
 @pytest.fixture
+def get_bq_dataset_mock():
+    with mock.patch.object(bigquery.Client, "get_dataset") as get_bq_dataset_mock:
+        bq_dataset = mock.Mock()
+        bq_dataset.location = _TEST_LOCATION
+        get_bq_dataset_mock.return_value = bq_dataset
+        yield get_bq_dataset_mock
+
+
+@pytest.fixture
+def get_bq_dataset_alternate_location_mock():
+    with mock.patch.object(bigquery.Client, "get_dataset") as get_bq_dataset_mock:
+        bq_dataset = mock.Mock()
+        bq_dataset.location = _TEST_ALTERNATE_LOCATION
+        get_bq_dataset_mock.return_value = bq_dataset
+        yield get_bq_dataset_mock
+
+
+@pytest.fixture
 def update_dataset_with_template_config_mock():
     with mock.patch.object(
         dataset_service.DatasetServiceClient, "update_dataset"
@@ -259,7 +281,7 @@ class TestMultimodalDataset:
         )
 
     @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
-    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.usefixtures("get_dataset_mock", "get_bq_dataset_mock")
     def test_create_dataset_from_pandas(
         self, create_dataset_mock, bigframes_import_mock
     ):
@@ -273,16 +295,19 @@ class TestMultimodalDataset:
                 "answer": ["answer"],
             }
         )
-        bq_table = "my-project.my-dataset.my-table"
         ummd.MultimodalDataset.from_pandas(
             dataframe=dataframe,
-            target_table_id=bq_table,
+            target_table_id=_TEST_TARGET_BQ_TABLE,
             display_name=_TEST_DISPLAY_NAME,
         )
         expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
-            metadata={"inputConfig": {"bigquerySource": {"uri": f"bq://{bq_table}"}}},
+            metadata={
+                "inputConfig": {
+                    "bigquerySource": {"uri": f"bq://{_TEST_TARGET_BQ_TABLE}"}
+                }
+            },
         )
         create_dataset_mock.assert_called_once_with(
             dataset=expected_dataset,
@@ -290,37 +315,79 @@ class TestMultimodalDataset:
             timeout=None,
         )
         bigframes_mock.to_gbq.assert_called_once_with(
-            destination_table=bq_table,
+            destination_table=_TEST_TARGET_BQ_TABLE,
             if_exists="replace",
         )
 
     @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
-    @pytest.mark.usefixtures("bigframes_import_mock")
-    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.usefixtures(
+        "bigframes_import_mock", "get_dataset_mock", "get_bq_dataset_mock"
+    )
     def test_create_dataset_from_bigframes(self, create_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
         bigframes_df = mock.Mock()
-        bq_table = "my-project.my-dataset.my-table"
         ummd.MultimodalDataset.from_bigframes(
             dataframe=bigframes_df,
-            target_table_id=bq_table,
+            target_table_id=_TEST_TARGET_BQ_TABLE,
             display_name=_TEST_DISPLAY_NAME,
         )
 
         bigframes_df.to_gbq.assert_called_once_with(
-            destination_table=bq_table,
+            destination_table=_TEST_TARGET_BQ_TABLE,
             if_exists="replace",
         )
         expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
-            metadata={"inputConfig": {"bigquerySource": {"uri": f"bq://{bq_table}"}}},
+            metadata={
+                "inputConfig": {
+                    "bigquerySource": {"uri": f"bq://{_TEST_TARGET_BQ_TABLE}"}
+                }
+            },
         )
         create_dataset_mock.assert_called_once_with(
             dataset=expected_dataset,
             parent=_TEST_PARENT,
             timeout=None,
         )
+
+    @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
+    @pytest.mark.usefixtures("bigframes_import_mock")
+    def test_create_dataset_from_bigframes_different_project_throws_error(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        bigframes_df = mock.Mock()
+        with pytest.raises(ValueError):
+            ummd.MultimodalDataset.from_bigframes(
+                dataframe=bigframes_df,
+                target_table_id="another_project.dataset.table",
+                display_name=_TEST_DISPLAY_NAME,
+            )
+
+    @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
+    @pytest.mark.usefixtures(
+        "bigframes_import_mock", "get_bq_dataset_alternate_location_mock"
+    )
+    def test_create_dataset_from_bigframes_different_location_throws_error(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        bigframes_df = mock.Mock()
+        with pytest.raises(ValueError):
+            ummd.MultimodalDataset.from_bigframes(
+                dataframe=bigframes_df,
+                target_table_id=_TEST_TARGET_BQ_TABLE,
+                display_name=_TEST_DISPLAY_NAME,
+            )
+
+    @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
+    @pytest.mark.usefixtures("bigframes_import_mock")
+    def test_create_dataset_from_bigframes_invalid_target_table_id_throws_error(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        bigframes_df = mock.Mock()
+        with pytest.raises(ValueError):
+            ummd.MultimodalDataset.from_bigframes(
+                dataframe=bigframes_df,
+                target_table_id="invalid-table",
+                display_name=_TEST_DISPLAY_NAME,
+            )
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_update_dataset(self, update_dataset_mock):

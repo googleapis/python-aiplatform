@@ -209,6 +209,8 @@ TEST_RAG_FILE_TRANSFORMATION_CONFIG = RagFileTransformationConfig(
         ),
     ),
 )
+TEST_IMPORT_RESULT_GCS_SINK = "gs://test-bucket/test-object.ndjson"
+TEST_IMPORT_RESULT_BIGQUERY_SINK = "bq://test-project.test_dataset.test_table"
 # GCS
 TEST_IMPORT_FILES_CONFIG_GCS = ImportRagFilesConfig(
     rag_file_transformation_config=TEST_RAG_FILE_TRANSFORMATION_CONFIG,

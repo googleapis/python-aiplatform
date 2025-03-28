@@ -276,6 +276,14 @@ def import_files_request_eq(returned_request, expected_request):
         returned_request.import_rag_files_config.rag_file_transformation_config
         == expected_request.import_rag_files_config.rag_file_transformation_config
     )
+    assert (
+        returned_request.import_rag_files_config.import_result_gcs_sink
+        == expected_request.import_rag_files_config.import_result_gcs_sink
+    )
+    assert (
+        returned_request.import_rag_files_config.import_result_bigquery_sink
+        == expected_request.import_rag_files_config.import_result_bigquery_sink
+    )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -517,6 +525,26 @@ class TestRagDataManagement:
 
         assert response.imported_rag_files_count == 2
 
+    def test_import_files_with_import_result_gcs_sink(self, import_files_mock):
+        response = rag.import_files(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_GCS_SINK,
+        )
+        import_files_mock.assert_called_once()
+
+        assert response.imported_rag_files_count == 2
+
+    def test_import_files_with_import_result_bigquery_sink(self, import_files_mock):
+        response = rag.import_files(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_BIGQUERY_SINK,
+        )
+        import_files_mock.assert_called_once()
+
+        assert response.imported_rag_files_count == 2
+
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_import_files_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -531,6 +559,32 @@ class TestRagDataManagement:
         response = await rag.import_files_async(
             corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
             paths=[test_rag_constants.TEST_GCS_PATH],
+        )
+        import_files_async_mock.assert_called_once()
+
+        assert response.result().imported_rag_files_count == 2
+
+    @pytest.mark.asyncio
+    async def test_import_files_with_import_result_gcs_sink_async(
+        self, import_files_async_mock
+    ):
+        response = await rag.import_files_async(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_GCS_SINK,
+        )
+        import_files_async_mock.assert_called_once()
+
+        assert response.result().imported_rag_files_count == 2
+
+    @pytest.mark.asyncio
+    async def test_import_files_with_import_result_bigquery_sink_async(
+        self, import_files_async_mock
+    ):
+        response = await rag.import_files_async(
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=[test_rag_constants.TEST_GCS_PATH],
+            import_result_sink=test_rag_constants.TEST_IMPORT_RESULT_BIGQUERY_SINK,
         )
         import_files_async_mock.assert_called_once()
 

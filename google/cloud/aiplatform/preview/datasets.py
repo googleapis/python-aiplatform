@@ -88,13 +88,46 @@ def _get_metadata_for_bq(
     return json_format.ParseDict(input_config, struct_pb2.Value())
 
 
-def _normalize_table_id(*, table_id: str, project: str):
-    if table_id.count(".") == 1:
-        # table_id has the "dataset.table" format, prepend the project
-        return f"{project}.{table_id}"
-    elif table_id.count(".") != 2:
-        raise ValueError(f"invalid table id: {table_id}")
-    return table_id
+def _normalize_and_validate_table_id(
+    *,
+    table_id: str,
+    project: Optional[str] = None,
+    vertex_location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+):
+    from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
+    if not project:
+        project = initializer.global_config.project
+    if not vertex_location:
+        vertex_location = initializer.global_config.location
+    if not credentials:
+        credentials = initializer.global_config.credentials
+
+    table_ref = bigquery.TableReference.from_string(table_id, default_project=project)
+    if table_ref.project != project:
+        raise ValueError(
+            f"The BigQuery table "
+            f"`{table_ref.project}.{table_ref.dataset_id}.{table_ref.table_id}`"
+            " must be in the same project as the multimodal dataset."
+            f" The multimodal dataset is in `{project}`, but the BigQuery table"
+            f" is in `{table_ref.project}`."
+        )
+
+    dataset_ref = bigquery.DatasetReference(
+        project=table_ref.project, dataset_id=table_ref.dataset_id
+    )
+    client = bigquery.Client(project=project, credentials=credentials)
+    bq_dataset = client.get_dataset(dataset_ref=dataset_ref)
+    if bq_dataset.location != vertex_location:
+        raise ValueError(
+            f"The BigQuery dataset"
+            f" `{dataset_ref.project}.{dataset_ref.dataset_id}` must be in the"
+            " same location as the multimodal dataset. The multimodal dataset"
+            f" is in `{vertex_location}`, but the BigQuery dataset is in"
+            f" `{bq_dataset.location}`."
+        )
+    return f"{table_ref.project}.{table_ref.dataset_id}.{table_ref.table_id}"
 
 
 class GeminiExample:
@@ -577,7 +610,8 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 table id can be in the format of "dataset.table" or
                 "project.dataset.table". If a table already exists with the
                 given table id, it will be overwritten. Note that the BigQuery
-                dataset must already exist.
+                dataset must already exist and be in the same location as the
+                multimodal dataset.
             display_name (str):
                 Optional. The user-defined name of the dataset. The name can be
                 up to 128 characters long and can consist of any UTF-8
@@ -614,12 +648,15 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 The created multimodal dataset.
         """
         bigframes = _try_import_bigframes()
-        if not project:
-            project = initializer.global_config.project
         # TODO(b/400355374): `table_id` should be optional, and if not provided,
         # we generate a random table id. Also, check if we can use a default
         # dataset that's created from the SDK.
-        target_table_id = _normalize_table_id(table_id=target_table_id, project=project)
+        target_table_id = _normalize_and_validate_table_id(
+            table_id=target_table_id,
+            project=project,
+            vertex_location=location,
+            credentials=credentials,
+        )
 
         temp_bigframes_df = bigframes.pandas.read_pandas(dataframe)
         temp_bigframes_df.to_gbq(
@@ -662,7 +699,8 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 table id can be in the format of "dataset.table" or
                 "project.dataset.table". If a table already exists with the
                 given table id, it will be overwritten. Note that the BigQuery
-                dataset must already exist.
+                dataset must already exist and be in the same location as the
+                multimodal dataset.
             display_name (str):
                 Optional. The user-defined name of the dataset. The name can be
                 up to 128 characters long and can consist of any UTF-8
@@ -697,12 +735,14 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         Returns:
             The created multimodal dataset.
         """
-        project_id = project or initializer.global_config.project
         # TODO(b/400355374): `table_id` should be optional, and if not provided,
         # we generate a random table id. Also, check if we can use a default
         # dataset that's created from the SDK.
-        target_table_id = _normalize_table_id(
-            table_id=target_table_id, project=project_id
+        target_table_id = _normalize_and_validate_table_id(
+            table_id=target_table_id,
+            project=project,
+            vertex_location=location,
+            credentials=credentials,
         )
         dataframe.to_gbq(
             destination_table=target_table_id,

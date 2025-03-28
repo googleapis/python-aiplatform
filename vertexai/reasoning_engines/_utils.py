@@ -39,10 +39,15 @@ except ImportError:
 
 try:
     from llama_index.core.base.response import schema as llama_index_schema
+    from llama_index.core.base.llms import types as llama_index_types
 
     LlamaIndexResponse = llama_index_schema.Response
+    LlamaIndexBaseModel = llama_index_schema.BaseModel
+    LlamaIndexChatResponse = llama_index_types.ChatResponse
 except ImportError:
     LlamaIndexResponse = Any
+    LlamaIndexBaseModel = Any
+    LlamaIndexChatResponse = Any
 
 JsonDict = Dict[str, Any]
 
@@ -111,7 +116,7 @@ def dataclass_to_dict(obj: dataclasses.dataclass) -> JsonDict:
     return json.loads(json.dumps(dataclasses.asdict(obj)))
 
 
-def llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
+def _llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
     response = {}
     if hasattr(obj, "response"):
         response["response"] = obj.response
@@ -121,6 +126,44 @@ def llama_index_response_to_dict(obj: LlamaIndexResponse) -> Dict[str, Any]:
         response["metadata"] = obj.metadata
 
     return json.loads(json.dumps(response))
+
+
+def _llama_index_chat_response_to_dict(
+    obj: LlamaIndexChatResponse,
+) -> Dict[str, Any]:
+    return json.loads(obj.message.model_dump_json())
+
+
+def _llama_index_base_model_to_dict(
+    obj: LlamaIndexBaseModel,
+) -> Dict[str, Any]:
+    return json.loads(obj.model_dump_json())
+
+
+def to_json_serializable_llama_index_object(
+    obj: Union[
+        LlamaIndexResponse,
+        LlamaIndexBaseModel,
+        LlamaIndexChatResponse,
+        Sequence[LlamaIndexBaseModel],
+    ]
+) -> Union[str, Dict[str, Any], Sequence[Union[str, Dict[str, Any]]]]:
+    """Converts a LlamaIndexResponse to a JSON serializable object."""
+    if isinstance(obj, LlamaIndexResponse):
+        return _llama_index_response_to_dict(obj)
+    if isinstance(obj, LlamaIndexChatResponse):
+        return _llama_index_chat_response_to_dict(obj)
+    if isinstance(obj, Sequence):
+        seq_result = []
+        for item in obj:
+            if isinstance(item, LlamaIndexBaseModel):
+                seq_result.append(_llama_index_base_model_to_dict(item))
+                continue
+            seq_result.append(str(item))
+        return seq_result
+    if isinstance(obj, LlamaIndexBaseModel):
+        return _llama_index_base_model_to_dict(obj)
+    return str(obj)
 
 
 def yield_parsed_json(body: httpbody_pb2.HttpBody) -> Iterable[Any]:
