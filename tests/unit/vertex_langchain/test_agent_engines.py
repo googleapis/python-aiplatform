@@ -1985,8 +1985,11 @@ class TestAgentEngineErrors:
                     },
                 ],
                 (
-                    "Failed to register API methods: {Operation schema {'name':"
-                    " 'query'} does not contain an `api_mode` field.}"
+                    "Failed to register API methods. Please follow the guide to "
+                    "register the API methods: "
+                    "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
+                    "Error: {Operation schema {'name': 'query'} does not "
+                    "contain an `api_mode` field.}"
                 ),
             ),
             (
@@ -1997,8 +2000,11 @@ class TestAgentEngineErrors:
                     },
                 ],
                 (
-                    "Failed to register API methods: {Operation schema"
-                    " {'api_mode': ''} does not contain a `name` field.}"
+                    "Failed to register API methods. Please follow the guide to "
+                    "register the API methods: "
+                    "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
+                    "Error: {Operation schema {'api_mode': ''} does not "
+                    "contain a `name` field.}"
                 ),
             ),
             (
@@ -2010,9 +2016,11 @@ class TestAgentEngineErrors:
                     },
                 ],
                 (
-                    "Failed to register API methods: {Unsupported api mode:"
-                    " `UNKNOWN_API_MODE`, Supported modes are:"
-                    " `` and `stream`.}"
+                    "Failed to register API methods. Please follow the guide to "
+                    "register the API methods: "
+                    "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
+                    "Error: {Unsupported api mode: `UNKNOWN_API_MODE`, "
+                    "Supported modes are: `` and `stream`.}"
                 ),
             ),
         ],
