@@ -36,6 +36,7 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.aiplatform_v1beta1.services import (
     evaluation_service as gapic_evaluation_services_preview,
 )
+from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import (
     evaluation_service as gapic_evaluation_service_types_preview,
 )
@@ -70,6 +71,10 @@ Pairwise = metric_prompt_template_examples.MetricPromptTemplateExamples.Pairwise
 PairwisePreview = (
     evaluation_preview.metrics.metric_prompt_template_examples.MetricPromptTemplateExamples.Pairwise
 )
+ContentMap = gapic_evaluation_service_types_preview.ContentMap
+Content = content.Content
+Part = content.Part
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"

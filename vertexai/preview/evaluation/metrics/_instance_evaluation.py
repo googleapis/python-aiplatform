@@ -31,6 +31,9 @@ from google.cloud.aiplatform_v1beta1.types import (
 from vertexai.preview.evaluation import _base as eval_base
 from vertexai.preview.evaluation import constants
 from vertexai.preview.evaluation import (
+    multimodal_utils,
+)
+from vertexai.preview.evaluation import (
     prompt_template as prompt_template_base,
 )
 from vertexai.preview.evaluation import utils
@@ -45,7 +48,6 @@ from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
 
 from google.protobuf import json_format
-
 
 _LOGGER = base.Logger(__name__)
 _METRIC_NAME_TO_METRIC_SPEC = {
@@ -317,24 +319,44 @@ def build_request(
             tool_parameter_kv_match_input=instance,
         )
     elif metric_name == constants.Metric.POINTWISE_METRIC:
-        instance = gapic_eval_service_types.PointwiseMetricInput(
-            metric_spec=metric_spec,
-            instance=gapic_eval_service_types.PointwiseMetricInstance(
-                json_instance=json.dumps(model_based_metric_instance_input),
-            ),
-        )
+        if multimodal_utils.is_multimodal_instance(model_based_metric_instance_input):
+            instance = gapic_eval_service_types.PointwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PointwiseMetricInstance(
+                    content_map_instance=multimodal_utils.convert_multimodal_response_to_content_map(
+                        model_based_metric_instance_input
+                    ),
+                ),
+            )
+        else:
+            instance = gapic_eval_service_types.PointwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PointwiseMetricInstance(
+                    json_instance=json.dumps(model_based_metric_instance_input),
+                ),
+            )
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             pointwise_metric_input=instance,
             autorater_config=evaluation_run_config.autorater_config,
         )
     elif metric_name == constants.Metric.PAIRWISE_METRIC:
-        instance = gapic_eval_service_types.PairwiseMetricInput(
-            metric_spec=metric_spec,
-            instance=gapic_eval_service_types.PairwiseMetricInstance(
-                json_instance=json.dumps(model_based_metric_instance_input),
-            ),
-        )
+        if multimodal_utils.is_multimodal_instance(model_based_metric_instance_input):
+            instance = gapic_eval_service_types.PairwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PairwiseMetricInstance(
+                    content_map_instance=multimodal_utils.convert_multimodal_response_to_content_map(
+                        model_based_metric_instance_input
+                    ),
+                ),
+            )
+        else:
+            instance = gapic_eval_service_types.PairwiseMetricInput(
+                metric_spec=metric_spec,
+                instance=gapic_eval_service_types.PairwiseMetricInstance(
+                    json_instance=json.dumps(model_based_metric_instance_input),
+                ),
+            )
         return gapic_eval_service_types.EvaluateInstancesRequest(
             location=location_path,
             pairwise_metric_input=instance,
