@@ -1620,6 +1620,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 numeric_filter=numeric_filter,
                 signed_jwt=signed_jwt,
                 psc_network=psc_network,
+                return_full_datapoint=return_full_datapoint,
             )
 
         # Create the FindNeighbors request
@@ -1874,6 +1875,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         numeric_filter: Optional[List[NumericNamespace]] = None,
         signed_jwt: Optional[str] = None,
         psc_network: Optional[str] = None,
+        return_full_datapoint: bool = False,
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the
         specified deployed index for private endpoint only.
@@ -2016,6 +2018,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                     )
                     if query_is_hybrid and query.rrf_ranking_alpha
                     else None,
+                    embedding_enabled=return_full_datapoint,
                 )
                 requests.append(request)
         else:
