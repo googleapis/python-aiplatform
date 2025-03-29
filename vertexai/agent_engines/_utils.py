@@ -24,9 +24,11 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Mapping,
     Optional,
     Sequence,
+    Set,
     TypedDict,
     Union,
 )
@@ -63,9 +65,9 @@ except AttributeError:
 
 try:
     # sys.stdlib_module_names is available from Python 3.10 onwards.
-    _STDLIB_MODULE_NAMES: frozenset[str] = sys.stdlib_module_names
+    _STDLIB_MODULE_NAMES: frozenset = sys.stdlib_module_names
 except AttributeError:
-    _STDLIB_MODULE_NAMES: frozenset[str] = frozenset()
+    _STDLIB_MODULE_NAMES: frozenset = frozenset()
 
 try:
     _PACKAGE_DISTRIBUTIONS: Mapping[
@@ -78,12 +80,12 @@ JsonDict = Dict[str, Any]
 
 
 class _RequirementsValidationActions(TypedDict):
-    append: set[str]
+    append: Set[str]
 
 
 class _RequirementsValidationWarnings(TypedDict):
-    missing: set[str]
-    incompatible: set[str]
+    missing: Set[str]
+    incompatible: Set[str]
 
 
 class _RequirementsValidationResult(TypedDict):
@@ -93,7 +95,7 @@ class _RequirementsValidationResult(TypedDict):
 
 LOGGER = base.Logger("vertexai.agent_engines")
 
-_BASE_MODULES = set(sys.builtin_module_names + tuple(_STDLIB_MODULE_NAMES))
+_BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
 _DEFAULT_REQUIRED_PACKAGES = frozenset(["cloudpickle"])
 _ACTIONS_KEY = "actions"
 _ACTION_APPEND = "append"
@@ -239,7 +241,7 @@ def parse_constraints(
 
 def validate_requirements_or_warn(
     obj: Any,
-    requirements: list[str],
+    requirements: List[str],
 ) -> Mapping[str, str]:
     """Compiles the requirements into a list of requirements."""
     requirements = requirements.copy()
