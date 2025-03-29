@@ -103,7 +103,7 @@ preview_extra_require = []
 ray_extra_require = [
     # Cluster only supports 2.9.3, 2.33.0, and 2.42.0. Keep 2.4.0 for our
     # testing environment.
-    # Note that testing is submiting a job in a cluster with Ray 2.9.3 remotely.
+    # Note that testing is submitting a job in a cluster with Ray 2.9.3 remotely.
     (
         "ray[default] >= 2.4, <= 2.42.0,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
         " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2, !=2.10.*, !=2.11.*, !=2.12.*, !=2.13.*, !="
@@ -298,6 +298,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "shapely < 3.0.0",
+        "google-genai >= 1.0.0, <2.0.0"
     )
     + genai_requires,
     extras_require={
