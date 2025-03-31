@@ -39,6 +39,7 @@ from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
+    example_store_service_client_v1beta1,
     extension_execution_service_client_v1beta1,
     extension_registry_service_client_v1beta1,
     feature_online_store_admin_service_client_v1beta1,
@@ -947,6 +948,17 @@ class PersistentResourceClientWithOverride(ClientWithOverride):
         (
             compat.V1BETA1,
             persistent_resource_service_client_v1beta1.PersistentResourceServiceClient,
+        ),
+    )
+
+
+class ExampleStoreClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (
+            compat.V1BETA1,
+            example_store_service_client_v1beta1.ExampleStoreServiceClient,
         ),
     )
 
