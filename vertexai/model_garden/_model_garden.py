@@ -36,6 +36,7 @@ from google.protobuf import duration_pb2
 _LOGGER = base.Logger(__name__)
 _DEFAULT_VERSION = compat.V1BETA1
 _DEFAULT_TIMEOUT = 2 * 60 * 60  # 2 hours, same as UI one-click deployment.
+_DEFAULT_EXPORT_TIMEOUT = 1 * 60 * 60  # 1 hour.
 _HF_WILDCARD_FILTER = "is_hf_wildcard(true)"
 _NATIVE_MODEL_FILTER = "is_hf_wildcard(false)"
 _VERIFIED_DEPLOYMENT_FILTER = (
@@ -307,6 +308,53 @@ class OpenModel:
             credentials=self._credentials,
             location_override="us-central1",
         )
+
+    def export(
+        self,
+        target_gcs_path: str = "",
+        export_request_timeout: Optional[float] = None,
+    ) -> str:
+        """Exports an Open Model to a google cloud storage bucket.
+
+        Args:
+            target_gcs_path: target gcs path.
+            export_request_timeout: The timeout for the deploy request. Default is 2
+              hours.
+
+        Returns:
+            str: the target gcs bucket where the model weights are downloaded to
+
+
+        Raises:
+            ValueError: If ``target_gcs_path`` is not specified
+        """
+        if not target_gcs_path:
+            raise ValueError("target_gcs_path is required.")
+
+        request = types.ExportPublisherModelRequest(
+            parent=f"projects/{self._project}/locations/{self._location}",
+            name=self._publisher_model_name,
+            destination=types.GcsDestination(output_uri_prefix=target_gcs_path),
+        )
+        request_headers = [
+            ("x-goog-user-project", "{}".format(initializer.global_config.project)),
+        ]
+
+        _LOGGER.info(f"Exporting model weights: {self._model_name}")
+
+        operation_future = self._model_garden_client.export_publisher_model(
+            request, metadata=request_headers
+        )
+        _LOGGER.info(f"LRO: {operation_future.operation.name}")
+
+        _LOGGER.info(f"Start time: {datetime.datetime.now()}")
+        export_publisher_model_response = operation_future.result(
+            timeout=export_request_timeout or _DEFAULT_EXPORT_TIMEOUT
+        )
+        _LOGGER.info(f"End time: {datetime.datetime.now()}")
+        _LOGGER.info(f"Response: {export_publisher_model_response}")
+
+        return target_gcs_path
 
     def deploy(
         self,

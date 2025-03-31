@@ -48,7 +48,7 @@ _TEST_MODEL_HUGGING_FACE_FULL_RESOURCE_NAME = (
     "publishers/hf-meta-llama/models/llama-3.3-70b-instruct@001"
 )
 _TEST_HUGGING_FACE_ACCESS_TOKEN = "test-access-token"
-
+_TEST_GCS_URI = "gs://some-bucket/some-model"
 _TEST_ENDPOINT_NAME = "projects/test-project/locations/us-central1/endpoints/1234567890"
 _TEST_MODEL_NAME = "projects/test-project/locations/us-central1/models/9876543210"
 _TEST_MODEL_CONTAINER_SPEC = types.ModelContainerSpec(
@@ -83,6 +83,22 @@ def google_auth_mock():
             _TEST_PROJECT,
         )
         yield google_auth_mock
+
+
+@pytest.fixture
+def export_publisher_model_mock():
+    """Mocks the export_publisher_model method."""
+    with mock.patch.object(
+        model_garden_service.ModelGardenServiceClient,
+        "export_publisher_model",
+    ) as export_publisher_model:
+        mock_export_lro = mock.Mock(ga_operation.Operation)
+        mock_export_lro.result.return_value = types.ExportPublisherModelResponse(
+            publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+            destination_uri=_TEST_GCS_URI,
+        )
+        export_publisher_model.return_value = mock_export_lro
+        yield export_publisher_model
 
 
 @pytest.fixture
@@ -338,6 +354,7 @@ def list_publisher_models_mock():
     "deploy_mock",
     "get_publisher_model_mock",
     "list_publisher_models_mock",
+    "export_publisher_model_mock",
 )
 class TestModelGarden:
     """Test cases for ModelGarden class."""
@@ -349,6 +366,54 @@ class TestModelGarden:
 
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
+
+    def test_export_full_resource_name_success(self, export_publisher_model_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        model.export(_TEST_GCS_URI)
+        export_publisher_model_mock.assert_called_once_with(
+            types.ExportPublisherModelRequest(
+                parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=types.GcsDestination(output_uri_prefix=_TEST_GCS_URI),
+            ),
+            metadata=[("x-goog-user-project", "test-project")],
+        )
+
+    def test_export_simplified_resource_name_success(self, export_publisher_model_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_SIMPLIFIED_RESOURCE_NAME)
+        model.export(_TEST_GCS_URI)
+        export_publisher_model_mock.assert_called_once_with(
+            types.ExportPublisherModelRequest(
+                parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=types.GcsDestination(output_uri_prefix=_TEST_GCS_URI),
+            ),
+            metadata=[("x-goog-user-project", "test-project")],
+        )
+
+    def test_export_hugging_face_id_success(self, export_publisher_model_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_HUGGING_FACE_ID)
+        model.export(_TEST_GCS_URI)
+        export_publisher_model_mock.assert_called_once_with(
+            types.ExportPublisherModelRequest(
+                parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                name=_TEST_HUGGING_FACE_MODEL_FULL_RESOURCE_NAME,
+                destination=types.GcsDestination(output_uri_prefix=_TEST_GCS_URI),
+            ),
+            metadata=[("x-goog-user-project", "test-project")],
+        )
 
     def test_deploy_full_resource_name_success(self, deploy_mock):
         aiplatform.init(
