@@ -19,6 +19,7 @@ import dataclasses
 from typing import Dict, List, Optional, Tuple
 
 from google.auth import credentials as auth_credentials
+from google.cloud import storage
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
@@ -47,6 +48,7 @@ _URI_FIELD = "uri"
 _GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD = "geminiTemplateConfigSource"
 _GEMINI_TEMPLATE_CONFIG_FIELD = "geminiTemplateConfig"
 _PROMPT_URI_FIELD = "promptUri"
+_REQUEST_COLUMN_NAME_FIELD = "requestColumnName"
 
 _LOGGER = base.Logger(__name__)
 
@@ -56,6 +58,7 @@ def _try_import_bigframes():
     try:
         import bigframes
         import bigframes.pandas
+        import bigframes.bigquery
 
         return bigframes
     except ImportError as exc:
@@ -69,9 +72,19 @@ def _get_metadata_for_bq(
     bq_uri: str,
     template_config: Optional[gca_dataset_service.GeminiTemplateConfig] = None,
     prompt_uri: Optional[str] = None,
+    request_column_name: Optional[str] = None,
 ) -> struct_pb2.Value:
-    if template_config and prompt_uri:
-        raise ValueError("Only one of template_config and prompt_uri can be specified.")
+    if (
+        sum(
+            1
+            for param in (template_config, prompt_uri, request_column_name)
+            if param is not None
+        )
+        > 1
+    ):
+        raise ValueError(
+            "Only one of template_config, prompt_uri, request_column_name can be specified."
+        )
 
     input_config = {_INPUT_CONFIG_FIELD: {_BIGQUERY_SOURCE_FIELD: {_URI_FIELD: bq_uri}}}
     if template_config is not None:
@@ -84,6 +97,10 @@ def _get_metadata_for_bq(
     if prompt_uri is not None:
         input_config[_GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD] = {
             _PROMPT_URI_FIELD: prompt_uri
+        }
+    if request_column_name is not None:
+        input_config[_GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD] = {
+            _REQUEST_COLUMN_NAME_FIELD: request_column_name
         }
     return json_format.ParseDict(input_config, struct_pb2.Value())
 
@@ -462,6 +479,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_dataset"
     _parse_resource_name_method = "parse_dataset_path"
     _format_resource_name_method = "dataset_path"
+    _DEFAULT_REQUEST_COLUMN_NAME = "requests"
 
     def __init__(
         self,
@@ -577,6 +595,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         """
         return cls._create_from_bigquery(
             bigquery_uri=bigquery_uri,
+            metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
             display_name=display_name,
             project=project,
             location=location,
@@ -663,8 +682,10 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             destination_table=target_table_id,
             if_exists="replace",
         )
+        bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=f"bq://{target_table_id}",
+            bigquery_uri=bigquery_uri,
+            metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
             display_name=display_name,
             project=project,
             location=location,
@@ -748,8 +769,129 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             destination_table=target_table_id,
             if_exists="replace",
         )
+        bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
-            bigquery_uri=f"bq://{target_table_id}",
+            bigquery_uri=bigquery_uri,
+            metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
+            display_name=display_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+            labels=labels,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+        )
+
+    @classmethod
+    def from_gemini_request_jsonl(
+        cls,
+        *,
+        gcs_uri: str,
+        target_table_id: str,
+        display_name: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+    ) -> "MultimodalDataset":
+        """Creates a multimodal dataset from a JSONL file stored on GCS.
+
+        The JSONL file should contain a instances of Gemini
+        `GenerateContentRequest` on each line. The data will be stored in a
+        BigQuery table with a single column called "requests". The
+        request_column_name in the dataset metadata will be set to "requests".
+
+        Args:
+            gcs_uri (str):
+                The Google Cloud Storage URI of the JSONL file to import.
+                For example, 'gs://my-bucket/path/to/data.jsonl'
+            target_table_id (str):
+                The BigQuery table id where the dataframe will be uploaded. The
+                table id can be in the format of "dataset.table" or
+                "project.dataset.table". If a table already exists with the
+                given table id, it will be overwritten. Note that the BigQuery
+                dataset must already exist.
+            display_name (str):
+                Optional. The user-defined name of the dataset. The name can be
+                up to 128 characters long and can consist of any UTF-8
+                characters.
+            project (str):
+                Optional. Project to create this dataset in. Overrides project
+                set in aiplatform.init.
+            location (str):
+                Optional. Location to create this dataset in. Overrides location
+                set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this dataset.
+                Overrides credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your
+                datasets. Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information on and examples of labels. No more than 64
+                user labels can be associated with one dataset (System labels
+                are excluded). System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            sync (bool):
+                Optional. Whether to execute this method synchronously. If
+                False, this method will be executed in concurrent Future and any
+                downstream object will be immediately returned and synced when
+                the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the dataset creation request.
+
+        Returns:
+            The created multimodal dataset.
+        """
+        bigframes = _try_import_bigframes()
+        if not project:
+            project = initializer.global_config.project
+        # TODO(b/400355374): `table_id` should be optional, and if not provided,
+        # we generate a random table id. Also, check if we can use a default
+        # dataset that's created from the SDK.
+        target_table_id = _normalize_and_validate_table_id(
+            table_id=target_table_id, project=project
+        )
+
+        gcs_uri_prefix = "gs://"
+        if gcs_uri.startswith(gcs_uri_prefix):
+            gcs_uri = gcs_uri[len(gcs_uri_prefix) :]
+        parts = gcs_uri.split("/", 1)
+        if len(parts) != 2:
+            raise ValueError(
+                "Invalid GCS URI format. Expected: gs://bucket-name/object-path"
+            )
+        bucket_name = parts[0]
+        blob_name = parts[1]
+
+        storage_client = storage.Client(project=project)
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+        request_column_name = cls._DEFAULT_REQUEST_COLUMN_NAME
+
+        jsonl_string = blob.download_as_text()
+        lines = [line.strip() for line in jsonl_string.splitlines() if line.strip()]
+        df = pandas.DataFrame(lines, columns=[request_column_name])
+
+        temp_bigframes_df = bigframes.pandas.read_pandas(df)
+        temp_bigframes_df[request_column_name] = bigframes.bigquery.parse_json(
+            temp_bigframes_df[request_column_name]
+        )
+        temp_bigframes_df.to_gbq(
+            destination_table=target_table_id,
+            if_exists="replace",
+        )
+
+        bigquery_uri = f"bq://{target_table_id}"
+        return cls._create_from_bigquery(
+            bigquery_uri=bigquery_uri,
+            metadata=_get_metadata_for_bq(
+                bq_uri=bigquery_uri, request_column_name=request_column_name
+            ),
             display_name=display_name,
             project=project,
             location=location,
@@ -765,6 +907,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         cls,
         *,
         bigquery_uri: str,
+        metadata: struct_pb2.Value,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -788,7 +931,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         dataset = gca_dataset.Dataset(
             display_name=display_name,
             metadata_schema_uri=_MULTIMODAL_METADATA_SCHEMA_URI,
-            metadata=_get_metadata_for_bq(bq_uri=bigquery_uri),
+            metadata=metadata,
             labels=labels,
         )
         parent = initializer.global_config.common_location_path(
@@ -976,6 +1119,27 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         return None
 
+    @property
+    def request_column_name(self) -> Optional[str]:
+        """Return the request column name if it is set in the dataset metadata.
+
+        The request column name specifies a column in the dataset that contains
+        assembled Gemini `GenerateContentRequest` instances.
+        """
+
+        self._assert_gca_resource_is_available()
+        # Dataset has no attached template.
+        if _GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD not in self._gca_resource.metadata:
+            return None
+        if (
+            _REQUEST_COLUMN_NAME_FIELD
+            not in self._gca_resource.metadata[_GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD]
+        ):
+            return None
+        return self._gca_resource.metadata[_GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD][
+            _REQUEST_COLUMN_NAME_FIELD
+        ]
+
     def assemble(
         self,
         *,
@@ -1003,12 +1167,15 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 load_dataframe is True, otherwise None.
         """
         bigframes = _try_import_bigframes()
-        template_config_to_use = _resolve_template_config(self, template_config)
+        request = gca_dataset_service.AssembleDataRequest(name=self.resource_name)
+        if self.request_column_name is not None:
+            request.request_column_name = self.request_column_name
+        else:
+            template_config_to_use = _resolve_template_config(self, template_config)
+            request.gemini_template_config = (
+                template_config_to_use._raw_gemini_template_config
+            )
 
-        request = gca_dataset_service.AssembleDataRequest(
-            name=self.resource_name,
-            gemini_template_config=template_config_to_use._raw_gemini_template_config,
-        )
         assemble_lro = self.api_client.assemble_data(
             request=request, timeout=assemble_request_timeout
         )
@@ -1051,14 +1218,13 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
               dataset.
 
         """
-        template_config_to_use = _resolve_template_config(self, template_config)
-        request = gca_dataset_service.AssessDataRequest(
-            name=self.resource_name,
-            tuning_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
+        request = _build_assess_data_request(self, template_config)
+        request.tuning_resource_usage_assessment_config = (
+            gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
-            ),
-            gemini_template_config=template_config_to_use._raw_gemini_template_config,
+            )
         )
+
         assessment_result = (
             self.api_client.assess_data(request=request, timeout=assess_request_timeout)
             .result(timeout=None)
@@ -1116,14 +1282,12 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         if dataset_usage_enum == DatasetUsage.DATASET_USAGE_UNSPECIFIED:
             raise ValueError("Dataset usage must be specified.")
 
-        template_config_to_use = _resolve_template_config(self, template_config)
-        request = gca_dataset_service.AssessDataRequest(
-            name=self.resource_name,
-            tuning_validation_assessment_config=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig(
+        request = _build_assess_data_request(self, template_config)
+        request.tuning_validation_assessment_config = (
+            gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig(
                 model_name=model_name,
                 dataset_usage=dataset_usage_enum,
-            ),
-            gemini_template_config=template_config_to_use._raw_gemini_template_config,
+            )
         )
         assess_lro = self.api_client.assess_data(
             request=request, timeout=assess_request_timeout
@@ -1147,3 +1311,18 @@ def _resolve_template_config(
         return dataset.template_config
     else:
         raise ValueError("No template config was passed or attached to the dataset.")
+
+
+def _build_assess_data_request(
+    dataset: MultimodalDataset,
+    template_config: Optional[GeminiTemplateConfig] = None,
+):
+    request = gca_dataset_service.AssessDataRequest(name=dataset.resource_name)
+    if dataset.request_column_name is not None:
+        request.request_column_name = dataset.request_column_name
+    else:
+        template_config_to_use = _resolve_template_config(dataset, template_config)
+        request.gemini_template_config = (
+            template_config_to_use._raw_gemini_template_config
+        )
+    return request

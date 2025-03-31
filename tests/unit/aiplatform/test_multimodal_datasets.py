@@ -16,12 +16,14 @@
 #
 
 import importlib
+import functools
 from unittest import mock
 
 from google import auth
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
 from google.cloud import bigquery
+from google.cloud import storage
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -53,6 +55,11 @@ _TEST_DESCRIPTION = "test description"
 _TEST_PROMPT_RESOURCE_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/datasets/987"
 )
+_TEST_JSONL_CONTENT = """
+json_line_1
+json_line_2
+"""
+_TEST_BUCKET_NAME = "test-bucket"
 
 _TEST_SOURCE_URI_BQ = "bq://my-project.my-dataset.table"
 _TEST_TARGET_BQ_DATASET = f"{_TEST_PROJECT}.target-dataset"
@@ -80,6 +87,8 @@ _TEST_METADATA_MULTIMODAL_WITH_PROMPT_RESOURCE = {
     "geminiTemplateConfigSource": {"promptUri": _TEST_PROMPT_RESOURCE_NAME},
 }
 
+_TEST_ASSEMBLE_DATA_BIGQUERY_DESTINATION = "bq://my-project.my-dataset.table_assembled"
+
 
 @pytest.fixture
 def google_auth_mock():
@@ -101,6 +110,24 @@ def get_dataset_mock():
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
             name=_TEST_NAME,
             metadata=_TEST_METADATA_MULTIMODAL,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
+def get_dataset_request_column_name_mock():
+    with mock.patch.object(
+        dataset_service.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        metadata = {
+            "inputConfig": {"bigquerySource": {"uri": _TEST_SOURCE_URI_BQ}},
+            "geminiTemplateConfigSource": {"requestColumnName": "requests"},
+        }
+        get_dataset_mock.return_value = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
+            name=_TEST_NAME,
+            metadata=metadata,
         )
         yield get_dataset_mock
 
@@ -162,14 +189,18 @@ def bigframes_import_mock():
 
     bpd_module = type(sys)("bigframes.pandas")
     sys.modules["bigframes.pandas"] = bpd_module
+    bbq_module = type(sys)("bigframes.bigquery")
+    sys.modules["bigframes.bigquery"] = bbq_module
     bigframes_module = type(sys)("bigframes")
     bigframes_module.pandas = bpd_module
+    bigframes_module.bigquery = bbq_module
     sys.modules["bigframes"] = bigframes_module
 
-    yield bigframes_module, bpd_module
+    yield bigframes_module, bpd_module, bbq_module
 
     del sys.modules["bigframes"]
     del sys.modules["bigframes.pandas"]
+    del sys.modules["bigframes.bigquery"]
 
 
 @pytest.fixture
@@ -233,6 +264,42 @@ def assess_data_tuning_validation_mock():
         yield assess_data_mock
 
 
+@pytest.fixture
+def assemble_data_mock():
+    with mock.patch.object(
+        dataset_service.DatasetServiceClient, "assemble_data"
+    ) as assemble_data_mock:
+        assemble_data_lro_mock = mock.Mock(operation.Operation)
+        assemble_data_lro_mock.result.return_value = (
+            gca_dataset_service.AssembleDataResponse(
+                bigquery_destination=_TEST_ASSEMBLE_DATA_BIGQUERY_DESTINATION
+            )
+        )
+        assemble_data_mock.return_value = assemble_data_lro_mock
+        yield assemble_data_mock
+
+
+@pytest.fixture
+def mock_storage_client_bucket():
+    with mock.patch.object(storage.Client, "bucket") as mock_storage_client_bucket:
+
+        def blob_side_effect(name, mock_blob, bucket):
+            mock_blob.name = name
+            mock_blob.bucket = bucket
+            return mock_blob
+
+        mock_bucket = mock.Mock(autospec=storage.Bucket)
+        mock_bucket.name = _TEST_BUCKET_NAME
+        mock_blob = mock.Mock(autospec=storage.Blob)
+        mock_bucket.blob.side_effect = functools.partial(
+            blob_side_effect, mock_blob=mock_blob, bucket=mock_bucket
+        )
+        mock_blob.download_as_text.return_value = _TEST_JSONL_CONTENT
+        mock_storage_client_bucket.return_value = mock_bucket
+
+        yield mock_storage_client_bucket, mock_bucket, mock_blob
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMultimodalDataset:
     """Tests for the MultimodalDataset class."""
@@ -285,7 +352,7 @@ class TestMultimodalDataset:
     def test_create_dataset_from_pandas(
         self, create_dataset_mock, bigframes_import_mock
     ):
-        _, bpd_module = bigframes_import_mock
+        _, bpd_module, _ = bigframes_import_mock
         bigframes_mock = mock.Mock()
         bpd_module.read_pandas = lambda x: bigframes_mock
         aiplatform.init(project=_TEST_PROJECT)
@@ -389,6 +456,61 @@ class TestMultimodalDataset:
                 display_name=_TEST_DISPLAY_NAME,
             )
 
+    @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
+    @pytest.mark.usefixtures(
+        "get_dataset_request_column_name_mock",
+        "get_bq_dataset_mock",
+    )
+    def test_create_dataset_from_gemini_request_jsonl(
+        self, create_dataset_mock, mock_storage_client_bucket, bigframes_import_mock
+    ):
+        _, bpd_module, bbq_module = bigframes_import_mock
+
+        bpd_module.Series = pandas.Series
+        bpd_module.read_pandas = mock.MagicMock()
+        bbq_module.parse_json = lambda x: x
+
+        aiplatform.init(project=_TEST_PROJECT)
+        bq_table = "test-project.test-dataset.test-table"
+        ummd.MultimodalDataset.from_gemini_request_jsonl(
+            gcs_uri=f"gs://{_TEST_BUCKET_NAME}/test-file.jsonl",
+            target_table_id=bq_table,
+            display_name=_TEST_DISPLAY_NAME,
+        )
+        mock_storage_client_bucket, mock_bucket, mock_blob = mock_storage_client_bucket
+        mock_storage_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
+        mock_bucket.blob.assert_called_once_with("test-file.jsonl")
+        mock_blob.download_as_text.assert_called_once()
+
+        pandas.testing.assert_frame_equal(
+            bpd_module.read_pandas.call_args[0][0],
+            pandas.DataFrame({"requests": ["json_line_1", "json_line_2"]}),
+        )
+
+        bpd_module.read_pandas.return_value.to_gbq.assert_called_with(
+            destination_table=bq_table,
+            if_exists="replace",
+        )
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
+            metadata={
+                "inputConfig": {"bigquerySource": {"uri": f"bq://{bq_table}"}},
+                "geminiTemplateConfigSource": {"requestColumnName": "requests"},
+            },
+        )
+        create_dataset_mock.assert_called_once_with(
+            dataset=expected_dataset,
+            parent=_TEST_PARENT,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
+    def test_request_column_name_returns_correct_value(self):
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        assert dataset.request_column_name == "requests"
+        assert dataset.template_config is None
+
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_update_dataset(self, update_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
@@ -439,6 +561,7 @@ class TestMultimodalDataset:
         )
         # TODO(b/402399640): Implement equality check for GeminiTemplateConfig.
         assert str(template_config) == str(updated_dataset.template_config)
+        assert dataset.request_column_name is None
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_attach_template_config_with_prompt(
@@ -501,6 +624,24 @@ class TestMultimodalDataset:
             token_count=100, billable_character_count=200
         )
 
+    @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
+    def test_assess_tuning_resources_request_column_name(
+        self, assess_data_tuning_resources_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        dataset.assess_tuning_resources(model_name="gemini-1.5-flash-exp")
+        assess_data_tuning_resources_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                tuning_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp"
+                ),
+                request_column_name="requests",
+            ),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_assess_tuning_validity(self, assess_data_tuning_validation_mock):
         aiplatform.init(project=_TEST_PROJECT)
@@ -526,6 +667,28 @@ class TestMultimodalDataset:
         )
         assert result == ummd.TuningValidationAssessmentResult(errors=["error message"])
 
+    @pytest.mark.usefixtures("get_dataset_request_column_name_mock")
+    def test_assess_tuning_validity_request_column_name(
+        self, assess_data_tuning_validation_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        dataset.assess_tuning_validity(
+            model_name="gemini-1.5-flash-exp",
+            dataset_usage="SFT_TRAINING",
+        )
+        assess_data_tuning_validation_mock.assert_called_once_with(
+            request=gca_dataset_service.AssessDataRequest(
+                name=_TEST_NAME,
+                tuning_validation_assessment_config=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig(
+                    model_name="gemini-1.5-flash-exp",
+                    dataset_usage=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage.SFT_TRAINING,
+                ),
+                request_column_name="requests",
+            ),
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_assess_tuning_validity_invalid_dataset_usage_throws_error(
         self, assess_data_tuning_validation_mock
@@ -546,6 +709,50 @@ class TestMultimodalDataset:
             "Argument 'dataset_usage' must be one of the following: "
             "SFT_TRAINING, SFT_VALIDATION." == str(excinfo.value)
         )
+
+    @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
+    @pytest.mark.usefixtures(
+        "bigframes_import_mock", "get_dataset_mock", "get_bq_dataset_mock"
+    )
+    def test_assemble(self, assemble_data_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        template_config = ummd.GeminiTemplateConfig(
+            field_mapping={"question": "questionColumn"},
+        )
+        result_table_id, _ = dataset.assemble(
+            template_config=template_config,
+            load_dataframe=False,
+        )
+        assemble_data_mock.assert_called_once_with(
+            request=gca_dataset_service.AssembleDataRequest(
+                name=_TEST_NAME,
+                gemini_template_config=template_config._raw_gemini_template_config,
+            ),
+            timeout=None,
+        )
+        assert result_table_id == _TEST_ASSEMBLE_DATA_BIGQUERY_DESTINATION[5:]
+
+    @pytest.mark.skip(reason="flaky with other tests mocking bigframes")
+    @pytest.mark.usefixtures(
+        "bigframes_import_mock",
+        "get_dataset_request_column_name_mock",
+        "get_bq_dataset_mock",
+    )
+    def test_assemble_request_column_name(self, assemble_data_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        result_table_id, _ = dataset.assemble(
+            load_dataframe=False,
+        )
+        assemble_data_mock.assert_called_once_with(
+            request=gca_dataset_service.AssembleDataRequest(
+                name=_TEST_NAME,
+                request_column_name="requests",
+            ),
+            timeout=None,
+        )
+        assert result_table_id == _TEST_ASSEMBLE_DATA_BIGQUERY_DESTINATION[5:]
 
 
 class TestGeminiExample:
