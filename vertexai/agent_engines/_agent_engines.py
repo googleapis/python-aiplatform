@@ -74,6 +74,12 @@ _DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
     Returns:
         {return_type}: The response from serving the user request.
 """
+_FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE = (
+    "Failed to register API methods. Please follow the guide to "
+    "register the API methods: "
+    "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
+    "Error: {%s}"
+)
 
 
 @typing.runtime_checkable
@@ -140,7 +146,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         try:
             _register_api_methods_or_raise(self)
         except Exception as e:
-            _LOGGER.warning("Failed to register API methods: {%s}", e)
+            _LOGGER.warning(_FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e)
         self._operation_schemas = None
 
     @property
@@ -323,7 +329,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             try:
                 _register_api_methods_or_raise(sdk_resource)
             except Exception as e:
-                _LOGGER.warning("Failed to register API methods: {%s}", e)
+                _LOGGER.warning(_FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e)
         sdk_resource._operation_schemas = None
         return sdk_resource
 
@@ -466,7 +472,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         try:
             _register_api_methods_or_raise(self)
         except Exception as e:
-            _LOGGER.warning("Failed to register API methods: {%s}", e)
+            _LOGGER.warning(_FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e)
         return self
 
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
