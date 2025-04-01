@@ -544,6 +544,10 @@ class LlamaIndexQueryPipelineAgent:
         if not self._runnable:
             self.set_up()
 
+        if kwargs.get("batch"):
+            nest_asyncio = _utils._import_nest_asyncio_or_warn()
+            nest_asyncio.apply()
+
         return _utils.to_json_serializable_llama_index_object(
             self._runnable.run(**input, **kwargs)
         )

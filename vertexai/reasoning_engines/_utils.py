@@ -472,3 +472,16 @@ def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
             "autogen.tools is not installed. Please call: `pip install ag2[tools]`"
         )
     return None
+
+
+def _import_nest_asyncio_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the nest_asyncio module."""
+    try:
+        import nest_asyncio
+
+        return nest_asyncio
+    except ImportError:
+        _LOGGER.warning(
+            "nest_asyncio is not installed. Please call: `pip install nest-asyncio`"
+        )
+    return None

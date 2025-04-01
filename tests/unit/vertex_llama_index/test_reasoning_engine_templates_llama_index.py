@@ -108,6 +108,15 @@ def llama_index_instrumentor_none_mock():
         yield llama_index_instrumentor_mock
 
 
+@pytest.fixture
+def nest_asyncio_apply_mock():
+    with mock.patch.object(
+        _utils,
+        "_import_nest_asyncio_or_warn",
+    ) as nest_asyncio_apply_mock:
+        yield nest_asyncio_apply_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLlamaIndexQueryPipelineAgent:
     def setup_method(self):
@@ -198,6 +207,20 @@ class TestLlamaIndexQueryPipelineAgent:
         mocks.attach_mock(mock=agent._runnable, attribute="run")
         agent.query(input={"input": "test query"})
         mocks.assert_has_calls([mock.call.run.run(input="test query")])
+
+    def test_query_with_batch_input(self, json_loads_mock, nest_asyncio_apply_mock):
+        agent = llama_index.LlamaIndexQueryPipelineAgent(
+            model=_TEST_MODEL,
+            prompt=self.prompt,
+        )
+        agent._runnable = mock.Mock()
+        mocks = mock.Mock()
+        mocks.attach_mock(mock=agent._runnable, attribute="run")
+        agent.query(input={"input": ["test query 1", "test query 2"]}, batch=True)
+        mocks.assert_has_calls(
+            [mock.call.run.run(input=["test query 1", "test query 2"], batch=True)]
+        )
+        nest_asyncio_apply_mock.assert_called_once()
 
     @pytest.mark.usefixtures("caplog")
     def test_enable_tracing(
