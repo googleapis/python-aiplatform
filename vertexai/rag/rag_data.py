@@ -143,7 +143,9 @@ def update_corpus(
         ]
     ] = None,
 ) -> RagCorpus:
-    """Updates a RagCorpus resource.
+    """Updates a RagCorpus resource. It is intended to update 3rd party vector
+    DBs (Vector Search, Vertex AI Feature Store, Weaviate, Pinecone) but not
+    Vertex RagManagedDb.
 
     Example usage:
     ```
