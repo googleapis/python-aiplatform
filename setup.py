@@ -167,6 +167,8 @@ evaluation_extra_require = [
     "tqdm>=4.23.0",
     "scikit-learn<1.6.0; python_version<='3.10'",
     "scikit-learn; python_version>'3.10'",
+    "jsonschema",
+    "ruamel.yaml",
 ]
 
 langchain_extra_require = [

@@ -319,6 +319,17 @@ def _upload_file_to_gcs(upload_gcs_path: str, filename: str) -> None:
     ).upload_from_filename(filename)
 
 
+def _upload_string_to_gcs(upload_gcs_path: str, contents: str) -> None:
+    """Uploads the provided string to a GCS bucket."""
+    storage_client = storage.Client(
+        project=initializer.global_config.project,
+        credentials=initializer.global_config.credentials,
+    )
+    storage.Blob.from_string(
+        uri=upload_gcs_path, client=storage_client
+    ).upload_from_string(contents)
+
+
 def _upload_pandas_df_to_gcs(
     df: "pd.DataFrame", upload_gcs_path: str, file_type: str
 ) -> None:
