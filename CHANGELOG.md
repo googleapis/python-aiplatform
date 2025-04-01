@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.87.0](https://github.com/googleapis/python-aiplatform/compare/v1.86.0...v1.87.0) (2025-04-01)
+
+
+### Features
+
+* Add page spans in retrieved contexts from Vertex RAG Engine in aiplatform v1 ([30f0fcf](https://github.com/googleapis/python-aiplatform/commit/30f0fcff3e885157a6bf8e7902725a0d67acfffa))
+* Add page spans in retrieved contexts from Vertex RAG Engine in aiplatform v1beta1 ([30f0fcf](https://github.com/googleapis/python-aiplatform/commit/30f0fcff3e885157a6bf8e7902725a0d67acfffa))
+* Add support for Vertex AI Search engine ([30f0fcf](https://github.com/googleapis/python-aiplatform/commit/30f0fcff3e885157a6bf8e7902725a0d67acfffa))
+* Add validation of the BigQuery location when creating a MultimodalDataset ([98459aa](https://github.com/googleapis/python-aiplatform/commit/98459aafa6fbb3edf79690b53bc646d14ac006a0))
+* Adding Vertex AI Search Config for RAG corpuses to SDK ([a7453da](https://github.com/googleapis/python-aiplatform/commit/a7453da7d747e76bf69ce1ef3473a66f960ceb8b))
+* Allow using multimodal datasets in the SDK. ([d951b74](https://github.com/googleapis/python-aiplatform/commit/d951b74b4f027de981a0b34b420285c99856ca1c))
+* ExampleStore SDK in public preview ([50fbdee](https://github.com/googleapis/python-aiplatform/commit/50fbdeebd3ab59dde9ef4039035ed912e652f42a))
+* GenAI Evaluation: Release GenAI Evaluation SDK multimodal evaluation to vertexai.preview module. ([f090ca1](https://github.com/googleapis/python-aiplatform/commit/f090ca1f7538453bafc0e4c634597906185c0647))
+* Make it optional to pass in an instance of an agent when creating a new ReasoningEngine instance ([f3addc9](https://github.com/googleapis/python-aiplatform/commit/f3addc9f104b1c4fdfec0e82df3d58292f9de33e))
+* Support creating multimodal datasets from a JSONL file containing Gemini requests ([a323679](https://github.com/googleapis/python-aiplatform/commit/a3236795fef390263140e7f8bf5b47eb8d3e5ad9))
+* Vertex AI Model Garden open model export SDK Public Preview ([898109d](https://github.com/googleapis/python-aiplatform/commit/898109d607472688fba88e3406c19eb3e8a1b012))
+
+
+### Bug Fixes
+
+* Propagating import result sink correctly in the vertexai sdk. ([184cca5](https://github.com/googleapis/python-aiplatform/commit/184cca51f8f2c91b4dc7564a9d3dcb72381d82d1))
+* Remove the xprof dependency from Vertex Tensorboard uploader. ([1336b85](https://github.com/googleapis/python-aiplatform/commit/1336b85dab923521077134631951c7b9456268a0))
+
+
+### Documentation
+
+* A comment for field `rag_files_count` in message `.google.cloud.aiplatform.v1beta1.RagCorpus` is changed ([30f0fcf](https://github.com/googleapis/python-aiplatform/commit/30f0fcff3e885157a6bf8e7902725a0d67acfffa))
+
 ## [1.86.0](https://github.com/googleapis/python-aiplatform/compare/v1.85.0...v1.86.0) (2025-03-26)
 
 
