@@ -17,12 +17,22 @@
 """Base classes for evaluation metrics."""
 
 import abc
-from typing import Any, Callable, Dict, Literal, Optional, Union
+from typing import Any, Callable, Dict, Literal, Optional, Union, List
 
+from google.cloud.aiplatform_v1beta1.types import (
+    evaluation_service as gapic_eval_service_types,
+)
+from vertexai import generative_models
 from vertexai.preview.evaluation import constants
+from vertexai.preview.evaluation.metrics import (
+    custom_output_config as custom_output_config_class,
+)
 from vertexai.preview.evaluation.metrics import (
     metric_prompt_template as metric_prompt_template_base,
 )
+
+
+_ModelType = Union[generative_models.GenerativeModel, Callable[[str], str]]
 
 
 class _Metric(abc.ABC):
@@ -60,6 +70,10 @@ class _ModelBasedMetric(_Metric):
             str,
         ],
         system_instruction: Optional[str] = None,
+        autorater_config: Optional[gapic_eval_service_types.AutoraterConfig] = None,
+        custom_output_config: Optional[
+            custom_output_config_class.CustomOutputConfig
+        ] = None,
     ):
         """Initializes the model-based evaluation metric.
 
@@ -69,10 +83,14 @@ class _ModelBasedMetric(_Metric):
             the model-based evaluation. A freeform string is also accepted.
           system_instruction: The system instruction to be used in the metric
             prompt.
+          autorater_config: The config for judge model.
+          custom_output_config: Config for custom output from the judge model.
         """
         super().__init__(metric=metric)
         self.metric_prompt_template = str(metric_prompt_template)
         self.system_instruction = system_instruction
+        self.autorater_config = autorater_config
+        self.custom_output_config = custom_output_config
 
 
 class CustomMetric(_Metric):
@@ -127,3 +145,41 @@ class _AutomaticMetric(_Metric):
           metric: The automatic evaluation metric name.
         """
         super().__init__(metric=metric)
+
+
+class RubricGenerationConfig:
+    """The rubric generation config.
+
+    Attributes:
+      prompt_template: The prompt template for rubric generation.
+      model: The model to use for rubric generation.
+      parsing_fn: The function to parse the rubric generation response.
+    """
+
+    def __init__(
+        self,
+        prompt_template: str,
+        model: Optional[_ModelType] = None,
+        parsing_fn: Optional[Callable[[str], List[str]]] = None,
+    ):
+        """Initializes the rubric generation config."""
+        self.prompt_template = prompt_template
+        self.model = model
+        self.parsing_fn = parsing_fn
+
+
+def make_metric(
+    name: str, metric_function: Callable[[Dict[str, Any]], Dict[str, Any]]
+) -> CustomMetric:
+    """Makes a custom metric.
+
+    Args:
+      name: The name of the metric
+      metric_function: The evaluation function. Must use the dataset row/instance
+        as the metric_function input. Returns per-instance metric result as a
+        dictionary. The metric score must mapped to the CustomMetric.name as key.
+
+    Returns:
+      A CustomMetric instance, can be passed to evaluate() function.
+    """
+    return CustomMetric(name, metric_function)

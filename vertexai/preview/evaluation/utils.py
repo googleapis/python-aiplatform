@@ -23,7 +23,18 @@ import os
 import tempfile
 import threading
 import time
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
+import re
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    TYPE_CHECKING,
+    Union,
+    Pattern,
+    Tuple,
+)
 
 from google.cloud import bigquery
 from google.cloud import storage
@@ -32,14 +43,15 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import _ipython_utils
-from vertexai.evaluation import _base as eval_base
 from google.cloud.aiplatform_v1beta1.services import (
     evaluation_service as gapic_evaluation_services,
 )
+from vertexai.evaluation import _base as eval_base
+from vertexai.evaluation.metrics import _base as metrics_base
 from vertexai.evaluation.metrics import (
-    _base as metrics_base,
     metric_prompt_template as metric_prompt_template_base,
 )
+
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -48,6 +60,42 @@ if TYPE_CHECKING:
 _BQ_PREFIX = "bq://"
 _GCS_PREFIX = "gs://"
 _LOGGER = base.Logger(__name__)
+
+_QUESTION_REGEX = re.compile(r"Question:(.*?)Verdict:", re.DOTALL)
+_VERDICT_REGEX = re.compile("Verdict:(.*)")
+_QUESTION_BLOCK_REGEX = re.compile("<question>(.*?)</question>", re.DOTALL)
+_RESPONSE_A_REGEX = re.compile(
+    r"\[\[Response A Answers:\]\](.*?)\[\[Rubric Score:", re.DOTALL
+)
+_RESPONSE_B_REGEX = re.compile(
+    r"\[\[Response B Answers:\]\](.*?)\[\[Rubric Score:", re.DOTALL
+)
+_SXS_RATING_REGEX = re.compile(r"\[\[(SxSRating:[AB<>=]+)\]\]", re.DOTALL)
+
+_RATING_TO_VERDICT = {
+    "B>>A": "Candidate response is better than the baseline response.",
+    "A<<B": "Candiate response is better than the baseline response.",
+    "B>A": "Candidate response is slightly better than the baseline response.",
+    "A<B": "Candidate response is slightly better than the baseline response.",
+    "A=B": "Both responses are equally good.",
+    "B=A": "Both responses are equally good.",
+    "A>B": "Baseline response is slightly better than the candidate response.",
+    "B<A": "Baseline response is slightly better than the candidate response.",
+    "B<<A": "Baseline response is better than the candidate response.",
+    "A>>B": "Baseline response is better than the candidate response.",
+}
+_RATING_TO_SCORE = {
+    "B>>A": 1,
+    "A<<B": 1,
+    "B>A": 0.5,
+    "A<B": 0.5,
+    "A=B": 0,
+    "B=A": 0,
+    "A>B": -0.5,
+    "B<A": -0.5,
+    "B<<A": -1,
+    "A>>B": -1,
+}
 
 
 class _EvaluationServiceClientWithOverride(utils.ClientWithOverride):
@@ -438,3 +486,137 @@ def parse_intermediate_steps(intermediate_steps: List[Dict[str, Any]]):
             " service, if not, consider building a custom runnable function."
         )
     return trajectory
+
+
+def parse_rubrics(
+    rubric_generation_response: str,
+) -> List[str]:
+    """Parses the rubric generation responses."""
+    try:
+        _, questions = rubric_generation_response.split("```json")
+    except ValueError:
+        _LOGGER.warning(
+            "Failed to parse rubric generation response. Does not contain ```json"
+        )
+        return ""
+    try:
+        result = json.loads(questions.strip("\n` "))
+    except json.JSONDecodeError:
+        _LOGGER.warning(
+            "Failed to parse rubric generation response. Does not contain valid"
+            " JSON."
+        )
+        return ""
+    questions = result.get("questions", "")
+    return questions
+
+
+def parse_pairwise_rubric_verdict_pairs(prediction: str, regex: Pattern[str]) -> str:
+    """Parses the pairwise rubric critique responses."""
+    response = "Unable to parse rubric verdict pairs from response."
+    response_matches = regex.findall(prediction)
+    if response_matches:
+        response_pairs = parse_question_blocks(response_matches[0])
+        response = "\n".join(f"{q}: {v}" for q, v in response_pairs)
+    return response
+
+
+def parse_pairwise_rubric_result(
+    predictions: List[str],
+) -> Dict[str, Any]:
+    """Parses the pairwise rubric critique responses."""
+    prediction = predictions[0]  # currently only supports one sample
+    rating_str = "Unable to parse verdict."
+
+    response_a = parse_pairwise_rubric_verdict_pairs(prediction, _RESPONSE_A_REGEX)
+    response_b = parse_pairwise_rubric_verdict_pairs(prediction, _RESPONSE_B_REGEX)
+
+    sxs_rating_matches = _SXS_RATING_REGEX.findall(prediction.replace(" ", ""))
+
+    if sxs_rating_matches:
+        rating_str = sxs_rating_matches[0].strip("[]")
+        rating_str = rating_str[rating_str.find(":") + 1 :]
+
+    return {
+        "pairwise_choice": (
+            _RATING_TO_VERDICT[rating_str]
+            if rating_str in _RATING_TO_VERDICT
+            else rating_str
+        ),
+        "score": (
+            _RATING_TO_SCORE[rating_str] if rating_str in _RATING_TO_SCORE else None
+        ),
+        "baseline_rubric_verdict_pairs": response_a,
+        "candidate_rubric_verdict_pairs": response_b,
+        "raw_outputs": predictions,
+    }
+
+
+def parse_verdict(txt: str):
+    """Parses the verdict from the rubric critique response."""
+    if not isinstance(txt, str) or not txt:
+        return None
+    try:
+        if verdict := _VERDICT_REGEX.findall(txt):
+            verdict = verdict[0]
+            if "yes" in verdict.lower():
+                return True
+            elif "no" in verdict.lower():
+                return False
+    except Exception:
+        return None
+
+
+def parse_question(txt: str):
+    """Parses the question from the rubric critique response."""
+    if not isinstance(txt, str) or not txt:
+        return None
+    try:
+        txt = txt.split("Verdict:")[0]
+        if "Question:" in txt:
+            return txt.split("Question:")[-1].strip()
+
+        if not (question := _QUESTION_REGEX.findall(txt)):
+            return txt.strip().split("\n")[0].removeprefix("STEP 1:").strip()
+        return question[0].strip()
+    except Exception:  # pylint: disable=broad-exception-caught
+        return None
+
+
+def parse_question_blocks(txt: str) -> List[Tuple[str, bool]]:
+    """Parses the question blocks from the rubric critique response."""
+    responses = []
+    question_blocks = _QUESTION_BLOCK_REGEX.findall(txt)
+    if not question_blocks:
+        question_blocks = [txt]
+    for block in question_blocks:
+        q = parse_question(block)
+        v = parse_verdict(block)
+        if q is not None and v is not None:
+            responses.append((q, v))
+    return responses
+
+
+def parse_pointwise_rubric_result(results: List[str]) -> Dict[str, Any]:
+    self_consistency_results = {}
+    for sample_result in results:
+        rubric_verdict_pairs = parse_question_blocks(sample_result)
+        for rubric, verdict in rubric_verdict_pairs:
+            if rubric not in self_consistency_results:
+                self_consistency_results[rubric] = 0
+
+            self_consistency_results[rubric] += 1 if verdict else -1
+
+    rubric_results = {}
+    for rubric, verdict_counts in self_consistency_results.items():
+        rubric_results[rubric] = verdict_counts > 0
+
+    rubric_results_str = "\n".join(f"{q}: {v}" for q, v in rubric_results.items())
+    row_results = {
+        "score": (
+            sum(rubric_results.values()) / len(rubric_results) if rubric_results else 0
+        )
+    }
+    row_results["rubric_verdict_pairs"] = rubric_results_str
+    row_results["raw_outputs"] = results
+    return row_results

@@ -37,6 +37,9 @@ from vertexai.preview.evaluation.metrics import (
 )
 from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
+from vertexai.preview.evaluation.metrics import (
+    rubric_based_metric,
+)
 import numpy as np
 
 
@@ -256,11 +259,13 @@ class EvalTask:
                     "trajectory_any_order_match",
                     "trajectory_precision",
                     "trajectory_recall",
+                    "rubric_based_instruction_following",
                 ],
                 metrics_base.CustomMetric,
                 metrics_base._AutomaticMetric,
                 pointwise_metric.PointwiseMetric,
                 pairwise_metric.PairwiseMetric,
+                rubric_based_metric.RubricBasedMetric,
             ]
         ],
         experiment: Optional[str] = None,
@@ -299,6 +304,8 @@ class EvalTask:
             output_uri_prefix: GCS location to store the metrics_table from
               evaluation results.
             autorater_config: The autorater config for model based evaluation.
+              If autorater config is specified on a metric, it will override the
+              autorater config specified here.
         """
         self._dataset = eval_utils.load_dataset(dataset)
         self._metrics = metrics

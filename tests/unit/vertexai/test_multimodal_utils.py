@@ -33,7 +33,7 @@ _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 
 _MODEL_BASED_METRIC_INSTANCE_INPUT = {
-    "prompt": '{"contents": [{"parts": [{"text": "test prompt"}]}]}',
+    "prompt": "test prompt",
     "response": (
         '{"contents": [{"parts": [{"file_data": {"mime_type": "image/png",'
         ' "file_uri": "gs://test-bucket/image1.png"}}]}]}'
@@ -102,3 +102,31 @@ class TestMultimodalUtils:
                 )
             ]
         )
+
+    def test_split_metric_prompt_template(self):
+        metric_prompt_template = "This prompt uses {prompt} and {response}."
+        placeholders = ["prompt", "response", "baseline_response"]
+        split_metric_prompt_template = multimodal_utils._split_metric_prompt_template(
+            metric_prompt_template, placeholders
+        )
+        assert split_metric_prompt_template == [
+            "This prompt uses ",
+            "{prompt}",
+            " and ",
+            "{response}",
+            ".",
+        ]
+
+    def test_assemble_multi_modal_prompt_gemini_format(self):
+        prompt_template = """This {prompt} uses the {response}."""
+        prompt = multimodal_utils._assemble_multi_modal_prompt(
+            prompt_template,
+            _MODEL_BASED_METRIC_INSTANCE_INPUT,
+            1,
+            ["response", "prompt"],
+        )
+        assert prompt[0] == "This "
+        assert prompt[1] == "test prompt"
+        assert prompt[2] == " uses the "
+        assert prompt[3].file_data.file_uri == "gs://test-bucket/image1.png"
+        assert prompt[4] == "."
