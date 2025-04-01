@@ -368,26 +368,25 @@ def upload_evaluation_results(
     if eval_result.metrics_table is None:
         return
     if destination_uri_prefix.startswith(_GCS_PREFIX):
-        if not file_name:
-            file_name = f"eval_results_{utils.timestamped_unique_name()}.csv"
-        base_name, extension = os.path.splitext(file_name)
-        file_type = extension.lower()[1:]
-        output_folder = destination_uri_prefix + "/" + base_name
-        metrics_table_path = output_folder + "/" + file_name
-        _upload_pandas_df_to_gcs(
-            eval_result.metrics_table, metrics_table_path, file_type
-        )
-        _upload_evaluation_summary_to_gcs(
-            eval_result.summary_metrics,
-            output_folder + "/summary_metrics.json",
-            candidate_model_name,
-            baseline_model_name,
-            dataset_uri,
-            metrics,
-        )
-        _ipython_utils.display_gen_ai_evaluation_results_button(
-            metrics_table_path.split(_GCS_PREFIX)[1]
-        )
+        if file_name:
+            base_name, extension = os.path.splitext(file_name)
+            file_type = extension.lower()[1:]
+            output_folder = destination_uri_prefix + "/" + base_name
+            metrics_table_path = output_folder + "/" + file_name
+            _upload_pandas_df_to_gcs(
+                eval_result.metrics_table, metrics_table_path, file_type
+            )
+            _upload_evaluation_summary_to_gcs(
+                eval_result.summary_metrics,
+                output_folder + "/summary_metrics.json",
+                candidate_model_name,
+                baseline_model_name,
+                dataset_uri,
+                metrics,
+            )
+            _ipython_utils.display_gen_ai_evaluation_results_button(
+                metrics_table_path.split(_GCS_PREFIX)[1]
+            )
     else:
         raise ValueError(
             f"Unsupported destination URI: {destination_uri_prefix}."

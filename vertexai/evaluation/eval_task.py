@@ -22,12 +22,13 @@ import warnings
 from google.api_core import exceptions
 import vertexai
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 from vertexai import generative_models
 from vertexai.evaluation import _base as eval_base
 from vertexai.evaluation import _evaluation
 from vertexai.evaluation import constants
-from vertexai.evaluation import utils
+from vertexai.evaluation import utils as eval_utils
 from vertexai.evaluation.metrics import (
     _base as metrics_base,
 )
@@ -289,10 +290,10 @@ class EvalTask:
               evaluation results.
         """
         self._raw_dataset = dataset
-        self._dataset = utils.load_dataset(dataset)
+        self._dataset = eval_utils.load_dataset(dataset)
         self._metrics = metrics
         self._experiment = experiment
-        self._metric_column_mapping = utils.initialize_metric_column_mapping(
+        self._metric_column_mapping = eval_utils.initialize_metric_column_mapping(
             metric_column_mapping, self._dataset
         )
         self.output_uri_prefix = output_uri_prefix
@@ -320,6 +321,7 @@ class EvalTask:
         experiment_run_name: Optional[str] = None,
         evaluation_service_qps: Optional[float] = None,
         retry_timeout: float = 120.0,
+        output_file_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask with an experiment.
 
@@ -336,13 +338,19 @@ class EvalTask:
           evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
+          output_file_name: The file name with csv suffix to store the output
+            metrics_table to be tracked in the experiment run.
 
         Returns:
           The evaluation result.
         """
         self._validate_experiment_run()
         with vertexai.preview.start_run(experiment_run_name):
-            self._log_eval_experiment_param(model, prompt_template)
+            self._log_eval_experiment_param(
+                model=model,
+                prompt_template=prompt_template,
+                output_file_name=output_file_name,
+            )
             eval_result = _evaluation.evaluate(
                 dataset=self._dataset,
                 metrics=self._metrics,
@@ -413,6 +421,8 @@ class EvalTask:
                 "`vertexai.init(experiment='experiment_name')`for logging this"
                 " evaluation run."
             )
+        if self.output_uri_prefix and not output_file_name:
+            output_file_name = f"eval_results_{utils.timestamped_unique_name()}.csv"
         self._verify_and_set_response_column_name(
             response_column_name=response_column_name,
             metric_column_mapping_key=constants.Dataset.MODEL_RESPONSE_COLUMN,
@@ -433,6 +443,7 @@ class EvalTask:
                 experiment_run_name=experiment_run_name,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                output_file_name=output_file_name,
             )
             metadata._experiment_tracker.set_experiment(
                 experiment=global_experiment_name,
@@ -449,6 +460,7 @@ class EvalTask:
                 experiment_run_name=experiment_run_name,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                output_file_name=output_file_name,
             )
             metadata._experiment_tracker.reset()
         elif not self._experiment and global_experiment_name:
@@ -458,6 +470,7 @@ class EvalTask:
                 experiment_run_name=experiment_run_name,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                output_file_name=output_file_name,
             )
         else:
             eval_result = _evaluation.evaluate(
@@ -490,7 +503,7 @@ class EvalTask:
         if isinstance(self._raw_dataset, str):
             dataset_uri = self._raw_dataset
 
-        utils.upload_evaluation_results(
+        eval_utils.upload_evaluation_results(
             eval_result,
             self.output_uri_prefix,
             output_file_name,
@@ -513,22 +526,23 @@ class EvalTask:
         self,
         model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
+        output_file_name: Optional[str] = None,
     ) -> None:
         """Logs variable input parameters of an evaluation to an experiment run."""
-        model_metadata = {}
+        eval_metadata = {}
 
         if prompt_template is not None:
-            model_metadata.update({"prompt_template": prompt_template})
+            eval_metadata.update({"prompt_template": prompt_template})
 
         if isinstance(model, GenerativeModel):
-            model_metadata.update(
+            eval_metadata.update(
                 {
                     "model_name": model._model_name,
                 }
             )
 
             if model._generation_config and isinstance(model._generation_config, dict):
-                model_metadata.update(**model._generation_config)
+                eval_metadata.update(**model._generation_config)
 
             if model._safety_settings and isinstance(model._safety_settings, dict):
                 safety_settings = model._safety_settings
@@ -536,12 +550,17 @@ class EvalTask:
                     category.name: threshold.name
                     for category, threshold in safety_settings.items()
                 }
-                model_metadata.update(safety_settings_as_str)
+                eval_metadata.update(safety_settings_as_str)
 
-        if model_metadata:
-            _LOGGER.info(f"Logging Eval Experiment metadata: {model_metadata}")
+        if self.output_uri_prefix and output_file_name:
+            eval_metadata.update(
+                {"output_file": self.output_uri_prefix + "/" + output_file_name}
+            )
+
+        if eval_metadata:
+            _LOGGER.info(f"Logging Eval Experiment metadata: {eval_metadata}")
             try:
-                vertexai.preview.log_params(model_metadata)
+                vertexai.preview.log_params(eval_metadata)
             except (ValueError, TypeError) as e:
                 _LOGGER.warning(f"Experiment metadata logging failed: {str(e)}")
 

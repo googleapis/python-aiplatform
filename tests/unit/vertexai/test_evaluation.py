@@ -2086,18 +2086,34 @@ class TestEvaluationUtils:
             mock.ANY,
         )
 
-    def test_upload_results_with_default_file_name(self, mock_storage_blob_from_string):
+    def test_upload_results_with_default_output_file_name(
+        self, mock_storage_blob_from_string
+    ):
+        mock_metric_results = _MOCK_EXACT_MATCH_RESULT
         with mock.patch.object(
             aiplatform_utils, "timestamped_unique_name"
         ) as mock_timestamped_unique_name:
-            mock_timestamped_unique_name.return_value = "2025-02-10-12-00-00-12345"
-            evaluation.utils.upload_evaluation_results(
-                MOCK_EVAL_RESULT,
-                _TEST_BUCKET,
-            )
-
+            with mock.patch.object(
+                target=gapic_evaluation_services.EvaluationServiceClient,
+                attribute="evaluate_instances",
+                side_effect=mock_metric_results,
+            ):
+                mock_timestamped_unique_name.return_value = "2025-02-10-12-00-00-12345"
+                eval_dataset = pd.DataFrame(
+                    {
+                        "response": ["test", "text"],
+                        "reference": ["test", "ref"],
+                    }
+                )
+                test_metrics = ["exact_match"]
+                test_eval_task = EvalTask(
+                    dataset=eval_dataset,
+                    metrics=test_metrics,
+                    output_uri_prefix=_TEST_BUCKET,
+                )
+                _ = test_eval_task.evaluate()
         mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/eval_results_2025-02-10-12-00-00-12345.csv",
+            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/summary_metrics.json",
             client=mock.ANY,
         )
 

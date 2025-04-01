@@ -24,6 +24,7 @@ import uuid
 from google.api_core import exceptions
 import vertexai
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 from vertexai import generative_models
 from vertexai.preview import reasoning_engines
@@ -336,6 +337,7 @@ class EvalTask:
         experiment_run_name: Optional[str] = None,
         evaluation_service_qps: Optional[float] = None,
         retry_timeout: float = 120.0,
+        output_file_name: Optional[str] = None,
     ) -> EvalResult:
         """Runs an evaluation for the EvalTask with an experiment.
 
@@ -355,6 +357,8 @@ class EvalTask:
           evaluation_service_qps: The custom QPS limit for the evaluation service.
           retry_timeout: How long to keep retrying the evaluation requests for
             the whole evaluation dataset, in seconds.
+          output_path: The file name with csv suffix to store the output
+            metrics_table to be tracked in the experiment run.
 
         Returns:
           The evaluation result.
@@ -362,7 +366,10 @@ class EvalTask:
         self._validate_experiment_run()
         with vertexai.preview.start_run(experiment_run_name):
             self._log_eval_experiment_param(
-                model=model, runnable=runnable, prompt_template=prompt_template
+                model=model,
+                runnable=runnable,
+                prompt_template=prompt_template,
+                output_file_name=output_file_name,
             )
             eval_result = _evaluation.evaluate(
                 dataset=self._dataset,
@@ -451,7 +458,8 @@ class EvalTask:
             response_column_name=baseline_model_response_column_name,
             metric_column_mapping_key=constants.Dataset.BASELINE_MODEL_RESPONSE_COLUMN,
         )
-
+        if self.output_uri_prefix and not output_file_name:
+            output_file_name = f"eval_results_{utils.timestamped_unique_name()}.csv"
         experiment_run_name = experiment_run_name or f"{uuid.uuid4()}"
         if self._experiment and global_experiment_name:
             metadata._experiment_tracker.set_experiment(  # pylint: disable=protected-access
@@ -464,6 +472,7 @@ class EvalTask:
                 experiment_run_name=experiment_run_name,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                output_file_name=output_file_name,
             )
             metadata._experiment_tracker.set_experiment(  # pylint: disable=protected-access
                 experiment=global_experiment_name, backing_tensorboard=False
@@ -479,6 +488,7 @@ class EvalTask:
                 experiment_run_name=experiment_run_name,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                output_file_name=output_file_name,
             )
             metadata._experiment_tracker.reset()  # pylint: disable=protected-access
         elif not self._experiment and global_experiment_name:
@@ -489,6 +499,7 @@ class EvalTask:
                 experiment_run_name=experiment_run_name,
                 evaluation_service_qps=evaluation_service_qps,
                 retry_timeout=retry_timeout,
+                output_file_name=output_file_name,
             )
         else:
             eval_result = _evaluation.evaluate(
@@ -503,7 +514,7 @@ class EvalTask:
                 autorater_config=self._autorater_config,
             )
         eval_utils.upload_evaluation_results(
-            eval_result.metrics_table, self.output_uri_prefix, output_file_name
+            eval_result, self.output_uri_prefix, output_file_name
         )
         return eval_result
 
@@ -522,6 +533,7 @@ class EvalTask:
         model: _ModelType = None,
         runnable: _RunnableType = None,
         prompt_template: Optional[str] = None,
+        output_file_name: Optional[str] = None,
     ) -> None:
         """Logs variable input parameters of an evaluation to an experiment run."""
         eval_metadata = {}
@@ -567,6 +579,11 @@ class EvalTask:
                         "tools": runnable._tools,
                     }  # pylint: disable=protected-access
                 )
+
+        if self.output_uri_prefix and output_file_name:
+            eval_metadata.update(
+                {"output_file": self.output_uri_prefix + "/" + output_file_name}
+            )
 
         if eval_metadata:
             _LOGGER.info(
