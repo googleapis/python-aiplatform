@@ -181,6 +181,16 @@ class EndpointServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.set_publisher_model_config: gapic_v1.method.wrap_method(
+                self.set_publisher_model_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.fetch_publisher_model_config: gapic_v1.method.wrap_method(
+                self.fetch_publisher_model_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -328,6 +338,24 @@ class EndpointServiceTransport(abc.ABC):
     ) -> Callable[
         [endpoint_service.MutateDeployedModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def set_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.SetPublisherModelConfigRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def fetch_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.FetchPublisherModelConfigRequest],
+        Union[endpoint.PublisherModelConfig, Awaitable[endpoint.PublisherModelConfig]],
     ]:
         raise NotImplementedError()
 

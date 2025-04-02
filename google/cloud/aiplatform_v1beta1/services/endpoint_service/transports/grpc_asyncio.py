@@ -613,6 +613,70 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             )
         return self._stubs["mutate_deployed_model"]
 
+    @property
+    def set_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.SetPublisherModelConfigRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the set publisher model config method over gRPC.
+
+        Sets (creates or updates) configs of publisher
+        models. For example, sets the request/response logging
+        config.
+
+        Returns:
+            Callable[[~.SetPublisherModelConfigRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "set_publisher_model_config" not in self._stubs:
+            self._stubs[
+                "set_publisher_model_config"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/SetPublisherModelConfig",
+                request_serializer=endpoint_service.SetPublisherModelConfigRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["set_publisher_model_config"]
+
+    @property
+    def fetch_publisher_model_config(
+        self,
+    ) -> Callable[
+        [endpoint_service.FetchPublisherModelConfigRequest],
+        Awaitable[endpoint.PublisherModelConfig],
+    ]:
+        r"""Return a callable for the fetch publisher model config method over gRPC.
+
+        Fetches the configs of publisher models.
+
+        Returns:
+            Callable[[~.FetchPublisherModelConfigRequest],
+                    Awaitable[~.PublisherModelConfig]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "fetch_publisher_model_config" not in self._stubs:
+            self._stubs[
+                "fetch_publisher_model_config"
+            ] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/FetchPublisherModelConfig",
+                request_serializer=endpoint_service.FetchPublisherModelConfigRequest.serialize,
+                response_deserializer=endpoint.PublisherModelConfig.deserialize,
+            )
+        return self._stubs["fetch_publisher_model_config"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -658,6 +722,16 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             ),
             self.mutate_deployed_model: self._wrap_method(
                 self.mutate_deployed_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.set_publisher_model_config: self._wrap_method(
+                self.set_publisher_model_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.fetch_publisher_model_config: self._wrap_method(
+                self.fetch_publisher_model_config,
                 default_timeout=None,
                 client_info=client_info,
             ),
