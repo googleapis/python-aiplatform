@@ -1069,6 +1069,13 @@ def evaluate(
                     autorater_config=metric.autorater_config,
                 )
             )
+        elif isinstance(metric, rubric_based_metric.RubricBasedMetric):
+            copied_metrics.append(
+                rubric_based_metric.RubricBasedMetric(
+                    generation_config=copy.deepcopy(metric.generation_config),
+                    critique_metric=copy.deepcopy(metric.critique_metric),
+                )
+            )
         else:
             copied_metrics.append(copy.deepcopy(metric))
 
@@ -1117,9 +1124,9 @@ def evaluate(
         eval_dataset_with_rubrics = rubric_metric.generate_rubrics(
             evaluation_run_config.dataset
         )
-        evaluation_run_config.metric_column_mapping[
-            constants.Dataset.RUBRICS_COLUMN
-        ] = constants.Dataset.RUBRICS_COLUMN
+        for column in eval_dataset_with_rubrics.columns:
+            if column not in evaluation_run_config.metric_column_mapping:
+                evaluation_run_config.metric_column_mapping[column] = column
         evaluation_run_config.dataset = eval_dataset_with_rubrics
         if not rubric_metric.critique_metric.custom_output_config:
             rubric_metric.critique_metric.custom_output_config = (

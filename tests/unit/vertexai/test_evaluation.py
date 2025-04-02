@@ -429,9 +429,9 @@ _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS = pd.DataFrame(
         "prompt": ["test_prompt", "text_prompt", "test_prompt_3"],
         "response": ["test", "text", "test_response_3"],
         "rubrics": [
-            ["test_rubric"],
-            ["test_rubric"],
-            ["test_rubric"],
+            ["test_rubric1", "test_rubric2"],
+            ["test_rubric1", "test_rubric2"],
+            ["test_rubric1", "test_rubric2"],
         ],
     }
 )
@@ -681,7 +681,26 @@ _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE = generative_models.GenerationResponse.fr
         "candidates": [
             {
                 "content": {
-                    "parts": [{"text": """```json{"questions": ["test_rubric"]}```"""}]
+                    "parts": [
+                        {
+                            "text": """```json{"questions": ["test_rubric1", "test_rubric2"]}```"""
+                        }
+                    ]
+                },
+            }
+        ]
+    }
+)
+_MOCK_MODEL_RUBRIC_GENERATION_RESPONSE_WITH_ADDITIONAL = generative_models.GenerationResponse.from_dict(
+    {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "text": """```json{"questions": ["test_rubric1", "test_rubric2"], "desc": "test_desc"}```"""
+                        }
+                    ]
                 },
             }
         ]
@@ -2611,11 +2630,11 @@ class TestEvaluationUtils:
 
     def test_default_rubrics_parser_succeeds(self):
         parsed_rubrics = utils_preview.parse_rubrics(_UNPARSED_RUBRIC)
-        assert parsed_rubrics == ["test_rubric"]
+        assert parsed_rubrics == {"questions": ["test_rubric"]}
 
     def test_default_rubrics_parser_with_invalid_json(self):
         parsed_rubrics = utils_preview.parse_rubrics(_INVALID_UNPARSED_RUBRIC)
-        assert parsed_rubrics == ""
+        assert parsed_rubrics == {"questions": ""}
 
     def test_generate_responses_from_gemini_model(self):
         mock_model = mock.create_autospec(
@@ -2793,16 +2812,14 @@ class TestRubricGeneration:
             _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
         )
         mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
-        rubric_based_metric = evaluation_preview.metrics.RubricBasedMetric(
+        rbe = evaluation_preview.metrics.RubricBasedMetric(
             generation_config=RubricGenerationConfig(
                 prompt_template="Generate rubrics for the given prompt: {prompt}",
                 model=mock_model,
             ),
             critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.COHERENCE,
         )
-        dataset_with_rubrics = rubric_based_metric.generate_rubrics(
-            _TEST_EVAL_DATASET_PROMPT_RESPONSE
-        )
+        dataset_with_rubrics = rbe.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
         assert dataset_with_rubrics.equals(
             _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
         )
@@ -2827,7 +2844,7 @@ class TestRubricGeneration:
         assert mock_model.generate_content.call_count == 0
 
     def test_rubric_generation_default_parsing_fn(self):
-        """Test rubric generation using RubricBasedMetric."""
+        """Test rubric generation using default parsing function."""
         mock_model = mock.create_autospec(
             generative_models.GenerativeModel, instance=True
         )
@@ -2835,14 +2852,61 @@ class TestRubricGeneration:
             _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
         )
         mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
-        mock_parsing_fn = mock.MagicMock()
         rbm = evaluation_preview.metrics.RubricBasedMetric(
             generation_config=RubricGenerationConfig(
                 prompt_template="Generate rubrics for the given prompt: {prompt}",
                 model=mock_model,
-                parsing_fn=mock_parsing_fn,
             ),
             critique_metric=metric_prompt_template_examples_preview.MetricPromptTemplateExamples.Pointwise.COHERENCE,
         )
-        _ = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
-        assert mock_parsing_fn.call_count == 3
+        dataset_with_rubrics = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
+        assert dataset_with_rubrics.equals(
+            _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
+        )
+
+    def test_rubric_generation_parsing_str(self):
+        """Test rubric generation using parsing function that returns str."""
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE
+        )
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+
+        def parsing_fn(response: str):
+            return ["test_rubric1", "test_rubric2"]
+
+        rbm = evaluation_preview.metrics.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="Generate rubrics for the given prompt: {prompt}",
+                model=mock_model,
+                parsing_fn=parsing_fn,
+            ),
+            critique_metric=metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+        )
+        dataset_with_rubrics = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
+        assert dataset_with_rubrics.equals(
+            _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
+        )
+
+    def test_rubric_generation_parsing_additional_fields(self):
+        """Test rubric generation using default parsing function with additional fields."""
+        mock_model = mock.create_autospec(
+            generative_models.GenerativeModel, instance=True
+        )
+        mock_model.generate_content.return_value = (
+            _MOCK_MODEL_RUBRIC_GENERATION_RESPONSE_WITH_ADDITIONAL
+        )
+        mock_model._model_name = "publishers/google/model/gemini-1.0-pro"
+        rbm = evaluation_preview.metrics.RubricBasedMetric(
+            generation_config=RubricGenerationConfig(
+                prompt_template="Generate rubrics for the given prompt: {prompt}",
+                model=mock_model,
+            ),
+            critique_metric=metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise.COHERENCE,
+        )
+        dataset_with_rubrics = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
+        expected = _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
+        expected["desc"] = ["test_desc", "test_desc", "test_desc"]
+        assert dataset_with_rubrics.equals(expected)

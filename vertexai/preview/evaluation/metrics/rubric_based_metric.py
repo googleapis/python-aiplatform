@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+import collections
 from typing import Union, TYPE_CHECKING
 
 from google.cloud.aiplatform import base
@@ -72,7 +73,7 @@ class RubricBasedMetric(metrics_base._Metric):
             )
             return eval_dataset
 
-        rubrics = _pre_eval_utils._generate_responses_from_gemini_model(
+        responses = _pre_eval_utils._generate_responses_from_gemini_model(
             model,
             eval_dataset,
             self.generation_config.prompt_template,
@@ -81,7 +82,23 @@ class RubricBasedMetric(metrics_base._Metric):
             parsing_fn = self.generation_config.parsing_fn
         else:
             parsing_fn = utils.parse_rubrics
-        parsed_rubrics = [parsing_fn(rubric) for rubric in rubrics]
         dataset_with_rubrics = eval_dataset.copy()
-        dataset_with_rubrics[constants.Dataset.RUBRICS_COLUMN] = parsed_rubrics
+        aggregated = collections.defaultdict(list)
+        for idx, response in enumerate(responses):
+            result = parsing_fn(response)
+            if isinstance(result, dict):
+                questions = result.pop("questions", None)
+                if questions is not None:
+                    aggregated[constants.Dataset.RUBRICS_COLUMN].append(
+                        (idx, questions)
+                    )
+                for key, value in result.items():
+                    aggregated[key].append((idx, value))
+            else:
+                aggregated[constants.Dataset.RUBRICS_COLUMN].append((idx, result))
+        for key, values in aggregated.items():
+            dataset_with_rubrics[key] = None
+            dataset_with_rubrics[key] = dataset_with_rubrics[key].astype(object)
+            for idx, value in values:
+                dataset_with_rubrics.at[idx, key] = value
         return dataset_with_rubrics

@@ -80,6 +80,7 @@ _TEST_PAIRWISE_MULTIMODAL_EVAL_DATASET = pd.DataFrame(
                 ' "file_uri": "gs://test-bucket/image4.png"}}]}]}'
             ),
         ],
+        "description": ["description", "description"],
         "response": ["test", "text"],
         "baseline_model_response": ["test", "text"],
     }
@@ -335,6 +336,7 @@ class TestPredefinedRubricMetrics:
             assert eval_result.metrics_table.columns.tolist() == [
                 "prompt",
                 "image",
+                "description",
                 "response",
                 "baseline_model_response",
                 "rubrics",

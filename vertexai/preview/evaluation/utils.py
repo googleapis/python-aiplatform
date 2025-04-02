@@ -499,27 +499,24 @@ def parse_intermediate_steps(intermediate_steps: List[Dict[str, Any]]):
     return trajectory
 
 
-def parse_rubrics(
-    rubric_generation_response: str,
-) -> List[str]:
+def parse_rubrics(rubric_generation_response: str) -> Dict[str, Any]:
     """Parses the rubric generation responses."""
     try:
-        _, questions = rubric_generation_response.split("```json")
+        _, response = rubric_generation_response.split("```json")
     except ValueError:
         _LOGGER.warning(
             "Failed to parse rubric generation response. Does not contain ```json"
         )
-        return ""
+        return {"questions": ""}
     try:
-        result = json.loads(questions.strip("\n` "))
+        result = json.loads(response.strip("\n` "))
     except json.JSONDecodeError:
         _LOGGER.warning(
             "Failed to parse rubric generation response. Does not contain valid"
             " JSON."
         )
-        return ""
-    questions = result.get("questions", "")
-    return questions
+        return {"questions": ""}
+    return result
 
 
 def parse_pairwise_rubric_verdict_pairs(prediction: str, regex: Pattern[str]) -> str:
@@ -574,7 +571,7 @@ def parse_verdict(txt: str):
                 return True
             elif "no" in verdict.lower():
                 return False
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         return None
 
 
@@ -609,6 +606,7 @@ def parse_question_blocks(txt: str) -> List[Tuple[str, bool]]:
 
 
 def parse_pointwise_rubric_result(results: List[str]) -> Dict[str, Any]:
+    """Parses the pointwise rubric critique responses."""
     self_consistency_results = {}
     for sample_result in results:
         rubric_verdict_pairs = parse_question_blocks(sample_result)
