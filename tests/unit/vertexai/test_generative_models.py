@@ -991,6 +991,25 @@ class TestGenerativeModels:
         "generative_models",
         [generative_models, preview_generative_models],
     )
+    def test_generate_content_model_optimizer(
+        self, generative_models: generative_models
+    ):
+        model = generative_models.GenerativeModel("model-optimizer")
+
+        response = model.generate_content("Why is sky blue?",
+            generation_config=generative_models.GenerationConfig(
+                model_config=generative_models.GenerationConfig.ModelConfig(
+                    feature_selection_preference=generative_models.GenerationConfig.ModelConfig.FeatureSelectionPreference.BALANCED
+                )
+            ),
+        )
+        assert response.text
+
+    @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
     def test_chat_send_message(self, generative_models: generative_models):
         model = generative_models.GenerativeModel("gemini-pro")
         chat = model.start_chat()
