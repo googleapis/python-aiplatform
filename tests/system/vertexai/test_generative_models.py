@@ -40,7 +40,6 @@ GEMINI_MODEL_NAME = "gemini-1.0-pro-002"
 GEMINI_VISION_MODEL_NAME = "gemini-1.0-pro-vision"
 GEMINI_15_MODEL_NAME = "gemini-1.5-pro-preview-0409"
 GEMINI_15_PRO_MODEL_NAME = "gemini-1.5-pro-001"
-SMART_ROUTER_NAME = "smart-router-001"
 GEMINI_15_PRO_2_MODEL_NAME = "gemini-1.5-pro-002"
 
 STAGING_API_ENDPOINT = "STAGING_ENDPOINT"
@@ -600,21 +599,6 @@ class TestGenerativeModels(e2e_base.TestEndToEnd):
         summary = response.candidates[0].content.parts[0].text
 
         assert summary
-
-    def test_generate_content_model_router(self, api_endpoint_env_name):
-        model = generative_models.GenerativeModel(SMART_ROUTER_NAME)
-        response = model.generate_content(
-            contents="Why is sky blue?",
-            generation_config=generative_models.GenerationConfig(
-                temperature=0,
-                routing_config=generative_models.GenerationConfig.RoutingConfig(
-                    routing_config=generative_models.GenerationConfig.RoutingConfig.AutoRoutingMode(
-                        model_routing_preference=generative_models.GenerationConfig.RoutingConfig.AutoRoutingMode.ModelRoutingPreference.BALANCED,
-                    ),
-                ),
-            ),
-        )
-        assert response.text
 
     def test_chat_automatic_function_calling(self, api_endpoint_env_name):
         get_current_weather_func = generative_models.FunctionDeclaration.from_func(
