@@ -2136,6 +2136,257 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Done; return the response.
         return response
 
+    def set_publisher_model_config(
+        self,
+        request: Optional[
+            Union[endpoint_service.SetPublisherModelConfigRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        publisher_model_config: Optional[endpoint.PublisherModelConfig] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gac_operation.Operation:
+        r"""Sets (creates or updates) configs of publisher
+        models. For example, sets the request/response logging
+        config.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_set_publisher_model_config():
+                # Create a client
+                client = aiplatform_v1beta1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.SetPublisherModelConfigRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.set_publisher_model_config(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.SetPublisherModelConfigRequest, dict]):
+                The request object. Request message for
+                [EndpointService.SetPublisherModelConfig][google.cloud.aiplatform.v1beta1.EndpointService.SetPublisherModelConfig].
+            name (str):
+                Required. The name of the publisher model, in the format
+                of
+                ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            publisher_model_config (google.cloud.aiplatform_v1beta1.types.PublisherModelConfig):
+                Required. The publisher model config.
+                This corresponds to the ``publisher_model_config`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.PublisherModelConfig`
+                This message contains configs of a publisher model.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name, publisher_model_config]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, endpoint_service.SetPublisherModelConfigRequest):
+            request = endpoint_service.SetPublisherModelConfigRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+            if publisher_model_config is not None:
+                request.publisher_model_config = publisher_model_config
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.set_publisher_model_config
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            endpoint.PublisherModelConfig,
+            metadata_type=endpoint_service.SetPublisherModelConfigOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def fetch_publisher_model_config(
+        self,
+        request: Optional[
+            Union[endpoint_service.FetchPublisherModelConfigRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> endpoint.PublisherModelConfig:
+        r"""Fetches the configs of publisher models.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_fetch_publisher_model_config():
+                # Create a client
+                client = aiplatform_v1beta1.EndpointServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.FetchPublisherModelConfigRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.fetch_publisher_model_config(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.FetchPublisherModelConfigRequest, dict]):
+                The request object. Request message for
+                [EndpointService.FetchPublisherModelConfig][google.cloud.aiplatform.v1beta1.EndpointService.FetchPublisherModelConfig].
+            name (str):
+                Required. The name of the publisher model, in the format
+                of
+                ``projects/{project}/locations/{location}/publishers/{publisher}/models/{model}``.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.PublisherModelConfig:
+                This message contains configs of a
+                publisher model.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, endpoint_service.FetchPublisherModelConfigRequest):
+            request = endpoint_service.FetchPublisherModelConfigRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.fetch_publisher_model_config
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     def __enter__(self) -> "EndpointServiceClient":
         return self
 

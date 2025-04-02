@@ -223,6 +223,7 @@ from .types.endpoint import Endpoint
 from .types.endpoint import FasterDeploymentConfig
 from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
+from .types.endpoint import PublisherModelConfig
 from .types.endpoint import RolloutOptions
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
@@ -230,12 +231,15 @@ from .types.endpoint_service import DeleteEndpointRequest
 from .types.endpoint_service import DeployModelOperationMetadata
 from .types.endpoint_service import DeployModelRequest
 from .types.endpoint_service import DeployModelResponse
+from .types.endpoint_service import FetchPublisherModelConfigRequest
 from .types.endpoint_service import GetEndpointRequest
 from .types.endpoint_service import ListEndpointsRequest
 from .types.endpoint_service import ListEndpointsResponse
 from .types.endpoint_service import MutateDeployedModelOperationMetadata
 from .types.endpoint_service import MutateDeployedModelRequest
 from .types.endpoint_service import MutateDeployedModelResponse
+from .types.endpoint_service import SetPublisherModelConfigOperationMetadata
+from .types.endpoint_service import SetPublisherModelConfigRequest
 from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
@@ -1661,6 +1665,7 @@ __all__ = (
     "FetchExamplesResponse",
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
+    "FetchPublisherModelConfigRequest",
     "FileData",
     "FileStatus",
     "FilterSplit",
@@ -2051,6 +2056,7 @@ __all__ = (
     "PscAutomatedEndpoints",
     "PscInterfaceConfig",
     "PublisherModel",
+    "PublisherModelConfig",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",
@@ -2197,6 +2203,8 @@ __all__ = (
     "Session",
     "SessionEvent",
     "SessionServiceClient",
+    "SetPublisherModelConfigOperationMetadata",
+    "SetPublisherModelConfigRequest",
     "SharePointSources",
     "ShieldedVmConfig",
     "SlackSource",
