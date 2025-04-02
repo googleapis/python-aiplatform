@@ -468,6 +468,11 @@
                 "deploy_model"
               ]
             },
+            "FetchPublisherModelConfig": {
+              "methods": [
+                "fetch_publisher_model_config"
+              ]
+            },
             "GetEndpoint": {
               "methods": [
                 "get_endpoint"
@@ -481,6 +486,11 @@
             "MutateDeployedModel": {
               "methods": [
                 "mutate_deployed_model"
+              ]
+            },
+            "SetPublisherModelConfig": {
+              "methods": [
+                "set_publisher_model_config"
               ]
             },
             "UndeployModel": {
@@ -518,6 +528,11 @@
                 "deploy_model"
               ]
             },
+            "FetchPublisherModelConfig": {
+              "methods": [
+                "fetch_publisher_model_config"
+              ]
+            },
             "GetEndpoint": {
               "methods": [
                 "get_endpoint"
@@ -531,6 +546,11 @@
             "MutateDeployedModel": {
               "methods": [
                 "mutate_deployed_model"
+              ]
+            },
+            "SetPublisherModelConfig": {
+              "methods": [
+                "set_publisher_model_config"
               ]
             },
             "UndeployModel": {
@@ -568,6 +588,11 @@
                 "deploy_model"
               ]
             },
+            "FetchPublisherModelConfig": {
+              "methods": [
+                "fetch_publisher_model_config"
+              ]
+            },
             "GetEndpoint": {
               "methods": [
                 "get_endpoint"
@@ -581,6 +606,11 @@
             "MutateDeployedModel": {
               "methods": [
                 "mutate_deployed_model"
+              ]
+            },
+            "SetPublisherModelConfig": {
+              "methods": [
+                "set_publisher_model_config"
               ]
             },
             "UndeployModel": {
