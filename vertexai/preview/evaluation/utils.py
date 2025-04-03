@@ -593,6 +593,8 @@ def parse_question(txt: str):
 
 def parse_question_blocks(txt: str) -> List[Tuple[str, bool]]:
     """Parses the question blocks from the rubric critique response."""
+    if not txt.startswith("<question>\n"):
+        txt = "<question>\n" + txt
     responses = []
     question_blocks = _QUESTION_BLOCK_REGEX.findall(txt)
     if not question_blocks:
