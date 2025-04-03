@@ -116,23 +116,25 @@ class FakeBigframe:
         pass
 
 
-# Mock bigframe import
-bpd_module = type(sys)("bigframes.pandas")
-bpd_module.DataFrame = FakeBigframe
-bpd_module.read_gbq_query = lambda x: x
-sys.modules["bigframes.pandas"] = bpd_module
+@pytest.fixture(autouse=True)
+def bigframes_import_mock():
+    bpd_module = type(sys)("bigframes.pandas")
+    bpd_module.DataFrame = FakeBigframe
+    bpd_module.read_gbq_query = lambda x: x
+    sys.modules["bigframes.pandas"] = bpd_module
 
-bigframe_module = type(sys)("bigframes")
-bigframe_module.BigQueryOptions = mock.Mock()
-bigframe_module.connect = mock.Mock()
-bigframe_module.enums = mock.Mock()
-bigframe_module.pandas = bpd_module
-bigframe_module.session = mock.Mock()
-sys.modules["bigframes"] = bigframe_module
+    bigframe_module = type(sys)("bigframes")
+    bigframe_module.BigQueryOptions = mock.Mock()
+    bigframe_module.connect = mock.Mock()
+    bigframe_module.enums = mock.Mock()
+    bigframe_module.pandas = bpd_module
+    bigframe_module.session = mock.Mock()
+    sys.modules["bigframes"] = bigframe_module
 
-# And now import bigframes
-import bigframes  # noqa: E402
-import bigframes.pandas as bpd  # noqa: E402
+    yield bigframe_module, bpd_module
+
+    del sys.modules["bigframes"]
+    del sys.modules["bigframes.pandas"]
 
 
 @pytest.fixture()
@@ -160,7 +162,7 @@ def mock_bdf(
     ts_cols: Optional[List[str]] = None,
     sql: Optional[str] = None,
 ):
-    class MockBdf(bpd.DataFrame):
+    class MockBdf(FakeBigframe):
         def __init__(self):
             pass
 
@@ -256,7 +258,8 @@ def test_wrong_type_in_feature_list_raises_error(mock_convert_to_bigquery_datafr
 
 
 @pytest.fixture()
-def mock_session():
+def mock_session(bigframes_import_mock):
+    bigframes, _ = bigframes_import_mock
     with mock.patch.object(bigframes, "connect") as mock_session:
         yield mock_session
 
@@ -358,7 +361,9 @@ def test_one_feature_same_and_different_bq_col_name(
     mock_session,
     mock_fg,
     mock_feature,
+    bigframes_import_mock,
 ):
+    bigframes, _ = bigframes_import_mock
     entity_df = pd.DataFrame(
         [
             CUSTOMER_1_OLD_ENTITY_DF_ENTRY,
@@ -403,7 +408,9 @@ def test_one_feature_with_explicit_project_and_location(
     mock_session,
     mock_fg,
     mock_feature,
+    bigframes_import_mock,
 ):
+    bigframes, _ = bigframes_import_mock
     entity_df = pd.DataFrame(
         [
             CUSTOMER_1_OLD_ENTITY_DF_ENTRY,
@@ -451,7 +458,9 @@ def test_one_feature_with_explicit_credentials(
     mock_session,
     mock_fg,
     mock_feature,
+    bigframes_import_mock,
 ):
+    bigframes, _ = bigframes_import_mock
     entity_df = pd.DataFrame(
         [
             CUSTOMER_1_OLD_ENTITY_DF_ENTRY,
