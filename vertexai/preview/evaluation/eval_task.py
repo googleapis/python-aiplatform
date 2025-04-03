@@ -68,12 +68,13 @@ _ModelType = Union[generative_models.GenerativeModel, Callable[[str], str]]
 class EvalTask:
     """A class representing an EvalTask.
 
-    An Evaluation Tasks is defined to measure the model's ability to perform a
-    certain task in response to specific prompts or inputs. Evaluation tasks must
-    contain an evaluation dataset, and a list of metrics to evaluate. Evaluation
-    tasks help developers compare prompt templates, track experiments, compare
-    models and their settings, and assess the quality of the model's generated
-    text.
+    An evaluation task assesses the ability of a Gen AI model, agent or
+    application to perform a specific task in response to prompts.
+    Each evaluation task includes an evaluation dataset, which can be a set of
+    test cases and a set of metrics for assessment. These tasks provide the
+    framework for running evaluations in a standardized and repeatable way,
+    allowing for comparative assessment with varying run-specific parameters.
+
 
     Dataset Details:
 
@@ -82,6 +83,8 @@ class EvalTask:
             * reference_column_name: "reference"
             * response_column_name: "response"
             * baseline_model_response_column_name: "baseline_model_response"
+            * rubrics_column_name: "rubrics"
+
 
         Requirement for different use cases:
           * Bring-your-own-response (BYOR): You already have the data that you
@@ -94,14 +97,14 @@ class EvalTask:
               `baseline_model_response` column is present while the
               corresponding model is specified, an error will be raised.
 
-          * Perform model inference without a prompt template: You have a dataset
-              containing the input prompts to the model and want to perform model
+          * Perform model/agent inference without a prompt template: You have a dataset
+              containing the input prompts to the model/agent and want to perform
               inference before evaluation. A column named `prompt` is required
-              in the evaluation dataset and is used directly as input to the model.
+              in the evaluation dataset and is used directly as input to the model/agent.
 
-          * Perform model inference with a prompt template: You have a dataset
+          * Perform model/agent inference with a prompt template: You have a dataset
               containing the input variables to the prompt template and want to
-              assemble the prompts for model inference. Evaluation dataset
+              assemble the prompts for inference. Evaluation dataset
               must contain column names corresponding to the variable names in
               the prompt template. For example, if prompt template is
               "Instruction: {instruction}, context: {context}", the dataset must
@@ -111,9 +114,7 @@ class EvalTask:
 
         The supported metrics descriptions, rating rubrics, and the required
         input variables can be found on the Vertex AI public documentation page.
-        [Evaluation methods and metrics](
-        https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval
-        ).
+        [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
 
     Usage Examples:
 
@@ -143,7 +144,7 @@ class EvalTask:
           ```
 
         2. To perform evaluation with Gemini model inference, specify the `model`
-        parameter with a GenerativeModel instance.  The input column name to the
+        parameter with a `GenerativeModel` instance.  The input column name to the
         model is `prompt` and must be present in the dataset.
 
           ```
@@ -209,8 +210,8 @@ class EvalTask:
           ```
 
         5. To perform pairwise metric evaluation with model inference step, specify
-        the `baseline_model` input to a PairwiseMetric instance and the candidate
-        `model` input to the EvalTask.evaluate() function. The input column name
+        the `baseline_model` input to a `PairwiseMetric` instance and the candidate
+        `model` input to the `EvalTask.evaluate()` function. The input column name
         to both models is `prompt` and must be present in the dataset.
 
           ```
@@ -221,7 +222,7 @@ class EvalTask:
               metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
                   "pairwise_groundedness"
               ),
-              baseline_model=baseline_model
+              baseline_model=baseline_model,
           )
           eval_dataset = pd.DataFrame({
                 "prompt"  : [...],
@@ -232,7 +233,7 @@ class EvalTask:
               experiment="my-pairwise-experiment",
           ).evaluate(
               model=candidate_model,
-              experiment_run_name="gemini-pairwise-eval-run"
+              experiment_run_name="gemini-pairwise-eval-run",
           )
           ```
     """

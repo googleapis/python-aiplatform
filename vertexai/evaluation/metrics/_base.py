@@ -43,8 +43,8 @@ class _ModelBasedMetric(_Metric):
     """A Model-based Metric.
 
     An evaluation metric that evaluates generative AI model responses with
-    another ML model (eg. Gemini) as a rater. It can be for a single model,
-    or two models.
+    another generative model as a judge. This metric can be used to evaluate a
+    single model, or two models side-by-side.
 
     For more details on when to use model-based metrics, see
     [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).

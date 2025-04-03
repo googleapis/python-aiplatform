@@ -53,8 +53,8 @@ class _ModelBasedMetric(_Metric):
     """A Model-based Metric.
 
     An evaluation metric that evaluates generative AI model responses with
-    another ML model (eg. Gemini) as a rater. It can be for a single model,
-    or two models.
+    another generative model as a judge. This metric can be used to evaluate a
+    single model, or two models side-by-side.
 
     For more details on when to use model-based metrics, see
     [Evaluation methods and metrics](https://cloud.google.com/vertex-ai/generative-ai/docs/models/determine-eval).
@@ -148,13 +148,7 @@ class _AutomaticMetric(_Metric):
 
 
 class RubricGenerationConfig:
-    """The rubric generation config.
-
-    Attributes:
-      prompt_template: The prompt template for rubric generation.
-      model: The model to use for rubric generation.
-      parsing_fn: The function to parse the rubric generation response.
-    """
+    """The rubric generation config."""
 
     def __init__(
         self,
@@ -162,24 +156,13 @@ class RubricGenerationConfig:
         model: Optional[_ModelType] = None,
         parsing_fn: Optional[Callable[[str], List[str]]] = None,
     ):
-        """Initializes the rubric generation config."""
+        """Initializes the rubric generation config.
+
+        Args:
+          prompt_template: The prompt template for rubric generation.
+          model: The model to use for rubric generation.
+          parsing_fn: The function to parse the rubric generation response.
+        """
         self.prompt_template = prompt_template
         self.model = model
         self.parsing_fn = parsing_fn
-
-
-def make_metric(
-    name: str, metric_function: Callable[[Dict[str, Any]], Dict[str, Any]]
-) -> CustomMetric:
-    """Makes a custom metric.
-
-    Args:
-      name: The name of the metric
-      metric_function: The evaluation function. Must use the dataset row/instance
-        as the metric_function input. Returns per-instance metric result as a
-        dictionary. The metric score must mapped to the CustomMetric.name as key.
-
-    Returns:
-      A CustomMetric instance, can be passed to evaluate() function.
-    """
-    return CustomMetric(name, metric_function)
