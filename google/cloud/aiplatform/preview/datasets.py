@@ -17,6 +17,7 @@
 
 import dataclasses
 from typing import Dict, List, Optional, Tuple
+import uuid
 
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
@@ -41,7 +42,8 @@ from google.protobuf import json_format
 _MULTIMODAL_METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/multimodal_1.0.0.yaml"
 )
-
+_DEFAULT_BQ_DATASET_PREFIX = "vertex_datasets"
+_DEFAULT_BQ_TABLE_PREFIX = "multimodal_dataset"
 _INPUT_CONFIG_FIELD = "inputConfig"
 _BIGQUERY_SOURCE_FIELD = "bigquerySource"
 _URI_FIELD = "uri"
@@ -145,6 +147,37 @@ def _normalize_and_validate_table_id(
             f" `{bq_dataset.location}`."
         )
     return f"{table_ref.project}.{table_ref.dataset_id}.{table_ref.table_id}"
+
+
+def _create_default_bigquery_dataset_if_not_exists(
+    *,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+) -> str:
+    # Loading bigquery lazily to avoid auto-loading it when importing vertexai
+    from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
+    if not project:
+        project = initializer.global_config.project
+    if not location:
+        location = initializer.global_config.location
+    if not credentials:
+        credentials = initializer.global_config.credentials
+
+    bigquery_client = bigquery.Client(project=project, credentials=credentials)
+    location_str = location.lower().replace("-", "_")
+    dataset_id = bigquery.DatasetReference(
+        project, f"{_DEFAULT_BQ_DATASET_PREFIX}_{location_str}"
+    )
+    dataset = bigquery.Dataset(dataset_ref=dataset_id)
+    dataset.location = location
+    bigquery_client.create_dataset(dataset, exists_ok=True)
+    return f"{dataset_id.project}.{dataset_id.dataset_id}"
+
+
+def _generate_target_table_id(dataset_id: str):
+    return f"{dataset_id}.{_DEFAULT_BQ_TABLE_PREFIX}_{str(uuid.uuid4())}"
 
 
 class GeminiExample:
@@ -610,7 +643,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         cls,
         *,
         dataframe: pandas.DataFrame,
-        target_table_id: str,
+        target_table_id: Optional[str] = None,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -625,12 +658,14 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             dataframe (pandas.DataFrame):
                 The pandas dataframe to be used for the created dataset.
             target_table_id (str):
-                The BigQuery table id where the dataframe will be uploaded. The
-                table id can be in the format of "dataset.table" or
-                "project.dataset.table". If a table already exists with the
+                Optional. The BigQuery table id where the dataframe will be
+                uploaded. The table id can be in the format of "dataset.table"
+                or "project.dataset.table". If a table already exists with the
                 given table id, it will be overwritten. Note that the BigQuery
                 dataset must already exist and be in the same location as the
-                multimodal dataset.
+                multimodal dataset. If not provided, a generated table id will
+                be created in the `vertex_datasets` dataset (e.g.
+                `project.vertex_datasets_us_central1.multimodal_dataset_4cbf7ffd`).
             display_name (str):
                 Optional. The user-defined name of the dataset. The name can be
                 up to 128 characters long and can consist of any UTF-8
@@ -667,21 +702,43 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 The created multimodal dataset.
         """
         bigframes = _try_import_bigframes()
-        # TODO(b/400355374): `table_id` should be optional, and if not provided,
-        # we generate a random table id. Also, check if we can use a default
-        # dataset that's created from the SDK.
-        target_table_id = _normalize_and_validate_table_id(
-            table_id=target_table_id,
-            project=project,
-            vertex_location=location,
-            credentials=credentials,
-        )
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
 
-        temp_bigframes_df = bigframes.pandas.read_pandas(dataframe)
-        temp_bigframes_df.to_gbq(
-            destination_table=target_table_id,
-            if_exists="replace",
+        if not project:
+            project = initializer.global_config.project
+        if not location:
+            location = initializer.global_config.location
+        if not credentials:
+            credentials = initializer.global_config.credentials
+
+        if target_table_id:
+            target_table_id = _normalize_and_validate_table_id(
+                table_id=target_table_id,
+                project=project,
+                vertex_location=location,
+                credentials=credentials,
+            )
+        else:
+            dataset_id = _create_default_bigquery_dataset_if_not_exists(
+                project=project, location=location, credentials=credentials
+            )
+            target_table_id = _generate_target_table_id(dataset_id)
+
+        session_options = bigframes.BigQueryOptions(
+            credentials=credentials,
+            project=project,
+            location=location,
         )
+        with bigframes.connect(session_options) as session:
+            temp_bigframes_df = session.read_pandas(dataframe)
+            temp_table_id = temp_bigframes_df.to_gbq()
+        client = bigquery.Client(project=project, credentials=credentials)
+        copy_job = client.copy_table(
+            sources=temp_table_id,
+            destination=target_table_id,
+        )
+        copy_job.result()
+
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
             bigquery_uri=bigquery_uri,
@@ -700,7 +757,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         cls,
         *,
         dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
-        target_table_id: str,
+        target_table_id: Optional[str] = None,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -716,12 +773,14 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 The BigFrames dataframe that will be used for the created
                 dataset.
             target_table_id (str):
-                The BigQuery table id where the dataframe will be uploaded. The
-                table id can be in the format of "dataset.table" or
-                "project.dataset.table". If a table already exists with the
+                Optional. The BigQuery table id where the dataframe will be
+                uploaded. The table id can be in the format of "dataset.table"
+                or "project.dataset.table". If a table already exists with the
                 given table id, it will be overwritten. Note that the BigQuery
                 dataset must already exist and be in the same location as the
-                multimodal dataset.
+                multimodal dataset. If not provided, a generated table id will
+                be created in the `vertex_datasets` dataset (e.g.
+                `project.vertex_datasets_us_central1.multimodal_dataset_4cbf7ffd`).
             display_name (str):
                 Optional. The user-defined name of the dataset. The name can be
                 up to 128 characters long and can consist of any UTF-8
@@ -756,19 +815,32 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         Returns:
             The created multimodal dataset.
         """
-        # TODO(b/400355374): `table_id` should be optional, and if not provided,
-        # we generate a random table id. Also, check if we can use a default
-        # dataset that's created from the SDK.
-        target_table_id = _normalize_and_validate_table_id(
-            table_id=target_table_id,
-            project=project,
-            vertex_location=location,
-            credentials=credentials,
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
+        if target_table_id:
+            target_table_id = _normalize_and_validate_table_id(
+                table_id=target_table_id,
+                project=project,
+                vertex_location=location,
+                credentials=credentials,
+            )
+        else:
+            dataset_id = _create_default_bigquery_dataset_if_not_exists(
+                project=project, location=location, credentials=credentials
+            )
+            target_table_id = _generate_target_table_id(dataset_id)
+
+        if not project:
+            project = initializer.global_config.project
+
+        temp_table_id = dataframe.to_gbq()
+        client = bigquery.Client(project=project, credentials=credentials)
+        copy_job = client.copy_table(
+            sources=temp_table_id,
+            destination=target_table_id,
         )
-        dataframe.to_gbq(
-            destination_table=target_table_id,
-            if_exists="replace",
-        )
+        copy_job.result()
+
         bigquery_uri = f"bq://{target_table_id}"
         return cls._create_from_bigquery(
             bigquery_uri=bigquery_uri,
@@ -787,7 +859,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         cls,
         *,
         gcs_uri: str,
-        target_table_id: str,
+        target_table_id: Optional[str] = None,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -808,11 +880,14 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 The Google Cloud Storage URI of the JSONL file to import.
                 For example, 'gs://my-bucket/path/to/data.jsonl'
             target_table_id (str):
-                The BigQuery table id where the dataframe will be uploaded. The
-                table id can be in the format of "dataset.table" or
-                "project.dataset.table". If a table already exists with the
+                Optional. The BigQuery table id where the dataframe will be
+                uploaded. The table id can be in the format of "dataset.table"
+                or "project.dataset.table". If a table already exists with the
                 given table id, it will be overwritten. Note that the BigQuery
-                dataset must already exist.
+                dataset must already exist and be in the same location as the
+                multimodal dataset. If not provided, a generated table id will
+                be created in the `vertex_datasets` dataset (e.g.
+                `project.vertex_datasets_us_central1.multimodal_dataset_4cbf7ffd`).
             display_name (str):
                 Optional. The user-defined name of the dataset. The name can be
                 up to 128 characters long and can consist of any UTF-8
@@ -848,14 +923,23 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             The created multimodal dataset.
         """
         bigframes = _try_import_bigframes()
+        from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+
         if not project:
             project = initializer.global_config.project
-        # TODO(b/400355374): `table_id` should be optional, and if not provided,
-        # we generate a random table id. Also, check if we can use a default
-        # dataset that's created from the SDK.
-        target_table_id = _normalize_and_validate_table_id(
-            table_id=target_table_id, project=project
-        )
+
+        if target_table_id:
+            target_table_id = _normalize_and_validate_table_id(
+                table_id=target_table_id,
+                project=project,
+                vertex_location=location,
+                credentials=credentials,
+            )
+        else:
+            dataset_id = _create_default_bigquery_dataset_if_not_exists(
+                project=project, location=location, credentials=credentials
+            )
+            target_table_id = _generate_target_table_id(dataset_id)
 
         gcs_uri_prefix = "gs://"
         if gcs_uri.startswith(gcs_uri_prefix):
@@ -877,13 +961,21 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         lines = [line.strip() for line in jsonl_string.splitlines() if line.strip()]
         df = pandas.DataFrame(lines, columns=[request_column_name])
 
-        temp_bigframes_df = bigframes.pandas.read_pandas(df)
-        temp_bigframes_df[request_column_name] = bigframes.bigquery.parse_json(
-            temp_bigframes_df[request_column_name]
+        session_options = bigframes.BigQueryOptions(
+            credentials=credentials,
+            project=project,
+            location=location,
         )
-        temp_bigframes_df.to_gbq(
-            destination_table=target_table_id,
-            if_exists="replace",
+        with bigframes.connect(session_options) as session:
+            temp_bigframes_df = session.read_pandas(df)
+            temp_bigframes_df[request_column_name] = bigframes.bigquery.parse_json(
+                temp_bigframes_df[request_column_name]
+            )
+            temp_table_id = temp_bigframes_df.to_gbq()
+        client = bigquery.Client(project=project, credentials=credentials)
+        client.copy_table(
+            sources=temp_table_id,
+            destination=target_table_id,
         )
 
         bigquery_uri = f"bq://{target_table_id}"

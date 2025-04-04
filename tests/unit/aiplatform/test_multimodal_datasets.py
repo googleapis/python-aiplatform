@@ -18,6 +18,7 @@
 import importlib
 import functools
 from unittest import mock
+import uuid
 
 from google import auth
 from google.api_core import operation
@@ -47,6 +48,7 @@ _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_ALTERNATE_LOCATION = "europe-west6"
 _TEST_ID = "1028944691210842416"
+_TEST_UUID = "1234567890"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/datasets/{_TEST_ID}"
 _TEST_DISPLAY_NAME = "my_dataset_1234"
@@ -204,21 +206,20 @@ def bigframes_import_mock():
 
 
 @pytest.fixture
-def get_bq_dataset_mock():
-    with mock.patch.object(bigquery.Client, "get_dataset") as get_bq_dataset_mock:
+def bq_client_mock():
+    with mock.patch.object(bigquery, "Client", autospec=True) as bq_client_mock:
         bq_dataset = mock.Mock()
         bq_dataset.location = _TEST_LOCATION
-        get_bq_dataset_mock.return_value = bq_dataset
-        yield get_bq_dataset_mock
+        bq_client_mock.return_value.get_dataset.return_value = bq_dataset
+        bq_client_mock.return_value.create_dataset = mock.Mock()
+        yield bq_client_mock
 
 
 @pytest.fixture
-def get_bq_dataset_alternate_location_mock():
-    with mock.patch.object(bigquery.Client, "get_dataset") as get_bq_dataset_mock:
-        bq_dataset = mock.Mock()
-        bq_dataset.location = _TEST_ALTERNATE_LOCATION
-        get_bq_dataset_mock.return_value = bq_dataset
-        yield get_bq_dataset_mock
+def uuid_mock():
+    with mock.patch.object(uuid, "uuid4") as uuid_mock:
+        uuid_mock.return_value = _TEST_UUID
+        yield uuid_mock
 
 
 @pytest.fixture
@@ -347,48 +348,11 @@ class TestMultimodalDataset:
             timeout=None,
         )
 
-    @pytest.mark.usefixtures("get_dataset_mock", "get_bq_dataset_mock")
-    def test_create_dataset_from_pandas(
-        self, create_dataset_mock, bigframes_import_mock
-    ):
-        _, bpd_module, _ = bigframes_import_mock
-        bigframes_mock = mock.Mock()
-        bpd_module.read_pandas = lambda x: bigframes_mock
-        aiplatform.init(project=_TEST_PROJECT)
-        dataframe = pandas.DataFrame(
-            {
-                "question": ["question"],
-                "answer": ["answer"],
-            }
-        )
-        ummd.MultimodalDataset.from_pandas(
-            dataframe=dataframe,
-            target_table_id=_TEST_TARGET_BQ_TABLE,
-            display_name=_TEST_DISPLAY_NAME,
-        )
-        expected_dataset = gca_dataset.Dataset(
-            display_name=_TEST_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_MULTIMODAL,
-            metadata={
-                "inputConfig": {
-                    "bigquerySource": {"uri": f"bq://{_TEST_TARGET_BQ_TABLE}"}
-                }
-            },
-        )
-        create_dataset_mock.assert_called_once_with(
-            dataset=expected_dataset,
-            parent=_TEST_PARENT,
-            timeout=None,
-        )
-        bigframes_mock.to_gbq.assert_called_once_with(
-            destination_table=_TEST_TARGET_BQ_TABLE,
-            if_exists="replace",
-        )
-
     @pytest.mark.usefixtures(
-        "bigframes_import_mock", "get_dataset_mock", "get_bq_dataset_mock"
+        "bigframes_import_mock",
+        "get_dataset_mock",
     )
-    def test_create_dataset_from_bigframes(self, create_dataset_mock):
+    def test_create_dataset_from_bigframes(self, create_dataset_mock, bq_client_mock):
         aiplatform.init(project=_TEST_PROJECT)
         bigframes_df = mock.Mock()
         ummd.MultimodalDataset.from_bigframes(
@@ -397,9 +361,9 @@ class TestMultimodalDataset:
             display_name=_TEST_DISPLAY_NAME,
         )
 
-        bigframes_df.to_gbq.assert_called_once_with(
-            destination_table=_TEST_TARGET_BQ_TABLE,
-            if_exists="replace",
+        bq_client_mock.return_value.copy_table.assert_called_once_with(
+            sources=mock.ANY,
+            destination=_TEST_TARGET_BQ_TABLE,
         )
         expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
@@ -428,10 +392,15 @@ class TestMultimodalDataset:
             )
 
     @pytest.mark.usefixtures(
-        "bigframes_import_mock", "get_bq_dataset_alternate_location_mock"
+        "bigframes_import_mock",
     )
-    def test_create_dataset_from_bigframes_different_location_throws_error(self):
+    def test_create_dataset_from_bigframes_different_location_throws_error(
+        self, bq_client_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
+        bq_client_mock.return_value.get_dataset.return_value.location = (
+            _TEST_ALTERNATE_LOCATION
+        )
         bigframes_df = mock.Mock()
         with pytest.raises(ValueError):
             ummd.MultimodalDataset.from_bigframes(
@@ -452,17 +421,50 @@ class TestMultimodalDataset:
             )
 
     @pytest.mark.usefixtures(
+        "bigframes_import_mock", "create_dataset_mock", "get_dataset_mock", "uuid_mock"
+    )
+    def test_create_dataset_from_bigframes_without_target_table_id(
+        self, bq_client_mock
+    ):
+        test_location = "europe-west1"
+        aiplatform.init(project=_TEST_PROJECT, location=test_location)
+        bigframes_df = mock.Mock()
+
+        ummd.MultimodalDataset.from_bigframes(dataframe=bigframes_df)
+
+        bq_dataset_name = f"vertex_datasets_{test_location.replace('-', '_')}"
+        create_dataset_args = bq_client_mock.return_value.create_dataset.call_args.args
+        assert create_dataset_args[0].reference == bigquery.DatasetReference(
+            dataset_id=bq_dataset_name, project=_TEST_PROJECT
+        )
+        assert create_dataset_args[0].location == test_location
+
+        copy_table_kwargs = bq_client_mock.return_value.copy_table.call_args.kwargs
+        assert (
+            copy_table_kwargs["destination"]
+            == f"{_TEST_PROJECT}.{bq_dataset_name}.multimodal_dataset_{_TEST_UUID}"
+        )
+
+    @pytest.mark.usefixtures(
         "get_dataset_request_column_name_mock",
-        "get_bq_dataset_mock",
     )
     def test_create_dataset_from_gemini_request_jsonl(
-        self, create_dataset_mock, mock_storage_client_bucket, bigframes_import_mock
+        self,
+        create_dataset_mock,
+        mock_storage_client_bucket,
+        bigframes_import_mock,
+        bq_client_mock,
     ):
-        _, bpd_module, bbq_module = bigframes_import_mock
+        bf_module, bpd_module, bbq_module = bigframes_import_mock
 
         bpd_module.Series = pandas.Series
         bpd_module.read_pandas = mock.MagicMock()
         bbq_module.parse_json = lambda x: x
+
+        bf_module.BigQueryOptions = mock.MagicMock()
+        bf_module.connect = mock.MagicMock()
+        session_mock = mock.MagicMock()
+        bf_module.connect.return_value.__enter__.return_value = session_mock
 
         aiplatform.init(project=_TEST_PROJECT)
         bq_table = "test-project.test-dataset.test-table"
@@ -477,13 +479,12 @@ class TestMultimodalDataset:
         mock_blob.download_as_text.assert_called_once()
 
         pandas.testing.assert_frame_equal(
-            bpd_module.read_pandas.call_args[0][0],
+            session_mock.read_pandas.call_args[0][0],
             pandas.DataFrame({"requests": ["json_line_1", "json_line_2"]}),
         )
-
-        bpd_module.read_pandas.return_value.to_gbq.assert_called_with(
-            destination_table=bq_table,
-            if_exists="replace",
+        bq_client_mock.return_value.copy_table.assert_called_once_with(
+            sources=mock.ANY,
+            destination=bq_table,
         )
         expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
@@ -704,9 +705,7 @@ class TestMultimodalDataset:
             "SFT_TRAINING, SFT_VALIDATION." == str(excinfo.value)
         )
 
-    @pytest.mark.usefixtures(
-        "bigframes_import_mock", "get_dataset_mock", "get_bq_dataset_mock"
-    )
+    @pytest.mark.usefixtures("bigframes_import_mock", "get_dataset_mock")
     def test_assemble(self, assemble_data_mock):
         aiplatform.init(project=_TEST_PROJECT)
         dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
@@ -729,7 +728,6 @@ class TestMultimodalDataset:
     @pytest.mark.usefixtures(
         "bigframes_import_mock",
         "get_dataset_request_column_name_mock",
-        "get_bq_dataset_mock",
     )
     def test_assemble_request_column_name(self, assemble_data_mock):
         aiplatform.init(project=_TEST_PROJECT)
