@@ -20,20 +20,21 @@ import functools
 import io
 import json
 import os
+import re
+import sys
 import tempfile
 import threading
 import time
-import re
 from typing import (
     Any,
     Callable,
     Dict,
     List,
     Optional,
-    TYPE_CHECKING,
-    Union,
     Pattern,
     Tuple,
+    TYPE_CHECKING,
+    Union,
 )
 
 from google.cloud import bigquery
@@ -219,6 +220,12 @@ def load_dataset(
             'Pandas is not installed. Please install the SDK using "pip install'
             ' google-cloud-aiplatform[evaluation]"'
         )
+    if "google.colab" in sys.modules:
+        from google.colab import sheets
+
+        if isinstance(source, sheets.InteractiveSheet):
+            return source.as_df().copy()
+
     if isinstance(source, pd.DataFrame):
         return source.copy()
     elif isinstance(source, dict):

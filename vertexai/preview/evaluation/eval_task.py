@@ -17,9 +17,9 @@
 """Evaluation Task class."""
 
 import logging
-import warnings
 from typing import Any, Callable, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 import uuid
+import warnings
 
 from google.api_core import exceptions
 import vertexai
@@ -45,6 +45,7 @@ import numpy as np
 
 if TYPE_CHECKING:
     import pandas as pd
+    from google.colab import sheets
 
 
 # pylint: disable=g-import-not-at-top
@@ -241,7 +242,7 @@ class EvalTask:
     def __init__(
         self,
         *,
-        dataset: Union["pd.DataFrame", str, Dict[str, Any]],
+        dataset: Union["pd.DataFrame", str, Dict[str, Any], "sheets.InteractiveSheet"],
         metrics: List[
             Union[
                 Literal[
