@@ -50,7 +50,9 @@ from vertexai.preview.evaluation.metrics import (
 )
 from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
-
+from vertexai.preview.evaluation.metrics import (
+    rubric_based_metric,
+)
 from google.protobuf import json_format
 
 
@@ -261,6 +263,11 @@ def build_request(
             model_based_metric_instance_input["rubrics"] = _format_rubrics(
                 model_based_metric_instance_input["rubrics"]
             )
+        if isinstance(metric, rubric_based_metric.RubricBasedMetric):
+            if isinstance(model_based_metric_instance_input["rubrics"], List):
+                model_based_metric_instance_input["rubrics"] = "\n".join(
+                    model_based_metric_instance_input["rubrics"]
+                )
 
     if metric_name == constants.Metric.EXACT_MATCH:
         instance = gapic_eval_service_types.ExactMatchInput(
