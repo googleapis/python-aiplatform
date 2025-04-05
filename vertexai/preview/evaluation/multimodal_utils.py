@@ -61,6 +61,11 @@ def is_multimodal_instance(
 ) -> bool:
     """Checks if the evaluation instance contains multimodal input."""
     for placeholder in model_based_metric_instance_input:
+        print(
+            placeholder,
+            model_based_metric_instance_input[placeholder],
+            type(model_based_metric_instance_input[placeholder]),
+        )
         if _is_multimodal_response(model_based_metric_instance_input[placeholder]):
             return True
     return False
