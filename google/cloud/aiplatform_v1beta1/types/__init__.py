@@ -498,6 +498,8 @@ from .feature_online_store_admin_service import (
 )
 from .feature_online_store_service import (
     FeatureViewDataKey,
+    FeatureViewDirectWriteRequest,
+    FeatureViewDirectWriteResponse,
     FetchFeatureValuesRequest,
     FetchFeatureValuesResponse,
     NearestNeighborQuery,
@@ -1800,6 +1802,8 @@ __all__ = (
     "UpdateFeatureViewOperationMetadata",
     "UpdateFeatureViewRequest",
     "FeatureViewDataKey",
+    "FeatureViewDirectWriteRequest",
+    "FeatureViewDirectWriteResponse",
     "FetchFeatureValuesRequest",
     "FetchFeatureValuesResponse",
     "NearestNeighborQuery",

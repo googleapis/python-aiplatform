@@ -552,6 +552,11 @@ class AsyncFeatureOnlineStoreServiceRestTransport(
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.feature_view_direct_write: self._wrap_method(
+                self.feature_view_direct_write,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: self._wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -608,6 +613,27 @@ class AsyncFeatureOnlineStoreServiceRestTransport(
         if self._wrap_with_kind:  # pragma: NO COVER
             kwargs["kind"] = self.kind
         return gapic_v1.method_async.wrap_method(func, *args, **kwargs)
+
+    class _FeatureViewDirectWrite(
+        _BaseFeatureOnlineStoreServiceRestTransport._BaseFeatureViewDirectWrite,
+        AsyncFeatureOnlineStoreServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash(
+                "AsyncFeatureOnlineStoreServiceRestTransport.FeatureViewDirectWrite"
+            )
+
+        async def __call__(
+            self,
+            request: feature_online_store_service.FeatureViewDirectWriteRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> rest_streaming_async.AsyncResponseIterator:
+            raise NotImplementedError(
+                "Method FeatureViewDirectWrite is not available over REST transport"
+            )
 
     class _FetchFeatureValues(
         _BaseFeatureOnlineStoreServiceRestTransport._BaseFetchFeatureValues,
@@ -972,6 +998,15 @@ class AsyncFeatureOnlineStoreServiceRestTransport(
             raise NotImplementedError(
                 "Method StreamingFetchFeatureValues is not available over REST transport"
             )
+
+    @property
+    def feature_view_direct_write(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.FeatureViewDirectWriteRequest],
+        feature_online_store_service.FeatureViewDirectWriteResponse,
+    ]:
+        return self._FeatureViewDirectWrite(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def fetch_feature_values(

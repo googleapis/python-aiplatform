@@ -1197,6 +1197,11 @@
         "grpc": {
           "libraryClient": "FeatureOnlineStoreServiceClient",
           "rpcs": {
+            "FeatureViewDirectWrite": {
+              "methods": [
+                "feature_view_direct_write"
+              ]
+            },
             "FetchFeatureValues": {
               "methods": [
                 "fetch_feature_values"
@@ -1217,6 +1222,11 @@
         "grpc-async": {
           "libraryClient": "FeatureOnlineStoreServiceAsyncClient",
           "rpcs": {
+            "FeatureViewDirectWrite": {
+              "methods": [
+                "feature_view_direct_write"
+              ]
+            },
             "FetchFeatureValues": {
               "methods": [
                 "fetch_feature_values"
@@ -1237,6 +1247,11 @@
         "rest": {
           "libraryClient": "FeatureOnlineStoreServiceClient",
           "rpcs": {
+            "FeatureViewDirectWrite": {
+              "methods": [
+                "feature_view_direct_write"
+              ]
+            },
             "FetchFeatureValues": {
               "methods": [
                 "fetch_feature_values"

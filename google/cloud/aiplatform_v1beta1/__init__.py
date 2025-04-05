@@ -513,6 +513,8 @@ from .types.feature_online_store_admin_service import UpdateFeatureOnlineStoreRe
 from .types.feature_online_store_admin_service import UpdateFeatureViewOperationMetadata
 from .types.feature_online_store_admin_service import UpdateFeatureViewRequest
 from .types.feature_online_store_service import FeatureViewDataKey
+from .types.feature_online_store_service import FeatureViewDirectWriteRequest
+from .types.feature_online_store_service import FeatureViewDirectWriteResponse
 from .types.feature_online_store_service import FetchFeatureValuesRequest
 from .types.feature_online_store_service import FetchFeatureValuesResponse
 from .types.feature_online_store_service import NearestNeighborQuery
@@ -1656,6 +1658,8 @@ __all__ = (
     "FeatureView",
     "FeatureViewDataFormat",
     "FeatureViewDataKey",
+    "FeatureViewDirectWriteRequest",
+    "FeatureViewDirectWriteResponse",
     "FeatureViewSync",
     "Featurestore",
     "FeaturestoreMonitoringConfig",

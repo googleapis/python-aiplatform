@@ -93,6 +93,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
             api_audience=api_audience,
         )
 
+    class _BaseFeatureViewDirectWrite:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
     class _BaseFetchFeatureValues:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
