@@ -164,6 +164,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         gcs_dir_name: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        adk_options: Optional[dict[str, Any]] = None,
     ) -> "AgentEngine":
         """Creates a new Agent Engine.
 
@@ -219,6 +220,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 use for staging the artifacts needed.
             extra_packages (Sequence[str]):
                 Optional. The set of extra user-provided packages (if any).
+            adk_options (dict[str, Any]):
+                Optional. Any additional options for ADK.
 
         Returns:
             AgentEngine: The Agent Engine that was created.
@@ -238,7 +241,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         _validate_sys_version_or_raise(sys_version)
         if agent_engine is not None:
-            agent_engine = _validate_agent_engine_or_raise(agent_engine)
+            agent_engine = _validate_agent_engine_or_raise(
+                agent_engine=agent_engine,
+                adk_options=adk_options,
+            )
         if agent_engine is None:
             if requirements is not None:
                 raise ValueError("requirements must be None if agent_engine is None.")
@@ -342,6 +348,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         gcs_dir_name: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        adk_options: Optional[dict[str, Any]] = None,
     ) -> "AgentEngine":
         """Updates an existing Agent Engine.
 
@@ -377,6 +384,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 it is not specified, the existing extra packages will be used.
                 If it is set to an empty list, the existing extra packages will
                 be removed.
+            adk_options (dict[str, Any]):
+                Optional. Options for ADK applications.
 
         Returns:
             AgentEngine: The Agent Engine that was updated.
@@ -417,7 +426,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         if extra_packages is not None:
             extra_packages = _validate_extra_packages_or_raise(extra_packages)
         if agent_engine is not None:
-            agent_engine = _validate_agent_engine_or_raise(agent_engine)
+            agent_engine = _validate_agent_engine_or_raise(
+                agent_engine=agent_engine,
+                adk_options=adk_options,
+            )
 
         # Prepares the Agent Engine for update in Vertex AI. This involves
         # packaging and uploading the artifacts for agent_engine, requirements
@@ -475,6 +487,24 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             _LOGGER.warning(_FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e)
         return self
 
+    def delete(
+        self,
+        force: bool = False,
+        kwargs: Optional[dict[str, Any]] = None,
+    ) -> None:
+        """Deletes the ReasoningEngine."""
+        kwargs = kwargs or {}
+        operation_future = self.api_client.delete_reasoning_engine(
+            request=aip_types.DeleteReasoningEngineRequest(
+                name=self.resource_name, force=force, **kwargs,
+            ),
+        )
+        _LOGGER.info(
+            f"Delete Agent Engine backing LRO: {operation_future.operation.name}"
+        )
+        operation_future.result()
+        _LOGGER.info(f"Agent Engine deleted. Resource name: {self.resource_name}")
+
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
         """Returns the (Open)API schemas for the Agent Engine."""
         spec = _utils.to_dict(self._gca_resource.spec)
@@ -507,7 +537,9 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 
 def _validate_agent_engine_or_raise(
-    agent_engine: Union[Queryable, OperationRegistrable, StreamQueryable]
+    agent_engine: Union[Queryable, OperationRegistrable, StreamQueryable],
+    *,
+    adk_options: Optional[dict[str, Any]] = None,
 ) -> Union[Queryable, OperationRegistrable, StreamQueryable]:
     """Tries to validate the agent engine.
 
@@ -528,6 +560,16 @@ def _validate_agent_engine_or_raise(
         ValueError: If `agent_engine` has an invalid `query`, `stream_query` or
         `register_operations` signature.
     """
+    try:
+        from google.adk.agents import Agent
+
+        if isinstance(agent_engine, Agent):
+            _LOGGER.info("Deploying google.adk.agents.Agent as an application.")
+            adk_options = adk_options or {}
+            from vertexai.agent_engines.templates.adk import ADKApp
+            agent_engine = ADKApp(agent_engine, **adk_options)
+    except Exception as e:
+        pass
     is_queryable = isinstance(agent_engine, Queryable) and callable(agent_engine.query)
     is_stream_queryable = isinstance(agent_engine, StreamQueryable) and callable(
         agent_engine.stream_query
