@@ -198,6 +198,9 @@ def bigframes_import_mock():
     bigframes_module.bigquery = bbq_module
     sys.modules["bigframes"] = bigframes_module
 
+    bigframes_module.BigQueryOptions = mock.MagicMock()
+    bigframes_module.connect = mock.MagicMock()
+
     yield bigframes_module, bpd_module, bbq_module
 
     del sys.modules["bigframes"]
@@ -461,8 +464,6 @@ class TestMultimodalDataset:
         bpd_module.read_pandas = mock.MagicMock()
         bbq_module.parse_json = lambda x: x
 
-        bf_module.BigQueryOptions = mock.MagicMock()
-        bf_module.connect = mock.MagicMock()
         session_mock = mock.MagicMock()
         bf_module.connect.return_value.__enter__.return_value = session_mock
 
@@ -743,6 +744,53 @@ class TestMultimodalDataset:
             timeout=None,
         )
         assert result_table_id == _TEST_ASSEMBLE_DATA_BIGQUERY_DESTINATION[5:]
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_create_dataset_from_pandas_multiregion_target_table_allowed(
+        self, create_dataset_mock, bigframes_import_mock, bq_client_mock
+    ):
+        bq_client_mock.return_value.get_dataset.return_value.location = "us"
+
+        _, bpd_module, _ = bigframes_import_mock
+
+        bpd_module.read_pandas = lambda x: mock.Mock()
+        aiplatform.init(project=_TEST_PROJECT)
+        dataframe = pandas.DataFrame(
+            {
+                "question": ["question"],
+                "answer": ["answer"],
+            }
+        )
+        ummd.MultimodalDataset.from_pandas(
+            dataframe=dataframe,
+            target_table_id=_TEST_TARGET_BQ_TABLE,
+            display_name=_TEST_DISPLAY_NAME,
+            location="us-central1",
+        )
+        create_dataset_mock.assert_called_once()
+
+    def test_create_dataset_from_pandas_multiregion_target_table_location_mismatch_throws_error(
+        self, bigframes_import_mock, bq_client_mock
+    ):
+        bq_client_mock.return_value.get_dataset.return_value.location = "eu"
+
+        _, bpd_module, _ = bigframes_import_mock
+
+        bpd_module.read_pandas = lambda x: mock.Mock()
+        aiplatform.init(project=_TEST_PROJECT)
+        dataframe = pandas.DataFrame(
+            {
+                "question": ["question"],
+                "answer": ["answer"],
+            }
+        )
+        with pytest.raises(ValueError):
+            ummd.MultimodalDataset.from_pandas(
+                dataframe=dataframe,
+                target_table_id=_TEST_TARGET_BQ_TABLE,
+                display_name=_TEST_DISPLAY_NAME,
+                location="us-central1",
+            )
 
 
 class TestGeminiExample:

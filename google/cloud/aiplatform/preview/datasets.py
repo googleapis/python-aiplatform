@@ -51,6 +51,7 @@ _GEMINI_TEMPLATE_CONFIG_SOURCE_FIELD = "geminiTemplateConfigSource"
 _GEMINI_TEMPLATE_CONFIG_FIELD = "geminiTemplateConfig"
 _PROMPT_URI_FIELD = "promptUri"
 _REQUEST_COLUMN_NAME_FIELD = "requestColumnName"
+_BQ_MULTIREGIONS = {"us", "eu"}
 
 _LOGGER = base.Logger(__name__)
 
@@ -107,6 +108,16 @@ def _get_metadata_for_bq(
     return json_format.ParseDict(input_config, struct_pb2.Value())
 
 
+def _bq_dataset_location_allowed(
+    vertex_location: str, bq_dataset_location: str
+) -> bool:
+    if bq_dataset_location == vertex_location:
+        return True
+    if bq_dataset_location in _BQ_MULTIREGIONS:
+        return vertex_location.startswith(bq_dataset_location)
+    return False
+
+
 def _normalize_and_validate_table_id(
     *,
     table_id: str,
@@ -138,7 +149,7 @@ def _normalize_and_validate_table_id(
     )
     client = bigquery.Client(project=project, credentials=credentials)
     bq_dataset = client.get_dataset(dataset_ref=dataset_ref)
-    if bq_dataset.location != vertex_location:
+    if not _bq_dataset_location_allowed(vertex_location, bq_dataset.location):
         raise ValueError(
             f"The BigQuery dataset"
             f" `{dataset_ref.project}.{dataset_ref.dataset_id}` must be in the"
