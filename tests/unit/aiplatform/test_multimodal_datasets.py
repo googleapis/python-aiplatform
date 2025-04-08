@@ -304,6 +304,69 @@ def mock_storage_client_bucket():
         yield mock_storage_client_bucket, mock_bucket, mock_blob
 
 
+def test_construct_single_turn_template():
+    tools = [
+        generative_models.Tool(
+            function_declarations=[
+                generative_models.FunctionDeclaration(name="function", parameters={})
+            ],
+        )
+    ]
+    tool_config = generative_models.ToolConfig(
+        function_calling_config=generative_models.ToolConfig.FunctionCallingConfig(
+            mode=generative_models.ToolConfig.FunctionCallingConfig.Mode.ANY,
+            allowed_function_names=["get_current_weather"],
+        )
+    )
+    safety_settings = [
+        generative_models.SafetySetting(
+            category=generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold=generative_models.HarmBlockThreshold.BLOCK_NONE,
+        )
+    ]
+    generation_config = generative_models.GenerationConfig(max_output_tokens=100)
+    field_mapping = [{"input": "prompt", "output": "response"}]
+    template_config = ummd.construct_single_turn_template(
+        prompt="prompt",
+        response="response",
+        system_instruction="system_instruction",
+        model="gemini-1.5-flash-002",
+        cached_content="cached_content",
+        tools=tools,
+        tool_config=tool_config,
+        safety_settings=safety_settings,
+        generation_config=generation_config,
+        field_mapping=field_mapping,
+    )
+    expected_gemini_example = ummd.GeminiExample(
+        model="gemini-1.5-flash-002",
+        contents=[
+            ummd.GeminiExample.Content(
+                role="user", parts=[generative_models.Part.from_text("prompt")]
+            ),
+            ummd.GeminiExample.Content(
+                role="model",
+                parts=[generative_models.Part.from_text("response")],
+            ),
+        ],
+        system_instruction=generative_models.Content(
+            parts=[
+                generative_models.Part.from_text("system_instruction"),
+            ]
+        ),
+        cached_content="cached_content",
+        tools=tools,
+        tool_config=tool_config,
+        safety_settings=safety_settings,
+        generation_config=generation_config,
+    )
+    expected_gemini_template_config = ummd.GeminiTemplateConfig(
+        gemini_example=expected_gemini_example,
+        field_mapping=[{"input": "prompt", "output": "response"}],
+    )
+    assert str(template_config) == str(expected_gemini_template_config)
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMultimodalDataset:
     """Tests for the MultimodalDataset class."""

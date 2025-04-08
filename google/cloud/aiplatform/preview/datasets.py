@@ -191,6 +191,95 @@ def _generate_target_table_id(dataset_id: str):
     return f"{dataset_id}.{_DEFAULT_BQ_TABLE_PREFIX}_{str(uuid.uuid4())}"
 
 
+def construct_single_turn_template(
+    *,
+    prompt: str = None,
+    response: Optional[str] = None,
+    system_instruction: Optional[str] = None,
+    model: Optional[str] = None,
+    cached_content: Optional[str] = None,
+    tools: Optional[List[generative_models.Tool]] = None,
+    tool_config: Optional[generative_models.ToolConfig] = None,
+    safety_settings: Optional[List[generative_models.SafetySetting]] = None,
+    generation_config: Optional[generative_models.GenerationConfig] = None,
+    field_mapping: List[Dict[str, str]] = None,
+) -> "GeminiTemplateConfig":
+    """Constructs a GeminiTemplateConfig object for single-turn cases.
+
+    Example:
+        template_config = dataset.construct_single_turn_template(
+                prompt = "Which flower is this {flower_image} ?",
+                response="This is a {label}.",
+                system_instruction="You are a botanical classifier."
+        )
+
+    Args:
+
+        prompt (str):
+            Required. User input.
+        response (str):
+            Optional. Model response to user input.
+        system_instruction (str):
+            Optional. System instructions for the model.
+        model (str):
+            Optional. The model to use for the GeminiExample.
+        cached_content (str):
+            Optional. The cached content to use for the GeminiExample.
+        tools (List[Tool]):
+            Optional. The tools to use for the GeminiExample.
+        tool_config (ToolConfig):
+            Optional. The tool config to use for the GeminiExample.
+        safety_settings (List[SafetySetting]):
+            Optional. The safety settings to use for the GeminiExample.
+        generation_config (GenerationConfig):
+            Optional. The generation config to use for the GeminiExample.
+        field_mapping (List[Dict[str, str]]):
+            Optional. Mapping of placeholders to dataset columns.
+
+    Returns:
+        A GeminiTemplateConfig object.
+    """
+    contents = []
+    contents.append(
+        generative_models.Content(
+            role="user",
+            parts=[
+                generative_models.Part.from_text(prompt),
+            ],
+        )
+    )
+    if response:
+        contents.append(
+            generative_models.Content(
+                role="model",
+                parts=[
+                    generative_models.Part.from_text(response),
+                ],
+            )
+        )
+    if system_instruction:
+        system_instruction = generative_models.Content(
+            parts=[
+                generative_models.Part.from_text(system_instruction),
+            ],
+        )
+
+    # Set up GeminiExample.
+    gemini_example = GeminiExample(
+        model=model,
+        contents=contents,
+        system_instruction=system_instruction,
+        cached_content=cached_content,
+        tools=tools,
+        tool_config=tool_config,
+        safety_settings=safety_settings,
+        generation_config=generation_config,
+    )
+    return GeminiTemplateConfig(
+        gemini_example=gemini_example, field_mapping=field_mapping
+    )
+
+
 class GeminiExample:
     """A class representing a Gemini example."""
 
