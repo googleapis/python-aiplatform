@@ -1734,6 +1734,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
+        autoscaling_target_request_count_per_minute: Optional[int] = None,
         spot: bool = False,
         enable_access_logging=False,
         disable_container_logging: bool = False,
@@ -1837,6 +1838,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
+            autoscaling_target_request_count_per_minute (int):
+                Optional. Target request count per minute per instance.
             spot (bool):
                 Optional. Whether to schedule the deployment workload on spot VMs.
             enable_access_logging (bool):
@@ -1906,15 +1909,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or accelerator_count
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
+                or autoscaling_target_request_count_per_minute
             )
 
             if provided_custom_machine_spec:
                 raise ValueError(
                     "Conflicting parameters in deployment request. "
-                    "The machine_type, accelerator_type and accelerator_count,"
-                    "autoscaling_target_accelerator_duty_cycle,"
-                    "autoscaling_target_cpu_utilization parameters may not be set "
-                    "when `deployment_resource_pool` is specified."
+                    "The machine_type, accelerator_type and accelerator_count, "
+                    "autoscaling_target_accelerator_duty_cycle, "
+                    "autoscaling_target_cpu_utilization, "
+                    "autoscaling_target_request_count_per_minute parameters "
+                    "may not be set when `deployment_resource_pool` is "
+                    "specified."
                 )
 
             deployed_model.shared_resources = deployment_resource_pool.resource_name
@@ -1965,6 +1971,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or accelerator_count
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
+                or autoscaling_target_request_count_per_minute
             )
 
             # If the model supports both automatic and dedicated deployment resources,
@@ -1976,9 +1983,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             if provided_custom_machine_spec and not use_dedicated_resources:
                 _LOGGER.info(
                     "Model does not support dedicated deployment resources. "
-                    "The machine_type, accelerator_type and accelerator_count,"
-                    "autoscaling_target_accelerator_duty_cycle,"
-                    "autoscaling_target_cpu_utilization parameters are ignored."
+                    "The machine_type, accelerator_type and accelerator_count, "
+                    "autoscaling_target_accelerator_duty_cycle, "
+                    "autoscaling_target_cpu_utilization, "
+                    "autoscaling_target_request_count_per_minute parameters "
+                    "are ignored."
                 )
 
             if use_dedicated_resources and not machine_type:
@@ -2019,6 +2028,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                         dedicated_resources.autoscaling_metric_specs.extend(
                             [autoscaling_metric_spec]
                         )
+
+                if autoscaling_target_request_count_per_minute:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "aiplatform.googleapis.com/prediction/online/"
+                                "request_count"
+                            ),
+                            target=autoscaling_target_request_count_per_minute,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
 
                 if reservation_affinity_type:
                     machine_spec.reservation_affinity = utils.get_reservation_affinity(
