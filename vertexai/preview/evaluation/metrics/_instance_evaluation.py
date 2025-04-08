@@ -50,9 +50,6 @@ from vertexai.preview.evaluation.metrics import (
 )
 from vertexai.preview.evaluation.metrics import pairwise_metric
 from vertexai.preview.evaluation.metrics import pointwise_metric
-from vertexai.preview.evaluation.metrics import (
-    rubric_based_metric,
-)
 from google.protobuf import json_format
 
 
@@ -260,14 +257,23 @@ def build_request(
             _default_templates.PAIRWISE_MULTIMODAL_UNDERSTANDING_RUBRIC_CRITIQUE_TEMPLATE,
             _default_templates.PAIRWISE_TEXT_QUALITY_RUBRIC_CRITIQUE_TEMPLATE,
         ):
-            model_based_metric_instance_input["rubrics"] = _format_rubrics(
-                model_based_metric_instance_input["rubrics"]
+            model_based_metric_instance_input[
+                constants.Dataset.RUBRICS_COLUMN
+            ] = _format_rubrics(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
             )
-        if isinstance(metric, rubric_based_metric.RubricBasedMetric):
-            if isinstance(model_based_metric_instance_input["rubrics"], List):
-                model_based_metric_instance_input["rubrics"] = "\n".join(
-                    model_based_metric_instance_input["rubrics"]
-                )
+        if (
+            constants.Dataset.RUBRICS_COLUMN in model_based_metric_instance_input
+            and isinstance(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN],
+                List,
+            )
+        ):
+            model_based_metric_instance_input[
+                constants.Dataset.RUBRICS_COLUMN
+            ] = "\n".join(
+                model_based_metric_instance_input[constants.Dataset.RUBRICS_COLUMN]
+            )
 
     if metric_name == constants.Metric.EXACT_MATCH:
         instance = gapic_eval_service_types.ExactMatchInput(
