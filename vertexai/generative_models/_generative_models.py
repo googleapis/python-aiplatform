@@ -1754,6 +1754,7 @@ class GenerationConfig:
     """Parameters for the generation."""
 
     Modality = gapic_content_types.GenerationConfig.Modality
+    ModelConfig = gapic_content_types.GenerationConfig.ModelConfig
 
     def __init__(
         self,
@@ -1774,6 +1775,7 @@ class GenerationConfig:
         logprobs: Optional[int] = None,
         response_logprobs: Optional[bool] = None,
         response_modalities: Optional[List["GenerationConfig.Modality"]] = None,
+        model_config: Optional["GenerationConfig.ModelConfig"] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1801,9 +1803,11 @@ class GenerationConfig:
                 response type, otherwise the behavior is undefined.
             response_schema: Output response schema of the genreated candidate text.
             audio_timestamp: If true, the timestamp of the audio will be included in the response.
-            routing_config: Model routing preference set in the request.
+            routing_config: Model routing preference set in the request. This field is deprecated,
+                please use model_config field instead for model optimizer requests.
             logprobs: Logit probabilities.
             reponse_logprobs: If true, export the logprobs results in response.
+            model_config: Sets cost vs quality preference for model routing requests.
 
         Usage:
 
@@ -1845,6 +1849,7 @@ class GenerationConfig:
             logprobs=logprobs,
             response_logprobs=response_logprobs,
             response_modalities=response_modalities,
+            model_config=model_config,
         )
         if routing_config is not None:
             self._raw_generation_config.routing_config = (
@@ -1879,6 +1884,7 @@ class GenerationConfig:
 
     class RoutingConfig:
         r"""The configuration for model router requests.
+        Deprecated, please use ModelConfig to set routing preference instead.
 
         The routing config is either one of the two nested classes:
         - AutoRoutingMode: Automated routing.
@@ -1913,6 +1919,11 @@ class GenerationConfig:
                 "GenerationConfig.RoutingConfig.ManualRoutingMode",
             ],
         ):
+            _LOGGER = base.Logger(__name__)
+            _LOGGER.warning(
+                "RoutingConfig is deprecated, please use ModelConfig to set routing preference instead."
+            )
+
             if isinstance(routing_config, self.AutoRoutingMode):
                 self._gapic_routing_config = (
                     gapic_content_types.GenerationConfig.RoutingConfig(
