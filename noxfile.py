@@ -212,6 +212,7 @@ def default(session):
         "--cov-report=",
         "--cov-fail-under=0",
         "--ignore=tests/unit/vertex_ray",
+        "--ignore=tests/unit/vertex_adk",
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",

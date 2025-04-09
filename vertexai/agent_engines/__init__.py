@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -177,20 +177,37 @@ def list(*, filter: str = "") -> Iterable[AgentEngine]:
         yield AgentEngine(agent.name)
 
 
-def delete(resource_name: str) -> None:
+def delete(
+    resource_name: str,
+    *,
+    force: bool = False,
+    **kwargs,
+) -> None:
     """Delete an Agent Engine resource.
 
     Args:
         resource_name (str):
             Required. The name of the Agent Engine to be deleted. Format:
             `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+        force (bool):
+            Optional. If set to True, child resources will also be deleted.
+            Otherwise, the request will fail with FAILED_PRECONDITION error
+            when the Agent Engine has undeleted child resources. Defaults to
+            False.
+        **kwargs (dict[str, Any]):
+            Optional. Additional keyword arguments to pass to the
+            delete_reasoning_engine method.
     """
     api_client = initializer.global_config.create_client(
         client_class=aip_utils.AgentEngineClientWithOverride,
     )
     _LOGGER.info(f"Deleting AgentEngine resource: {resource_name}")
     operation_future = api_client.delete_reasoning_engine(
-        request=aip_types.DeleteReasoningEngineRequest(name=resource_name)
+        request=aip_types.DeleteReasoningEngineRequest(
+            name=resource_name,
+            force=force,
+            **(kwargs or {}),
+        )
     )
     _LOGGER.info(f"Delete AgentEngine backing LRO: {operation_future.operation.name}")
     operation_future.result()

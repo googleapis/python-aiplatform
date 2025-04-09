@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2023 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -475,6 +475,38 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             _LOGGER.warning(_FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE, e)
         return self
 
+    def delete(
+        self,
+        *,
+        force: bool = False,
+        **kwargs,
+    ) -> None:
+        """Deletes the ReasoningEngine.
+
+        Args:
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error
+                when the Agent Engine has undeleted child resources. Defaults to
+                False.
+            **kwargs (dict[str, Any]):
+                Optional. Additional keyword arguments to pass to the
+                delete_reasoning_engine method.
+        """
+        kwargs = kwargs or {}
+        operation_future = self.api_client.delete_reasoning_engine(
+            request=aip_types.DeleteReasoningEngineRequest(
+                name=self.resource_name,
+                force=force,
+                **kwargs,
+            ),
+        )
+        _LOGGER.info(
+            f"Delete Agent Engine backing LRO: {operation_future.operation.name}"
+        )
+        operation_future.result()
+        _LOGGER.info(f"Agent Engine deleted. Resource name: {self.resource_name}")
+
     def operation_schemas(self) -> Sequence[_utils.JsonDict]:
         """Returns the (Open)API schemas for the Agent Engine."""
         spec = _utils.to_dict(self._gca_resource.spec)
@@ -507,7 +539,7 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 
 def _validate_agent_engine_or_raise(
-    agent_engine: Union[Queryable, OperationRegistrable, StreamQueryable]
+    agent_engine: Union[Queryable, OperationRegistrable, StreamQueryable],
 ) -> Union[Queryable, OperationRegistrable, StreamQueryable]:
     """Tries to validate the agent engine.
 
@@ -528,6 +560,16 @@ def _validate_agent_engine_or_raise(
         ValueError: If `agent_engine` has an invalid `query`, `stream_query` or
         `register_operations` signature.
     """
+    try:
+        from google.adk.agents import BaseAgent
+
+        if isinstance(agent_engine, BaseAgent):
+            _LOGGER.info("Deploying google.adk.agents.Agent as an application.")
+            from vertexai.preview import reasoning_engines
+
+            agent_engine = reasoning_engines.AdkApp(agent=agent_engine)
+    except Exception:
+        pass
     is_queryable = isinstance(agent_engine, Queryable) and callable(agent_engine.query)
     is_stream_queryable = isinstance(agent_engine, StreamQueryable) and callable(
         agent_engine.stream_query

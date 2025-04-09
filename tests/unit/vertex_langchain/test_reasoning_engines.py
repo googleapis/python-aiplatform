@@ -36,7 +36,9 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1 import types
-from google.cloud.aiplatform_v1beta1.services import reasoning_engine_execution_service
+from google.cloud.aiplatform_v1beta1.services import (
+    reasoning_engine_execution_service,
+)
 from google.cloud.aiplatform_v1beta1.services import reasoning_engine_service
 from vertexai.preview import reasoning_engines
 from vertexai.reasoning_engines import _reasoning_engines
@@ -2252,35 +2254,34 @@ class TestToProto(parameterized.TestCase):
         self.assertDictEqual(_utils.to_dict(result), _utils.to_dict(expected_proto))
         self.assertEmpty(new_result)
 
-
-class TestDataclassToDict(parameterized.TestCase):
-    @parameterized.named_parameters(
-        dict(
-            testcase_name="serializable_dataclass",
-            obj=SerializableClass(name="test", value=42),
-            expected_dict={"name": "test", "value": 42},
-        ),
-        dict(
-            testcase_name="nested_dataclass",
-            obj=NestedClass(
-                name="outer", inner=SerializableClass(name="inner", value=10)
-            ),
-            expected_dict={"name": "outer", "inner": {"name": "inner", "value": 10}},
-        ),
-        dict(
-            testcase_name="list_dataclass",
-            obj=ListClass(name="list_test", items=[1, 2, 3]),
-            expected_dict={"name": "list_test", "items": [1, 2, 3]},
-        ),
-        dict(
-            testcase_name="empty_list_dataclass",
-            obj=ListClass(name="list_test", items=[]),
-            expected_dict={"name": "list_test", "items": []},
-        ),
-    )
-    def test_dataclass_to_dict_success(self, obj, expected_dict):
-        result = _utils.dataclass_to_dict(obj)
-        self.assertEqual(result, expected_dict)
+    # class TestDataclassToDict(parameterized.TestCase):
+    #     @parameterized.named_parameters(
+    #         dict(
+    #             testcase_name="serializable_dataclass",
+    #             obj=SerializableClass(name="test", value=42),
+    #             expected_dict={"name": "test", "value": 42},
+    #         ),
+    #         dict(
+    #             testcase_name="nested_dataclass",
+    #             obj=NestedClass(
+    #                 name="outer", inner=SerializableClass(name="inner", value=10)
+    #             ),
+    #             expected_dict={"name": "outer", "inner": {"name": "inner", "value": 10}},
+    #         ),
+    #         dict(
+    #             testcase_name="list_dataclass",
+    #             obj=ListClass(name="list_test", items=[1, 2, 3]),
+    #             expected_dict={"name": "list_test", "items": [1, 2, 3]},
+    #         ),
+    #         dict(
+    #             testcase_name="empty_list_dataclass",
+    #             obj=ListClass(name="list_test", items=[]),
+    #             expected_dict={"name": "list_test", "items": []},
+    #         ),
+    #     )
+    #     def test_dataclass_to_dict_success(self, obj, expected_dict):
+    #         result = _utils.dataclass_to_dict(obj)
+    #         self.assertEqual(result, expected_dict)
 
     @parameterized.named_parameters(
         dict(

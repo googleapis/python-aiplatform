@@ -1005,6 +1005,18 @@ class TestAgentEngine:
             ),
         )
 
+    def test_delete_agent_engine_force(
+        self,
+        delete_agent_engine_mock,
+    ):
+        agent_engines.delete(_TEST_AGENT_ENGINE_RESOURCE_NAME, force=True)
+        delete_agent_engine_mock.assert_called_with(
+            request=types.DeleteReasoningEngineRequest(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                force=True,
+            ),
+        )
+
     def test_delete_after_create_agent_engine(
         self,
         create_agent_engine_mock,
@@ -1033,7 +1045,10 @@ class TestAgentEngine:
         )
         test_agent_engine.delete()
         delete_agent_engine_mock.assert_called_with(
-            name=_TEST_AGENT_ENGINE_RESOURCE_NAME
+            request=types.DeleteReasoningEngineRequest(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                force=False,
+            ),
         )
 
     def test_delete_after_get_agent_engine(
@@ -1049,7 +1064,10 @@ class TestAgentEngine:
         )
         test_agent_engine.delete()
         delete_agent_engine_mock.assert_called_with(
-            name=test_agent_engine.resource_name,
+            request=types.DeleteReasoningEngineRequest(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                force=False,
+            ),
         )
 
     def test_query_after_create_agent_engine(
