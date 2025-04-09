@@ -121,7 +121,7 @@ class _StreamRunRequest:
 
 
 class _StreamingRunResponse:
-    """Response object for `agent_run_with_events` method.
+    """Response object for `streaming_agent_run_with_events` method.
 
     It contains the generated events together with the belonging artifacts.
     """
@@ -374,6 +374,7 @@ class AdkApp:
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
             artifact_service_builder=self._tmpl_attrs.get("artifact_service_builder"),
+            env_vars=self._tmpl_attrs.get("env_vars"),
         )
 
     def set_up(self):
