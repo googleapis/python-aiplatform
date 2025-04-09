@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.88.0](https://github.com/googleapis/python-aiplatform/compare/v1.87.0...v1.88.0) (2025-04-09)
+
+
+### Features
+
+* Add a module-level function to create a Gemini template config for single-turn Gemini examples without having to explicitly construct the Gemini example. ([126d10c](https://github.com/googleapis/python-aiplatform/commit/126d10c87d9ce3817c39396e32fb5412761ab0aa))
+* Add autoscaling_target_request_count_per_minute option in Preview model deployment on Endpoint & Model classes. ([0f1f10a](https://github.com/googleapis/python-aiplatform/commit/0f1f10a1172d2aaf89a96f614cc1a17c4ae65458))
+* Add Gen AI logging public preview API ([1589f66](https://github.com/googleapis/python-aiplatform/commit/1589f6654e04f90b4f933254d4d19e5d24cb180f))
+* Add new template for AgentEngine ([0478f10](https://github.com/googleapis/python-aiplatform/commit/0478f103a06f130eccdabb320993d6471a35df4f))
+* Add the possibility to create multimodal datasets without explicitly specifying a bigquery dataset/table. ([f5043a6](https://github.com/googleapis/python-aiplatform/commit/f5043a6ff6d4777e0e67193fc934a3bd3bd8cb1a))
+* Allow EvalTask to take dataset as a Google sheet  - simplifying rubric revision CUJ ([15df1f6](https://github.com/googleapis/python-aiplatform/commit/15df1f6ed71a071404c34d5f052288e521ecf6a6))
+* Allow table targets in multi-region datasets when creating multimodal datasets ([2d7bc32](https://github.com/googleapis/python-aiplatform/commit/2d7bc32dc30d4e6a08947bf72ca24d94aac009fd))
+* Check if rubrics column is present before converting list of rubrics to string ([6c1569b](https://github.com/googleapis/python-aiplatform/commit/6c1569b24b1355afd9b4aa6fdebf3137924ebac9))
+* Convert list of rubrics to a string before sending the API request. This allows users to use default parse_rubrics function that returns a list of rubrics with customized prompts, and bring their own rubrics as a list. ([9f21b73](https://github.com/googleapis/python-aiplatform/commit/9f21b73f6558eaba73b04d95172a9d667549353b))
+* GenAI Evaluation: Release GenAI Evaluation SDK autorater metric configuration utils to vertexai.preview module. ([f816d5a](https://github.com/googleapis/python-aiplatform/commit/f816d5aa78efcffb6d83f127a748d55ea6deaaf7))
+* GenAI Evaluation: Release GenAI Evaluation SDK parsing rubric generation response with additional fields to vertexai.preview module. ([79ca86a](https://github.com/googleapis/python-aiplatform/commit/79ca86a57ef14e4b1bd92c4ee6a55a67f84a6ff4))
+* GenAI Evaluation: Release GenAI Evaluation SDK rubric based evaluation to vertexai.preview module. ([bb07581](https://github.com/googleapis/python-aiplatform/commit/bb0758140882b3978565ce6e7137ead8f3bf9457))
+* Model optimizer SDK support ([f257298](https://github.com/googleapis/python-aiplatform/commit/f2572989fc03aebfea0a79229db3d61413ff95e2))
+* Track the output path for metrics_table in experiments metadata, if output bucket is specified but no file name is specified, we will generate a unique file name ([be2c99f](https://github.com/googleapis/python-aiplatform/commit/be2c99f91772fd5e07e8fb7b73c688f94226daab))
+
+
+### Bug Fixes
+
+* Preprend question tag to rubric critiquing response after editing the predefined prompts to end with &lt;question&gt; to avoid parsing errors ([0abd6ad](https://github.com/googleapis/python-aiplatform/commit/0abd6ad057b806bd6fd19d7c51292ecd958015d7))
+
 ## [1.87.0](https://github.com/googleapis/python-aiplatform/compare/v1.86.0...v1.87.0) (2025-04-01)
 
 
