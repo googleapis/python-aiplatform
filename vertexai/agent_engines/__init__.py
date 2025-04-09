@@ -14,14 +14,12 @@
 #
 """Classes and functions for working with agent engines."""
 
-from typing import Iterable, Optional, Sequence, Union
+from typing import Dict, Iterable, Optional, Sequence, Union
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
-from google.cloud.aiplatform_v1.types import (
-    reasoning_engine_service as aip_types,
-)
+from google.cloud.aiplatform_v1 import types as aip_types
 
 # We just want to re-export certain classes
 # pylint: disable=g-multiple-import,g-importing-member
@@ -66,6 +64,9 @@ def create(
     description: Optional[str] = None,
     gcs_dir_name: Optional[str] = None,
     extra_packages: Optional[Sequence[str]] = None,
+    env_vars: Optional[
+        Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+    ] = None,
 ) -> AgentEngine:
     """Creates a new Agent Engine.
 
@@ -121,6 +122,12 @@ def create(
             use for staging the artifacts needed.
         extra_packages (Sequence[str]):
             Optional. The set of extra user-provided packages (if any).
+        env_vars (Union[Sequence[str], Dict[str, Union[str, SecretRef]]]):
+            Optional. The environment variables to be set when running the
+            Agent Engine. If it is a list of strings, each string should be
+            a valid key to `os.environ`. If it is a dictionary, the keys are
+            the environment variable names, and the values are the
+            corresponding values.
 
     Returns:
         AgentEngine: The Agent Engine that was created.
@@ -142,6 +149,7 @@ def create(
         description=description,
         gcs_dir_name=gcs_dir_name,
         extra_packages=extra_packages,
+        env_vars=env_vars,
     )
 
 
@@ -223,6 +231,9 @@ def update(
     description: Optional[str] = None,
     gcs_dir_name: Optional[str] = None,
     extra_packages: Optional[Sequence[str]] = None,
+    env_vars: Optional[
+        Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+    ] = None,
 ) -> "AgentEngine":
     """Updates an existing Agent Engine.
 
@@ -260,6 +271,12 @@ def update(
             it is not specified, the existing extra packages will be used.
             If it is set to an empty list, the existing extra packages will
             be removed.
+        env_vars (Union[Sequence[str], Dict[str, Union[str, SecretRef]]]):
+            Optional. The environment variables to be set when running the
+            Agent Engine. If it is a list of strings, each string should be
+            a valid key to `os.environ`. If it is a dictionary, the keys are
+            the environment variable names, and the values are the
+            corresponding values.
 
     Returns:
         AgentEngine: The Agent Engine that was updated.
@@ -283,6 +300,7 @@ def update(
         description=description,
         gcs_dir_name=gcs_dir_name,
         extra_packages=extra_packages,
+        env_vars=env_vars,
     )
 
 
