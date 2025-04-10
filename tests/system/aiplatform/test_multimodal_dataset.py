@@ -24,6 +24,7 @@ import pandas as pd
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.preview import datasets
+from vertexai.preview import prompts
 
 from tests.system.aiplatform import e2e_base
 
@@ -214,3 +215,22 @@ class TestDataset(e2e_base.TestEndToEnd):
             assert tuning_resources.token_count > 0
         finally:
             ds.delete()
+
+    def test_attach_prompt_as_template_config(self, shared_state):
+        assert shared_state["bigquery_test_table"]
+        bigquery_table = f"bq://{shared_state['bigquery_test_table']}"
+
+        try:
+            ds = datasets.MultimodalDataset.from_bigquery(bigquery_uri=bigquery_table)
+            prompt = prompts.create_version(
+                prompts.Prompt(prompt_data="Tell me about this species: {species}")
+            )
+            ds.attach_template_config(prompt=prompt)
+
+            _, bf = ds.assemble()
+            assert len(bf) > 0
+            request = bf.iloc[0]["request"]
+            assert "Tell me about this species: " in request
+        finally:
+            ds.delete()
+            prompts.delete(prompt.prompt_id)
