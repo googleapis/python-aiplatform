@@ -40,6 +40,8 @@ __protobuf__ = proto.module(
         "RagFileParsingConfig",
         "UploadRagFileConfig",
         "ImportRagFilesConfig",
+        "RagManagedDbConfig",
+        "RagEngineConfig",
     },
 )
 
@@ -896,6 +898,14 @@ class RagFileParsingConfig(proto.Message):
                 the Quota page for your project to set an
                 appropriate value here. If unspecified, a
                 default value of 120 QPM would be used.
+            global_max_parsing_requests_per_min (int):
+                The maximum number of requests the job is allowed to make to
+                the Document AI processor per minute in this project.
+                Consult https://cloud.google.com/document-ai/quotas and the
+                Quota page for your project to set an appropriate value
+                here. If this value is not specified,
+                max_parsing_requests_per_min will be used by indexing
+                pipeline as the global limit.
         """
 
         processor_name: str = proto.Field(
@@ -905,6 +915,10 @@ class RagFileParsingConfig(proto.Message):
         max_parsing_requests_per_min: int = proto.Field(
             proto.INT32,
             number=2,
+        )
+        global_max_parsing_requests_per_min: int = proto.Field(
+            proto.INT32,
+            number=3,
         )
 
     class LlmParser(proto.Message):
@@ -923,6 +937,13 @@ class RagFileParsingConfig(proto.Message):
                 and your document size to set an appropriate
                 value here. If unspecified, a default value of
                 5000 QPM would be used.
+            global_max_parsing_requests_per_min (int):
+                The maximum number of requests the job is allowed to make to
+                the LLM model per minute in this project. Consult
+                https://cloud.google.com/vertex-ai/generative-ai/docs/quotas
+                and your document size to set an appropriate value here. If
+                this value is not specified, max_parsing_requests_per_min
+                will be used by indexing pipeline job as the global limit.
             custom_parsing_prompt (str):
                 The prompt to use for parsing. If not
                 specified, a default prompt will be used.
@@ -935,6 +956,10 @@ class RagFileParsingConfig(proto.Message):
         max_parsing_requests_per_min: int = proto.Field(
             proto.INT32,
             number=2,
+        )
+        global_max_parsing_requests_per_min: int = proto.Field(
+            proto.INT32,
+            number=4,
         )
         custom_parsing_prompt: str = proto.Field(
             proto.STRING,
@@ -1079,6 +1104,14 @@ class ImportRagFilesConfig(proto.Message):
             page on the project to set an appropriate value
             here. If unspecified, a default value of 1,000
             QPM would be used.
+        global_max_embedding_requests_per_min (int):
+            Optional. The max number of queries per minute that the
+            indexing pipeline job is allowed to make to the embedding
+            model specified in the project. Please follow the quota
+            usage guideline of the embedding model you use to set the
+            value properly. If this value is not specified,
+            max_embedding_requests_per_min will be used by indexing
+            pipeline job as the global limit.
     """
 
     gcs_source: io.GcsSource = proto.Field(
@@ -1153,6 +1186,90 @@ class ImportRagFilesConfig(proto.Message):
     max_embedding_requests_per_min: int = proto.Field(
         proto.INT32,
         number=5,
+    )
+    global_max_embedding_requests_per_min: int = proto.Field(
+        proto.INT32,
+        number=18,
+    )
+
+
+class RagManagedDbConfig(proto.Message):
+    r"""Configuration message for RagManagedDb used by RagEngine.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        enterprise (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Enterprise):
+            Sets the RagManagedDb to the Enterprise tier.
+            This is the default tier if not explicitly
+            chosen.
+
+            This field is a member of `oneof`_ ``tier``.
+        basic (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Basic):
+            Sets the RagManagedDb to the Basic tier.
+
+            This field is a member of `oneof`_ ``tier``.
+    """
+
+    class Enterprise(proto.Message):
+        r"""Enterprise tier offers production grade performance along
+        with autoscaling functionality. It is suitable for customers
+        with large amounts of data or performance sensitive workloads.
+
+        NOTE: This is the default tier if not explicitly chosen.
+
+        """
+
+    class Basic(proto.Message):
+        r"""Basic tier is a cost-effective and low compute tier suitable for the
+        following cases:
+
+        -  Experimenting with RagManagedDb.
+        -  Small data size.
+        -  Latency insensitive workload.
+        -  Only using RAG Engine with external vector DBs.
+
+        """
+
+    enterprise: Enterprise = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="tier",
+        message=Enterprise,
+    )
+    basic: Basic = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="tier",
+        message=Basic,
+    )
+
+
+class RagEngineConfig(proto.Message):
+    r"""Config for RagEngine.
+
+    Attributes:
+        name (str):
+            Identifier. The name of the RagEngineConfig. Format:
+            ``projects/{project}/locations/{location}/ragEngineConfig``
+        rag_managed_db_config (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig):
+            The config of the RagManagedDb used by
+            RagEngine.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    rag_managed_db_config: "RagManagedDbConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RagManagedDbConfig",
     )
 
 

@@ -1694,6 +1694,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1851,6 +1855,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -2068,6 +2076,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2245,6 +2257,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2486,6 +2502,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2671,6 +2691,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2908,6 +2932,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -3093,6 +3121,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -3338,6 +3370,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3515,6 +3551,10 @@ class AsyncGenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport)
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                     },
                     {
                         "method": "post",

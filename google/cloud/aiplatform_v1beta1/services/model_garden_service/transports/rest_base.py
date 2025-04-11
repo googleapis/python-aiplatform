@@ -882,6 +882,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -1039,6 +1043,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1275,6 +1283,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1452,6 +1464,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1712,6 +1728,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1897,6 +1917,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2153,6 +2177,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2338,6 +2366,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                 },
                 {
                     "method": "get",
@@ -2602,6 +2634,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2779,6 +2815,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                 },
                 {
                     "method": "post",

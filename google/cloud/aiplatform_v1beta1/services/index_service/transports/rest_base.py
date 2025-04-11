@@ -986,6 +986,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -1143,6 +1147,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1379,6 +1387,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1556,6 +1568,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1816,6 +1832,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -2001,6 +2021,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2257,6 +2281,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2442,6 +2470,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                 },
                 {
                     "method": "get",
@@ -2706,6 +2738,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2883,6 +2919,10 @@ class _BaseIndexServiceRestTransport(IndexServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                 },
                 {
                     "method": "post",
