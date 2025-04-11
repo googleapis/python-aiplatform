@@ -65,6 +65,7 @@ _TEST_MULTIMODAL_EVAL_DATASET = pd.DataFrame(
             ),
         ],
         "response": ["test", "text"],
+        "description": ["description", "description"],
     }
 )
 _TEST_PAIRWISE_MULTIMODAL_EVAL_DATASET = pd.DataFrame(
@@ -312,6 +313,7 @@ class TestPredefinedRubricMetrics:
                 "prompt",
                 "image",
                 "response",
+                "description",
                 "rubrics",
                 "rb_multimodal_understanding/score",
                 "rb_multimodal_understanding/rubric_verdict_pairs",
