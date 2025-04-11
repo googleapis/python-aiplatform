@@ -4304,7 +4304,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
-        command: Sequence[str] = None,
+        command: Optional[Sequence[str]] = None,
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
