@@ -317,11 +317,31 @@ def _aggregate_summary_metrics(
                     f"{metric.metric_name}/{constants.MetricResult.PAIRWISE_CHOICE_KEY}"
                 )
                 if pairwise_choice_col_name in metrics_table:
+                    candidate_model_win_rate_choices = [
+                        "CANDIDATE",
+                        utils.RATING_TO_VERDICT["B>>A"],
+                        utils.RATING_TO_VERDICT["A<<B"],
+                        utils.RATING_TO_VERDICT["B>A"],
+                        utils.RATING_TO_VERDICT["A<B"],
+                    ]
+                    baseline_model_win_rate_choices = [
+                        "BASELINE",
+                        utils.RATING_TO_VERDICT["A>>B"],
+                        utils.RATING_TO_VERDICT["B<<A"],
+                        utils.RATING_TO_VERDICT["B<A"],
+                        utils.RATING_TO_VERDICT["A>B"],
+                    ]
                     summary_metrics[
                         f"{metric.metric_name}/candidate_model_win_rate"
-                    ] = (metrics_table[pairwise_choice_col_name] == "CANDIDATE").mean()
+                    ] = (
+                        metrics_table[pairwise_choice_col_name].isin(
+                            candidate_model_win_rate_choices
+                        )
+                    ).mean()
                     summary_metrics[f"{metric.metric_name}/baseline_model_win_rate"] = (
-                        metrics_table[pairwise_choice_col_name] == "BASELINE"
+                        metrics_table[pairwise_choice_col_name].isin(
+                            baseline_model_win_rate_choices
+                        )
                     ).mean()
             else:
                 score_col_name = f"{str(metric)}/{constants.MetricResult.SCORE_KEY}"
