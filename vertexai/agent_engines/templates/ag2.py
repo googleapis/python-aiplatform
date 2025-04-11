@@ -474,18 +474,14 @@ class AG2Agent:
         if not self._tmpl_attrs.get("runnable"):
             self.set_up()
 
+        response = self._tmpl_attrs.get("runnable").run(
+            message=input,
+            user_input=False,
+            tools=self._tmpl_attrs.get("ag2_tool_objects"),
+            max_turns=max_turns,
+            **kwargs,
+        )
+
         from vertexai.agent_engines import _utils
 
-        # `.run()` will return a `ChatResult` object, which is a dataclass.
-        # We need to convert it to a JSON-serializable object.
-        # More details of `ChatResult` can be found in
-        # https://docs.ag2.ai/docs/api-reference/autogen/ChatResult.
-        return _utils.dataclass_to_dict(
-            self._tmpl_attrs.get("runnable").run(
-                input,
-                user_input=False,
-                tools=self._tmpl_attrs.get("ag2_tool_objects"),
-                max_turns=max_turns,
-                **kwargs,
-            )
-        )
+        return _utils.to_json_serializable_autogen_object(response)
