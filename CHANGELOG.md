@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.89.0](https://github.com/googleapis/python-aiplatform/compare/v1.88.0...v1.89.0) (2025-04-11)
+
+
+### Features
+
+* Add UpdateRagEngineConfig rpc ([64386e9](https://github.com/googleapis/python-aiplatform/commit/64386e9d172f2b94338dc5468809821754d0d129))
+
+
+### Bug Fixes
+
+* Include the env variables of the AdkApp when cloning ([9814768](https://github.com/googleapis/python-aiplatform/commit/9814768b937db43aac6f381023b409c68daebc5e))
+
 ## [1.88.0](https://github.com/googleapis/python-aiplatform/compare/v1.87.0...v1.88.0) (2025-04-09)
 
 
