@@ -3183,6 +3183,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -3340,6 +3344,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -3557,6 +3565,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -3734,6 +3746,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -3975,6 +3991,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -4160,6 +4180,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -4397,6 +4421,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -4582,6 +4610,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -4827,6 +4859,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -5004,6 +5040,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                     },
                     {
                         "method": "post",

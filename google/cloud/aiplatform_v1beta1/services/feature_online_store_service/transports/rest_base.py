@@ -93,6 +93,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
             api_audience=api_audience,
         )
 
+    class _BaseFeatureViewDirectWrite:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
     class _BaseFetchFeatureValues:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -738,6 +742,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -895,6 +903,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1131,6 +1143,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1308,6 +1324,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1568,6 +1588,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1753,6 +1777,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2009,6 +2037,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2194,6 +2226,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                 },
                 {
                     "method": "get",
@@ -2458,6 +2494,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2635,6 +2675,10 @@ class _BaseFeatureOnlineStoreServiceRestTransport(FeatureOnlineStoreServiceTrans
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                 },
                 {
                     "method": "post",

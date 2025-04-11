@@ -946,6 +946,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1103,6 +1107,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1320,6 +1328,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -1497,6 +1509,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1738,6 +1754,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -1923,6 +1943,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2160,6 +2184,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -2345,6 +2373,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -2590,6 +2622,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -2767,6 +2803,10 @@ class DeploymentResourcePoolServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                     },
                     {
                         "method": "post",
