@@ -524,3 +524,16 @@ class LlmParserConfig:
     model_name: str
     max_parsing_requests_per_min: Optional[int] = None
     custom_parsing_prompt: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagEngineConfig:
+    """RagEngineConfig.
+
+    Attributes:
+        name: Generated resource name. Format:
+            ``projects/{project}/locations/{location}/ragEngineConfig/
+            {rag_engine_config}``
+    """
+
+    name: str

@@ -60,6 +60,8 @@ from google.cloud.aiplatform_v1beta1 import (
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
     RagContexts,
+    RagManagedDbConfig,
+    RagEngineConfig,
     RetrieveContextsResponse,
     RagVectorDbConfig as GapicRagVectorDbConfig,
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
@@ -75,7 +77,10 @@ TEST_CORPUS_DISPLAY_NAME = "my-corpus-1"
 TEST_CORPUS_DISCRIPTION = "My first corpus."
 TEST_RAG_CORPUS_ID = "generate-123"
 TEST_API_ENDPOINT = "us-central1-" + aiplatform.constants.base.API_BASE_PATH
+TEST_RAG_ENGINE_CONFIG_DISPLAY_NAME = "my-rag-engine-config-1"
+TEST_RAG_ENGINE_CONFIG_DESCRIPTION = "My first rag engine config."
 TEST_RAG_CORPUS_RESOURCE_NAME = f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragCorpora/{TEST_RAG_CORPUS_ID}"
+TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME = f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragEngineConfigs/test-rag-engine-config"
 
 # RagCorpus
 TEST_WEAVIATE_HTTP_ENDPOINT = "test.weaviate.com"
@@ -386,6 +391,18 @@ TEST_IMPORT_REQUEST_DRIVE_FOLDER_PARSING = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING,
 )
+
+# Config Resource
+TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME = (
+    TEST_RAG_CORPUS_RESOURCE_NAME + "/ragEngineConfigs/test-rag-engine-config"
+)
+TEST_RAG_ENGINE_CONFIG_DISPLAY_NAME = "test-rag-engine-config"
+TEST_RAG_ENGINE_CONFIG_DESCRIPTION = "test-rag-engine-config-description"
+TEST_RAG_ENGINE_CONFIG = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(),
+)
+
 # Google Drive files
 TEST_DRIVE_FILE_ID = "456"
 TEST_DRIVE_FILE = f"https://drive.google.com/file/d/{TEST_DRIVE_FILE_ID}"

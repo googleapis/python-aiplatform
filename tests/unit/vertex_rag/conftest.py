@@ -162,6 +162,8 @@ def rag_data_client_preview_mock_exception():
         api_client_mock.list_rag_files.side_effect = Exception
         # delete_rag_file
         api_client_mock.delete_rag_file.side_effect = Exception
+        # update_rag_engine_config
+        api_client_mock.update_rag_engine_config.side_effect = Exception
         rag_data_client_mock_exception.return_value = api_client_mock
         yield rag_data_client_mock_exception
 

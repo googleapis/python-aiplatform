@@ -25,6 +25,7 @@ from vertexai.preview.rag.rag_data import (
     get_file,
     list_files,
     delete_file,
+    update_rag_engine_config,
 )
 from vertexai.preview.rag.rag_retrieval import (
     retrieval_query,
