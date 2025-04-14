@@ -225,7 +225,7 @@ class _Config:
         # This method mutates state, so we need to be careful with the validation
         # First, we need to validate all passed values
         if api_transport:
-            VALID_TRANSPORT_TYPES = ["grpc", "rest"]
+            VALID_TRANSPORT_TYPES = ["grpc", "grpc_asyncio", "rest"]
             if api_transport not in VALID_TRANSPORT_TYPES:
                 raise ValueError(
                     f"{api_transport} is not a valid transport type. "
@@ -627,6 +627,9 @@ class _Config:
                 )
         elif self._api_transport == "rest":
             # User requests sync REST
+            kwargs["transport"] = self._api_transport
+
+        elif self._api_transport == "grpc_asyncio":
             kwargs["transport"] = self._api_transport
 
         client = client_class(**kwargs)
