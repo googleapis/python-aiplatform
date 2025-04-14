@@ -73,7 +73,7 @@ _RESPONSE_B_REGEX = re.compile(
 )
 _SXS_RATING_REGEX = re.compile(r"\[\[(SxSRating:[AB<>=]+)\]\]", re.DOTALL)
 
-_RATING_TO_VERDICT = {
+RATING_TO_VERDICT = {
     "B>>A": "Candidate response is better than the baseline response.",
     "A<<B": "Candiate response is better than the baseline response.",
     "B>A": "Candidate response is slightly better than the baseline response.",
@@ -554,8 +554,8 @@ def parse_pairwise_rubric_result(
 
     return {
         "pairwise_choice": (
-            _RATING_TO_VERDICT[rating_str]
-            if rating_str in _RATING_TO_VERDICT
+            RATING_TO_VERDICT[rating_str]
+            if rating_str in RATING_TO_VERDICT
             else rating_str
         ),
         "score": (
