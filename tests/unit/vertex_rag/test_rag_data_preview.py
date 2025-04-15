@@ -296,6 +296,40 @@ def list_rag_corpora_pager_mock():
         yield list_rag_corpora_pager_mock
 
 
+@pytest.fixture()
+def update_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_mock:
+        update_rag_engine_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG
+        )
+        yield update_rag_engine_config_mock
+
+
+@pytest.fixture()
+def update_config_mock_exception():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_mock_exception:
+        update_rag_engine_config_mock_exception.side_effect = Exception
+        yield update_rag_engine_config_mock_exception
+
+
+@pytest.fixture()
+def update_config_mock_vertex_ai_engine_search_config():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_mock_vertex_ai_engine_search_config:
+        update_rag_engine_config_mock_vertex_ai_engine_search_config.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_VERTEX_AI_ENGINE_SEARCH_CONFIG
+        )
+        yield update_rag_engine_config_mock_vertex_ai_engine_search_config
+
+
 class MockResponse:
     def __init__(self, json_data, status_code):
         self.json_data = json_data
@@ -1258,3 +1292,16 @@ class TestRagDataManagement:
                 test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS,
             )
         e.match("endpoint must be of the format ")
+
+    def test_update_rag_engine_config_success(self, rag_data_client_preview_mock):
+        rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG,
+        )
+        assert rag_data_client_preview_mock.call_count == 1
+
+    def test_update_rag_engine_config_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.update_rag_engine_config(
+                rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG,
+            )
+        e.match("Failed in RagEngineConfig update due to")

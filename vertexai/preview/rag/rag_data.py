@@ -34,6 +34,7 @@ from google.cloud.aiplatform_v1beta1 import (
     ListRagFilesRequest,
     RagCorpus as GapicRagCorpus,
     UpdateRagCorpusRequest,
+    UpdateRagEngineConfigRequest,
 )
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
@@ -51,6 +52,7 @@ from vertexai.preview.rag.utils.resources import (
     RagCorpus,
     RagFile,
     RagManagedDb,
+    RagEngineConfig,
     RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
@@ -925,4 +927,38 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
         print("Successfully deleted the RagFile.")
     except Exception as e:
         raise RuntimeError("Failed in RagFile deletion due to: ", e) from e
+    return None
+
+
+def update_rag_engine_config(
+    rag_engine_config: RagEngineConfig,
+) -> None:
+    """Update RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai.preview import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.RagEngineConfig(
+        name="projects/my-project/locations/us-central1/ragEngineConfigs/my-rag-engine-config"
+        ),
+    )
+    rag.update_rag_engine_config(rag_engine_config=rag_engine_config)
+    ```
+
+    Args:
+        rag_engine_config: The RagEngineConfig to update.
+
+    Raises:
+        RuntimeError: Failed in RagEngineConfig update due to exception.
+    """
+    request = UpdateRagEngineConfigRequest(
+        rag_engine_config=rag_engine_config,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        client.update_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
     return None
