@@ -816,6 +816,8 @@ from .types.model_deployment_monitoring_job import (
 )
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
+from .types.model_garden_service import AcceptPublisherModelEulaRequest
+from .types.model_garden_service import CheckPublisherModelEulaAcceptanceRequest
 from .types.model_garden_service import DeployOperationMetadata
 from .types.model_garden_service import DeployPublisherModelOperationMetadata
 from .types.model_garden_service import DeployPublisherModelRequest
@@ -828,6 +830,7 @@ from .types.model_garden_service import ExportPublisherModelResponse
 from .types.model_garden_service import GetPublisherModelRequest
 from .types.model_garden_service import ListPublisherModelsRequest
 from .types.model_garden_service import ListPublisherModelsResponse
+from .types.model_garden_service import PublisherModelEulaAcceptance
 from .types.model_garden_service import PublisherModelView
 from .types.model_monitor import ModelMonitor
 from .types.model_monitor import ModelMonitoringSchema
@@ -1289,6 +1292,7 @@ __all__ = (
     "VertexRagServiceAsyncClient",
     "VizierServiceAsyncClient",
     "AcceleratorType",
+    "AcceptPublisherModelEulaRequest",
     "ActiveLearningConfig",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
@@ -1368,6 +1372,7 @@ __all__ = (
     "CancelTuningJobRequest",
     "Candidate",
     "ChatCompletionsRequest",
+    "CheckPublisherModelEulaAcceptanceRequest",
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
@@ -2067,6 +2072,7 @@ __all__ = (
     "PscInterfaceConfig",
     "PublisherModel",
     "PublisherModelConfig",
+    "PublisherModelEulaAcceptance",
     "PublisherModelView",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",
