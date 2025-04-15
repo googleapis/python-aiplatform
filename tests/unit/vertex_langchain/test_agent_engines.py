@@ -274,6 +274,8 @@ _TEST_CUSTOM_STREAM_METHOD_DEFAULT_DOCSTRING = """
 """
 _TEST_METHOD_TO_BE_UNREGISTERED_NAME = "method_to_be_unregistered"
 _TEST_QUERY_PROMPT = "Find the first fibonacci number greater than 999"
+_TEST_AGENT_ENGINE_ENV_KEY = "GOOGLE_CLOUD_AGENT_ENGINE_ENV"
+_TEST_AGENT_ENGINE_ENV_VALUE = "test_env_value"
 _TEST_AGENT_ENGINE_GCS_URI = "{}/{}/{}".format(
     _TEST_STAGING_BUCKET,
     _TEST_GCS_DIR_NAME,
@@ -673,6 +675,8 @@ class TestAgentEngine:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+        importlib.reload(os)
+        os.environ[_TEST_AGENT_ENGINE_ENV_KEY] = _TEST_AGENT_ENGINE_ENV_VALUE
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -801,6 +805,119 @@ class TestAgentEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_agent_engine_with_env_vars_dict(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            env_vars={
+                "TEST_ENV_VAR": "TEST_ENV_VAR_VALUE",
+                "TEST_ENV_VAR_2": "TEST_ENV_VAR_VALUE_2",
+                "TEST_SECRET_ENV_VAR": {
+                    "secret": "TEST_SECRET_NAME_1",
+                    "version": "TEST_SECRET_VERSION_1",
+                },
+                "TEST_SECRET_ENV_VAR_2": types.SecretRef(
+                    secret="TEST_SECRET_NAME_2",
+                    version="TEST_SECRET_VERSION_2",
+                ),
+            },
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                env=[
+                    types.EnvVar(name="TEST_ENV_VAR", value="TEST_ENV_VAR_VALUE"),
+                    types.EnvVar(name="TEST_ENV_VAR_2", value="TEST_ENV_VAR_VALUE_2"),
+                ],
+                secret_env=[
+                    types.SecretEnvVar(
+                        name="TEST_SECRET_ENV_VAR",
+                        secret_ref={
+                            "secret": "TEST_SECRET_NAME_1",
+                            "version": "TEST_SECRET_VERSION_1",
+                        },
+                    ),
+                    types.SecretEnvVar(
+                        name="TEST_SECRET_ENV_VAR_2",
+                        secret_ref=types.SecretRef(
+                            secret="TEST_SECRET_NAME_2",
+                            version="TEST_SECRET_VERSION_2",
+                        ),
+                    ),
+                ],
+            ),
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
+    def test_create_agent_engine_with_env_vars_list(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        agent_engines.create(
+            self.test_agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+            env_vars=[_TEST_AGENT_ENGINE_ENV_KEY, _TEST_AGENT_ENGINE_ENV_KEY],
+        )
+        test_spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                env=[
+                    types.EnvVar(
+                        name=_TEST_AGENT_ENGINE_ENV_KEY,
+                        value=_TEST_AGENT_ENGINE_ENV_VALUE,
+                    ),
+                    types.EnvVar(
+                        name=_TEST_AGENT_ENGINE_ENV_KEY,
+                        value=_TEST_AGENT_ENGINE_ENV_VALUE,
+                    ),
+                ],
+            ),
+        )
+        test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=types.ReasoningEngine(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                spec=test_spec,
+            ),
+        )
+        get_agent_engine_mock.assert_called_with(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            retry=_TEST_RETRY,
+        )
+
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
         "test_case_name, test_kwargs, want_request",
@@ -921,6 +1038,48 @@ class TestAgentEngine:
                         description=_TEST_AGENT_ENGINE_DESCRIPTION,
                     ),
                     update_mask=field_mask_pb2.FieldMask(paths=["description"]),
+                ),
+            ),
+            (
+                "Update the environment variables",
+                {
+                    "env_vars": {
+                        _TEST_AGENT_ENGINE_ENV_KEY: _TEST_AGENT_ENGINE_ENV_VALUE,
+                        "TEST_SECRET_ENV_VAR": {
+                            "secret": "TEST_SECRET_NAME",
+                            "version": "TEST_SECRET_VERSION",
+                        },
+                    },
+                },
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=types.ReasoningEngine(
+                        name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                        spec=types.ReasoningEngineSpec(
+                            deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                                env=[
+                                    types.EnvVar(
+                                        name=_TEST_AGENT_ENGINE_ENV_KEY,
+                                        value=_TEST_AGENT_ENGINE_ENV_VALUE,
+                                    ),
+                                ],
+                                secret_env=[
+                                    types.SecretEnvVar(
+                                        name="TEST_SECRET_ENV_VAR",
+                                        secret_ref=types.SecretRef(
+                                            secret="TEST_SECRET_NAME",
+                                            version="TEST_SECRET_VERSION",
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.deployment_spec.env",
+                            "spec.deployment_spec.secret_env",
+                        ],
+                    ),
                 ),
             ),
         ],
@@ -1832,6 +1991,78 @@ class TestAgentEngineErrors:
                 requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             )
 
+    def test_create_agent_engine_with_invalid_secret_ref_env_var(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        with pytest.raises(ValueError, match="Failed to convert to secret ref"):
+            agent_engines.create(
+                self.test_agent,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                env_vars={
+                    "TEST_ENV_VAR": {
+                        "name": "TEST_SECRET_NAME",  # "name" should be "secret"
+                        "version": "TEST_SECRET_VERSION",
+                    },
+                },
+            )
+
+    def test_create_agent_engine_with_unknown_env_var(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        with pytest.raises(ValueError, match="Env var not found in os.environ"):
+            agent_engines.create(
+                self.test_agent,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                # Assumption: "UNKNOWN_TEST_ENV_VAR" not in os.environ
+                env_vars=["UNKNOWN_TEST_ENV_VAR"],
+            )
+
+    def test_create_agent_engine_with_invalid_type_env_var(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        with pytest.raises(TypeError, match="Unknown value type in env_vars"):
+            agent_engines.create(
+                self.test_agent,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                env_vars={
+                    "TEST_ENV_VAR": 0.01,  # should be a string or dict or SecretRef
+                },
+            )
+        with pytest.raises(TypeError, match="env_vars must be a list or a dict"):
+            agent_engines.create(
+                self.test_agent,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                env_vars=types.SecretRef(  # should be a list or dict
+                    secret="TEST_SECRET_NAME",
+                    version="TEST_SECRET_VERSION",
+                ),
+            )
+
     def test_update_agent_engine_unspecified_staging_bucket(
         self,
         update_agent_engine_mock,
@@ -1963,7 +2194,7 @@ class TestAgentEngineErrors:
             ValueError,
             match=(
                 "At least one of `agent_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, or `description` "
+                "`extra_packages`, `display_name`, `description`, or `env_vars` "
                 "must be specified."
             ),
         ):

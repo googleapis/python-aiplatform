@@ -30,6 +30,7 @@ from typing import (
     Optional,
     Protocol,
     Sequence,
+    Tuple,
     Union,
 )
 
@@ -164,6 +165,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         gcs_dir_name: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        env_vars: Optional[
+            Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+        ] = None,
     ) -> "AgentEngine":
         """Creates a new Agent Engine.
 
@@ -219,6 +223,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 use for staging the artifacts needed.
             extra_packages (Sequence[str]):
                 Optional. The set of extra user-provided packages (if any).
+            env_vars (Union[Sequence[str], Dict[str, Union[str, SecretRef]]]):
+                Optional. The environment variables to be set when running the
+                Agent Engine. If it is a list of strings, each string should be
+                a valid key to `os.environ`. If it is a dictionary, the keys are
+                the environment variable names, and the values are the
+                corresponding values.
 
         Returns:
             AgentEngine: The Agent Engine that was created.
@@ -230,6 +240,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             ValueError: If the `staging_bucket` does not start with "gs://".
             ValueError: If `extra_packages` is specified but `agent_engine` is None.
             ValueError: If `requirements` is specified but `agent_engine` is None.
+            ValueError: If `env_vars` has a dictionary entry that does not
+            correspond to a SecretRef.
+            ValueError: If `env_vars` is a list which contains a string that
+            does not exist in `os.environ`.
+            TypeError: If `env_vars` is not a list of strings or a dictionary.
+            TypeError: If `env_vars` has a value that is not a string or SecretRef.
             FileNotFoundError: If `extra_packages` includes a file or directory
             that does not exist.
             IOError: If requirements is a string that corresponds to a
@@ -244,7 +260,10 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError("requirements must be None if agent_engine is None.")
             if extra_packages is not None:
                 raise ValueError("extra_packages must be None if agent_engine is None.")
-        requirements = _validate_requirements_or_raise(agent_engine, requirements)
+        requirements = _validate_requirements_or_raise(
+            agent_engine=agent_engine,
+            requirements=requirements,
+        )
         extra_packages = _validate_extra_packages_or_raise(extra_packages)
         gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
 
@@ -294,8 +313,14 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             agent_engine_spec = aip_types.ReasoningEngineSpec(
                 package_spec=package_spec,
             )
+            if env_vars:
+                deployment_spec, _ = _generate_deployment_spec_or_raise(
+                    env_vars=env_vars,
+                )
+                agent_engine_spec.deployment_spec = deployment_spec
             class_methods_spec = _generate_class_methods_spec_or_raise(
-                agent_engine, _get_registered_operations(agent_engine)
+                agent_engine=agent_engine,
+                operations=_get_registered_operations(agent_engine),
             )
             agent_engine_spec.class_methods.extend(class_methods_spec)
             reasoning_engine.spec = agent_engine_spec
@@ -342,6 +367,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         description: Optional[str] = None,
         gcs_dir_name: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        env_vars: Optional[
+            Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+        ] = None,
     ) -> "AgentEngine":
         """Updates an existing Agent Engine.
 
@@ -377,6 +405,12 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 it is not specified, the existing extra packages will be used.
                 If it is set to an empty list, the existing extra packages will
                 be removed.
+            env_vars (Union[Sequence[str], Dict[str, Union[str, SecretRef]]]):
+                Optional. The environment variables to be set when running the
+                Agent Engine. If it is a list of strings, each string should be
+                a valid key to `os.environ`. If it is a dictionary, the keys are
+                the environment variable names, and the values are the
+                corresponding values.
 
         Returns:
             AgentEngine: The Agent Engine that was updated.
@@ -384,11 +418,16 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If the `staging_bucket` was not set using vertexai.init.
             ValueError: If the `staging_bucket` does not start with "gs://".
+            ValueError: If `env_vars` has a dictionary entry that does not
+            correspond to a SecretRef.
+            ValueError: If `env_vars` is a list which contains a string that
+            does not exist in `os.environ`.
+            TypeError: If `env_vars` is not a list of strings or a dictionary.
+            TypeError: If `env_vars` has a value that is not a string or SecretRef.
             FileNotFoundError: If `extra_packages` includes a file or directory
             that does not exist.
-            ValueError: if none of `display_name`, `description`,
-            `requirements`, `extra_packages`, or `agent_engine` were
-            specified.
+            ValueError: if none of `display_name`, `description`, `requirements`,
+            `extra_packages`, `env_vars`, or `agent_engine` were specified.
             IOError: If requirements is a string that corresponds to a
             nonexistent file.
         """
@@ -405,15 +444,19 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
                 extra_packages,
                 display_name,
                 description,
+                env_vars,
             ]
         ):
             raise ValueError(
                 "At least one of `agent_engine`, `requirements`, "
-                "`extra_packages`, `display_name`, or `description` must be "
-                "specified."
+                "`extra_packages`, `display_name`, `description`, or `env_vars` "
+                "must be specified."
             )
         if requirements is not None:
-            requirements = _validate_requirements_or_raise(agent_engine, requirements)
+            requirements = _validate_requirements_or_raise(
+                agent_engine=agent_engine,
+                requirements=requirements,
+            )
         if extra_packages is not None:
             extra_packages = _validate_extra_packages_or_raise(extra_packages)
         if agent_engine is not None:
@@ -440,6 +483,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             extra_packages=extra_packages,
             display_name=display_name,
             description=description,
+            env_vars=env_vars,
         )
         operation_future = self.api_client.update_reasoning_engine(
             request=update_request
@@ -619,6 +663,7 @@ def _validate_agent_engine_or_raise(
 
 
 def _validate_requirements_or_raise(
+    *,
     agent_engine: Union[Queryable, OperationRegistrable],
     requirements: Optional[Sequence[str]] = None,
 ) -> Sequence[str]:
@@ -649,7 +694,9 @@ def _validate_extra_packages_or_raise(extra_packages: Sequence[str]) -> Sequence
     return extra_packages
 
 
-def _get_gcs_bucket(project: str, location: str, staging_bucket: str) -> storage.Bucket:
+def _get_gcs_bucket(
+    *, project: str, location: str, staging_bucket: str
+) -> storage.Bucket:
     """Gets or creates the GCS bucket."""
     storage = _utils._import_cloud_storage_or_raise()
     storage_client = storage.Client(project=project)
@@ -665,6 +712,7 @@ def _get_gcs_bucket(project: str, location: str, staging_bucket: str) -> storage
 
 
 def _upload_agent_engine(
+    *,
     agent_engine: Union[Queryable, OperationRegistrable],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
@@ -690,6 +738,7 @@ def _upload_agent_engine(
 
 
 def _upload_requirements(
+    *,
     requirements: Sequence[str],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
@@ -702,6 +751,7 @@ def _upload_requirements(
 
 
 def _upload_extra_packages(
+    *,
     extra_packages: Sequence[str],
     gcs_bucket: storage.Bucket,
     gcs_dir_name: str,
@@ -746,16 +796,105 @@ def _prepare(
         gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
             use for staging the artifacts needed.
     """
-    gcs_bucket = _get_gcs_bucket(project, location, staging_bucket)
+    gcs_bucket = _get_gcs_bucket(
+        project=project,
+        location=location,
+        staging_bucket=staging_bucket,
+    )
     if agent_engine is not None:
-        _upload_agent_engine(agent_engine, gcs_bucket, gcs_dir_name)
+        _upload_agent_engine(
+            agent_engine=agent_engine,
+            gcs_bucket=gcs_bucket,
+            gcs_dir_name=gcs_dir_name,
+        )
     if requirements is not None:
-        _upload_requirements(requirements, gcs_bucket, gcs_dir_name)
+        _upload_requirements(
+            requirements=requirements,
+            gcs_bucket=gcs_bucket,
+            gcs_dir_name=gcs_dir_name,
+        )
     if extra_packages is not None:
-        _upload_extra_packages(extra_packages, gcs_bucket, gcs_dir_name)
+        _upload_extra_packages(
+            extra_packages=extra_packages,
+            gcs_bucket=gcs_bucket,
+            gcs_dir_name=gcs_dir_name,
+        )
+
+
+def _update_deployment_spec_with_env_vars_dict_or_raise(
+    *,
+    deployment_spec: aip_types.ReasoningEngineSpec.DeploymentSpec,
+    env_vars: Dict[str, Union[str, aip_types.SecretRef]],
+) -> None:
+    for key, value in env_vars.items():
+        if isinstance(value, Dict):
+            try:
+                secret_ref = _utils.to_proto(value, aip_types.SecretRef())
+            except Exception as e:
+                raise ValueError(f"Failed to convert to secret ref: {value}") from e
+            deployment_spec.secret_env.append(
+                aip_types.SecretEnvVar(name=key, secret_ref=secret_ref)
+            )
+        elif isinstance(value, aip_types.SecretRef):
+            deployment_spec.secret_env.append(
+                aip_types.SecretEnvVar(name=key, secret_ref=value)
+            )
+        elif isinstance(value, str):
+            deployment_spec.env.append(aip_types.EnvVar(name=key, value=value))
+        else:
+            raise TypeError(
+                f"Unknown value type in env_vars for {key}. "
+                f"Must be a str or SecretRef: {value}"
+            )
+
+
+def _update_deployment_spec_with_env_vars_list_or_raise(
+    *,
+    deployment_spec: aip_types.ReasoningEngineSpec.DeploymentSpec,
+    env_vars: Sequence[str],
+) -> None:
+    for env_var in env_vars:
+        if env_var not in os.environ:
+            raise ValueError(f"Env var not found in os.environ: {env_var}.")
+        deployment_spec.env.append(
+            aip_types.EnvVar(name=env_var, value=os.environ[env_var])
+        )
+
+
+def _generate_deployment_spec_or_raise(
+    *,
+    env_vars: Optional[
+        Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+    ] = None,
+) -> Tuple[aip_types.ReasoningEngineSpec.DeploymentSpec, List[str]]:
+    deployment_spec = aip_types.ReasoningEngineSpec.DeploymentSpec()
+    update_masks = []
+    if env_vars:
+        deployment_spec.env = []
+        deployment_spec.secret_env = []
+        if isinstance(env_vars, Dict):
+            _update_deployment_spec_with_env_vars_dict_or_raise(
+                deployment_spec=deployment_spec,
+                env_vars=env_vars,
+            )
+        elif isinstance(env_vars, Sequence):
+            _update_deployment_spec_with_env_vars_list_or_raise(
+                deployment_spec=deployment_spec,
+                env_vars=env_vars,
+            )
+        else:
+            raise TypeError(
+                f"env_vars must be a list or a dict, but got {type(env_vars)}."
+            )
+        if deployment_spec.env:
+            update_masks.append("spec.deployment_spec.env")
+        if deployment_spec.secret_env:
+            update_masks.append("spec.deployment_spec.secret_env")
+    return deployment_spec, update_masks
 
 
 def _generate_update_request_or_raise(
+    *,
     resource_name: str,
     staging_bucket: str,
     gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
@@ -764,6 +903,9 @@ def _generate_update_request_or_raise(
     extra_packages: Optional[Sequence[str]] = None,
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    env_vars: Optional[
+        Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+    ] = None,
 ) -> reasoning_engine_service.UpdateReasoningEngineRequest:
     """Tries to generates the update request for the agent engine."""
     is_spec_update = False
@@ -795,14 +937,23 @@ def _generate_update_request_or_raise(
             _BLOB_FILENAME,
         )
         class_methods_spec = _generate_class_methods_spec_or_raise(
-            agent_engine, _get_registered_operations(agent_engine)
+            agent_engine=agent_engine,
+            operations=_get_registered_operations(agent_engine),
         )
         agent_engine_spec.class_methods.extend(class_methods_spec)
         update_masks.append("spec.class_methods")
+    if env_vars is not None:
+        is_spec_update = True
+        deployment_spec, deployment_update_masks = _generate_deployment_spec_or_raise(
+            env_vars=env_vars
+        )
+        update_masks.extend(deployment_update_masks)
+        agent_engine_spec.deployment_spec = deployment_spec
 
     agent_engine_message = aip_types.ReasoningEngine(name=resource_name)
     if is_spec_update:
-        agent_engine_spec.package_spec = package_spec
+        if package_spec:
+            agent_engine_spec.package_spec = package_spec
         agent_engine_message.spec = agent_engine_spec
     if display_name:
         agent_engine_message.display_name = display_name
@@ -812,9 +963,8 @@ def _generate_update_request_or_raise(
         update_masks.append("description")
     if not update_masks:
         raise ValueError(
-            "At least one of `agent_engine`, `requirements`, "
-            "`extra_packages`, `display_name`, or `description` must be "
-            "specified."
+            "At least one of `agent_engine`, `requirements`, `extra_packages`, "
+            "`display_name`, `description`, or `env_vars` must be specified."
         )
     return reasoning_engine_service.UpdateReasoningEngineRequest(
         reasoning_engine=agent_engine_message,
@@ -856,7 +1006,7 @@ def _wrap_query_operation(method_name: str, doc: str) -> Callable[..., _utils.Js
 
 
 def _wrap_stream_query_operation(
-    method_name: str, doc: str
+    *, method_name: str, doc: str
 ) -> Callable[..., Iterable[Any]]:
     """Wraps an Agent Engine method, creating a callable for `stream_query` API.
 
@@ -995,7 +1145,7 @@ def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
 
 
 def _generate_class_methods_spec_or_raise(
-    agent_engine: Any, operations: Dict[str, List[str]]
+    *, agent_engine: Any, operations: Dict[str, List[str]]
 ) -> List[proto.Message]:
     """Generates a ReasoningEngineSpec based on the registered operations.
 
