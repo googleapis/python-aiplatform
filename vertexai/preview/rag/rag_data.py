@@ -28,12 +28,14 @@ from google.cloud.aiplatform_v1beta1 import (
     DeleteRagCorpusRequest,
     DeleteRagFileRequest,
     GetRagCorpusRequest,
+    GetRagEngineConfigRequest,
     GetRagFileRequest,
     ImportRagFilesResponse,
     ListRagCorporaRequest,
     ListRagFilesRequest,
     RagCorpus as GapicRagCorpus,
     UpdateRagCorpusRequest,
+    UpdateRagEngineConfigRequest,
 )
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
@@ -49,13 +51,14 @@ from vertexai.preview.rag.utils.resources import (
     LlmParserConfig,
     Pinecone,
     RagCorpus,
+    RagEngineConfig,
     RagFile,
     RagManagedDb,
     RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
-    VertexAiSearchConfig,
     TransformationConfig,
+    VertexAiSearchConfig,
     VertexFeatureStore,
     VertexVectorSearch,
     Weaviate,
@@ -926,3 +929,73 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
     except Exception as e:
         raise RuntimeError("Failed in RagFile deletion due to: ", e) from e
     return None
+
+
+def update_rag_engine_config(
+    rag_engine_config: RagEngineConfig,
+) -> RagEngineConfig:
+    """Update RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai.preview import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.RagEngineConfig(
+        rag_managed_db_config=rag.RagManagedDbConfig(
+            rag_managed_db=rag.RagManagedDb(
+                db_basic_tier=rag.Basic(),
+            ),
+        )
+        ),
+    )
+    rag.update_rag_engine_config(rag_engine_config=rag_engine_config)
+    ```
+
+    Args:
+        rag_engine_config: The RagEngineConfig to update.
+
+    Raises:
+        RuntimeError: Failed in RagEngineConfig update due to exception.
+    """
+    gapic_rag_engine_config = _gapic_utils.convert_rag_engine_config_to_gapic(
+        rag_engine_config
+    )
+    request = UpdateRagEngineConfigRequest(
+        rag_engine_config=gapic_rag_engine_config,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.update_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagEngineConfig update due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response.result(timeout=600))
+
+
+def get_rag_engine_config(name: str) -> RagEngineConfig:
+    """Get an existing RagEngineConfig.
+
+    Example usage:
+    ```
+    import vertexai
+    from vertexai.preview import rag
+    vertexai.init(project="my-project")
+    rag_engine_config = rag.get_rag_engine_config(
+        name="projects/my-project/locations/us-central1/ragEngineConfig"
+    )
+    ```
+    Args:
+        name: The RagEngineConfig resource name pattern of the singleton resource.
+
+    Returns:
+        RagEngineConfig.
+    Raises:
+        RuntimeError: Failed in getting the RagEngineConfig.
+    """
+    request = GetRagEngineConfigRequest(name=name)
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.get_rag_engine_config(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in getting the RagEngineConfig due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_engine_config(response)

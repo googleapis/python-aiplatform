@@ -45,6 +45,10 @@ from vertexai.preview.rag import (
     RagEmbeddingModelConfig,
     VertexPredictionEndpoint,
     RagVectorDbConfig,
+    RagManagedDbConfig,
+    RagEngineConfig,
+    Basic,
+    Enterprise,
 )
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
@@ -60,6 +64,8 @@ from google.cloud.aiplatform_v1beta1 import (
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
     RagContexts,
+    RagManagedDbConfig as GapicRagManagedDbConfig,
+    RagEngineConfig as GapicRagEngineConfig,
     RetrieveContextsResponse,
     RagVectorDbConfig as GapicRagVectorDbConfig,
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
@@ -386,6 +392,36 @@ TEST_IMPORT_REQUEST_DRIVE_FOLDER_PARSING = ImportRagFilesRequest(
     parent=TEST_RAG_CORPUS_RESOURCE_NAME,
     import_rag_files_config=TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER_PARSING,
 )
+
+# RagEngineConfig Resource
+TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME = (
+    f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragEngineConfig"
+)
+TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
+)
+TEST_RAG_ENGINE_CONFIG_ENTERPRISE = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(tier=Enterprise()),
+)
+TEST_DEFAULT_RAG_ENGINE_CONFIG = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=None,
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        basic=GapicRagManagedDbConfig.Basic()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_ENTERPRISE = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        enterprise=GapicRagManagedDbConfig.Enterprise()
+    ),
+)
+
 # Google Drive files
 TEST_DRIVE_FILE_ID = "456"
 TEST_DRIVE_FILE = f"https://drive.google.com/file/d/{TEST_DRIVE_FILE_ID}"
