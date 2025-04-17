@@ -524,3 +524,53 @@ class LlmParserConfig:
     model_name: str
     max_parsing_requests_per_min: Optional[int] = None
     custom_parsing_prompt: Optional[str] = None
+
+
+@dataclasses.dataclass
+class Enterprise:
+    """Enterprise tier offers production grade performance along with
+
+    autoscaling functionality. It is suitable for customers with large
+    amounts of data or performance sensitive workloads.
+
+    NOTE: This is the default tier if not explicitly chosen.
+    """
+
+
+@dataclasses.dataclass
+class Basic:
+    """Basic tier is a cost-effective and low compute tier suitable for the following cases:
+
+    * Experimenting with RagManagedDb.
+    * Small data size.
+    * Latency insensitive workload.
+    * Only using RAG Engine with external vector DBs.
+    """
+
+
+@dataclasses.dataclass
+class RagManagedDbConfig:
+    """RagManagedDbConfig.
+
+    The config of the RagManagedDb used by RagEngine.
+
+    Attributes:
+        tier: The tier of the RagManagedDb. The default tier is Enterprise.
+    """
+
+    tier: Optional[Union[Enterprise, Basic]] = None
+
+
+@dataclasses.dataclass
+class RagEngineConfig:
+    """RagEngineConfig.
+
+    Attributes:
+        name: Generated resource name for singleton resource. Format:
+          ``projects/{project}/locations/{location}/ragEngineConfig``
+        rag_managed_db_config: The config of the RagManagedDb used by RagEngine.
+          The default tier is Enterprise.
+    """
+
+    name: str
+    rag_managed_db_config: Optional[RagManagedDbConfig] = None

@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.89.0](https://github.com/googleapis/python-aiplatform/compare/v1.88.0...v1.89.0) (2025-04-16)
+
+
+### Features
+
+* Add support for env_vars parameter when creating or updating Agent Engine. ([691c1f6](https://github.com/googleapis/python-aiplatform/commit/691c1f6156f2d66db369c2e5656c0e733b23a8f4))
+* Add UpdateRagEngineConfig rpc ([64386e9](https://github.com/googleapis/python-aiplatform/commit/64386e9d172f2b94338dc5468809821754d0d129))
+* Implement preview `get_rag_engine_config` in `rag_data.py` ([cda064e](https://github.com/googleapis/python-aiplatform/commit/cda064ecf87de75eaa9d4c4f5ccc18876fd53b99))
+* Implement preview `update_rag_engine_config` in `rag_data.py` ([cda064e](https://github.com/googleapis/python-aiplatform/commit/cda064ecf87de75eaa9d4c4f5ccc18876fd53b99))
+* Update win rate calculation in GenAI Evaluation for rubric based evaluation ([d442c42](https://github.com/googleapis/python-aiplatform/commit/d442c42ba15fcf5948fe71a60fc7ad50b89aa2c9))
+
+
+### Bug Fixes
+
+* Include the env variables of the AdkApp when cloning ([9814768](https://github.com/googleapis/python-aiplatform/commit/9814768b937db43aac6f381023b409c68daebc5e))
+
 ## [1.88.0](https://github.com/googleapis/python-aiplatform/compare/v1.87.0...v1.88.0) (2025-04-09)
 
 

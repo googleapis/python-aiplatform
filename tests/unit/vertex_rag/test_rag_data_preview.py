@@ -296,6 +296,84 @@ def list_rag_corpora_pager_mock():
         yield list_rag_corpora_pager_mock
 
 
+@pytest.fixture()
+def update_rag_engine_config_basic_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_basic_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC
+        )
+        update_rag_engine_config_basic_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_basic_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_enterprise_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_enterprise_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_ENTERPRISE
+        )
+        update_rag_engine_config_enterprise_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_enterprise_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_mock_exception():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_mock_exception:
+        update_rag_engine_config_mock_exception.side_effect = Exception
+        yield update_rag_engine_config_mock_exception
+
+
+@pytest.fixture()
+def get_rag_engine_basic_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_basic_config_mock:
+        get_rag_engine_basic_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC
+        )
+        yield get_rag_engine_basic_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_enterprise_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_enterprise_config_mock:
+        get_rag_engine_enterprise_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_ENTERPRISE
+        )
+        yield get_rag_engine_enterprise_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_config_mock_exception():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_config_mock_exception:
+        get_rag_engine_config_mock_exception.side_effect = Exception
+        yield get_rag_engine_config_mock_exception
+
+
 class MockResponse:
     def __init__(self, json_data, status_code):
         self.json_data = json_data
@@ -429,6 +507,13 @@ def import_files_request_eq(returned_request, expected_request):
     assert (
         returned_request.import_rag_files_config.rag_file_transformation_config
         == expected_request.import_rag_files_config.rag_file_transformation_config
+    )
+
+
+def rag_engine_config_eq(returned_config, expected_config):
+    assert returned_config.name == expected_config.name
+    assert returned_config.rag_managed_db_config.__eq__(
+        expected_config.rag_managed_db_config
     )
 
 
@@ -1258,3 +1343,62 @@ class TestRagDataManagement:
                 test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS,
             )
         e.match("endpoint must be of the format ")
+
+    def test_update_rag_engine_config_success(
+        self, update_rag_engine_config_basic_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC,
+        )
+        assert update_rag_engine_config_basic_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC,
+        )
+
+    @pytest.mark.usefixtures("update_rag_engine_config_mock_exception")
+    def test_update_rag_engine_config_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.update_rag_engine_config(
+                rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
+            )
+        e.match("Failed in RagEngineConfig update due to")
+
+    @pytest.mark.usefixtures("update_rag_engine_config_enterprise_mock")
+    def test_update_rag_engine_config_bad_input(
+        self, update_rag_engine_config_enterprise_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_DEFAULT_RAG_ENGINE_CONFIG,
+        )
+        assert update_rag_engine_config_enterprise_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_basic_config_mock")
+    def test_get_rag_engine_config_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config, test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_enterprise_config_mock")
+    def test_get_rag_engine_config_enterprise_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config, test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_config_mock_exception")
+    def test_get_rag_engine_config_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.get_rag_engine_config(
+                name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+            )
+        e.match("Failed in getting the RagEngineConfig due to")

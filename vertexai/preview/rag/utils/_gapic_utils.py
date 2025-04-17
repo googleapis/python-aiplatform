@@ -16,48 +16,54 @@
 #
 import re
 from typing import Any, Dict, Optional, Sequence, Union
-from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.utils import (
+    VertexRagClientWithOverride,
+    VertexRagDataAsyncClientWithOverride,
+    VertexRagDataClientWithOverride,
+)
 from google.cloud.aiplatform_v1beta1 import (
-    RagEmbeddingModelConfig as GapicRagEmbeddingModelConfig,
     GoogleDriveSource,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
+    JiraSource as GapicJiraSource,
+    RagCorpus as GapicRagCorpus,
+    RagEmbeddingModelConfig as GapicRagEmbeddingModelConfig,
+    RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
-    RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
+    RagManagedDbConfig as GapicRagManagedDbConfig,
+    RagVectorDbConfig as GapicRagVectorDbConfig,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
-    JiraSource as GapicJiraSource,
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
-    RagVectorDbConfig as GapicRagVectorDbConfig,
 )
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import (
-    VertexRagDataAsyncClientWithOverride,
-    VertexRagDataClientWithOverride,
-    VertexRagClientWithOverride,
-)
+from google.cloud.aiplatform_v1beta1.types import api_auth
 from vertexai.preview.rag.utils.resources import (
     EmbeddingModelConfig,
-    VertexPredictionEndpoint,
+    JiraSource,
     LayoutParserConfig,
     LlmParserConfig,
     Pinecone,
     RagCorpus,
+    RagEmbeddingModelConfig,
+    RagEngineConfig,
     RagFile,
     RagManagedDb,
+    RagManagedDbConfig,
+    RagVectorDbConfig,
+    Basic,
+    Enterprise,
     SharePointSources,
     SlackChannelsSource,
     TransformationConfig,
-    JiraSource,
     VertexAiSearchConfig,
     VertexFeatureStore,
+    VertexPredictionEndpoint,
     VertexVectorSearch,
     Weaviate,
-    RagVectorDbConfig,
-    RagEmbeddingModelConfig,
 )
 
 
@@ -799,3 +805,45 @@ def set_backend_config(
             set_embedding_model_config(
                 backend_config.rag_embedding_model_config, rag_corpus
             )
+
+
+def convert_gapic_to_rag_engine_config(
+    response: GapicRagEngineConfig,
+) -> RagEngineConfig:
+    """Converts a GapicRagEngineConfig to a RagEngineConfig."""
+    rag_managed_db_config = RagManagedDbConfig()
+    # If future fields are added with similar names, beware that __contains__
+    # may match them.
+    if response.rag_managed_db_config.__contains__("enterprise"):
+        rag_managed_db_config.tier = Enterprise()
+    elif response.rag_managed_db_config.__contains__("basic"):
+        rag_managed_db_config.tier = Basic()
+    else:
+        raise ValueError("At least one of rag_managed_db_config must be set.")
+    return RagEngineConfig(
+        name=response.name,
+        rag_managed_db_config=rag_managed_db_config,
+    )
+
+
+def convert_rag_engine_config_to_gapic(
+    rag_engine_config: RagEngineConfig,
+) -> GapicRagEngineConfig:
+    """Converts a RagEngineConfig to a GapicRagEngineConfig."""
+    rag_managed_db_config = GapicRagManagedDbConfig()
+    if (
+        rag_engine_config.rag_managed_db_config is None
+        or rag_engine_config.rag_managed_db_config.tier is None
+    ):
+        rag_managed_db_config = GapicRagManagedDbConfig(
+            enterprise=GapicRagManagedDbConfig.Enterprise()
+        )
+    else:
+        if isinstance(rag_engine_config.rag_managed_db_config.tier, Enterprise):
+            rag_managed_db_config.enterprise = GapicRagManagedDbConfig.Enterprise()
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Basic):
+            rag_managed_db_config.basic = GapicRagManagedDbConfig.Basic()
+    return GapicRagEngineConfig(
+        name=rag_engine_config.name,
+        rag_managed_db_config=rag_managed_db_config,
+    )
