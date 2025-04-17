@@ -791,6 +791,7 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import Checkpoint
 from .types.model import GenieSource
 from .types.model import LargeModelReference
 from .types.model import Model
@@ -1376,6 +1377,7 @@ __all__ = (
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
+    "Checkpoint",
     "Citation",
     "CitationMetadata",
     "Claim",
