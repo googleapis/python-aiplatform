@@ -42,6 +42,9 @@ __protobuf__ = proto.module(
         "ExportPublisherModelResponse",
         "ExportPublisherModelOperationMetadata",
         "ExportPublisherModelRequest",
+        "CheckPublisherModelEulaAcceptanceRequest",
+        "AcceptPublisherModelEulaRequest",
+        "PublisherModelEulaAcceptance",
     },
 )
 
@@ -685,6 +688,81 @@ class ExportPublisherModelRequest(proto.Message):
     )
     parent: str = proto.Field(
         proto.STRING,
+        number=3,
+    )
+
+
+class CheckPublisherModelEulaAcceptanceRequest(proto.Message):
+    r"""Request message for [ModelGardenService.CheckPublisherModelEula][].
+
+    Attributes:
+        parent (str):
+            Required. The project requesting access for named model. The
+            format is ``projects/{project}``.
+        publisher_model (str):
+            Required. The name of the PublisherModel resource. Format:
+            ``publishers/{publisher}/models/{publisher_model}``, or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class AcceptPublisherModelEulaRequest(proto.Message):
+    r"""Request message for
+    [ModelGardenService.AcceptPublisherModelEula][google.cloud.aiplatform.v1beta1.ModelGardenService.AcceptPublisherModelEula].
+
+    Attributes:
+        parent (str):
+            Required. The project requesting access for named model. The
+            format is ``projects/{project}``.
+        publisher_model (str):
+            Required. The name of the PublisherModel resource. Format:
+            ``publishers/{publisher}/models/{publisher_model}``, or
+            ``publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}``
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class PublisherModelEulaAcceptance(proto.Message):
+    r"""Response message for
+    [ModelGardenService.UpdatePublisherModelEula][].
+
+    Attributes:
+        project_number (int):
+            The project number requesting access for
+            named model.
+        publisher_model (str):
+            The publisher model resource name.
+        publisher_model_eula_acked (bool):
+            The EULA content acceptance status.
+    """
+
+    project_number: int = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    publisher_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    publisher_model_eula_acked: bool = proto.Field(
+        proto.BOOL,
         number=3,
     )
 
