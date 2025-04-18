@@ -408,7 +408,7 @@ class AdkApp:
         if session_service_builder:
             self._tmpl_attrs["session_service"] = session_service_builder()
         elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-            from google.adk.sessions import VertexAiSessionService
+            from google.adk.sessions.vertex_ai_session_service import VertexAiSessionService
 
             self._tmpl_attrs["session_service"] = VertexAiSessionService(
                 project=project,
