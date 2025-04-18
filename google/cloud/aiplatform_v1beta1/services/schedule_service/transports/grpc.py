@@ -78,11 +78,12 @@ class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO
                 f"Sending request for {client_call_details.method}",
                 extra={
                     "serviceName": "google.cloud.aiplatform.v1beta1.ScheduleService",
-                    "rpcName": str(client_call_details.method),
+                    "rpcName": client_call_details.method,
                     "request": grpc_request,
                     "metadata": grpc_request["metadata"],
                 },
             )
+
         response = continuation(client_call_details, request)
         if logging_enabled:  # pragma: NO COVER
             response_metadata = response.trailing_metadata()

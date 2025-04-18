@@ -9254,9 +9254,6 @@ def test_create_training_pipeline_rest_call_success(request_type):
             },
             "satisfies_pzs": True,
             "satisfies_pzi": True,
-            "checkpoints": [
-                {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
-            ],
         },
         "model_id": "model_id_value",
         "parent_model": "parent_model_value",
@@ -12216,9 +12213,6 @@ async def test_create_training_pipeline_rest_asyncio_call_success(request_type):
             },
             "satisfies_pzs": True,
             "satisfies_pzi": True,
-            "checkpoints": [
-                {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
-            ],
         },
         "model_id": "model_id_value",
         "parent_model": "parent_model_value",

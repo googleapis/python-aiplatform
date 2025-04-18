@@ -14947,9 +14947,6 @@ def test_update_model_rest_call_success(request_type):
         },
         "satisfies_pzs": True,
         "satisfies_pzi": True,
-        "checkpoints": [
-            {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
-        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -18909,9 +18906,6 @@ async def test_update_model_rest_asyncio_call_success(request_type):
         },
         "satisfies_pzs": True,
         "satisfies_pzi": True,
-        "checkpoints": [
-            {"checkpoint_id": "checkpoint_id_value", "epoch": 527, "step": 444}
-        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

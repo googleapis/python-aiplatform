@@ -160,16 +160,6 @@ class ModelGardenServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
-            self.check_publisher_model_eula_acceptance: gapic_v1.method.wrap_method(
-                self.check_publisher_model_eula_acceptance,
-                default_timeout=None,
-                client_info=client_info,
-            ),
-            self.accept_publisher_model_eula: gapic_v1.method.wrap_method(
-                self.accept_publisher_model_eula,
-                default_timeout=None,
-                client_info=client_info,
-            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -283,30 +273,6 @@ class ModelGardenServiceTransport(abc.ABC):
     ) -> Callable[
         [model_garden_service.ExportPublisherModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def check_publisher_model_eula_acceptance(
-        self,
-    ) -> Callable[
-        [model_garden_service.CheckPublisherModelEulaAcceptanceRequest],
-        Union[
-            model_garden_service.PublisherModelEulaAcceptance,
-            Awaitable[model_garden_service.PublisherModelEulaAcceptance],
-        ],
-    ]:
-        raise NotImplementedError()
-
-    @property
-    def accept_publisher_model_eula(
-        self,
-    ) -> Callable[
-        [model_garden_service.AcceptPublisherModelEulaRequest],
-        Union[
-            model_garden_service.PublisherModelEulaAcceptance,
-            Awaitable[model_garden_service.PublisherModelEulaAcceptance],
-        ],
     ]:
         raise NotImplementedError()
 

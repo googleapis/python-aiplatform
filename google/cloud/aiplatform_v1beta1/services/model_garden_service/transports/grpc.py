@@ -76,11 +76,12 @@ class _LoggingClientInterceptor(grpc.UnaryUnaryClientInterceptor):  # pragma: NO
                 f"Sending request for {client_call_details.method}",
                 extra={
                     "serviceName": "google.cloud.aiplatform.v1beta1.ModelGardenService",
-                    "rpcName": str(client_call_details.method),
+                    "rpcName": client_call_details.method,
                     "request": grpc_request,
                     "metadata": grpc_request["metadata"],
                 },
             )
+
         response = continuation(client_call_details, request)
         if logging_enabled:  # pragma: NO COVER
             response_metadata = response.trailing_metadata()
@@ -482,71 +483,6 @@ class ModelGardenServiceGrpcTransport(ModelGardenServiceTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["export_publisher_model"]
-
-    @property
-    def check_publisher_model_eula_acceptance(
-        self,
-    ) -> Callable[
-        [model_garden_service.CheckPublisherModelEulaAcceptanceRequest],
-        model_garden_service.PublisherModelEulaAcceptance,
-    ]:
-        r"""Return a callable for the check publisher model eula
-        acceptance method over gRPC.
-
-        Checks the EULA acceptance status of a publisher
-        model.
-
-        Returns:
-            Callable[[~.CheckPublisherModelEulaAcceptanceRequest],
-                    ~.PublisherModelEulaAcceptance]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "check_publisher_model_eula_acceptance" not in self._stubs:
-            self._stubs[
-                "check_publisher_model_eula_acceptance"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelGardenService/CheckPublisherModelEulaAcceptance",
-                request_serializer=model_garden_service.CheckPublisherModelEulaAcceptanceRequest.serialize,
-                response_deserializer=model_garden_service.PublisherModelEulaAcceptance.deserialize,
-            )
-        return self._stubs["check_publisher_model_eula_acceptance"]
-
-    @property
-    def accept_publisher_model_eula(
-        self,
-    ) -> Callable[
-        [model_garden_service.AcceptPublisherModelEulaRequest],
-        model_garden_service.PublisherModelEulaAcceptance,
-    ]:
-        r"""Return a callable for the accept publisher model eula method over gRPC.
-
-        Accepts the EULA acceptance status of a publisher
-        model.
-
-        Returns:
-            Callable[[~.AcceptPublisherModelEulaRequest],
-                    ~.PublisherModelEulaAcceptance]:
-                A function that, when called, will call the underlying RPC
-                on the server.
-        """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "accept_publisher_model_eula" not in self._stubs:
-            self._stubs[
-                "accept_publisher_model_eula"
-            ] = self._logged_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelGardenService/AcceptPublisherModelEula",
-                request_serializer=model_garden_service.AcceptPublisherModelEulaRequest.serialize,
-                response_deserializer=model_garden_service.PublisherModelEulaAcceptance.deserialize,
-            )
-        return self._stubs["accept_publisher_model_eula"]
 
     def close(self):
         self._logged_channel.close()

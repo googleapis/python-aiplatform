@@ -834,7 +834,6 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
-    Checkpoint,
     GenieSource,
     LargeModelReference,
     Model,
@@ -860,8 +859,6 @@ from .model_evaluation_slice import (
     ModelEvaluationSlice,
 )
 from .model_garden_service import (
-    AcceptPublisherModelEulaRequest,
-    CheckPublisherModelEulaAcceptanceRequest,
     DeployOperationMetadata,
     DeployPublisherModelOperationMetadata,
     DeployPublisherModelRequest,
@@ -874,7 +871,6 @@ from .model_garden_service import (
     GetPublisherModelRequest,
     ListPublisherModelsRequest,
     ListPublisherModelsResponse,
-    PublisherModelEulaAcceptance,
     PublisherModelView,
 )
 from .model_monitor import (
@@ -2089,7 +2085,6 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
-    "Checkpoint",
     "GenieSource",
     "LargeModelReference",
     "Model",
@@ -2107,8 +2102,6 @@ __all__ = (
     "ModelDeploymentMonitoringObjectiveType",
     "ModelEvaluation",
     "ModelEvaluationSlice",
-    "AcceptPublisherModelEulaRequest",
-    "CheckPublisherModelEulaAcceptanceRequest",
     "DeployOperationMetadata",
     "DeployPublisherModelOperationMetadata",
     "DeployPublisherModelRequest",
@@ -2121,7 +2114,6 @@ __all__ = (
     "GetPublisherModelRequest",
     "ListPublisherModelsRequest",
     "ListPublisherModelsResponse",
-    "PublisherModelEulaAcceptance",
     "PublisherModelView",
     "ModelMonitor",
     "ModelMonitoringSchema",
