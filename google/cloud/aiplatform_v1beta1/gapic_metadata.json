@@ -3604,6 +3604,16 @@
         "grpc": {
           "libraryClient": "ModelGardenServiceClient",
           "rpcs": {
+            "AcceptPublisherModelEula": {
+              "methods": [
+                "accept_publisher_model_eula"
+              ]
+            },
+            "CheckPublisherModelEulaAcceptance": {
+              "methods": [
+                "check_publisher_model_eula_acceptance"
+              ]
+            },
             "Deploy": {
               "methods": [
                 "deploy"
@@ -3634,6 +3644,16 @@
         "grpc-async": {
           "libraryClient": "ModelGardenServiceAsyncClient",
           "rpcs": {
+            "AcceptPublisherModelEula": {
+              "methods": [
+                "accept_publisher_model_eula"
+              ]
+            },
+            "CheckPublisherModelEulaAcceptance": {
+              "methods": [
+                "check_publisher_model_eula_acceptance"
+              ]
+            },
             "Deploy": {
               "methods": [
                 "deploy"
@@ -3664,6 +3684,16 @@
         "rest": {
           "libraryClient": "ModelGardenServiceClient",
           "rpcs": {
+            "AcceptPublisherModelEula": {
+              "methods": [
+                "accept_publisher_model_eula"
+              ]
+            },
+            "CheckPublisherModelEulaAcceptance": {
+              "methods": [
+                "check_publisher_model_eula_acceptance"
+              ]
+            },
             "Deploy": {
               "methods": [
                 "deploy"
