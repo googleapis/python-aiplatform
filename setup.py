@@ -47,18 +47,18 @@ packages += [
 ]
 
 profiler_extra_require = [
-    "tensorboard-plugin-profile >= 2.4.0, <2.18.0",  # <3.0.0",
-    "werkzeug >= 2.0.0, <2.1.0",
-    "tensorflow >=2.4.0, <3.0.0",
+    "tensorboard-plugin-profile >= 2.4.0, <2.18.0",  # <3.0.0dev",
+    "werkzeug >= 2.0.0, <2.1.0dev",
+    "tensorflow >=2.4.0, <3.0.0dev",
 ]
 tensorboard_extra_require = [
-    "tensorflow >=2.3.0, <3.0.0; python_version<='3.11'"
+    "tensorflow >=2.3.0, <3.0.0dev; python_version<='3.11'"
 ] + profiler_extra_require
 
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <3.0.0"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0, <3.0.0",
+    "tensorflow >= 2.3.0, <3.0.0dev",
     "pandas >= 1.0.0",
     "lit-nlp == 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
@@ -72,7 +72,7 @@ pipelines_extra_require = [
     "pyyaml>=5.3.1,<7",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0.0; python_version<'3.11'",
+    "pyarrow >= 3.0.0, < 8.0dev; python_version<'3.11'",
     "pyarrow >= 10.0.1; python_version=='3.11'",
     "pyarrow >= 14.0.0; python_version>='3.12'",
 ]
@@ -294,16 +294,16 @@ setuptools.setup(
     install_requires=(
         (
             "google-api-core[grpc] >= 1.34.1,"
-            " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
+            " <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
-        "google-auth >= 2.14.1, <3.0.0",
-        "proto-plus >= 1.22.3, <2.0.0",
-        "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
+        "google-auth >= 2.14.1, <3.0.0dev",
+        "proto-plus >= 1.22.3, <2.0.0dev",
+        "protobuf>=3.20.2,<7.0.0dev,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 3.0.0",
-        "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
-        "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
-        "shapely < 3.0.0",
+        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
+        "google-cloud-bigquery >= 1.15.0, < 4.0.0dev, !=3.20.0",
+        "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
+        "shapely < 3.0.0dev",
     )
     + genai_requires,
     extras_require={
