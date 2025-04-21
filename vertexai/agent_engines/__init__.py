@@ -26,6 +26,7 @@ from google.cloud.aiplatform_v1 import types as aip_types
 from vertexai.agent_engines._agent_engines import (
     AgentEngine,
     Cloneable,
+    ModuleAgent,
     OperationRegistrable,
     Queryable,
     StreamQueryable,
@@ -319,6 +320,7 @@ __all__ = (
     "list",
     "update",
     # Templates
+    "ModuleAgent",
     "LangchainAgent",
     "LanggraphAgent",
     "AG2Agent",

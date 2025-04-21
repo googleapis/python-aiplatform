@@ -119,6 +119,91 @@ class OperationRegistrable(Protocol):
         """Register the user provided operations (modes and methods)."""
 
 
+def _wrap_agent_operation(agent: Any, operation: str):
+    def _method(self, **kwargs):
+        if not self._tmpl_attrs.get("agent"):
+            self.set_up()
+        return getattr(self._tmpl_attrs["agent"], operation)(**kwargs)
+
+    _method.__name__ = operation
+    _method.__doc__ = getattr(agent, operation).__doc__
+    return _method
+
+
+class ModuleAgent(Cloneable, OperationRegistrable):
+    """Agent that is defined by a module and an agent name.
+
+    This agent is instantiated by importing a module and instantiating an agent
+    from that module. It also allows to register operations that are defined in
+    the agent.
+    """
+
+    def __init__(
+        self,
+        *,
+        module_name: str,
+        agent_name: str,
+        register_operations: Dict[str, Sequence[str]],
+    ):
+        """Initializes a module-based agent.
+
+        Args:
+            module_name (str):
+                Required. The name of the module to import.
+            agent_name (str):
+                Required. The name of the agent in the module to instantiate.
+            register_operations (Dict[str, Sequence[str]]):
+                Required. A dictionary of API modes to a list of method names.
+        """
+        self._tmpl_attrs = {
+            "module_name": module_name,
+            "agent_name": agent_name,
+            "register_operations": register_operations,
+        }
+
+    def clone(self):
+        """Return a clone of the agent."""
+        return ModuleAgent(
+            module_name=self._tmpl_attrs.get("module_name"),
+            agent_name=self._tmpl_attrs.get("agent_name"),
+            register_operations=self._tmpl_attrs.get("register_operations"),
+        )
+
+    def register_operations(self) -> Dict[str, Sequence[str]]:
+        return self._tmpl_attrs.get("register_operations")
+
+    def set_up(self) -> None:
+        """Sets up the agent for execution of queries at runtime.
+
+        It runs the code to import the agent from the module, and registers the
+        operations of the agent.
+        """
+        import importlib
+
+        module = importlib.import_module(self._tmpl_attrs.get("module_name"))
+        try:
+            importlib.reload(module)
+        except Exception as e:
+            _LOGGER.warning(
+                f"Failed to reload module {self._tmpl_attrs.get('module_name')}: {e}"
+            )
+        agent_name = self._tmpl_attrs.get("agent_name")
+        try:
+            agent = getattr(module, agent_name)
+        except AttributeError as e:
+            raise AttributeError(
+                f"Agent {agent_name} not found in module "
+                f"{self._tmpl_attrs.get('module_name')}"
+            ) from e
+        self._tmpl_attrs["agent"] = agent
+        if hasattr(agent, "set_up"):
+            agent.set_up()
+        for operations in self.register_operations().values():
+            for operation in operations:
+                op = _wrap_agent_operation(agent, operation)
+                setattr(self, operation, types.MethodType(op, self))
+
+
 class AgentEngine(base.VertexAiResourceNounWithFutureManager):
     """Represents a Vertex AI Agent Engine resource."""
 
@@ -1160,6 +1245,16 @@ def _generate_class_methods_spec_or_raise(
         ValueError: If a method defined in `register_operations` is not found on
         the AgentEngine.
     """
+    if isinstance(agent_engine, ModuleAgent):
+        # We do a dry-run of setting up the agent engine to have the operations
+        # needed for registration.
+        agent_engine = agent_engine.clone()
+        try:
+            agent_engine.set_up()
+        except Exception as e:
+            raise ValueError(
+                f"Failed to set up agent engine {agent_engine}: {e}"
+            ) from e
     class_methods_spec = []
     for mode, method_names in operations.items():
         for method_name in method_names:
