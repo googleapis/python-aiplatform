@@ -110,7 +110,7 @@ class _RequirementsValidationResult(TypedDict):
 LOGGER = base.Logger("vertexai.agent_engines")
 
 _BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
-_DEFAULT_REQUIRED_PACKAGES = frozenset(["cloudpickle"])
+_DEFAULT_REQUIRED_PACKAGES = frozenset(["cloudpickle", "pydantic"])
 _ACTIONS_KEY = "actions"
 _ACTION_APPEND = "append"
 _WARNINGS_KEY = "warnings"

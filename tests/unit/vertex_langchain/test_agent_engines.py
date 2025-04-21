@@ -399,6 +399,11 @@ _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
 _TEST_STREAM_QUERY_SCHEMAS = [
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
 ]
+_TEST_PACKAGE_DISTRIBUTIONS = {
+    "requests": ["requests"],
+    "cloudpickle": ["cloudpickle"],
+    "pydantic": ["pydantic"],
+}
 
 
 def _create_empty_fake_package(package_name: str) -> str:
@@ -507,6 +512,16 @@ def importlib_metadata_version_mock():
     with mock.patch.object(
         importlib.metadata, "version"
     ) as importlib_metadata_version_mock:
+
+        def get_version(pkg):
+            versions = {
+                "requests": "2.0.0",
+                "cloudpickle": "3.0.0",
+                "pydantic": "1.11.1",
+            }
+            return versions.get(pkg, "unknown")
+
+        importlib_metadata_version_mock.side_effect = get_version
         yield importlib_metadata_version_mock
 
 
@@ -614,6 +629,14 @@ def unregister_api_methods_mock():
         "_unregister_api_methods",
     ) as unregister_api_methods_mock:
         yield unregister_api_methods_mock
+
+
+def create_fake_object_with_module(module_name):
+    class FakeObject:
+        pass
+
+    FakeObject.__module__ = module_name
+    return FakeObject()
 
 
 class InvalidCapitalizeEngineWithoutQuerySelf:
@@ -2518,4 +2541,70 @@ class TestRequirements:
                 "incompatible": {"requests==2.0.0 (required: ==1.0.0)"},
                 "missing": set(),
             },
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_simple_object(self):
+        """Test scanning an object importing a known third-party package."""
+        fake_obj = create_fake_object_with_module("requests")
+        requirements = _utils.scan_requirements(
+            fake_obj,
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
+            "requests": "2.0.0",
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_object_with_stdlib_module(self):
+        """Test that stdlib modules are ignored by default."""
+        fake_obj_stdlib = create_fake_object_with_module("json")
+        requirements = _utils.scan_requirements(
+            fake_obj_stdlib,
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        # Requirements should not contain 'json',
+        # because 'json' is a stdlib module.
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_with_default_ignore_modules(self, monkeypatch):
+        """Test implicitly ignoring a module."""
+        fake_obj = create_fake_object_with_module("requests")
+        original_base = _utils._BASE_MODULES
+        monkeypatch.setattr(
+            _utils,
+            "_BASE_MODULES",
+            set(original_base) | {"requests"},
+        )
+        requirements = _utils.scan_requirements(
+            fake_obj,
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        # Requirements should not contain 'requests',
+        # because 'requests' is implicitly ignored in `_BASE_MODULES`.
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
+        }
+
+    @pytest.mark.usefixtures("importlib_metadata_version_mock")
+    def test_scan_with_explicit_ignore_modules(self):
+        """Test explicitly ignoring a module."""
+        fake_obj = create_fake_object_with_module("requests")
+        requirements = _utils.scan_requirements(
+            fake_obj,
+            ignore_modules=["requests"],
+            package_distributions=_TEST_PACKAGE_DISTRIBUTIONS,
+        )
+        # Requirements should not contain 'requests',
+        # because 'requests' is explicitly ignored in `ignore_modules`.
+        assert requirements == {
+            "cloudpickle": "3.0.0",
+            "pydantic": "1.11.1",
         }
