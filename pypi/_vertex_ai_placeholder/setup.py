@@ -44,7 +44,7 @@ lit_extra_require = [
 ]
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0, <3.0.0",
-    "werkzeug >= 2.0.0, <2.1.0",
+    "werkzeug >= 2.0.0, <4.0.0",
     "tensorflow >=2.4.0, <3.0.0",
 ]
 featurestore_extra_require = [
