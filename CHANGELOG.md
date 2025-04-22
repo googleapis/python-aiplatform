@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.90.0](https://github.com/googleapis/python-aiplatform/compare/v1.89.0...v1.90.0) (2025-04-22)
+
+
+### Features
+
+* Add `pydantic` to default required packages for agent engines ([6960ae4](https://github.com/googleapis/python-aiplatform/commit/6960ae4fb2e3fadd755b7725859f66f29d6498b4))
+* Introduce a ModuleAgent template to Agent Engine ([5efcd6b](https://github.com/googleapis/python-aiplatform/commit/5efcd6b1d42d477220674ee7d3dc97594b02c03f))
+
+
+### Bug Fixes
+
+* Broken import of VertexAiSessionService in AdkApp ([b84657a](https://github.com/googleapis/python-aiplatform/commit/b84657a97404477d93d5010e03e36a777bbbb373))
+* **deps:** Allow werkzeug 3.x ([0cb2b93](https://github.com/googleapis/python-aiplatform/commit/0cb2b93cbebdb51982e7890f7d6c565110f0b50e))
+* Pin pydantic version lower-bound limit to 2.11.1 to fix a pydantic dependency issue. ([a5c1130](https://github.com/googleapis/python-aiplatform/commit/a5c113022d2471e66945db45a93a762256ccaede))
+* Pin pydantic version lower-bound limit to 2.11.1 to fix a pydantic dependency issue. ([180cbba](https://github.com/googleapis/python-aiplatform/commit/180cbbaca017a5e0e3a082652520e9ba489b0e0b))
+
 ## [1.89.0](https://github.com/googleapis/python-aiplatform/compare/v1.88.0...v1.89.0) (2025-04-16)
 
 
