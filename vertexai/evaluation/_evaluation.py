@@ -131,6 +131,7 @@ def _validate_dataset(
     _validate_response_column_required(evaluation_run_config)
     _validate_reference_column_required(evaluation_run_config)
     _validate_reference_or_source_column_required(evaluation_run_config)
+    _validate_ragas_metrics_columns(evaluation_run_config)
 
 
 def _validate_response_column_required(
@@ -241,18 +242,64 @@ def _compute_custom_metrics(
     return row_dict
 
 
-def _separate_custom_metrics(
+def _ragas_metric_required_columns(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+):
+    """Returns list of required columns for ragas metrics."""
+    try:
+        from ragas.metrics.base import Metric as RagasMetric
+    except ImportError:
+        raise ImportError(
+            "Ragas is not installed. Please install the ragas using"
+            ' "pip install ragas"'
+        )
+
+    required_columns = set()
+    for metric in evaluation_run_config.metrics:
+        if isinstance(metric, RagasMetric) and isinstance(
+            metric.required_columns, dict
+        ):
+            required_columns.update(metric.required_columns.get("SINGLE_TURN"))
+    return list(required_columns)
+
+
+def _validate_ragas_metrics_columns(
+    evaluation_run_config: evaluation_base.EvaluationRunConfig,
+):
+    """Checks if all columns required for ragas metrics calculation exists in the dataset."""
+    from ragas.dataset_schema import EvaluationDataset as RagasEvaluationDataset
+
+    required_columns = _ragas_metric_required_columns(evaluation_run_config)
+    for required in required_columns:
+        if required not in evaluation_run_config.dataset.columns:
+            raise KeyError(
+                "Required column"
+                f" `{required}`"
+                " not found in the evaluation dataset. The columns in the"
+                f" evaluation dataset are {list(evaluation_run_config.dataset.columns)}."
+            )
+    return RagasEvaluationDataset.from_pandas(
+        dataframe=evaluation_run_config.dataset[required_columns]
+    )
+
+
+def _separate_metrics(
     metrics: List[Union[str, metrics_base._Metric]],
 ) -> Tuple[List[Union[str, metrics_base._Metric]], List[metrics_base.CustomMetric],]:
-    """Separates the metrics list into API and custom metrics."""
-    custom_metrics = []
+    """Separates the metrics list into API, custom and Ragas metrics."""
+    from ragas.metrics.base import Metric as RagasMetric
+
     api_metrics = []
+    custom_metrics = []
+    ragas_metrics = []
     for metric in metrics:
         if isinstance(metric, metrics_base.CustomMetric):
             custom_metrics.append(metric)
+        elif isinstance(metric, RagasMetric):
+            ragas_metrics.append(metric)
         else:
             api_metrics.append(metric)
-    return api_metrics, custom_metrics
+    return api_metrics, custom_metrics, ragas_metrics
 
 
 def _aggregate_summary_metrics(
@@ -268,6 +315,8 @@ def _aggregate_summary_metrics(
     Returns:
         A dictionary containing summary metrics results and statistics.
     """
+    from ragas.metrics.base import Metric as RagasMetric
+
     summary_metrics = {}
     summary_metrics[constants.MetricResult.ROW_COUNT_KEY] = metrics_table.shape[0]
 
@@ -286,6 +335,13 @@ def _aggregate_summary_metrics(
                     ]
                     == "BASELINE"
                 ).mean()
+            elif isinstance(metric, RagasMetric):
+                summary_metrics[f"{metric.name}/mean"] = metrics_table.loc[
+                    :, f"{metric.name}/{constants.MetricResult.SCORE_KEY}"
+                ].mean()
+                summary_metrics[f"{metric.name}/std"] = metrics_table.loc[
+                    :, f"{metric.name}/{constants.MetricResult.SCORE_KEY}"
+                ].std()
             else:
                 summary_metrics[f"{str(metric)}/mean"] = metrics_table.loc[
                     :, f"{str(metric)}/{constants.MetricResult.SCORE_KEY}"
@@ -662,6 +718,7 @@ def _parse_metric_results_to_dataframe(
             'Pandas is not installed. Please install the SDK using "pip install'
             ' google-cloud-aiplatform[evaluation]"'
         )
+    from ragas.metrics.base import Metric as RagasMetric
 
     metrics_table = pd.DataFrame(dict(zip(instance_df.columns, instance_df.values.T)))
     for metric, metric_results in results.items():
@@ -707,6 +764,13 @@ def _parse_metric_results_to_dataframe(
                 metrics_table,
                 constants.MetricResult.SCORE_KEY,
             )
+        elif isinstance(metric, RagasMetric):
+            _set_metric_table(
+                metric.name,
+                metric_results,
+                metrics_table,
+                constants.MetricResult.SCORE_KEY,
+            )
         else:
             _LOGGER.warning(
                 f"Metric name: {str(metric)} is not supported when parsing"
@@ -737,8 +801,9 @@ def _compute_metrics(
             'Pandas is not installed. Please install the SDK using "pip install'
             ' google-cloud-aiplatform[evaluation]"'
         )
+    from ragas import evaluate as ragas_evaluate
 
-    api_metrics, custom_metrics = _separate_custom_metrics(
+    api_metrics, custom_metrics, ragas_metrics = _separate_metrics(
         evaluation_run_config.metrics
     )
     row_count = len(evaluation_run_config.dataset)
@@ -792,6 +857,22 @@ def _compute_metrics(
         results_dict[metric] = [
             _instance_evaluation.handle_response(response) for response in responses
         ]
+
+    if ragas_metrics:
+        ragas_eval_dataset = _validate_ragas_metrics_columns(
+            evaluation_run_config=evaluation_run_config
+        )
+        ragas_result = ragas_evaluate(
+            dataset=ragas_eval_dataset,
+            metrics=ragas_metrics,
+        )
+
+        for ragas_metric in ragas_metrics:
+            results_dict[ragas_metric] = [
+                {constants.MetricResult.SCORE_KEY: score}
+                for score in ragas_result[ragas_metric.name]
+            ]
+
     if error_list:
         _LOGGER.warning(
             f"{len(error_list)} errors encountered during evaluation. Continue to"
