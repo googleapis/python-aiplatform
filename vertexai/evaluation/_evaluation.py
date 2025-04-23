@@ -57,6 +57,16 @@ except ImportError:
 if TYPE_CHECKING:
     import pandas as pd
 
+    try:
+        from ragas.dataset_schema import EvaluationDataset
+        from ragas.metrics.base import Metric
+
+        RagasEvaluationDataset = EvaluationDataset
+        RagasMetric = Metric
+    except ImportError:
+        RagasEvaluationDataset = Any
+        RagasMetric = Any
+
 _LOGGER = base.Logger(__name__)
 _SUCCESSFUL_FINISH_REASONS = [
     gapic_content_types.Candidate.FinishReason.STOP,
@@ -244,7 +254,7 @@ def _compute_custom_metrics(
 
 def _ragas_metric_required_columns(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
-):
+) -> List[str]:
     """Returns list of required columns for ragas metrics."""
     try:
         from ragas.metrics.base import Metric as RagasMetric
@@ -265,7 +275,7 @@ def _ragas_metric_required_columns(
 
 def _validate_ragas_metrics_columns(
     evaluation_run_config: evaluation_base.EvaluationRunConfig,
-):
+) -> "RagasEvaluationDataset":
     """Checks if all columns required for ragas metrics calculation exists in the dataset."""
     from ragas.dataset_schema import EvaluationDataset as RagasEvaluationDataset
 
@@ -285,7 +295,7 @@ def _validate_ragas_metrics_columns(
 
 def _separate_metrics(
     metrics: List[Union[str, metrics_base._Metric]],
-) -> Tuple[List[Union[str, metrics_base._Metric]], List[metrics_base.CustomMetric],]:
+) -> Tuple[List[Union[str, metrics_base._Metric]], List[metrics_base.CustomMetric], List["RagasMetric"]]:
     """Separates the metrics list into API, custom and Ragas metrics."""
     from ragas.metrics.base import Metric as RagasMetric
 
