@@ -4868,6 +4868,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         serving_container_health_probe_period_seconds: Optional[int] = None,
         serving_container_health_probe_timeout_seconds: Optional[int] = None,
         model_garden_source_model_name: Optional[str] = None,
+        model_garden_source_model_version_id: Optional[str] = None,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
@@ -5083,7 +5084,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             model_garden_source_model_name:
                 Optional. The model garden source model resource name if the
                 model is from Vertex Model Garden.
-
+            model_garden_source_model_version_id:
+                Optional. The model garden source model version id if the
+                model is from Vertex Model Garden.
 
         Returns:
             model (aiplatform.Model):
@@ -5214,11 +5217,19 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
         base_model_source = None
         if model_garden_source_model_name:
-            base_model_source = gca_model_compat.Model.BaseModelSource(
-                model_garden_source=gca_model_compat.ModelGardenSource(
-                    public_model_name=model_garden_source_model_name
+            if model_garden_source_model_version_id:
+                base_model_source = gca_model_compat.Model.BaseModelSource(
+                    model_garden_source=gca_model_compat.ModelGardenSource(
+                        public_model_name=model_garden_source_model_name,
+                        version_id=model_garden_source_model_version_id,
+                    )
                 )
-            )
+            else:
+                base_model_source = gca_model_compat.Model.BaseModelSource(
+                    model_garden_source=gca_model_compat.ModelGardenSource(
+                        public_model_name=model_garden_source_model_name,
+                    )
+                )
 
         managed_model = gca_model_compat.Model(
             display_name=display_name,
