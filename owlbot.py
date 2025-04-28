@@ -97,8 +97,8 @@ if has_generator_updates:
 
     templated_files = common.py_library(
         cov_level=98,
-        system_test_python_versions=["3.8"],
-        unit_test_python_versions=["3.8", "3.9", "3.10", "3.11", "3.12"],
+        system_test_python_versions=["3.9"],
+        unit_test_python_versions=["3.9", "3.10", "3.11", "3.12"],
         unit_test_extras=["testing"],
         system_test_extras=["testing"],
         microgenerator=True,
@@ -119,14 +119,10 @@ if has_generator_updates:
             ".kokoro/requirements*",
             # exclude sample configs so periodic samples are tested against main
             # instead of pypi
-            ".kokoro/samples/python3.7/common.cfg",
-            ".kokoro/samples/python3.8/common.cfg",
             ".kokoro/samples/python3.9/common.cfg",
             ".kokoro/samples/python3.10/common.cfg",
             ".kokoro/samples/python3.11/common.cfg",
             ".kokoro/samples/python3.12/common.cfg",
-            ".kokoro/samples/python3.7/periodic.cfg",
-            ".kokoro/samples/python3.8/periodic.cfg",
             ".kokoro/samples/python3.9/periodic.cfg",
             ".kokoro/samples/python3.10/periodic.cfg",
             ".kokoro/samples/python3.11/periodic.cfg",

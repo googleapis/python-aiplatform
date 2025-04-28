@@ -48,7 +48,7 @@ from google.protobuf import field_mask_pb2
 
 
 _LOGGER = _utils.LOGGER
-_SUPPORTED_PYTHON_VERSIONS = ("3.8", "3.9", "3.10", "3.11", "3.12")
+_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12")
 _DEFAULT_GCS_DIR_NAME = "agent_engine"
 _BLOB_FILENAME = "agent_engine.pkl"
 _REQUIREMENTS_FILE = "requirements.txt"
