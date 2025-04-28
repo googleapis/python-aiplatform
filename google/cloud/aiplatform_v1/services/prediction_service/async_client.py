@@ -230,7 +230,7 @@ class PredictionServiceAsyncClient:
                 Callable[..., PredictionServiceTransport],
             ]
         ] = "grpc_asyncio",
-        client_options: Optional[ClientOptions] = None,
+        client_options: Optional[Union[ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the prediction service async client.
