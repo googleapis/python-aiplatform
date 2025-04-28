@@ -56,6 +56,9 @@ _TEST_CLAUDE_MODEL_NAME = "claude-3-opus"
 _TEST_CLAUDE_MODEL_RESOURCE_NAME = (
     f"publishers/anthropic/models/{_TEST_CLAUDE_MODEL_NAME}"
 )
+_TEST_SELF_HOSTED_GEMMA_MODEL_RESOURCE_NAME = (
+    "publishers/google/models/gemma@gemma-2b-it"
+)
 
 _TEST_GCS_INPUT_URI = "gs://test-bucket/test-input.jsonl"
 _TEST_GCS_INPUT_URI_2 = "gs://test-bucket/test-input-2.jsonl"
@@ -587,6 +590,39 @@ class TestBatchPredictionJob:
         get_gemini_model_mock.assert_called_once_with(
             name=_TEST_TUNED_GEMINI_MODEL_RESOURCE_NAME,
             retry=aiplatform_base._DEFAULT_RETRY,
+        )
+
+    def test_submit_batch_prediction_job_with_self_hosted_gemma_model(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_SELF_HOSTED_GEMMA_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_SELF_HOSTED_GEMMA_MODEL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
         )
 
     def test_submit_batch_prediction_job_with_invalid_source_model(self):
