@@ -3680,7 +3680,7 @@ class PrivateEndpoint(Endpoint):
         network the PrivateEndpoint is peered to. Otherwise, the predict() call
         will fail with error code 404. To check, use `PrivateEndpoint.network`.
 
-        For PSC based priviate endpoint, the project where caller credential are
+        For PSC based private endpoint, the project where caller credential are
         from must be allowlisted.
 
         Example usage:
@@ -3816,7 +3816,7 @@ class PrivateEndpoint(Endpoint):
         Example usage:
             my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
 
-            # PSA based private endpint
+            # PSA based private endpoint
             response = my_endpoint.raw_predict(
                 body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}',
                 headers = {'Content-Type':'application/json'}
@@ -6239,13 +6239,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             and content_types.ARTIFACT not in supported_content_types
         ):
             raise ValueError(
-                "This model can not be exported as an artifact in '{export_format_id}' format. "
+                f"This model can not be exported as an artifact in '{export_format_id}' format. "
                 "Try exporting as a container image by passing the `image_destination` argument."
             )
 
         if image_destination and content_types.IMAGE not in supported_content_types:
             raise ValueError(
-                "This model can not be exported as a container image in '{export_format_id}' format. "
+                f"This model can not be exported as a container image in '{export_format_id}' format. "
                 "Try exporting the model artifacts by passing a `artifact_destination` argument."
             )
 
@@ -6992,7 +6992,7 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         encryption_spec_key_name: Optional[str] = None,
         copy_request_timeout: Optional[float] = None,
     ) -> "Model":
-        """Copys a model and returns a Model representing the copied Model
+        """Copies a model and returns a Model representing the copied Model
         resource. This method is a blocking call.
 
         Example usage:
