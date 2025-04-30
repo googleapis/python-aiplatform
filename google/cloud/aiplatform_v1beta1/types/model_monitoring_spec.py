@@ -349,7 +349,7 @@ class ModelMonitoringInput(proto.Message):
                     Google Cloud Storage URI to the input
                     file(s). May contain wildcards. For more
                     information on wildcards, see
-                    https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+                    https://cloud.google.com/storage/docs/wildcards.
                 format_ (google.cloud.aiplatform_v1beta1.types.ModelMonitoringInput.ModelMonitoringDataset.ModelMonitoringGcsSource.DataFormat):
                     Data format of the dataset.
             """

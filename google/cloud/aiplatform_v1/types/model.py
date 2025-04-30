@@ -40,6 +40,7 @@ __protobuf__ = proto.module(
         "Port",
         "ModelSourceInfo",
         "Probe",
+        "Checkpoint",
     },
 )
 
@@ -322,6 +323,9 @@ class Model(proto.Message):
             Output only. Reserved for future use.
         satisfies_pzi (bool):
             Output only. Reserved for future use.
+        checkpoints (MutableSequence[google.cloud.aiplatform_v1.types.Checkpoint]):
+            Optional. Output only. The checkpoints of the
+            model.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -680,6 +684,11 @@ class Model(proto.Message):
     satisfies_pzi: bool = proto.Field(
         proto.BOOL,
         number=52,
+    )
+    checkpoints: MutableSequence["Checkpoint"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=57,
+        message="Checkpoint",
     )
 
 
@@ -1465,6 +1474,32 @@ class Probe(proto.Message):
     initial_delay_seconds: int = proto.Field(
         proto.INT32,
         number=9,
+    )
+
+
+class Checkpoint(proto.Message):
+    r"""Describes the machine learning model version checkpoint.
+
+    Attributes:
+        checkpoint_id (str):
+            The ID of the checkpoint.
+        epoch (int):
+            The epoch of the checkpoint.
+        step (int):
+            The step of the checkpoint.
+    """
+
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    epoch: int = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    step: int = proto.Field(
+        proto.INT64,
+        number=3,
     )
 
 

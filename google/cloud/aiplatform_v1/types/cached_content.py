@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import content
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import tool
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -64,10 +65,10 @@ class CachedContent(proto.Message):
             Optional. Immutable. The user-generated
             meaningful display name of the cached content.
         model (str):
-            Immutable. The name of the publisher model to
-            use for cached content. Format:
-
-            projects/{project}/locations/{location}/publishers/{publisher}/models/{model}
+            Immutable. The name of the ``Model`` to use for cached
+            content. Currently, only the published Gemini base models
+            are supported, in form of
+            projects/{PROJECT}/locations/{LOCATION}/publishers/google/models/{MODEL}
         system_instruction (google.cloud.aiplatform_v1.types.Content):
             Optional. Input only. Immutable. Developer
             set system instruction. Currently, text only
@@ -81,7 +82,7 @@ class CachedContent(proto.Message):
             Optional. Input only. Immutable. Tool config.
             This config is shared for all tools
         create_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Creatation time of the cache
+            Output only. Creation time of the cache
             entry.
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. When the cache entry was last
@@ -89,6 +90,10 @@ class CachedContent(proto.Message):
         usage_metadata (google.cloud.aiplatform_v1.types.CachedContent.UsageMetadata):
             Output only. Metadata on the usage of the
             cached content.
+        encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
+            Input only. Immutable. Customer-managed encryption key spec
+            for a ``CachedContent``. If set, this ``CachedContent`` and
+            all its sub-resources will be secured by this key.
     """
 
     class UsageMetadata(proto.Message):
@@ -187,6 +192,11 @@ class CachedContent(proto.Message):
         proto.MESSAGE,
         number=12,
         message=UsageMetadata,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

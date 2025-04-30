@@ -50,7 +50,6 @@ class CreateSessionRequest(proto.Message):
         parent (str):
             Required. The resource name of the location to create the
             session in. Format:
-            ``projects/{project}/locations/{location}`` or
             ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
         session (google.cloud.aiplatform_v1beta1.types.Session):
             Required. The session to create.
@@ -220,8 +219,6 @@ class DeleteSessionRequest(proto.Message):
     Attributes:
         name (str):
             Required. The resource name of the session. Format:
-            ``projects/{project}/locations/{location}/sessions/{session}``
-            or
             ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}``
     """
 
@@ -244,7 +241,8 @@ class ListEventsRequest(proto.Message):
             Optional. The maximum number of events to
             return. The service may return fewer than this
             value. If unspecified, at most 100 events will
-            be returned.
+            be returned. These events are ordered by
+            timestamp in ascending order.
         page_token (str):
             Optional. The
             [next_page_token][google.cloud.aiplatform.v1beta1.ListEventsResponse.next_page_token]
@@ -274,6 +272,7 @@ class ListEventsResponse(proto.Message):
     Attributes:
         session_events (MutableSequence[google.cloud.aiplatform_v1beta1.types.SessionEvent]):
             A list of events matching the request.
+            Ordered by timestamp in ascending order.
         next_page_token (str):
             A token, which can be sent as
             [ListEventsRequest.page_token][google.cloud.aiplatform.v1beta1.ListEventsRequest.page_token]

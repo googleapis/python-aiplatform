@@ -689,6 +689,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    Checkpoint,
     GenieSource,
     LargeModelReference,
     Model,
@@ -1713,6 +1714,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "Checkpoint",
     "GenieSource",
     "LargeModelReference",
     "Model",
