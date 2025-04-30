@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.91.0](https://github.com/googleapis/python-aiplatform/compare/v1.90.0...v1.91.0) (2025-04-30)
+
+
+### Features
+
+* Add Model Garden deploy SDK documentation and use cases. ([6eea5f4](https://github.com/googleapis/python-aiplatform/commit/6eea5f4fc05444cf47609fbe4da9038d5fa6ac29))
+* Allow setting Vertex Model Garden source model version id during model upload ([b1bbba6](https://github.com/googleapis/python-aiplatform/commit/b1bbba6f94a86fdc711c59bfc248abe544c3da09))
+* GenAI - Add support for self-hosted OSS models in Batch Prediction. ([c76ac62](https://github.com/googleapis/python-aiplatform/commit/c76ac624a4b708dc5980ec64eb52661eb7c8061d))
+* GenAI - Support batch prediction in Model Garden OpenModel. ([8bf30b7](https://github.com/googleapis/python-aiplatform/commit/8bf30b74828c976e315879d9a7b61cb718e1bcfe))
+* Update upperbound for langgraph ([547bf01](https://github.com/googleapis/python-aiplatform/commit/547bf01410647b104c6b8134d57b8c27847558b4))
+
+
+### Bug Fixes
+
+* Removing Python 3.8 support due to EOL ([4330b2f](https://github.com/googleapis/python-aiplatform/commit/4330b2fc2860eb38986937a81f4919059775137a))
+
 ## [1.90.0](https://github.com/googleapis/python-aiplatform/compare/v1.89.0...v1.90.0) (2025-04-22)
 
 
