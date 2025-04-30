@@ -20,12 +20,24 @@ from google import auth
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
+from google.cloud.aiplatform.compat.services import job_service_client
+from google.cloud.aiplatform.compat.types import (
+    batch_prediction_job as gca_batch_prediction_job_compat,
+)
+from google.cloud.aiplatform.compat.types import io as gca_io_compat
+from google.cloud.aiplatform.compat.types import (
+    job_state as gca_job_state_compat,
+)
+from google.cloud.aiplatform_v1.types import machine_resources
+from google.cloud.aiplatform_v1.types import manual_batch_tuning_parameters
 from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.services import model_garden_service
+from vertexai import batch_prediction
 from vertexai.preview import model_garden
 import pytest
 
 from google.protobuf import duration_pb2
+
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -73,6 +85,24 @@ _TEST_MODEL_CONTAINER_SPEC = types.ModelContainerSpec(
         timeout_seconds=10,
     ),
 )
+_TEST_BATCH_PREDICTION_JOB_ID = "123456789"
+_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_BATCH_PREDICTION_JOB_NAME = (
+    f"{_TEST_PARENT}/batchPredictionJobs/{_TEST_BATCH_PREDICTION_JOB_ID}"
+)
+_TEST_BATCH_PREDICTION_MODEL_FULL_RESOURCE_NAME = (
+    "publishers/google/models/gemma@gemma-2b-it"
+)
+_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME = "test-batch-prediction-job"
+_TEST_JOB_STATE_RUNNING = gca_job_state_compat.JobState(3)
+_TEST_GAPIC_BATCH_PREDICTION_JOB = gca_batch_prediction_job_compat.BatchPredictionJob(
+    name=_TEST_BATCH_PREDICTION_JOB_NAME,
+    display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+    model=_TEST_BATCH_PREDICTION_MODEL_FULL_RESOURCE_NAME,
+    state=_TEST_JOB_STATE_RUNNING,
+)
+_TEST_BQ_INPUT_URI = "bq://test-project.test-dataset.test-input"
+_TEST_BQ_OUTPUT_PREFIX = "bq://test-project.test-dataset.test-output"
 
 
 @pytest.fixture(scope="module")
@@ -115,6 +145,25 @@ def deploy_mock():
         )
         deploy.return_value = mock_lro
         yield deploy
+
+
+@pytest.fixture
+def batch_prediction_mock():
+    """Mocks the create_batch_prediction_job method."""
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "create_batch_prediction_job"
+    ) as create_batch_prediction_job_mock:
+        create_batch_prediction_job_mock.return_value = _TEST_GAPIC_BATCH_PREDICTION_JOB
+        yield create_batch_prediction_job_mock
+
+
+@pytest.fixture
+def complete_bq_uri_mock():
+    with mock.patch.object(
+        batch_prediction.BatchPredictionJob, "_complete_bq_uri"
+    ) as complete_bq_uri_mock:
+        complete_bq_uri_mock.return_value = _TEST_BQ_OUTPUT_PREFIX
+        yield complete_bq_uri_mock
 
 
 @pytest.fixture
@@ -355,6 +404,8 @@ def list_publisher_models_mock():
     "get_publisher_model_mock",
     "list_publisher_models_mock",
     "export_publisher_model_mock",
+    "batch_prediction_mock",
+    "complete_bq_uri_mock",
 )
 class TestModelGarden:
     """Test cases for ModelGarden class."""
@@ -897,3 +948,54 @@ class TestModelGarden:
             "google/gemma-2-2b",
             "google/gemma-2-2b",
         ]
+
+    def test_batch_prediction_success(self, batch_prediction_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(
+            model_name=_TEST_BATCH_PREDICTION_MODEL_FULL_RESOURCE_NAME
+        )
+        job = model.batch_predict(
+            input_dataset=_TEST_BQ_INPUT_URI,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            machine_type="g2-standard-12",
+            accelerator_type="NVIDIA_L4",
+            accelerator_count=1,
+            starting_replica_count=1,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            model=_TEST_BATCH_PREDICTION_MODEL_FULL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+            dedicated_resources=machine_resources.BatchDedicatedResources(
+                machine_spec=machine_resources.MachineSpec(
+                    machine_type="g2-standard-12",
+                    accelerator_type="NVIDIA_L4",
+                    accelerator_count=1,
+                ),
+                starting_replica_count=1,
+            ),
+            manual_batch_tuning_parameters=manual_batch_tuning_parameters.ManualBatchTuningParameters(),
+        )
+
+        batch_prediction_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )

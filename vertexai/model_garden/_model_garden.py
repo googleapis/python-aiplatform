@@ -19,7 +19,7 @@
 import datetime
 import functools
 import re
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence, Union
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -29,6 +29,8 @@ from google.cloud.aiplatform import models as aiplatform_models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.services import model_garden_service
+from vertexai import batch_prediction
+
 
 from google.protobuf import duration_pb2
 
@@ -656,3 +658,60 @@ class OpenModel:
                 " to find out which ones currently support deployment."
             )
         return multi_deploy
+
+    def batch_predict(
+        self,
+        input_dataset: Union[str, List[str]],
+        *,
+        output_uri_prefix: Optional[str] = None,
+        job_display_name: Optional[str] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+    ) -> batch_prediction.BatchPredictionJob:
+        """Perform batch prediction on the model.
+
+        Args:
+            input_dataset (Union[str, List[str]]):
+                GCS URI(-s) or BigQuery URI to your input data to run batch
+                prediction on. Example: "gs://path/to/input/data.jsonl" or
+                "bq://projectId.bqDatasetId.bqTableId"
+            output_uri_prefix (Optional[str]):
+                GCS or BigQuery URI prefix for the output predictions. Example:
+                "gs://path/to/output/data" or "bq://projectId.bqDatasetId"
+                If not specified, f"{STAGING_BUCKET}/gen-ai-batch-prediction" will
+                be used for GCS source and
+                f"bq://projectId.gen_ai_batch_prediction.predictions_{TIMESTAMP}"
+                will be used for BigQuery source.
+            job_display_name (Optional[str]):
+                The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            machine_type (Optional[str]):
+                The machine type for the batch prediction job.
+            accelerator_type (Optional[str]):
+                The accelerator type for the batch prediction job.
+            accelerator_count (Optional[int]):
+                The accelerator count for the batch prediction job.
+            starting_replica_count (Optional[int]):
+                The starting replica count for the batch prediction job.
+            max_replica_count (Optional[int]):
+                The maximum replica count for the batch prediction job.
+
+        Returns:
+            batch_prediction.BatchPredictionJob:
+                The batch prediction job.
+        """
+        return batch_prediction.BatchPredictionJob.submit(
+            source_model=self._publisher_model_name,
+            input_dataset=input_dataset,
+            output_uri_prefix=output_uri_prefix,
+            job_display_name=job_display_name,
+            machine_type=machine_type,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            starting_replica_count=starting_replica_count,
+            max_replica_count=max_replica_count,
+        )
