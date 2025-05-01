@@ -409,12 +409,29 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             )
             agent_engine_spec.class_methods.extend(class_methods_spec)
             reasoning_engine.spec = agent_engine_spec
-        operation_future = sdk_resource.api_client.create_reasoning_engine(
-            parent=initializer.global_config.common_location_path(
-                project=sdk_resource.project, location=sdk_resource.location
-            ),
-            reasoning_engine=reasoning_engine,
-        )
+        if (
+            initializer.global_config.project is not None
+            and initializer.global_config.location is not None
+        ):
+            operation_future = sdk_resource.api_client.create_reasoning_engine(
+                parent=initializer.global_config.common_location_path(
+                    project=sdk_resource.project, location=sdk_resource.location
+                ),
+                reasoning_engine=reasoning_engine,
+            )
+        elif initializer.global_config.api_key is not None:
+            sdk_resource.api_client = initializer.global_config.create_client(
+                client_class=aip_utils.ReasoningEngineClientWithOverride,
+                api_path_override="aiplatform.googleapis.com",
+                api_key=initializer.global_config.api_key,
+            )
+            operation_future = sdk_resource.api_client.create_reasoning_engine(
+                reasoning_engine=reasoning_engine,
+            )
+        else:
+            raise ValueError(
+                "Either project and location or api_key must be set in vertexai.init."
+            )
         _LOGGER.log_create_with_lro(cls, operation_future)
         _LOGGER.info(
             f"View progress and logs at https://console.cloud.google.com/logs/query?project={sdk_resource.project}"
@@ -430,11 +447,21 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         sdk_resource._gca_resource = sdk_resource._get_gca_resource(
             resource_name=created_resource.name
         )
-        sdk_resource.execution_api_client = initializer.global_config.create_client(
-            client_class=aip_utils.AgentEngineExecutionClientWithOverride,
-            credentials=sdk_resource.credentials,
-            location_override=sdk_resource.location,
-        )
+        if (
+            initializer.global_config.project is not None
+            and initializer.global_config.location is not None
+        ):
+            sdk_resource.execution_api_client = initializer.global_config.create_client(
+                client_class=aip_utils.AgentEngineExecutionClientWithOverride,
+                credentials=sdk_resource.credentials,
+                location_override=sdk_resource.location,
+            )
+        elif initializer.global_config.api_key is not None:
+            sdk_resource.execution_api_client = initializer.global_config.create_client(
+                client_class=aip_utils.AgentEngineExecutionClientWithOverride,
+                api_key=initializer.global_config.api_key,
+                location_override=sdk_resource.location,
+            )
         if agent_engine is not None:
             try:
                 _register_api_methods_or_raise(sdk_resource)
