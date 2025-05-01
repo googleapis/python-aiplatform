@@ -73,6 +73,7 @@ from google.cloud.aiplatform_v1beta1.services.gen_ai_cache_service import transp
 from google.cloud.aiplatform_v1beta1.types import cached_content
 from google.cloud.aiplatform_v1beta1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1beta1.types import content
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import gen_ai_cache_service
 from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
@@ -4674,6 +4675,8 @@ def test_create_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
                         "response": {},
                     }
@@ -4742,6 +4745,7 @@ def test_create_cached_content_rest_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5164,6 +5168,8 @@ def test_update_cached_content_rest_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
                         "response": {},
                     }
@@ -5232,6 +5238,7 @@ def test_update_cached_content_rest_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6516,6 +6523,8 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
                         "response": {},
                     }
@@ -6584,6 +6593,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7038,6 +7048,8 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                             "pattern": "pattern_value",
                             "example": {},
                             "any_of": {},
+                            "ref": "ref_value",
+                            "defs": {},
                         },
                         "response": {},
                     }
@@ -7106,6 +7118,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
             "video_duration_seconds": 2346,
             "audio_duration_seconds": 2341,
         },
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

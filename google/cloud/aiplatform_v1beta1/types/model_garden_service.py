@@ -356,6 +356,10 @@ class DeployRequest(proto.Message):
             fast_tryout_enabled (bool):
                 Optional. If true, enable the QMT fast tryout
                 feature for this model if possible.
+            system_labels (MutableMapping[str, str]):
+                Optional. System labels for Model Garden
+                deployments. These labels are managed by Google
+                and for tracking purposes only.
         """
 
         dedicated_resources: machine_resources.DedicatedResources = proto.Field(
@@ -366,6 +370,11 @@ class DeployRequest(proto.Message):
         fast_tryout_enabled: bool = proto.Field(
             proto.BOOL,
             number=2,
+        )
+        system_labels: MutableMapping[str, str] = proto.MapField(
+            proto.STRING,
+            proto.STRING,
+            number=3,
         )
 
     publisher_model_name: str = proto.Field(

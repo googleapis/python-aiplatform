@@ -175,6 +175,7 @@ from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
 from .types.dataset_service import GeminiExample
+from .types.dataset_service import GeminiRequestReadConfig
 from .types.dataset_service import GeminiTemplateConfig
 from .types.dataset_service import GetAnnotationSpecRequest
 from .types.dataset_service import GetDatasetRequest
@@ -1703,6 +1704,7 @@ __all__ = (
     "GcsDestination",
     "GcsSource",
     "GeminiExample",
+    "GeminiRequestReadConfig",
     "GeminiTemplateConfig",
     "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",

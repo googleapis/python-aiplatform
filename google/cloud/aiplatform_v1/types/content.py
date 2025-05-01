@@ -70,7 +70,8 @@ class HarmCategory(proto.Enum):
             The harm category is sexually explicit
             content.
         HARM_CATEGORY_CIVIC_INTEGRITY (5):
-            The harm category is civic integrity.
+            Deprecated: Election filter is not longer
+            supported. The harm category is civic integrity.
     """
     HARM_CATEGORY_UNSPECIFIED = 0
     HARM_CATEGORY_HATE_SPEECH = 1
@@ -393,6 +394,10 @@ class GenerationConfig(proto.Message):
             Optional. Routing configuration.
 
             This field is a member of `oneof`_ ``_routing_config``.
+        thinking_config (google.cloud.aiplatform_v1.types.GenerationConfig.ThinkingConfig):
+            Optional. Config for thinking features.
+            An error will be returned if this field is set
+            for models that don't support thinking.
     """
 
     class RoutingConfig(proto.Message):
@@ -491,6 +496,25 @@ class GenerationConfig(proto.Message):
             message="GenerationConfig.RoutingConfig.ManualRoutingMode",
         )
 
+    class ThinkingConfig(proto.Message):
+        r"""Config for thinking features.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            thinking_budget (int):
+                Optional. Indicates the thinking budget in tokens. This is
+                only applied when enable_thinking is true.
+
+                This field is a member of `oneof`_ ``_thinking_budget``.
+        """
+
+        thinking_budget: int = proto.Field(
+            proto.INT32,
+            number=3,
+            optional=True,
+        )
+
     temperature: float = proto.Field(
         proto.FLOAT,
         number=1,
@@ -560,6 +584,11 @@ class GenerationConfig(proto.Message):
         number=17,
         optional=True,
         message=RoutingConfig,
+    )
+    thinking_config: ThinkingConfig = proto.Field(
+        proto.MESSAGE,
+        number=25,
+        message=ThinkingConfig,
     )
 
 

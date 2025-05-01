@@ -313,8 +313,8 @@ class SessionServiceAsyncClient:
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
     ) -> operation_async.AsyncOperation:
-        r"""Creates a new [Session][google.cloud.aiplatform.v1beta1.Session]
-        in a given project and location.
+        r"""Creates a new
+        [Session][google.cloud.aiplatform.v1beta1.Session].
 
         .. code-block:: python
 
@@ -358,7 +358,6 @@ class SessionServiceAsyncClient:
             parent (:class:`str`):
                 Required. The resource name of the location to create
                 the session in. Format:
-                ``projects/{project}/locations/{location}`` or
                 ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
 
                 This corresponds to the ``parent`` field
@@ -568,7 +567,7 @@ class SessionServiceAsyncClient:
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
     ) -> pagers.ListSessionsAsyncPager:
         r"""Lists [Sessions][google.cloud.aiplatform.v1beta1.Session] in a
-        given project and location.
+        given reasoning engine.
 
         .. code-block:: python
 
@@ -864,8 +863,6 @@ class SessionServiceAsyncClient:
                 [SessionService.DeleteSession][google.cloud.aiplatform.v1beta1.SessionService.DeleteSession].
             name (:class:`str`):
                 Required. The resource name of the session. Format:
-                ``projects/{project}/locations/{location}/sessions/{session}``
-                or
                 ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}``
 
                 This corresponds to the ``name`` field
