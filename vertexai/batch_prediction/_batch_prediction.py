@@ -349,7 +349,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             return True
 
         if re.match(
-            r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@]+)@(?P<version>[^@]+)$",
+            r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@]+)$",
             model_name,
         ):
             # Model is a self-hosted model.
