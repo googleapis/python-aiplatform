@@ -257,7 +257,17 @@ class _ModelGardenClientWithOverride(utils.ClientWithOverride):
 
 
 class OpenModel:
-    """Represents a Model Garden Open model."""
+    """Represents a Model Garden Open model.
+
+    Attributes:
+        model_name: Model Garden model resource name in the format of
+            `publishers/{publisher}/models/{model}@{version}`, or a
+            simplified resource name in the format of
+            `{publisher}/{model}@{version}`, or a Hugging Face model ID in
+            the format of `{organization}/{model}`.
+    """
+
+    __module__ = "vertexai.preview.model_garden"
 
     def __init__(
         self,
