@@ -715,3 +715,44 @@ class OpenModel:
             starting_replica_count=starting_replica_count,
             max_replica_count=max_replica_count,
         )
+
+    def check_license_agreement_status(self) -> bool:
+        """Check whether the project has accepted the license agreement of the model.
+
+        EULA (End User License Agreement) is a legal document that the user must
+        accept before using the model. For Models having license restrictions,
+        the user must accept the EULA before using the model. You can check the
+        details of the License in Model Garden.
+
+        Returns:
+            bool : True if the project has accepted the End User License
+            Agreement, False otherwise.
+        """
+        request = types.CheckPublisherModelEulaAcceptanceRequest(
+            parent=f"projects/{self._project}",
+            publisher_model=self._publisher_model_name,
+        )
+        response = self._model_garden_client.check_publisher_model_eula_acceptance(
+            request
+        )
+        return response.publisher_model_eula_acked
+
+    def accept_model_license_agreement(
+        self,
+    ) -> types.model_garden_service.PublisherModelEulaAcceptance:
+        """Accepts the EULA(End User License Agreement) of the model for the project.
+
+        For Models having license restrictions, the user must accept the EULA
+        before using the model. Calling this method will mark the EULA as accepted
+        for the project.
+
+        Returns:
+            types.model_garden_service.PublisherModelEulaAcceptance:
+                The response of the accept_eula call, containing project number,
+                model name and acceptance status.
+        """
+        request = types.AcceptPublisherModelEulaRequest(
+            parent=f"projects/{self._project}",
+            publisher_model=self._publisher_model_name,
+        )
+        return self._model_garden_client.accept_publisher_model_eula(request)

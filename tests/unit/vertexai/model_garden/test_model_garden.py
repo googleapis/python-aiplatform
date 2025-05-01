@@ -41,6 +41,7 @@ from google.protobuf import duration_pb2
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+_TEST_PROJECT_NUMBER = "1234567890"
 
 _TEST_MODEL_FULL_RESOURCE_NAME = (
     "publishers/google/models/paligemma@paligemma-224-float32"
@@ -398,6 +399,40 @@ def list_publisher_models_mock():
         yield list_publisher_models
 
 
+@pytest.fixture
+def check_license_agreement_status_mock():
+    """Mocks the check_license_agreement_status method."""
+    with mock.patch.object(
+        model_garden_service.ModelGardenServiceClient,
+        "check_publisher_model_eula_acceptance",
+    ) as check_license_agreement_status:
+        check_license_agreement_status.return_value = (
+            types.PublisherModelEulaAcceptance(
+                project_number=_TEST_PROJECT_NUMBER,
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+                publisher_model_eula_acked=True,
+            )
+        )
+        yield check_license_agreement_status
+
+
+@pytest.fixture
+def accept_model_license_agreement_mock():
+    """Mocks the accept_model_license_agreement method."""
+    with mock.patch.object(
+        model_garden_service.ModelGardenServiceClient,
+        "accept_publisher_model_eula",
+    ) as accept_model_license_agreement:
+        accept_model_license_agreement.return_value = (
+            types.PublisherModelEulaAcceptance(
+                project_number=_TEST_PROJECT_NUMBER,
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+                publisher_model_eula_acked=True,
+            )
+        )
+        yield accept_model_license_agreement
+
+
 @pytest.mark.usefixtures(
     "google_auth_mock",
     "deploy_mock",
@@ -406,6 +441,8 @@ def list_publisher_models_mock():
     "export_publisher_model_mock",
     "batch_prediction_mock",
     "complete_bq_uri_mock",
+    "check_license_agreement_status_mock",
+    "accept_model_license_agreement_mock",
 )
 class TestModelGarden:
     """Test cases for ModelGarden class."""
@@ -998,4 +1035,44 @@ class TestModelGarden:
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
             timeout=None,
+        )
+
+    def test_check_license_agreement_status_success(
+        self, check_license_agreement_status_mock
+    ):
+        """Tests checking EULA acceptance for a model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        eula_acceptance = model.check_license_agreement_status()
+        check_license_agreement_status_mock.assert_called_once_with(
+            types.CheckPublisherModelEulaAcceptanceRequest(
+                parent=f"projects/{_TEST_PROJECT}",
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+            )
+        )
+        assert eula_acceptance
+
+    def test_accept_model_license_agreement_success(
+        self, accept_model_license_agreement_mock
+    ):
+        """Tests accepting EULA for a model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        eula_acceptance = model.accept_model_license_agreement()
+        accept_model_license_agreement_mock.assert_called_once_with(
+            types.AcceptPublisherModelEulaRequest(
+                parent=f"projects/{_TEST_PROJECT}",
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+            )
+        )
+        assert eula_acceptance == types.PublisherModelEulaAcceptance(
+            project_number=_TEST_PROJECT_NUMBER,
+            publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+            publisher_model_eula_acked=True,
         )
