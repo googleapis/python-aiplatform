@@ -338,8 +338,11 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         """
         sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         _validate_sys_version_or_raise(sys_version)
+        gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
+        staging_bucket = initializer.global_config.staging_bucket
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
+            _validate_staging_bucket_or_raise(staging_bucket)
         if agent_engine is None:
             if requirements is not None:
                 raise ValueError("requirements must be None if agent_engine is None.")
@@ -350,12 +353,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             requirements=requirements,
         )
         extra_packages = _validate_extra_packages_or_raise(extra_packages)
-        gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
 
         sdk_resource = cls.__new__(cls)
         base.VertexAiResourceNounWithFutureManager.__init__(sdk_resource)
-        staging_bucket = initializer.global_config.staging_bucket
-        _validate_staging_bucket_or_raise(staging_bucket)
         # Prepares the Agent Engine for creation in Vertex AI.
         # This involves packaging and uploading the artifacts for
         # agent_engine, requirements and extra_packages to
@@ -881,17 +881,18 @@ def _prepare(
         gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
             use for staging the artifacts needed.
     """
+    if agent_engine is None:
+        return
     gcs_bucket = _get_gcs_bucket(
         project=project,
         location=location,
         staging_bucket=staging_bucket,
     )
-    if agent_engine is not None:
-        _upload_agent_engine(
-            agent_engine=agent_engine,
-            gcs_bucket=gcs_bucket,
-            gcs_dir_name=gcs_dir_name,
-        )
+    _upload_agent_engine(
+        agent_engine=agent_engine,
+        gcs_bucket=gcs_bucket,
+        gcs_dir_name=gcs_dir_name,
+    )
     if requirements is not None:
         _upload_requirements(
             requirements=requirements,
@@ -992,7 +993,7 @@ def _generate_update_request_or_raise(
         Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
     ] = None,
 ) -> reasoning_engine_service.UpdateReasoningEngineRequest:
-    """Tries to generates the update request for the agent engine."""
+    """Tries to generate the update request for the agent engine."""
     is_spec_update = False
     update_masks: List[str] = []
     agent_engine_spec = aip_types.ReasoningEngineSpec()

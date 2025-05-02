@@ -2315,6 +2315,47 @@ class TestAgentEngineErrors:
         assert want_log_output in caplog.text
 
 
+@pytest.mark.usefixtures("google_auth_mock")
+class TestLightweightAgentEngine:
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        self.test_agent = CapitalizeEngine()
+
+    def test_create_agent_engine_with_no_spec(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        agent_engines.create(
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+        )
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
+
+
 def _generate_agent_engine_to_update() -> "agent_engines.AgentEngine":
     test_agent_engine = agent_engines.create(CapitalizeEngine())
     # Resource name is required for the update method.
