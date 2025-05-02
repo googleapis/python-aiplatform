@@ -13,9 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+
 
 if TYPE_CHECKING:
+    try:
+        from google.genai import types
+
+        ContentDict = types.Content
+    except (ImportError, AttributeError):
+        ContentDict = Dict
+
     try:
         from google.adk.events.event import Event
 
@@ -442,7 +450,7 @@ class AdkApp:
     def stream_query(
         self,
         *,
-        message: str,
+        message: Union[str, "ContentDict"],
         user_id: str,
         session_id: Optional[str] = None,
         **kwargs,
@@ -466,7 +474,15 @@ class AdkApp:
         """
         from google.genai import types
 
-        content = types.Content(role="user", parts=[types.Part(text=message)])
+        if isinstance(message, Dict):
+            content = types.Content.model_validate(message)
+        elif isinstance(message, str):
+            content = types.Content(role="user", parts=[types.Part(text=message)])
+        else:
+            raise TypeError(
+                "message must be a string or a dictionary representing a Content object."
+            )
+
         if not self._tmpl_attrs.get("runner"):
             self.set_up()
         if not session_id:

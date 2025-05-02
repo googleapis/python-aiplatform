@@ -17,6 +17,7 @@ import json
 from unittest import mock
 
 from google import auth
+from google.genai import types
 import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai.preview import reasoning_engines
@@ -168,6 +169,28 @@ class TestAdkApp:
             app.stream_query(
                 user_id="test_user_id",
                 message="test message",
+            )
+        )
+        assert len(events) == 1
+
+    def test_stream_query_with_content(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name="test_agent", model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = list(
+            app.stream_query(
+                user_id="test_user_id",
+                message=types.Content(
+                    role="user",
+                    parts=[
+                        types.Part(
+                            text="test message with content",
+                        )
+                    ],
+                ).model_dump(),
             )
         )
         assert len(events) == 1
