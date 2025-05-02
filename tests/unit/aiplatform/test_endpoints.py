@@ -97,6 +97,7 @@ _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 _TEST_PROJECT_ALLOWLIST = [_TEST_PROJECT]
 _TEST_ENDPOINT_OVERRIDE = "endpoint-override.aiplatform.vertex.goog"
 
+_TEST_SHARED_ENDPOINT_DNS = f"{_TEST_LOCATION}-aiplatform.googleapis.com"
 _TEST_DEDICATED_ENDPOINT_DNS = (
     f"{_TEST_ID}.{_TEST_PROJECT}.{_TEST_LOCATION}-aiplatform.vertex.goog"
 )
@@ -2689,19 +2690,30 @@ class TestEndpoint:
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
-    def test_predict_use_dedicated_endpoint_for_regular_endpoint(self):
-        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+    def test_predict_use_dedicated_endpoint_for_regular_endpoint(
+        self, predict_client_predict_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.predict(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            use_dedicated_endpoint=True,
+        )
 
-        with pytest.raises(ValueError) as err:
-            test_endpoint.predict(
-                instances=_TEST_INSTANCES,
-                parameters={"param": 3.0},
-                use_dedicated_endpoint=True,
-            )
-        assert err.match(
-            regexp=r"Dedicated endpoint is not enabled or DNS is empty."
-            "Please make sure endpoint has dedicated endpoint enabled"
-            "and model are ready before making a prediction."
+        true_prediction = models.Prediction(
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            metadata=_TEST_METADATA,
+            model_version_id=_TEST_VERSION_ID,
+            model_resource_name=_TEST_MODEL_NAME,
+        )
+
+        assert true_prediction == test_prediction
+        predict_client_predict_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dedicated_endpoint_mock")
@@ -2768,19 +2780,35 @@ class TestEndpoint:
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
-    def test_raw_predict_use_dedicated_endpoint_for_regular_endpoint(self):
-        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+    def test_raw_predict_use_dedicated_endpoint_for_regular_endpoint(
+        self, predict_endpoint_http_mock
+    ):
+        test_endpoint = models.Endpoint(_TEST_ID)
 
-        with pytest.raises(ValueError) as err:
-            test_endpoint.raw_predict(
-                body=_TEST_RAW_INPUTS,
-                headers={"Content-Type": "application/json"},
-                use_dedicated_endpoint=True,
-            )
-        assert err.match(
-            regexp=r"Dedicated endpoint is not enabled or DNS is empty."
-            "Please make sure endpoint has dedicated endpoint enabled"
-            "and model are ready before making a prediction."
+        test_prediction = test_endpoint.raw_predict(
+            body=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            use_dedicated_endpoint=True,
+        )
+
+        true_prediction = requests.Response()
+        true_prediction.status_code = 200
+        true_prediction._content = json.dumps(
+            {
+                "predictions": _TEST_PREDICTION,
+                "metadata": _TEST_METADATA,
+                "deployedModelId": _TEST_DEPLOYED_MODELS[0].id,
+                "model": _TEST_MODEL_NAME,
+                "modelVersionId": "1",
+            }
+        ).encode("utf-8")
+        assert true_prediction.status_code == test_prediction.status_code
+        assert true_prediction.text == test_prediction.text
+        predict_endpoint_http_mock.assert_called_once_with(
+            url=f"https://{_TEST_SHARED_ENDPOINT_DNS}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict",
+            data=_TEST_RAW_INPUTS,
+            headers={"Content-Type": "application/json"},
+            timeout=None,
         )
 
     @pytest.mark.asyncio
@@ -3658,7 +3686,7 @@ class TestPrivateEndpoint:
         )
 
     @pytest.mark.usefixtures("get_psc_private_endpoint_mock")
-    def test_psc_predict(self, predict_private_endpoint_mock):
+    def test_psc_predict(self, predict_endpoint_http_mock):
         test_endpoint = models.PrivateEndpoint(
             project=_TEST_PROJECT, location=_TEST_LOCATION, endpoint_name=_TEST_ID
         )
@@ -3677,14 +3705,10 @@ class TestPrivateEndpoint:
         )
 
         assert true_prediction == test_prediction
-        predict_private_endpoint_mock.assert_called_once_with(
-            method="POST",
+        predict_endpoint_http_mock.assert_called_once_with(
             url=f"https://{_TEST_ENDPOINT_OVERRIDE}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:predict",
-            body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": "Bearer None",
-            },
+            data='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
+            headers={"Content-Type": "application/json"},
         )
 
     @pytest.mark.usefixtures("get_psc_private_endpoint_mock")
@@ -3697,7 +3721,6 @@ class TestPrivateEndpoint:
             body='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]}',
             headers={
                 "Content-Type": "application/json",
-                "Authorization": "Bearer None",
             },
             endpoint_override=_TEST_ENDPOINT_OVERRIDE,
         )
@@ -3709,7 +3732,6 @@ class TestPrivateEndpoint:
             data='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]}',
             headers={
                 "Content-Type": "application/json",
-                "Authorization": "Bearer None",
             },
             stream=True,
             verify=False,
