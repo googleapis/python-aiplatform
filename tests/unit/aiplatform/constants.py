@@ -59,6 +59,7 @@ class ProjectConstants:
     _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
     _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
     _TEST_LABELS = {"my_key": "my_value"}
+    _TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE = True
 
 
 @dataclasses.dataclass(frozen=True)
