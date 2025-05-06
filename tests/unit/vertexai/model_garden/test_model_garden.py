@@ -34,7 +34,7 @@ from google.cloud.aiplatform_v1.types import manual_batch_tuning_parameters
 from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.services import model_garden_service
 from vertexai import batch_prediction
-from vertexai.preview import model_garden
+from vertexai import model_garden
 import pytest
 
 from google.protobuf import duration_pb2
