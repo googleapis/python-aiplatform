@@ -20,6 +20,7 @@ import concurrent.futures
 from dataclasses import dataclass
 import logging
 from typing import Dict, List, NamedTuple, Optional, Tuple, Type, Union
+import datetime
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
@@ -405,7 +406,15 @@ class Experiment:
             )
 
     def get_data_frame(
-        self, *, include_time_series: bool = True
+        self,
+        *,
+        include_time_series: bool = True,
+        create_time_start_date: Optional[
+            Union[str, datetime.datetime, datetime.date]
+        ] = None,
+        create_time_end_date: Optional[
+            Union[str, datetime.datetime, datetime.date]
+        ] = None,
     ) -> "pd.DataFrame":  # noqa: F821
         """Get parameters, metrics, and time series metrics of all runs in this experiment as Dataframe.
 
@@ -421,6 +430,14 @@ class Experiment:
                 series metrics are not needed or number of runs in Experiment is
                 large. For time series metrics consider querying a specific run
                 using get_time_series_data_frame.
+            create_time_start_date (Union[str, datetime.datetime, datetime.date]):
+                Optional. Start date for filtering runs by creation time.
+                If string, should be in 'YYYY-MM-DD' or RFC-3339 format.
+                If datetime or date object, will be converted to RFC-3339 format.
+            create_time_end_date (Union[str, datetime.datetime, datetime.date]):
+                Optional. End date for filtering runs by creation time.
+                If string, should be in 'YYYY-MM-DD' or RFC-3339 format.
+                If datetime or date object, will be converted to RFC-3339 format.
 
         Returns:
             pd.DataFrame: Pandas Dataframe of Experiment Runs.
@@ -447,7 +464,10 @@ class Experiment:
                 list(_SUPPORTED_LOGGABLE_RESOURCES[context.Context].keys())
             ),
             parent_contexts=[self._metadata_context.resource_name],
+            create_time_start_date=create_time_start_date,
+            create_time_end_date=create_time_end_date,
         )
+
         contexts = context.Context.list(filter_str, **service_request_args)
 
         filter_str = metadata_utils._make_filter_string(
@@ -455,6 +475,8 @@ class Experiment:
                 _SUPPORTED_LOGGABLE_RESOURCES[execution.Execution].keys()
             ),
             in_context=[self._metadata_context.resource_name],
+            create_time_start_date=create_time_start_date,
+            create_time_end_date=create_time_end_date,
         )
 
         executions = execution.Execution.list(filter_str, **service_request_args)
