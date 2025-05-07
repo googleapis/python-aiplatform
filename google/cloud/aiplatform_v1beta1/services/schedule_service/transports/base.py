@@ -26,6 +26,7 @@ from google.api_core import retry as retries
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 from google.cloud.aiplatform_v1beta1.types import schedule
 from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
@@ -39,6 +40,9 @@ from google.protobuf import empty_pb2  # type: ignore
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
+
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class ScheduleServiceTransport(abc.ABC):
