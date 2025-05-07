@@ -84,7 +84,7 @@ vizier_extra_require = [
 prediction_extra_require = [
     "docker >= 5.0.3",
     "fastapi >= 0.71.0, <=0.114.0",
-    "httpx >=0.23.0, <0.25.0",  # Optional dependency of fastapi
+    "httpx >=0.23.0, <=0.28.1",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
 ]
@@ -103,7 +103,7 @@ preview_extra_require = []
 ray_extra_require = [
     # Cluster only supports 2.9.3, 2.33.0, and 2.42.0. Keep 2.4.0 for our
     # testing environment.
-    # Note that testing is submiting a job in a cluster with Ray 2.9.3 remotely.
+    # Note that testing is submitting a job in a cluster with Ray 2.9.3 remotely.
     (
         "ray[default] >= 2.4, <= 2.42.0,!= 2.5.*,!= 2.6.*,!= 2.7.*,!="
         " 2.8.*,!=2.9.0,!=2.9.1,!=2.9.2, !=2.10.*, !=2.11.*, !=2.12.*, !=2.13.*, !="
@@ -258,8 +258,9 @@ testing_extra_require = (
         "scikit-learn<1.6.0; python_version<='3.10'",
         "scikit-learn; python_version>'3.10'",
         # Lazy import requires > 2.12.0
-        "tensorflow == 2.13.0; python_version<='3.11'",
-        "tensorflow == 2.16.1; python_version>'3.11'",
+        "tensorflow == 2.14.1; python_version<='3.11'",
+        "tensorflow == 2.19.0; python_version>'3.11'",
+        "protobuf <= 5.29.4",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0; python_version<='3.11'",
@@ -304,6 +305,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "shapely < 3.0.0",
+        "google-genai >= 1.0.0, <2.0.0",
     )
     + genai_requires,
     extras_require={
