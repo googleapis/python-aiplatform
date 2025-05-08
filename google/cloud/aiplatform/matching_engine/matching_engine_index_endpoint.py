@@ -1112,6 +1112,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         auth_config_audiences: Optional[Sequence[str]] = None,
         auth_config_allowed_issuers: Optional[Sequence[str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
         deploy_request_timeout: Optional[float] = None,
         psc_automation_configs: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> "MatchingEngineIndexEndpoint":
@@ -1207,10 +1208,12 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 auth_config_audiences and auth_config_allowed_issuers must be passed together.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the request in seconds.
-
             psc_automation_configs (Sequence[Tuple[str, str]]):
                 Optional. A list of (project_id, network) pairs for Private
                 Service Connection endpoints to be setup for the deployed index.
@@ -1266,14 +1269,16 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploy index", "index_endpoint", self.__class__, deploy_lro
         )
 
-        deploy_lro.result(timeout=None)
+        # if sync then wait for any LRO to complete
+        if sync:
+            deploy_lro.result(timeout=None)
 
-        _LOGGER.log_action_completed_against_resource(
-            "index_endpoint", "Deployed index", self
-        )
+            _LOGGER.log_action_completed_against_resource(
+                "index_endpoint", "Deployed index", self
+            )
 
-        # update local resource
-        self._sync_gca_resource()
+            # update local resource
+            self._sync_gca_resource()
 
         return self
 
