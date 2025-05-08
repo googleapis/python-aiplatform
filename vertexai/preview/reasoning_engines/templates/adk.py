@@ -18,13 +18,6 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 if TYPE_CHECKING:
     try:
-        from google.genai import types
-
-        ContentDict = types.Content
-    except (ImportError, AttributeError):
-        ContentDict = Dict
-
-    try:
         from google.adk.events.event import Event
 
         Event = Event
@@ -450,7 +443,7 @@ class AdkApp:
     def stream_query(
         self,
         *,
-        message: Union[str, "ContentDict"],
+        message: Union[str, Dict[str, Any]],
         user_id: str,
         session_id: Optional[str] = None,
         **kwargs,
@@ -458,7 +451,7 @@ class AdkApp:
         """Streams responses from the ADK application in response to a message.
 
         Args:
-            message (str):
+            message (Union[str, Dict[str, Any]]):
                 Required. The message to stream responses for.
             user_id (str):
                 Required. The ID of the user.
