@@ -2546,6 +2546,53 @@ class TestModel:
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_no_endpoint_with_multihost_gpu_node_count(self, deploy_model_mock, sync):
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_GPU_MACHINE_TYPE,
+            accelerator_type=_TEST_GPU_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_GPU_ACCELERATOR_COUNT,
+            multihost_gpu_node_count=_TEST_MULTIHOST_GPU_NODE_COUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources.MachineSpec(
+            machine_type=_TEST_GPU_MACHINE_TYPE,
+            accelerator_type=_TEST_GPU_ACCELERATOR_COUNT,
+            accelerator_count=_TEST_GPU_ACCELERATOR_COUNT,
+            multihost_gpu_node_count=_TEST_MULTIHOST_GPU_NODE_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+            spot=False,
+        )
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_with_spot(self, deploy_model_mock, sync):
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
