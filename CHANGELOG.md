@@ -6,12 +6,6 @@
 ### ⚠ BREAKING CHANGES
 
 * Removed support for session resource paths that do not include reasoning engine
-* Removed support for session resource paths that do not include reasoning engine
-* Removed support for session resource paths that do not include reasoning engine
-* Removed support for session resource paths that do not include reasoning engine
-* Removed support for session resource paths that do not include reasoning engine
-* Removed support for session resource paths that do not include reasoning engine
-* Removed support for session resource paths that do not include reasoning engine
 
 ### Features
 
@@ -21,66 +15,16 @@
 * Add `enable_custom_service_account` parameter (must be set to `True` for successful Persistent Resource). The `service_account` parameter is retained for backward compatibility. ([bf79bdf](https://github.com/googleapis/python-aiplatform/commit/bf79bdf643c60e72b15f414dba964e9da2eb2d7f))
 * Add dedicated_endpoint_enabled and dedicated_endpoint_dns property. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
 * Add gemini_request_read_config field to AssembleDataRequest and AssessDataRequest in aiplatform v1beta ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Add gemini_request_read_config field to AssembleDataRequest and AssessDataRequest in aiplatform v1beta ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Add gemini_request_read_config field to AssembleDataRequest and AssessDataRequest in aiplatform v1beta ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Add gemini_request_read_config field to AssembleDataRequest and AssessDataRequest in aiplatform v1beta ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Add google.genai.types.Content as an allowed message type to ADK's stream_query method ([6b131d1](https://github.com/googleapis/python-aiplatform/commit/6b131d134d93e43ad3cfde5c3deb43a1a007ef32))
 * Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Allow customers to set encryption_spec for context caching ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Allow customers to set encryption_spec for context caching ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Allow customers to set encryption_spec for context caching ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Allow customers to set encryption_spec for context caching ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Implement check_license_agreement_status and accept_model_license_agreement for Model Garden OpenModel. ([3289d92](https://github.com/googleapis/python-aiplatform/commit/3289d9230d7aad005a3df6cadabf13f133c1850d))
 * In predict/rawPredict/streamRawPredict, send requests to the correct DNS based on endpoint type. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
 * Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1beta1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1beta1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1beta1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1beta1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Remove the requirement for a staging bucket to be set if an agent engine is created without extra packages or requirements files. ([6de9de1](https://github.com/googleapis/python-aiplatform/commit/6de9de17254834c18eb3a9d41f87cd864e29456f))
 
@@ -90,28 +34,12 @@
 * Only set parameters when it is not None for predict requests. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
 * Raise exception with details for dedicated endpoint if predict failed. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
 * Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Set the app_name in AdkApp template to GOOGLE_CLOUD_AGENT_ENGINE_ID if it exists. ([1cbe028](https://github.com/googleapis/python-aiplatform/commit/1cbe028e045f9179cbd28bc9bddecb7623dce237))
 
 
 ### Documentation
 
 * Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Fix comment for field_mapping field in GeminiTemplateConfig ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Fix comment for field_mapping field in GeminiTemplateConfig ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
-* Fix comment for field_mapping field in GeminiTemplateConfig ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Fix comment for field_mapping field in GeminiTemplateConfig ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 * Update an outdated URL ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
 
