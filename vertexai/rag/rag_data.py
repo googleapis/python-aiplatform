@@ -45,6 +45,7 @@ from vertexai.rag.utils import (
 from vertexai.rag.utils.resources import (
     JiraSource,
     LayoutParserConfig,
+    LlmParserConfig,
     RagCorpus,
     RagFile,
     RagVectorDbConfig,
@@ -433,7 +434,8 @@ def import_files(
     max_embedding_requests_per_min: int = 1000,
     import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
-    parser: Optional[LayoutParserConfig] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> ImportRagFilesResponse:
     """
     Import files to an existing RagCorpus, wait until completion.
@@ -573,6 +575,10 @@ def import_files(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if layout_parser is not None and llm_parser is not None:
+        raise ValueError(
+            "Only one of layout_parser or llm_parser may be passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -582,7 +588,8 @@ def import_files(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         import_result_sink=import_result_sink,
         partial_failures_sink=partial_failures_sink,
-        parser=parser,
+        layout_parser=layout_parser,
+        llm_parser=llm_parser,
     )
     client = _gapic_utils.create_rag_data_service_client()
     try:
@@ -601,7 +608,8 @@ async def import_files_async(
     max_embedding_requests_per_min: int = 1000,
     import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
-    parser: Optional[LayoutParserConfig] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> operation_async.AsyncOperation:
     """
     Import files to an existing RagCorpus asynchronously.
@@ -741,6 +749,10 @@ async def import_files_async(
         raise ValueError("Only one of source or paths must be passed in at a time")
     if source is None and paths is None:
         raise ValueError("One of source or paths must be passed in")
+    if layout_parser is not None and llm_parser is not None:
+        raise ValueError(
+            "Only one of layout_parser or llm_parser may be passed in at a time"
+        )
     corpus_name = _gapic_utils.get_corpus_name(corpus_name)
     request = _gapic_utils.prepare_import_files_request(
         corpus_name=corpus_name,
@@ -750,7 +762,8 @@ async def import_files_async(
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         import_result_sink=import_result_sink,
         partial_failures_sink=partial_failures_sink,
-        parser=parser,
+        layout_parser=layout_parser,
+        llm_parser=llm_parser,
     )
     async_client = _gapic_utils.create_rag_data_service_async_client()
     try:
