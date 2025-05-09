@@ -178,7 +178,7 @@ evaluation_extra_require = [
 langchain_extra_require = [
     "langchain >= 0.3, < 0.4",
     "langchain-core >= 0.3, < 0.4",
-    "langchain-google-vertexai >= 2, < 3",
+    "langchain-google-vertexai >= 2.0.22, < 3",
     "langgraph >= 0.2.45, < 0.4",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
 ]
