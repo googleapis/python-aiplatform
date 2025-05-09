@@ -21,11 +21,15 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from vertexai import generative_models
 from vertexai.tuning import _tuning
+from vertexai.tuning import SourceModel
 
 
 def train(
     *,
-    source_model: Union[str, generative_models.GenerativeModel],
+    source_model: Union[
+            str,
+            generative_models.GenerativeModel,
+            SourceModel],
     train_dataset: str,
     validation_dataset: Optional[str] = None,
     tuned_model_display_name: Optional[str] = None,
@@ -33,6 +37,7 @@ def train(
     learning_rate_multiplier: Optional[float] = None,
     adapter_size: Optional[Literal[1, 4, 8, 16]] = None,
     labels: Optional[Dict[str, str]] = None,
+    output_uri: Optional[str] = None,
 ) -> "SupervisedTuningJob":
     """Tunes a model using supervised training.
 
@@ -49,7 +54,7 @@ def train(
         learning_rate_multiplier: Learning rate multiplier for tuning.
         adapter_size: Adapter size for tuning.
         labels: User-defined metadata to be associated with trained models
-
+        output_uri: The Google Cloud Storage location to write the model artifacts.
     Returns:
         A `TuningJob` object.
     """
@@ -94,6 +99,7 @@ def train(
             tuning_spec=supervised_tuning_spec,
             tuned_model_display_name=tuned_model_display_name,
             labels=labels,
+            output_uri=output_uri,
         )
     )
     _ipython_utils.display_model_tuning_button(supervised_tuning_job)
