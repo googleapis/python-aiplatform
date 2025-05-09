@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.93.0](https://github.com/googleapis/python-aiplatform/compare/v1.92.0...v1.93.0) (2025-05-09)
+
+
+### Features
+
+* Update v1 sdk to support llmparser in import file functions ([03a7861](https://github.com/googleapis/python-aiplatform/commit/03a7861e0f9339c472f58f991b267fcda0e95245))
+
+
+### Bug Fixes
+
+* Fix the type annotation for content dictionaries in AdkApp ([674beaa](https://github.com/googleapis/python-aiplatform/commit/674beaaeffa203a1f4962f7afd66f1c959fb9e12))
+
 ## [1.92.0](https://github.com/googleapis/python-aiplatform/compare/v1.91.0...v1.92.0) (2025-05-08)
 
 
