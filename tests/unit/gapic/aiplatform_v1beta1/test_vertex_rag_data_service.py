@@ -75,6 +75,7 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import pagers
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import transports
 from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
@@ -1475,7 +1476,11 @@ def test_create_rag_corpus_flattened():
         client.create_rag_corpus(
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1488,7 +1493,9 @@ def test_create_rag_corpus_flattened():
         assert arg == mock_val
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1505,7 +1512,11 @@ def test_create_rag_corpus_flattened_error():
             vertex_rag_data_service.CreateRagCorpusRequest(),
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1531,7 +1542,11 @@ async def test_create_rag_corpus_flattened_async():
         response = await client.create_rag_corpus(
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1544,7 +1559,9 @@ async def test_create_rag_corpus_flattened_async():
         assert arg == mock_val
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1562,7 +1579,11 @@ async def test_create_rag_corpus_flattened_error_async():
             vertex_rag_data_service.CreateRagCorpusRequest(),
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1836,7 +1857,11 @@ def test_update_rag_corpus_flattened():
         # using the keyword arguments to the method.
         client.update_rag_corpus(
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1846,7 +1871,9 @@ def test_update_rag_corpus_flattened():
         _, args, _ = call.mock_calls[0]
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1862,7 +1889,11 @@ def test_update_rag_corpus_flattened_error():
         client.update_rag_corpus(
             vertex_rag_data_service.UpdateRagCorpusRequest(),
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1887,7 +1918,11 @@ async def test_update_rag_corpus_flattened_async():
         # using the keyword arguments to the method.
         response = await client.update_rag_corpus(
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -1897,7 +1932,9 @@ async def test_update_rag_corpus_flattened_async():
         _, args, _ = call.mock_calls[0]
         arg = args[0].rag_corpus
         mock_val = vertex_rag_data.RagCorpus(
-            vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+            vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(knn=None)
+            )
         )
         assert arg == mock_val
 
@@ -1914,7 +1951,11 @@ async def test_update_rag_corpus_flattened_error_async():
         await client.update_rag_corpus(
             vertex_rag_data_service.UpdateRagCorpusRequest(),
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -5883,7 +5924,11 @@ def test_create_rag_corpus_rest_flattened():
         mock_args = dict(
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
         mock_args.update(sample_request)
@@ -5922,7 +5967,11 @@ def test_create_rag_corpus_rest_flattened_error(transport: str = "rest"):
             vertex_rag_data_service.CreateRagCorpusRequest(),
             parent="parent_value",
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -6067,7 +6116,11 @@ def test_update_rag_corpus_rest_flattened():
         # get truthy value for each flattened field
         mock_args = dict(
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
         mock_args.update(sample_request)
@@ -6105,7 +6158,11 @@ def test_update_rag_corpus_rest_flattened_error(transport: str = "rest"):
         client.update_rag_corpus(
             vertex_rag_data_service.UpdateRagCorpusRequest(),
             rag_corpus=vertex_rag_data.RagCorpus(
-                vector_db_config=vertex_rag_data.RagVectorDbConfig(rag_managed_db=None)
+                vector_db_config=vertex_rag_data.RagVectorDbConfig(
+                    rag_managed_db=vertex_rag_data.RagVectorDbConfig.RagManagedDb(
+                        knn=None
+                    )
+                )
             ),
         )
 
@@ -8882,7 +8939,10 @@ def test_create_rag_corpus_rest_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -8924,6 +8984,7 @@ def test_create_rag_corpus_rest_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9124,7 +9185,10 @@ def test_update_rag_corpus_rest_call_success(request_type):
     }
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -9166,6 +9230,7 @@ def test_update_rag_corpus_rest_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11664,7 +11729,10 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -11706,6 +11774,7 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11922,7 +11991,10 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
     }
     request_init["rag_corpus"] = {
         "vector_db_config": {
-            "rag_managed_db": {},
+            "rag_managed_db": {
+                "knn": {},
+                "ann": {"tree_depth": 1060, "leaf_count": 1056},
+            },
             "weaviate": {
                 "http_endpoint": "http_endpoint_value",
                 "collection_name": "collection_name_value",
@@ -11964,6 +12036,7 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
         "update_time": {},
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
+        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
