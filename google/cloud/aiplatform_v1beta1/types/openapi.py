@@ -135,6 +135,10 @@ class Schema(proto.Message):
             Optional. The value should be validated
             against any (one or more) of the subschemas in
             the list.
+        additional_properties (google.protobuf.struct_pb2.Value):
+            Optional. Can either be a boolean or an
+            object; controls the presence of additional
+            properties.
         ref (str):
             Optional. Allows indirect references between schema nodes.
             The value should be a valid reference to a child of the root
@@ -248,6 +252,11 @@ class Schema(proto.Message):
         proto.MESSAGE,
         number=11,
         message="Schema",
+    )
+    additional_properties: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=26,
+        message=struct_pb2.Value,
     )
     ref: str = proto.Field(
         proto.STRING,
