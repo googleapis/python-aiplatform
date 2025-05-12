@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -509,6 +510,12 @@ class RagCorpus(proto.Message):
         rag_files_count (int):
             Output only. Number of RagFiles in the
             RagCorpus.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Optional. Immutable. The CMEK key name used
+            to encrypt at-rest data related to this Corpus.
+            Only applicable to RagManagedDb option for
+            Vector DB. This field can only be set at corpus
+            creation time, and cannot be updated or deleted.
     """
 
     vector_db_config: "RagVectorDbConfig" = proto.Field(
@@ -563,6 +570,11 @@ class RagCorpus(proto.Message):
     rag_files_count: int = proto.Field(
         proto.INT32,
         number=11,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
