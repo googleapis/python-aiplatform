@@ -37,6 +37,7 @@ __protobuf__ = proto.module(
         "SupervisedHyperParameters",
         "SupervisedTuningSpec",
         "TunedModelRef",
+        "TunedModelCheckpoint",
     },
 )
 
@@ -48,8 +49,8 @@ class TuningJob(proto.Message):
 
     Attributes:
         base_model (str):
-            The base model that is being tuned, e.g.,
-            "gemini-1.0-pro-002".
+            The base model that is being tuned. See `Supported
+            models <https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/tuning#supported_models>`__.
 
             This field is a member of `oneof`_ ``source_model``.
         supervised_tuning_spec (google.cloud.aiplatform_v1.types.SupervisedTuningSpec):
@@ -108,7 +109,7 @@ class TuningJob(proto.Message):
             Output only. The Experiment associated with this
             [TuningJob][google.cloud.aiplatform.v1.TuningJob].
         tuned_model (google.cloud.aiplatform_v1.types.TunedModel):
-            Output only. The tuned model resources assiociated with this
+            Output only. The tuned model resources associated with this
             [TuningJob][google.cloud.aiplatform.v1.TuningJob].
         tuning_data_stats (google.cloud.aiplatform_v1.types.TuningDataStats):
             Output only. The tuning data statistics associated with this
@@ -213,7 +214,7 @@ class TuningJob(proto.Message):
 
 
 class TunedModel(proto.Message):
-    r"""The Model Registry Model and Online Prediction Endpoint assiociated
+    r"""The Model Registry Model and Online Prediction Endpoint associated
     with this [TuningJob][google.cloud.aiplatform.v1.TuningJob].
 
     Attributes:
@@ -223,6 +224,11 @@ class TunedModel(proto.Message):
         endpoint (str):
             Output only. A resource name of an Endpoint. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+        checkpoints (MutableSequence[google.cloud.aiplatform_v1.types.TunedModelCheckpoint]):
+            Output only. The checkpoints associated with
+            this TunedModel. This field is only populated
+            for tuning jobs that enable intermediate
+            checkpoints.
     """
 
     model: str = proto.Field(
@@ -232,6 +238,11 @@ class TunedModel(proto.Message):
     endpoint: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    checkpoints: MutableSequence["TunedModelCheckpoint"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="TunedModelCheckpoint",
     )
 
 
@@ -364,11 +375,18 @@ class SupervisedTuningDataStats(proto.Message):
             Output only. Sample user messages in the
             training dataset uri.
         total_truncated_example_count (int):
-            The number of examples in the dataset that
-            have been truncated by any amount.
+            Output only. The number of examples in the
+            dataset that have been dropped. An example can
+            be dropped for reasons including: too many
+            tokens, contains an invalid image, contains too
+            many images, etc.
         truncated_example_indices (MutableSequence[int]):
-            A partial sample of the indices (starting
-            from 1) of the truncated examples.
+            Output only. A partial sample of the indices
+            (starting from 1) of the dropped examples.
+        dropped_example_reasons (MutableSequence[str]):
+            Output only. For each index in
+            ``truncated_example_indices``, the user-facing reason why
+            the example was dropped.
     """
 
     tuning_dataset_example_count: int = proto.Field(
@@ -421,6 +439,10 @@ class SupervisedTuningDataStats(proto.Message):
         proto.INT64,
         number=11,
     )
+    dropped_example_reasons: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=12,
+    )
 
 
 class TuningDataStats(proto.Message):
@@ -468,18 +490,24 @@ class SupervisedHyperParameters(proto.Message):
                 Adapter size is unspecified.
             ADAPTER_SIZE_ONE (1):
                 Adapter size 1.
+            ADAPTER_SIZE_TWO (6):
+                Adapter size 2.
             ADAPTER_SIZE_FOUR (2):
                 Adapter size 4.
             ADAPTER_SIZE_EIGHT (3):
                 Adapter size 8.
             ADAPTER_SIZE_SIXTEEN (4):
                 Adapter size 16.
+            ADAPTER_SIZE_THIRTY_TWO (5):
+                Adapter size 32.
         """
         ADAPTER_SIZE_UNSPECIFIED = 0
         ADAPTER_SIZE_ONE = 1
+        ADAPTER_SIZE_TWO = 6
         ADAPTER_SIZE_FOUR = 2
         ADAPTER_SIZE_EIGHT = 3
         ADAPTER_SIZE_SIXTEEN = 4
+        ADAPTER_SIZE_THIRTY_TWO = 5
 
     epoch_count: int = proto.Field(
         proto.INT64,
@@ -510,6 +538,12 @@ class SupervisedTuningSpec(proto.Message):
             dataset must be formatted as a JSONL file.
         hyper_parameters (google.cloud.aiplatform_v1.types.SupervisedHyperParameters):
             Optional. Hyperparameters for SFT.
+        export_last_checkpoint_only (bool):
+            Optional. If set to true, disable
+            intermediate checkpoints for SFT and only the
+            last checkpoint will be exported. Otherwise,
+            enable intermediate checkpoints for SFT. Default
+            is false.
     """
 
     training_dataset_uri: str = proto.Field(
@@ -524,6 +558,10 @@ class SupervisedTuningSpec(proto.Message):
         proto.MESSAGE,
         number=3,
         message="SupervisedHyperParameters",
+    )
+    export_last_checkpoint_only: bool = proto.Field(
+        proto.BOOL,
+        number=6,
     )
 
 
@@ -568,6 +606,40 @@ class TunedModelRef(proto.Message):
         proto.STRING,
         number=3,
         oneof="tuned_model_ref",
+    )
+
+
+class TunedModelCheckpoint(proto.Message):
+    r"""TunedModelCheckpoint for the Tuned Model of a Tuning Job.
+
+    Attributes:
+        checkpoint_id (str):
+            The ID of the checkpoint.
+        epoch (int):
+            The epoch of the checkpoint.
+        step (int):
+            The step of the checkpoint.
+        endpoint (str):
+            The Endpoint resource name that the checkpoint is deployed
+            to. Format:
+            ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
+    """
+
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    epoch: int = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    step: int = proto.Field(
+        proto.INT64,
+        number=3,
+    )
+    endpoint: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
