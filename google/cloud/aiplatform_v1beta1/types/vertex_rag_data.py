@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -247,7 +248,82 @@ class RagVectorDbConfig(proto.Message):
     """
 
     class RagManagedDb(proto.Message):
-        r"""The config for the default RAG-managed Vector DB."""
+        r"""The config for the default RAG-managed Vector DB.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            knn (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.RagManagedDb.KNN):
+                Performs a KNN search on RagCorpus.
+                Default choice if not specified.
+
+                This field is a member of `oneof`_ ``retrieval_strategy``.
+            ann (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.RagManagedDb.ANN):
+                Performs an ANN search on RagCorpus. Use this
+                if you have a lot of files (> 10K) in your
+                RagCorpus and want to reduce the search latency.
+
+                This field is a member of `oneof`_ ``retrieval_strategy``.
+        """
+
+        class KNN(proto.Message):
+            r"""Config for KNN search."""
+
+        class ANN(proto.Message):
+            r"""Config for ANN search.
+
+            RagManagedDb uses a tree-based structure to partition data and
+            facilitate faster searches. As a tradeoff, it requires longer
+            indexing time and manual triggering of index rebuild via the
+            ImportRagFiles and UpdateRagCorpus API.
+
+            Attributes:
+                tree_depth (int):
+                    The depth of the tree-based structure. Only
+                    depth values of 2 and 3 are supported.
+
+                    Recommended value is 2 if you have if you have
+                    O(10K) files in the RagCorpus and set this to 3
+                    if more than that.
+
+                    Default value is 2.
+                leaf_count (int):
+                    Number of leaf nodes in the tree-based structure. Each leaf
+                    node contains groups of closely related vectors along with
+                    their corresponding centroid.
+
+                    Recommended value is 10 \* sqrt(num of RagFiles in your
+                    RagCorpus).
+
+                    Default value is 500.
+            """
+
+            tree_depth: int = proto.Field(
+                proto.INT32,
+                number=1,
+            )
+            leaf_count: int = proto.Field(
+                proto.INT32,
+                number=2,
+            )
+
+        knn: "RagVectorDbConfig.RagManagedDb.KNN" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="retrieval_strategy",
+            message="RagVectorDbConfig.RagManagedDb.KNN",
+        )
+        ann: "RagVectorDbConfig.RagManagedDb.ANN" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="retrieval_strategy",
+            message="RagVectorDbConfig.RagManagedDb.ANN",
+        )
 
     class Weaviate(proto.Message):
         r"""The config for the Weaviate.
@@ -509,6 +585,12 @@ class RagCorpus(proto.Message):
         rag_files_count (int):
             Output only. Number of RagFiles in the
             RagCorpus.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Optional. Immutable. The CMEK key name used
+            to encrypt at-rest data related to this Corpus.
+            Only applicable to RagManagedDb option for
+            Vector DB. This field can only be set at corpus
+            creation time, and cannot be updated or deleted.
     """
 
     vector_db_config: "RagVectorDbConfig" = proto.Field(
@@ -563,6 +645,11 @@ class RagCorpus(proto.Message):
     rag_files_count: int = proto.Field(
         proto.INT32,
         number=11,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -1112,6 +1199,15 @@ class ImportRagFilesConfig(proto.Message):
             value properly. If this value is not specified,
             max_embedding_requests_per_min will be used by indexing
             pipeline job as the global limit.
+        rebuild_ann_index (bool):
+            Rebuilds the ANN index to optimize for recall on the
+            imported data. Only applicable for RagCorpora running on
+            RagManagedDb with ``retrieval_strategy`` set to ``ANN``. The
+            rebuild will be performed using the existing ANN config set
+            on the RagCorpus. To change the ANN config, please use the
+            UpdateRagCorpus API.
+
+            Default is false, i.e., index is not rebuilt.
     """
 
     gcs_source: io.GcsSource = proto.Field(
@@ -1190,6 +1286,10 @@ class ImportRagFilesConfig(proto.Message):
     global_max_embedding_requests_per_min: int = proto.Field(
         proto.INT32,
         number=18,
+    )
+    rebuild_ann_index: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
 
 
