@@ -1142,6 +1142,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
@@ -2328,6 +2329,7 @@ __all__ = (
 'Trial',
 'TrialContext',
 'TunedModel',
+'TunedModelCheckpoint',
 'TunedModelRef',
 'TuningDataStats',
 'TuningJob',

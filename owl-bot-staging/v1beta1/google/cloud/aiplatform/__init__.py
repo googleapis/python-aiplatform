@@ -1142,6 +1142,7 @@ from google.cloud.aiplatform_v1beta1.types.tuning_job import SupervisedTuningDat
 from google.cloud.aiplatform_v1beta1.types.tuning_job import SupervisedTuningDataStats
 from google.cloud.aiplatform_v1beta1.types.tuning_job import SupervisedTuningSpec
 from google.cloud.aiplatform_v1beta1.types.tuning_job import TunedModel
+from google.cloud.aiplatform_v1beta1.types.tuning_job import TunedModelCheckpoint
 from google.cloud.aiplatform_v1beta1.types.tuning_job import TunedModelRef
 from google.cloud.aiplatform_v1beta1.types.tuning_job import TuningDataStats
 from google.cloud.aiplatform_v1beta1.types.tuning_job import TuningJob
@@ -2346,6 +2347,7 @@ __all__ = ('DatasetServiceClient',
     'SupervisedTuningDataStats',
     'SupervisedTuningSpec',
     'TunedModel',
+    'TunedModelCheckpoint',
     'TunedModelRef',
     'TuningDataStats',
     'TuningJob',
