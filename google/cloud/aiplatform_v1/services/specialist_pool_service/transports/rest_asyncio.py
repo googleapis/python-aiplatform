@@ -1784,6 +1784,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1917,6 +1921,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -2134,6 +2142,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2275,6 +2287,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2512,6 +2528,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2665,6 +2685,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2898,6 +2922,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -3075,6 +3103,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -3292,6 +3324,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3433,6 +3469,10 @@ class AsyncSpecialistPoolServiceRestTransport(_BaseSpecialistPoolServiceRestTran
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                     },
                     {
                         "method": "post",

@@ -1218,6 +1218,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -1351,6 +1355,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -1568,6 +1576,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -1709,6 +1721,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -1946,6 +1962,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2099,6 +2119,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -2332,6 +2356,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -2509,6 +2537,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -2726,6 +2758,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -2867,6 +2903,10 @@ class PipelineServiceRestTransport(_BasePipelineServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                     },
                     {
                         "method": "post",

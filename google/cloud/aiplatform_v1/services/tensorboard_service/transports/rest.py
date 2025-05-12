@@ -2377,6 +2377,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -2510,6 +2514,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -2727,6 +2735,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2868,6 +2880,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -3105,6 +3121,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -3258,6 +3278,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -3491,6 +3515,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -3668,6 +3696,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -3885,6 +3917,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -4026,6 +4062,10 @@ class TensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                     },
                     {
                         "method": "post",

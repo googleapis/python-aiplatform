@@ -1004,6 +1004,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -1137,6 +1141,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1373,6 +1381,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1514,6 +1526,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1770,6 +1786,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1923,6 +1943,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "get",
@@ -2175,6 +2199,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2352,6 +2380,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                 },
                 {
                     "method": "get",
@@ -2588,6 +2620,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2729,6 +2765,10 @@ class _BaseIndexEndpointServiceRestTransport(IndexEndpointServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                 },
                 {
                     "method": "post",
