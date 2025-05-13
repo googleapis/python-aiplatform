@@ -118,6 +118,8 @@ class TestDataset(e2e_base.TestEndToEnd):
             assert ds.bigquery_table == bigquery_table
             assert ds.labels == labels
             assert ds.location == _TEST_LOCATION
+        except Exception as e:
+            raise e
         finally:
             ds.delete()
 
@@ -143,6 +145,8 @@ class TestDataset(e2e_base.TestEndToEnd):
             assert len(bf_dataframe) == len(_TEST_DATASET)
             assert set(bf_dataframe.columns) == {"Question", "Answer"}
 
+        except Exception as e:
+            raise e
         finally:
             bigquery_client.delete_table(table_id, not_found_ok=True)
             ds.delete()
@@ -167,6 +171,8 @@ class TestDataset(e2e_base.TestEndToEnd):
             imported_bf_dataframe = bpd.read_gbq(table_id)
             assert len(imported_bf_dataframe) == len(_TEST_DATASET)
             assert set(imported_bf_dataframe.columns) == {"Question", "Answer"}
+        except Exception as e:
+            raise e
         finally:
             bigquery_client.delete_table(table_id, not_found_ok=True)
             ds.delete()
@@ -186,6 +192,8 @@ class TestDataset(e2e_base.TestEndToEnd):
 
             assert len(bf_df_exported) == len(_TEST_DATASET)
             assert set(bf_df_exported.columns) == {"Question", "Answer"}
+        except Exception as e:
+            raise e
         finally:
             bigquery_client.delete_table(table_id, not_found_ok=True)
             ds.delete()
@@ -202,6 +210,8 @@ class TestDataset(e2e_base.TestEndToEnd):
             bf_uri, dataframe = ds.assemble()
             assert bf_uri
             assert len(dataframe) > 0
+        except Exception as e:
+            raise e
         finally:
             ds.delete()
             bigquery_client.delete_table(_uri_to_table_id(bf_uri), not_found_ok=True)
@@ -217,6 +227,8 @@ class TestDataset(e2e_base.TestEndToEnd):
                 model_name="gemini-1.5-flash-002", dataset_usage="SFT_TRAINING"
             )
             assert not validation_result.errors
+        except Exception as e:
+            raise e
         finally:
             ds.delete()
 
@@ -232,6 +244,8 @@ class TestDataset(e2e_base.TestEndToEnd):
             )
             assert tuning_resources.billable_character_count > 0
             assert tuning_resources.token_count > 0
+        except Exception as e:
+            raise e
         finally:
             ds.delete()
 
@@ -250,6 +264,8 @@ class TestDataset(e2e_base.TestEndToEnd):
             assert len(bf) > 0
             request = bf.iloc[0]["request"]
             assert "Tell me about this species: " in request
+        except Exception as e:
+            raise e
         finally:
             ds.delete()
             prompts.delete(prompt.prompt_id)
