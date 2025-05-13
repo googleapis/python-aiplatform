@@ -23,6 +23,7 @@ import types
 import typing
 from typing import (
     Any,
+    AsyncIterable,
     Callable,
     Dict,
     Iterable,
@@ -55,12 +56,15 @@ _REQUIREMENTS_FILE = "requirements.txt"
 _EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
 _STANDARD_API_MODE = ""
 _STREAM_API_MODE = "stream"
+_ASYNC_STREAM_API_MODE = "async_stream"
 _MODE_KEY_IN_SCHEMA = "api_mode"
 _METHOD_NAME_KEY_IN_SCHEMA = "name"
 _DEFAULT_METHOD_NAME = "query"
 _DEFAULT_STREAM_METHOD_NAME = "stream_query"
+_DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
 _DEFAULT_METHOD_RETURN_TYPE = "dict[str, Any]"
 _DEFAULT_STREAM_METHOD_RETURN_TYPE = "Iterable[Any]"
+_DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE = "AsyncIterable[Any]"
 _DEFAULT_METHOD_DOCSTRING_TEMPLATE = """
     Runs the Agent Engine to serve the user request.
 
@@ -93,6 +97,15 @@ class Queryable(Protocol):
 
 
 @typing.runtime_checkable
+class AsyncStreamQueryable(Protocol):
+    """Protocol for Agent Engines that can stream responses asynchronously."""
+
+    @abc.abstractmethod
+    async def async_stream_query(self, **kwargs) -> AsyncIterable[Any]:
+        """Asynchronously stream responses to serve the user query."""
+
+
+@typing.runtime_checkable
 class StreamQueryable(Protocol):
     """Protocol for Agent Engines that can stream responses."""
 
@@ -120,10 +133,35 @@ class OperationRegistrable(Protocol):
 
 
 def _wrap_agent_operation(agent: Any, operation: str):
+    """Wraps an agent operation into a method."""
+    if inspect.iscoroutinefunction(getattr(agent, operation)):
+        raise NotImplementedError(
+            "Asynchronous operations are not supported in "
+            "`_wrap_agent_operation`, please use `_wrap_agent_async_operation`."
+        )
+
     def _method(self, **kwargs):
         if not self._tmpl_attrs.get("agent"):
             self.set_up()
         return getattr(self._tmpl_attrs["agent"], operation)(**kwargs)
+
+    _method.__name__ = operation
+    _method.__doc__ = getattr(agent, operation).__doc__
+    return _method
+
+
+async def _wrap_agent_async_operation(agent: Any, operation: str):
+    """Wraps an agent async operation into a method."""
+    if not inspect.iscoroutinefunction(getattr(agent, operation)):
+        raise NotImplementedError(
+            "Synchronous operations are not supported in "
+            "`_wrap_agent_async_operation`, please use `_wrap_agent_operation`."
+        )
+
+    async def _method(self, **kwargs):
+        if not self._tmpl_attrs.get("agent"):
+            self.set_up()
+        return await getattr(self._tmpl_attrs["agent"], operation)(**kwargs)
 
     _method.__name__ = operation
     _method.__doc__ = getattr(agent, operation).__doc__
@@ -668,13 +706,18 @@ def _validate_staging_bucket_or_raise(staging_bucket: str) -> str:
 
 
 def _validate_agent_engine_or_raise(
-    agent_engine: Union[Queryable, OperationRegistrable, StreamQueryable],
-) -> Union[Queryable, OperationRegistrable, StreamQueryable]:
+    agent_engine: Union[
+        Queryable, OperationRegistrable, StreamQueryable, AsyncStreamQueryable
+    ],
+) -> Union[
+    Queryable, OperationRegistrable, StreamQueryable, AsyncStreamQueryable
+]:
     """Tries to validate the agent engine.
 
     The agent engine must have one of the following:
     * a callable method named `query`
     * a callable method named `stream_query`
+    * a callable method named `async_stream_query`
     * a callable method named `register_operations`
 
     Args:
@@ -703,14 +746,24 @@ def _validate_agent_engine_or_raise(
     is_stream_queryable = isinstance(agent_engine, StreamQueryable) and callable(
         agent_engine.stream_query
     )
+    is_async_stream_queryable = (
+        isinstance(agent_engine, AsyncStreamQueryable)
+        and callable(agent_engine.async_stream_query)
+    )
     is_operation_registrable = isinstance(
         agent_engine, OperationRegistrable
     ) and callable(agent_engine.register_operations)
 
-    if not (is_queryable or is_stream_queryable or is_operation_registrable):
+    if not (
+        is_queryable
+        or is_stream_queryable
+        or is_operation_registrable
+        or is_async_stream_queryable
+    ):
         raise TypeError(
-            "agent_engine has neither a callable method named `query`"
-            " nor a callable method named `register_operations`."
+            "agent_engine has none of the following callable method named: "
+            "`query`, `stream_query`, `async_stream_query` or "
+            "`register_operations`."
         )
 
     if is_queryable:
@@ -729,6 +782,16 @@ def _validate_agent_engine_or_raise(
             raise ValueError(
                 "Invalid stream_query signature. This might be due to a missing"
                 " `self` argument in the agent_engine.stream_query method."
+            ) from err
+
+    if is_async_stream_queryable:
+        try:
+            inspect.signature(getattr(agent_engine, "async_stream_query"))
+        except ValueError as err:
+            raise ValueError(
+                "Invalid async_stream_query signature. This might be due to a "
+                " missing `self` argument in the "
+                "agent_engine.async_stream_query method."
             ) from err
 
     if is_operation_registrable:
@@ -1128,6 +1191,43 @@ def _wrap_stream_query_operation(
     return _method
 
 
+def _wrap_async_stream_query_operation(
+    *, method_name: str, doc: str
+) -> Callable[..., AsyncIterable[Any]]:
+    """Wraps an Agent Engine method, creating an async callable for `stream_query` API.
+
+    This function creates a callable object that executes the specified
+    Agent Engine method using the `stream_query` API.  It handles the
+    creation of the API request and the processing of the API response.
+
+    Args:
+        method_name: The name of the Agent Engine method to call.
+        doc: Documentation string for the method.
+
+    Returns:
+        A callable object that executes the method on the Agent Engine via
+        the `stream_query` API.
+    """
+
+    async def _method(self, **kwargs) -> AsyncIterable[Any]:
+        response = self.execution_api_client.stream_query_reasoning_engine(
+            request=aip_types.StreamQueryReasoningEngineRequest(
+                name=self.resource_name,
+                input=kwargs,
+                class_method=method_name,
+            ),
+        )
+        for chunk in response:
+            for parsed_json in _utils.yield_parsed_json(chunk):
+                if parsed_json is not None:
+                    yield parsed_json
+
+    _method.__name__ = method_name
+    _method.__doc__ = doc
+
+    return _method
+
+
 def _unregister_api_methods(
     obj: "AgentEngine", operation_schemas: Sequence[_utils.JsonDict]
 ):
@@ -1206,11 +1306,24 @@ def _register_api_methods_or_raise(obj: "AgentEngine"):
                 method_name=method_name,
                 doc=method_description,
             )
+        elif api_mode == _ASYNC_STREAM_API_MODE:
+            method_description = (
+                method_description
+                or _DEFAULT_METHOD_DOCSTRING_TEMPLATE.format(
+                    method_name=method_name,
+                    default_method_name=_DEFAULT_ASYNC_STREAM_METHOD_NAME,
+                    return_type=_DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
+                )
+            )
+            method = _wrap_async_stream_query_operation(
+                method_name=method_name,
+                doc=method_description,
+            )
         else:
             raise ValueError(
                 f"Unsupported api mode: `{api_mode}`,"
-                f" Supported modes are: `{_STANDARD_API_MODE}`"
-                f" and `{_STREAM_API_MODE}`."
+                f" Supported modes are: `{_STANDARD_API_MODE}`,"
+                f" `{_STREAM_API_MODE}` and `{_ASYNC_STREAM_API_MODE}`."
             )
 
         # Binds the method to the object.
@@ -1227,6 +1340,8 @@ def _get_registered_operations(agent_engine: Any) -> Dict[str, List[str]]:
         operations[_STANDARD_API_MODE] = [_DEFAULT_METHOD_NAME]
     if isinstance(agent_engine, StreamQueryable):
         operations[_STREAM_API_MODE] = [_DEFAULT_STREAM_METHOD_NAME]
+    if isinstance(agent_engine, AsyncStreamQueryable):
+        operations[_ASYNC_STREAM_API_MODE] = [_DEFAULT_ASYNC_STREAM_METHOD_NAME]
     return operations
 
 
