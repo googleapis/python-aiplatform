@@ -37,7 +37,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.api_core import retry_async as retries
 from google.api_core import rest_helpers
 from google.api_core import rest_streaming_async  # type: ignore
-import google.protobuf
+
 
 from google.protobuf import json_format
 from google.api_core import operations_v1
@@ -81,9 +81,6 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     grpc_version=None,
     rest_version=f"google-auth@{google.auth.__version__}",
 )
-
-if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
-    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 
 class AsyncPersistentResourceServiceRestInterceptor:
@@ -2041,10 +2038,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "post",
-                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                     },
                     {
@@ -2178,10 +2171,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                     },
                     {
                         "method": "post",
@@ -2399,10 +2388,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "delete",
-                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
-                    },
-                    {
-                        "method": "delete",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                     },
                     {
@@ -2544,10 +2529,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                    },
-                    {
-                        "method": "delete",
-                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2785,10 +2766,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                     },
                     {
@@ -2942,10 +2919,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                     },
                     {
                         "method": "get",
@@ -3179,10 +3152,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "get",
-                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
-                    },
-                    {
-                        "method": "get",
                         "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                     },
                     {
@@ -3360,10 +3329,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                    },
-                    {
-                        "method": "get",
-                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                     },
                     {
                         "method": "get",
@@ -3581,10 +3546,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "post",
-                        "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
                         "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                     },
                     {
@@ -3726,10 +3687,6 @@ class AsyncPersistentResourceServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                    },
-                    {
-                        "method": "post",
-                        "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                     },
                     {
                         "method": "post",

@@ -699,10 +699,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/specialistPools/*/operations/*}:cancel",
                 },
                 {
@@ -836,10 +832,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:cancel",
                 },
                 {
                     "method": "post",
@@ -1076,10 +1068,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "delete",
-                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}",
                 },
                 {
@@ -1221,10 +1209,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "delete",
-                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -1481,10 +1465,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
-                },
-                {
-                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*/operations/*}",
                 },
                 {
@@ -1638,10 +1618,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}",
                 },
                 {
                     "method": "get",
@@ -1894,10 +1870,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "get",
-                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig}/operations",
-                },
-                {
-                    "method": "get",
                     "uri": "/ui/{name=projects/*/locations/*/schedules/*}/operations",
                 },
                 {
@@ -2075,10 +2047,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/pipelineJobs/*}/operations",
-                },
-                {
-                    "method": "get",
-                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig}/operations",
                 },
                 {
                     "method": "get",
@@ -2315,10 +2283,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 },
                 {
                     "method": "post",
-                    "uri": "/ui/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
-                },
-                {
-                    "method": "post",
                     "uri": "/ui/{name=projects/*/locations/*/tensorboards/*/operations/*}:wait",
                 },
                 {
@@ -2460,10 +2424,6 @@ class _BaseReasoningEngineExecutionServiceRestTransport(
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/notebookRuntimeTemplates/*/operations/*}:wait",
-                },
-                {
-                    "method": "post",
-                    "uri": "/v1/{name=projects/*/locations/*/ragEngineConfig/operations/*}:wait",
                 },
                 {
                     "method": "post",
