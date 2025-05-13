@@ -144,6 +144,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
         module_name: str,
         agent_name: str,
         register_operations: Dict[str, Sequence[str]],
+        sys_paths: Optional[Sequence[str]] = None,
     ):
         """Initializes a module-based agent.
 
@@ -154,11 +155,19 @@ class ModuleAgent(Cloneable, OperationRegistrable):
                 Required. The name of the agent in the module to instantiate.
             register_operations (Dict[str, Sequence[str]]):
                 Required. A dictionary of API modes to a list of method names.
+            sys_paths (Sequence[str]):
+                Optional. The system paths to search for the module. It should
+                be relative to the directory where the code will be running.
+                I.e. it should correspond to the directory being passed to
+                `extra_packages=...` in the create method. It will be appended
+                to the system path in the sequence being specified here, and
+                only be appended if it is not already in the system path.
         """
         self._tmpl_attrs = {
             "module_name": module_name,
             "agent_name": agent_name,
             "register_operations": register_operations,
+            "sys_paths": sys_paths,
         }
 
     def clone(self):
@@ -167,6 +176,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
             module_name=self._tmpl_attrs.get("module_name"),
             agent_name=self._tmpl_attrs.get("agent_name"),
             register_operations=self._tmpl_attrs.get("register_operations"),
+            sys_paths=self._tmpl_attrs.get("sys_paths"),
         )
 
     def register_operations(self) -> Dict[str, Sequence[str]]:
@@ -178,6 +188,14 @@ class ModuleAgent(Cloneable, OperationRegistrable):
         It runs the code to import the agent from the module, and registers the
         operations of the agent.
         """
+        if self._tmpl_attrs.get("sys_paths"):
+            import sys
+
+            for sys_path in self._tmpl_attrs.get("sys_paths"):
+                abs_path = os.path.abspath(sys_path)
+                if abs_path not in sys.path:
+                    sys.path.append(abs_path)
+
         import importlib
 
         module = importlib.import_module(self._tmpl_attrs.get("module_name"))
