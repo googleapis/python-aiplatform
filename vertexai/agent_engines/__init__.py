@@ -30,6 +30,7 @@ from vertexai.agent_engines._agent_engines import (
     OperationRegistrable,
     Queryable,
     StreamQueryable,
+    AsyncStreamQueryable,
 )
 from vertexai.agent_engines.templates.ag2 import (
     AG2Agent,
@@ -313,6 +314,7 @@ __all__ = (
     "OperationRegistrable",
     "Queryable",
     "StreamQueryable",
+    "AsyncStreamQueryable",
     # Methods
     "create",
     "delete",
