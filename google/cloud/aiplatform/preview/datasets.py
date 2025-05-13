@@ -1093,6 +1093,18 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             create_request_timeout=create_request_timeout,
         )
 
+    def to_bigframes(self) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+        """Converts a multimodal dataset to a BigFrames dataframe.
+
+        This is the preferred method to inspect the multimodal dataset in a
+        notebook.
+
+        Returns:
+            A BigFrames dataframe.
+        """
+        bigframes = _try_import_bigframes()
+        return bigframes.pandas.read_gbq_table(self.bigquery_table().lstrip("bq://"))
+
     @classmethod
     @base.optional_sync()
     def _create_from_bigquery(
