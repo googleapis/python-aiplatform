@@ -216,6 +216,34 @@ class TestCaching:
         )
         assert cache.display_name == _TEST_DISPLAY_NAME
 
+    def test_create_with_encrypted_real_payload(
+        self, mock_create_cached_content, mock_get_cached_content
+    ):
+        cache = CachedContent.create(
+            model_name="model-name",
+            system_instruction=GapicContent(
+                role="system", parts=[GapicPart(text="system instruction")]
+            ),
+            tools=[],
+            tool_config=GapicToolConfig(),
+            contents=[GapicContent(role="user")],
+            ttl=datetime.timedelta(days=1),
+            display_name=_TEST_DISPLAY_NAME,
+            kms_key_name=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/keyRings/test-key-ring/cryptoKeys/test-key",
+        )
+
+        # parent is automantically set to align with the current project and location.
+        # _CREATED_CONTENT_ID is from the mock
+        assert cache.resource_name == (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/cachedContents/{_CREATED_CONTENT_ID}"
+        )
+        assert cache.name == _CREATED_CONTENT_ID
+        assert (
+            cache.model_name
+            == f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/model-name"
+        )
+        assert cache.display_name == _TEST_DISPLAY_NAME
+
     def test_create_with_real_payload_and_wrapped_type(
         self, mock_create_cached_content, mock_get_cached_content
     ):
