@@ -267,7 +267,7 @@ class OpenModel:
             the format of `{organization}/{model}`.
     """
 
-    __module__ = "vertexai.preview.model_garden"
+    __module__ = "vertexai.model_garden"
 
     def __init__(
         self,

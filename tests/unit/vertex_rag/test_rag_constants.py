@@ -21,6 +21,7 @@ from google.cloud import aiplatform
 from vertexai.rag import (
     Filter,
     LayoutParserConfig,
+    LlmParserConfig,
     LlmRanker,
     Pinecone,
     RagCorpus,
@@ -628,4 +629,27 @@ TEST_RAG_RETRIEVAL_ERROR_RANKING_CONFIG = RagRetrievalConfig(
         rank_service=RankService(model_name="test-rank-service"),
         llm_ranker=LlmRanker(model_name="test-llm-ranker"),
     ),
+)
+TEST_LLM_PARSER_CONFIG = LlmParserConfig(
+    model_name="gemini-1.5-pro-002",
+    max_parsing_requests_per_min=500,
+    custom_parsing_prompt="test-custom-parsing-prompt",
+)
+
+
+TEST_IMPORT_FILES_CONFIG_LLM_PARSER = ImportRagFilesConfig(
+    TEST_IMPORT_FILES_CONFIG_DRIVE_FOLDER
+)
+
+TEST_IMPORT_FILES_CONFIG_LLM_PARSER.rag_file_parsing_config = RagFileParsingConfig(
+    llm_parser=RagFileParsingConfig.LlmParser(
+        model_name="gemini-1.5-pro-002",
+        max_parsing_requests_per_min=500,
+        custom_parsing_prompt="test-custom-parsing-prompt",
+    )
+)
+
+TEST_IMPORT_REQUEST_LLM_PARSER = ImportRagFilesRequest(
+    parent=TEST_RAG_CORPUS_RESOURCE_NAME,
+    import_rag_files_config=TEST_IMPORT_FILES_CONFIG_LLM_PARSER,
 )

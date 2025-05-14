@@ -645,8 +645,8 @@ class LanggraphAgent:
 
         This mapping defines how different operation modes (e.g., "", "stream")
         are implemented by specific methods of the Agent.  The "default" mode,
-        represented by the empty string ``, is associated with the `query` API,
-        while the "stream" mode is associated with the `stream_query` API.
+        represented by the empty string `""`, is associated with the `query`
+        API, while the "stream" mode is associated with the `stream_query` API.
 
         Returns:
             Mapping[str, Sequence[str]]: A mapping of operation modes to a list

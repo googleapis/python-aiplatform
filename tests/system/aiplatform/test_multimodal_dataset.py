@@ -171,6 +171,25 @@ class TestDataset(e2e_base.TestEndToEnd):
             bigquery_client.delete_table(table_id, not_found_ok=True)
             ds.delete()
 
+    def test_export_to_bigframes(self, shared_state):
+        assert shared_state["bigquery_client"]
+        bigquery_client = shared_state["bigquery_client"]
+
+        bpd.options.bigquery.project = _TEST_PROJECT
+        bpd.options.bigquery.location = _TEST_LOCATION
+
+        try:
+            bf_df_source = bpd.DataFrame(_TEST_DATASET)
+            ds = datasets.MultimodalDataset.from_bigframes(dataframe=bf_df_source)
+            bf_df_exported = ds.to_bigframes()
+            table_id = _uri_to_table_id(ds.bigquery_table)
+
+            assert len(bf_df_exported) == len(_TEST_DATASET)
+            assert set(bf_df_exported.columns) == {"Question", "Answer"}
+        finally:
+            bigquery_client.delete_table(table_id, not_found_ok=True)
+            ds.delete()
+
     def test_assemble_dataset(self, shared_state):
         assert shared_state["bigquery_client"]
         assert shared_state["bigquery_test_table"]

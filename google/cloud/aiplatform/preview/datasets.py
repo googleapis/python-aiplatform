@@ -1093,6 +1093,18 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             create_request_timeout=create_request_timeout,
         )
 
+    def to_bigframes(self) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+        """Converts a multimodal dataset to a BigFrames dataframe.
+
+        This is the preferred method to inspect the multimodal dataset in a
+        notebook.
+
+        Returns:
+            A BigFrames dataframe.
+        """
+        bigframes = _try_import_bigframes()
+        return bigframes.pandas.read_gbq_table(self.bigquery_table().lstrip("bq://"))
+
     @classmethod
     @base.optional_sync()
     def _create_from_bigquery(
@@ -1359,14 +1371,12 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
                 load_dataframe is True, otherwise None.
         """
         bigframes = _try_import_bigframes()
-        request = gca_dataset_service.AssembleDataRequest(name=self.resource_name)
-        if self.request_column_name is not None:
-            request.request_column_name = self.request_column_name
-        else:
-            template_config_to_use = _resolve_template_config(self, template_config)
-            request.gemini_template_config = (
-                template_config_to_use._raw_gemini_template_config
-            )
+        request = gca_dataset_service.AssembleDataRequest(
+            name=self.resource_name,
+            gemini_request_read_config=self._build_gemini_request_read_config(
+                template_config
+            ),
+        )
 
         assemble_lro = self.api_client.assemble_data(
             request=request, timeout=assemble_request_timeout
@@ -1410,7 +1420,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
               dataset.
 
         """
-        request = _build_assess_data_request(self, template_config)
+        request = self._build_assess_data_request(template_config)
         request.tuning_resource_usage_assessment_config = (
             gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
@@ -1474,7 +1484,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         if dataset_usage_enum == DatasetUsage.DATASET_USAGE_UNSPECIFIED:
             raise ValueError("Dataset usage must be specified.")
 
-        request = _build_assess_data_request(self, template_config)
+        request = self._build_assess_data_request(template_config)
         request.tuning_validation_assessment_config = (
             gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig(
                 model_name=model_name,
@@ -1489,32 +1499,42 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             errors=assessment_result.tuning_validation_assessment_result.errors
         )
 
-
-def _resolve_template_config(
-    dataset: MultimodalDataset,
-    template_config: Optional[GeminiTemplateConfig] = None,
-) -> GeminiTemplateConfig:
-    """Returns the passed template config if it is not None, otherwise
-    returns the template config attached to the dataset.
-    """
-    if template_config is not None:
-        return template_config
-    elif dataset.template_config is not None:
-        return dataset.template_config
-    else:
-        raise ValueError("No template config was passed or attached to the dataset.")
-
-
-def _build_assess_data_request(
-    dataset: MultimodalDataset,
-    template_config: Optional[GeminiTemplateConfig] = None,
-):
-    request = gca_dataset_service.AssessDataRequest(name=dataset.resource_name)
-    if dataset.request_column_name is not None:
-        request.request_column_name = dataset.request_column_name
-    else:
-        template_config_to_use = _resolve_template_config(dataset, template_config)
-        request.gemini_template_config = (
-            template_config_to_use._raw_gemini_template_config
+    def _build_assess_data_request(
+        self,
+        template_config: Optional[GeminiTemplateConfig] = None,
+    ):
+        return gca_dataset_service.AssessDataRequest(
+            name=self.resource_name,
+            gemini_request_read_config=self._build_gemini_request_read_config(
+                template_config
+            ),
         )
-    return request
+
+    def _build_gemini_request_read_config(
+        self, template_config: Optional[GeminiTemplateConfig] = None
+    ):
+        if self.request_column_name is not None:
+            return gca_dataset_service.GeminiRequestReadConfig(
+                assembled_request_column_name=self.request_column_name
+            )
+        else:
+            template_config_to_use = self._resolve_template_config(template_config)
+            return gca_dataset_service.GeminiRequestReadConfig(
+                template_config=template_config_to_use._raw_gemini_template_config
+            )
+
+    def _resolve_template_config(
+        self,
+        template_config: Optional[GeminiTemplateConfig] = None,
+    ) -> GeminiTemplateConfig:
+        """Returns the passed template config if it is not None, otherwise
+        returns the template config attached to the dataset.
+        """
+        if template_config is not None:
+            return template_config
+        elif self.template_config is not None:
+            return self.template_config
+        else:
+            raise ValueError(
+                "No template config was passed or attached to the dataset."
+            )

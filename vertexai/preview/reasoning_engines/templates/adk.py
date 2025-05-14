@@ -13,17 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Union,
+)
 
 
 if TYPE_CHECKING:
-    try:
-        from google.genai import types
-
-        ContentDict = types.Content
-    except (ImportError, AttributeError):
-        ContentDict = Dict
-
     try:
         from google.adk.events.event import Event
 
@@ -450,7 +452,7 @@ class AdkApp:
     def stream_query(
         self,
         *,
-        message: Union[str, "ContentDict"],
+        message: Union[str, Dict[str, Any]],
         user_id: str,
         session_id: Optional[str] = None,
         **kwargs,
@@ -458,7 +460,7 @@ class AdkApp:
         """Streams responses from the ADK application in response to a message.
 
         Args:
-            message (str):
+            message (Union[str, Dict[str, Any]]):
                 Required. The message to stream responses for.
             user_id (str):
                 Required. The ID of the user.
@@ -491,6 +493,56 @@ class AdkApp:
         for event in self._tmpl_attrs.get("runner").run(
             user_id=user_id, session_id=session_id, new_message=content, **kwargs
         ):
+            yield event.model_dump(exclude_none=True)
+
+    async def async_stream_query(
+        self,
+        *,
+        message: Union[str, Dict[str, Any]],
+        user_id: str,
+        session_id: Optional[str] = None,
+        **kwargs,
+    ) -> AsyncIterable[Dict[str, Any]]:
+        """Streams responses asynchronously from the ADK application.
+
+        Args:
+            message (str):
+                Required. The message to stream responses for.
+            user_id (str):
+                Required. The ID of the user.
+            session_id (str):
+                Optional. The ID of the session. If not provided, a new
+                session will be created for the user.
+            **kwargs (dict[str, Any]):
+                Optional. Additional keyword arguments to pass to the
+                runner.
+
+        Yields:
+            Event dictionaries asynchronously.
+        """
+        from google.genai import types
+
+        if isinstance(message, Dict):
+            content = types.Content.model_validate(message)
+        elif isinstance(message, str):
+            content = types.Content(role="user", parts=[types.Part(text=message)])
+        else:
+            raise TypeError(
+                "message must be a string or a dictionary representing a Content object."
+            )
+
+        if not self._tmpl_attrs.get("runner"):
+            self.set_up()
+        if not session_id:
+            session = self.create_session(user_id=user_id)
+            session_id = session.id
+
+        events_async = self._tmpl_attrs.get("runner").run_async(
+            user_id=user_id, session_id=session_id, new_message=content, **kwargs
+        )
+
+        async for event in events_async:
+            # Yield the event data as a dictionary
             yield event.model_dump(exclude_none=True)
 
     def streaming_agent_run_with_events(self, request_json: str):
@@ -665,4 +717,5 @@ class AdkApp:
                 "delete_session",
             ],
             "stream": ["stream_query", "streaming_agent_run_with_events"],
+            "async_stream": ["async_stream_query"],
         }
