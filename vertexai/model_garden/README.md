@@ -25,7 +25,7 @@ For detailed instructions, see [deploy an open model](https://cloud.google.com/v
 This is the simplest way to deploy a model. If you provide just a model name, the SDK will use the default deployment configuration.
 
 ```python
-from vertexai.preview import model_garden
+from vertexai import model_garden
 
 model = model_garden.OpenModel("google/paligemma@paligemma-224-float32")
 endpoint = model.deploy()
@@ -38,7 +38,7 @@ endpoint = model.deploy()
 You can list all models that are currently deployable via Model Garden:
 
 ```python
-from vertexai.preview import model_garden
+from vertexai import model_garden
 
 models = model_garden.list_deployable_models()
 ```
