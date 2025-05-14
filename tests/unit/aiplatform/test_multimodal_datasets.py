@@ -675,7 +675,9 @@ class TestMultimodalDataset:
                 tuning_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
                     model_name="gemini-1.5-flash-exp"
                 ),
-                gemini_template_config=template_config._raw_gemini_template_config,
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
             ),
             timeout=None,
         )
@@ -696,7 +698,9 @@ class TestMultimodalDataset:
                 tuning_resource_usage_assessment_config=gca_dataset_service.AssessDataRequest.TuningResourceUsageAssessmentConfig(
                     model_name="gemini-1.5-flash-exp"
                 ),
-                request_column_name="requests",
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    assembled_request_column_name="requests"
+                ),
             ),
             timeout=None,
         )
@@ -720,7 +724,9 @@ class TestMultimodalDataset:
                     model_name="gemini-1.5-flash-exp",
                     dataset_usage=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage.SFT_TRAINING,
                 ),
-                gemini_template_config=template_config._raw_gemini_template_config,
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
             ),
             timeout=None,
         )
@@ -743,7 +749,9 @@ class TestMultimodalDataset:
                     model_name="gemini-1.5-flash-exp",
                     dataset_usage=gca_dataset_service.AssessDataRequest.TuningValidationAssessmentConfig.DatasetUsage.SFT_TRAINING,
                 ),
-                request_column_name="requests",
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    assembled_request_column_name="requests"
+                ),
             ),
             timeout=None,
         )
@@ -783,7 +791,9 @@ class TestMultimodalDataset:
         assemble_data_mock.assert_called_once_with(
             request=gca_dataset_service.AssembleDataRequest(
                 name=_TEST_NAME,
-                gemini_template_config=template_config._raw_gemini_template_config,
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    template_config=template_config._raw_gemini_template_config
+                ),
             ),
             timeout=None,
         )
@@ -802,7 +812,9 @@ class TestMultimodalDataset:
         assemble_data_mock.assert_called_once_with(
             request=gca_dataset_service.AssembleDataRequest(
                 name=_TEST_NAME,
-                request_column_name="requests",
+                gemini_request_read_config=gca_dataset_service.GeminiRequestReadConfig(
+                    assembled_request_column_name="requests"
+                ),
             ),
             timeout=None,
         )
