@@ -150,6 +150,55 @@ def create_rag_corpus_mock_pinecone():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_rag_managed_db():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_db:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB
+        )
+        create_rag_corpus_mock_rag_managed_db.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_rag_managed_db
+
+
+@pytest.fixture
+def create_rag_corpus_mock_rag_managed_db_knn():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_db_knn:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB_KNN
+        )
+        create_rag_corpus_mock_rag_managed_db_knn.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_rag_managed_db_knn
+
+
+@pytest.fixture
+def create_rag_corpus_mock_rag_managed_db_ann():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_db_ann:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB_ANN
+        )
+        create_rag_corpus_mock_rag_managed_db_ann.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_rag_managed_db_ann
+
+
+@pytest.fixture
 def create_rag_corpus_mock_pinecone_backend():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -162,6 +211,57 @@ def create_rag_corpus_mock_pinecone_backend():
         )
         create_rag_corpus_mock_pinecone.return_value = create_rag_corpus_lro_mock
         yield create_rag_corpus_mock_pinecone
+
+
+@pytest.fixture
+def create_rag_corpus_mock_rag_managed_db_backend():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_db_backend:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB_BACKEND_CONFIG
+        )
+        create_rag_corpus_mock_rag_managed_db_backend.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_rag_managed_db_backend
+
+
+@pytest.fixture
+def create_rag_corpus_mock_rag_managed_db_knn_backend():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_db_knn_backend:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB_KNN_BACKEND_CONFIG
+        )
+        create_rag_corpus_mock_rag_managed_db_knn_backend.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_rag_managed_db_knn_backend
+
+
+@pytest.fixture
+def create_rag_corpus_mock_rag_managed_db_ann_backend():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_db_ann_backend:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB_ANN_BACKEND_CONFIG
+        )
+        create_rag_corpus_mock_rag_managed_db_ann_backend.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_rag_managed_db_ann_backend
 
 
 @pytest.fixture
@@ -472,6 +572,7 @@ def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
     assert returned_corpus.vector_db.__eq__(expected_corpus.vector_db)
+    assert returned_corpus.backend_config.__eq__(expected_corpus.backend_config)
     assert returned_corpus.vertex_ai_search_config.__eq__(
         expected_corpus.vertex_ai_search_config
     )
@@ -507,6 +608,10 @@ def import_files_request_eq(returned_request, expected_request):
     assert (
         returned_request.import_rag_files_config.rag_file_transformation_config
         == expected_request.import_rag_files_config.rag_file_transformation_config
+    )
+    assert (
+        returned_request.import_rag_files_config.rebuild_ann_index
+        == expected_request.import_rag_files_config.rebuild_ann_index
     )
 
 
@@ -600,6 +705,39 @@ class TestRagDataManagement:
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE)
 
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db")
+    def test_create_corpus_rag_managed_db_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_DB_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db_knn")
+    def test_create_corpus_rag_managed_db_knn_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_DB_KNN_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_KNN
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db_ann")
+    def test_create_corpus_rag_managed_db_ann_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_DB_ANN_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_ANN
+        )
+
     @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone_backend")
     def test_create_corpus_pinecone_backend_success(self):
         rag_corpus = rag.create_corpus(
@@ -609,6 +747,42 @@ class TestRagDataManagement:
 
         rag_corpus_eq(
             rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE_BACKEND
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db_backend")
+    def test_create_corpus_rag_managed_db_backend_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_RAG_MANAGED_DB_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_BACKEND,
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db_knn_backend")
+    def test_create_corpus_rag_managed_db_knn_backend_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_RAG_MANAGED_DB_KNN_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_KNN_BACKEND,
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db_ann_backend")
+    def test_create_corpus_rag_managed_db_ann_backend_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_RAG_MANAGED_DB_ANN_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_ANN_BACKEND,
         )
 
     def test_create_corpus_backend_config_with_embedding_model_config_failure(
@@ -1024,6 +1198,19 @@ class TestRagDataManagement:
         )
         import_files_request_eq(
             request, test_rag_constants_preview.TEST_IMPORT_REQUEST_GCS
+        )
+
+    def test_prepare_import_files_request_gcs_uris_with_rebuild_ann_index(self):
+        paths = [test_rag_constants_preview.TEST_GCS_PATH]
+        request = prepare_import_files_request(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            paths=paths,
+            transformation_config=create_transformation_config(),
+            rebuild_ann_index=True,
+        )
+        import_files_request_eq(
+            request,
+            test_rag_constants_preview.TEST_IMPORT_REQUEST_GCS_REBUILD_ANN_INDEX,
         )
 
     def test_prepare_import_files_request_list_gcs_uris_no_transformation_config(self):

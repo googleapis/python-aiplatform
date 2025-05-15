@@ -36,6 +36,7 @@ from vertexai.preview.rag.rag_store import (
     VertexRagStore,
 )
 from vertexai.preview.rag.utils.resources import (
+    ANN,
     ChunkingConfig,
     Basic,
     Enterprise,
@@ -44,6 +45,7 @@ from vertexai.preview.rag.utils.resources import (
     HybridSearch,
     JiraQuery,
     JiraSource,
+    KNN,
     LayoutParserConfig,
     LlmParserConfig,
     LlmRanker,
@@ -72,14 +74,16 @@ from vertexai.preview.rag.utils.resources import (
 )
 
 __all__ = (
-    "ChunkingConfig",
+    "ANN",
     "Basic",
+    "ChunkingConfig",
     "Enterprise",
     "EmbeddingModelConfig",
     "Filter",
     "HybridSearch",
     "JiraQuery",
     "JiraSource",
+    "KNN",
     "LayoutParserConfig",
     "LlmParserConfig",
     "LlmRanker",

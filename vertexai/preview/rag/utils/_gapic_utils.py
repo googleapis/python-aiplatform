@@ -42,8 +42,10 @@ from google.cloud.aiplatform_v1beta1 import (
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from vertexai.preview.rag.utils.resources import (
+    ANN,
     EmbeddingModelConfig,
     JiraSource,
+    KNN,
     LayoutParserConfig,
     LlmParserConfig,
     Pinecone,
@@ -133,6 +135,20 @@ def _check_rag_managed_db(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
         return gapic_vector_db.rag_managed_db.ByteSize() > 0
 
 
+def _check_knn(gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb) -> bool:
+    try:
+        return gapic_rag_managed_db.__contains__("knn")
+    except AttributeError:
+        return gapic_rag_managed_db.knn.ByteSize() > 0
+
+
+def _check_ann(gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb) -> bool:
+    try:
+        return gapic_rag_managed_db.__contains__("ann")
+    except AttributeError:
+        return gapic_rag_managed_db.ann.ByteSize() > 0
+
+
 def _check_vertex_feature_store(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("vertex_feature_store")
@@ -163,6 +179,42 @@ def _check_rag_embedding_model_config(
         return gapic_vector_db.rag_embedding_model_config.ByteSize() > 0
 
 
+def _convert_gapic_to_rag_managed_db(
+    gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb,
+) -> RagManagedDb:
+    """Convert Gapic RagManagedDbConfig to RagManagedDb."""
+    if _check_knn(gapic_rag_managed_db):
+        return RagManagedDb(retrieval_strategy=KNN())
+    elif _check_ann(gapic_rag_managed_db):
+        return RagManagedDb(
+            retrieval_strategy=ANN(
+                tree_depth=gapic_rag_managed_db.ann.tree_depth,
+                leaf_count=gapic_rag_managed_db.ann.leaf_count,
+            )
+        )
+    else:
+        return RagManagedDb()
+
+
+def _convert_rag_managed_db_to_gapic(
+    rag_managed_db: RagManagedDb,
+) -> GapicRagVectorDbConfig.RagManagedDb:
+    """Convert RagManagedDb to Gapic RagManagedDb."""
+    if isinstance(rag_managed_db.retrieval_strategy, KNN):
+        return GapicRagVectorDbConfig.RagManagedDb(
+            knn=GapicRagVectorDbConfig.RagManagedDb.KNN()
+        )
+    elif isinstance(rag_managed_db.retrieval_strategy, ANN):
+        return GapicRagVectorDbConfig.RagManagedDb(
+            ann=GapicRagVectorDbConfig.RagManagedDb.ANN(
+                tree_depth=rag_managed_db.retrieval_strategy.tree_depth,
+                leaf_count=rag_managed_db.retrieval_strategy.leaf_count,
+            )
+        )
+    else:
+        return GapicRagVectorDbConfig.RagManagedDb()
+
+
 def convert_gapic_to_vector_db(
     gapic_vector_db: GapicRagVectorDbConfig,
 ) -> Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]:
@@ -188,7 +240,7 @@ def convert_gapic_to_vector_db(
             index=gapic_vector_db.vertex_vector_search.index,
         )
     elif _check_rag_managed_db(gapic_vector_db):
-        return RagManagedDb()
+        return _convert_gapic_to_rag_managed_db(gapic_vector_db.rag_managed_db)
     else:
         return None
 
@@ -247,7 +299,9 @@ def convert_gapic_to_backend_config(
             index=gapic_vector_db.vertex_vector_search.index,
         )
     elif _check_rag_managed_db(gapic_vector_db):
-        vector_config.vector_db = RagManagedDb()
+        vector_config.vector_db = _convert_gapic_to_rag_managed_db(
+            gapic_vector_db.rag_managed_db
+        )
     if _check_rag_embedding_model_config(gapic_vector_db):
         vector_config.rag_embedding_model_config = (
             convert_gapic_to_rag_embedding_model_config(
@@ -271,7 +325,7 @@ def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
             gapic_rag_corpus.vertex_ai_search_config
         ),
         backend_config=convert_gapic_to_backend_config(
-            gapic_rag_corpus.rag_vector_db_config
+            gapic_rag_corpus.vector_db_config
         ),
     )
     return rag_corpus
@@ -458,6 +512,7 @@ def prepare_import_files_request(
     partial_failures_sink: Optional[str] = None,
     layout_parser: Optional[LayoutParserConfig] = None,
     llm_parser: Optional[LlmParserConfig] = None,
+    rebuild_ann_index: bool = False,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -518,6 +573,7 @@ def prepare_import_files_request(
         rag_file_transformation_config=rag_file_transformation_config,
         max_embedding_requests_per_min=max_embedding_requests_per_min,
         rag_file_parsing_config=rag_file_parsing_config,
+        rebuild_ann_index=rebuild_ann_index,
     )
 
     if source is not None:
@@ -679,9 +735,13 @@ def set_vector_db(
     rag_corpus: GapicRagCorpus,
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
-    if vector_db is None or isinstance(vector_db, RagManagedDb):
+    if vector_db is None:
         rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
             rag_managed_db=GapicRagVectorDbConfig.RagManagedDb(),
+        )
+    elif isinstance(vector_db, RagManagedDb):
+        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
+            rag_managed_db=_convert_rag_managed_db_to_gapic(vector_db)
         )
     elif isinstance(vector_db, Weaviate):
         http_endpoint = vector_db.weaviate_http_endpoint
@@ -776,9 +836,13 @@ def set_backend_config(
 
     if backend_config.vector_db is not None:
         vector_config = backend_config.vector_db
-        if vector_config is None or isinstance(vector_config, RagManagedDb):
+        if vector_config is None:
             rag_corpus.vector_db_config.rag_managed_db.CopyFrom(
                 GapicRagVectorDbConfig.RagManagedDb()
+            )
+        elif isinstance(vector_config, RagManagedDb):
+            rag_corpus.vector_db_config.rag_managed_db = (
+                _convert_rag_managed_db_to_gapic(vector_config)
             )
         elif isinstance(vector_config, VertexVectorSearch):
             index_endpoint = vector_config.index_endpoint

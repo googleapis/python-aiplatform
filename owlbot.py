@@ -149,10 +149,10 @@ if has_generator_updates:
     # Update samples config to use `ucaip-sample-tests` project
     s.replace(
         ".kokoro/samples/python3.*/common.cfg",
-        """env_vars: \{
+        """env_vars: {
         key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
         value: "python-docs-samples-tests-.*?"
-    \}""",
+        }""",
         """env_vars: {
         key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
         value: "ucaip-sample-tests"

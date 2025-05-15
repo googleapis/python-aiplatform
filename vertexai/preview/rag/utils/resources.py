@@ -159,8 +159,54 @@ class VertexVectorSearch:
 
 
 @dataclasses.dataclass
+class KNN:
+    """Config for KNN search."""
+
+
+@dataclasses.dataclass
+class ANN:
+    """Config for ANN search.
+
+    RagManagedDb uses a tree-based structure to partition data and
+    facilitate faster searches. As a tradeoff, it requires longer
+    indexing time and manual triggering of index rebuild via the
+    ImportRagFiles and UpdateRagCorpus API.
+
+    Attributes:
+        tree_depth (int):
+            The depth of the tree-based structure. Only
+            depth values of 2 and 3 are supported.
+
+            Recommended value is 2 if you have if you have
+            O(10K) files in the RagCorpus and set this to 3
+            if more than that.
+
+            Default value is 2.
+        leaf_count (int):
+            Number of leaf nodes in the tree-based structure. Each leaf
+            node contains groups of closely related vectors along with
+            their corresponding centroid.
+
+            Recommended value is 10 * sqrt(num of RagFiles in your
+            RagCorpus).
+
+            Default value is 500.
+    """
+
+    tree_depth: Optional[int] = None
+    leaf_count: Optional[int] = None
+
+
+@dataclasses.dataclass
 class RagManagedDb:
-    """RagManagedDb."""
+    """RagManagedDb.
+
+    Attributes:
+        retrieval_strategy: Performs a KNN or ANN search on RagCorpus.
+            Default choice is KNN if not specified.
+    """
+
+    retrieval_strategy: Optional[Union[KNN, ANN]] = None
 
 
 @dataclasses.dataclass
