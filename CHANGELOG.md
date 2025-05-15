@@ -6,11 +6,8 @@
 ### Features
 
 * A new value `NVIDIA_B200 & NVIDIA_H200_141GB` is added to enum `AcceleratorType` ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
-* A new value `NVIDIA_B200 & NVIDIA_H200_141GB` is added to enum `AcceleratorType` ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
-* A new value `NVIDIA_B200 & NVIDIA_H200_141GB` is added to enum `AcceleratorType` ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
 * Add `MultimodalDataset.toBigframes()` method to convert dataset to a Bigframes Dataframe object and inspect the dataset in the notebook. ([64dfdbc](https://github.com/googleapis/python-aiplatform/commit/64dfdbcbf050b8e818a1d0c8c510fbba492247f8))
 * Add ANN feature for RagManagedDb ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
-* Add EncryptionSpec for RagCorpus CMEK feature ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
 * Add EncryptionSpec for RagCorpus CMEK feature ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
 * Add support for system paths in ModuleAgent ([8c95d3f](https://github.com/googleapis/python-aiplatform/commit/8c95d3fdaf77a6a82cd5ca076d26ad0e7ec798d9))
 * Allow customers to set kms_key_name for context caching create method ([c551cc6](https://github.com/googleapis/python-aiplatform/commit/c551cc63cc133b2c434e19ec510b6252bed7b7f5))
