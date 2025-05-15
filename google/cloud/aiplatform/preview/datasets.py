@@ -1511,30 +1511,24 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         )
 
     def _build_gemini_request_read_config(
-        self, template_config: Optional[GeminiTemplateConfig] = None
-    ):
-        if self.request_column_name is not None:
+        self, provided_template_config: Optional[GeminiTemplateConfig] = None
+    ) -> gca_dataset_service.GeminiRequestReadConfig:
+        """Returns the provided template config wrapped in a read config if it
+        is not None, otherwise returns the read config attached to the
+        dataset."""
+        if provided_template_config is not None:
+            return gca_dataset_service.GeminiRequestReadConfig(
+                template_config=provided_template_config._raw_gemini_template_config
+            )
+        elif self.template_config is not None:
+            return gca_dataset_service.GeminiRequestReadConfig(
+                template_config=self.template_config._raw_gemini_template_config
+            )
+        elif self.request_column_name is not None:
             return gca_dataset_service.GeminiRequestReadConfig(
                 assembled_request_column_name=self.request_column_name
             )
         else:
-            template_config_to_use = self._resolve_template_config(template_config)
-            return gca_dataset_service.GeminiRequestReadConfig(
-                template_config=template_config_to_use._raw_gemini_template_config
-            )
-
-    def _resolve_template_config(
-        self,
-        template_config: Optional[GeminiTemplateConfig] = None,
-    ) -> GeminiTemplateConfig:
-        """Returns the passed template config if it is not None, otherwise
-        returns the template config attached to the dataset.
-        """
-        if template_config is not None:
-            return template_config
-        elif self.template_config is not None:
-            return self.template_config
-        else:
             raise ValueError(
-                "No template config was passed or attached to the dataset."
+                "No template config was provided and no template config is attached to the dataset."
             )
