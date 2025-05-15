@@ -35,6 +35,7 @@ from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform_v1beta1.services import gen_ai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
+from vertexai import generative_models
 from vertexai.preview import tuning
 from vertexai.preview.tuning import (
     sft as preview_supervised_tuning,
@@ -318,3 +319,51 @@ class TestgenerativeModelTuning:
         assert tuning_job.has_ended
         assert tuning_job.has_succeeded
         assert tuning_job.tuned_model_name
+
+    @mock.patch.object(
+        target=tuning.TuningJob,
+        attribute="client_class",
+        new=MockTuningJobClientWithOverride,
+    )
+    @pytest.mark.parametrize(
+        "supervised_tuning",
+        [supervised_tuning, preview_supervised_tuning],
+    )
+    def test_genai_tuning_service_custom_model_constructor(
+        self, supervised_tuning: supervised_tuning
+    ):
+        sft_tuning_job = supervised_tuning.train(
+            source_model=generative_models.CustomModel(
+                base_model="meta/llama3_1@llama3.1-8b-instruct",
+            ),
+            train_dataset="gs://some-bucket/some_dataset.jsonl",
+            # Optional:
+            validation_dataset="gs://some-bucket/some_dataset.jsonl",
+            epochs=300,
+            learning_rate_multiplier=1.0,
+            adapter_size=8,
+        )
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not sft_tuning_job.has_ended
+        assert not sft_tuning_job.has_succeeded
+
+        # Refreshing the job
+        sft_tuning_job.refresh()
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_PENDING
+        assert not sft_tuning_job.has_ended
+        assert not sft_tuning_job.has_succeeded
+
+        # Refreshing the job
+        sft_tuning_job.refresh()
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_RUNNING
+        assert not sft_tuning_job.has_ended
+        assert not sft_tuning_job.has_succeeded
+
+        # Refreshing the job
+        sft_tuning_job.refresh()
+        assert sft_tuning_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
+        assert sft_tuning_job.has_ended
+        assert sft_tuning_job.has_succeeded
+        assert sft_tuning_job._experiment_name
+        assert sft_tuning_job.tuned_model_name
+        assert sft_tuning_job.tuned_model_endpoint_name
