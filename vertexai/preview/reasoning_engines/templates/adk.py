@@ -256,6 +256,10 @@ def _override_active_span_processor(
 
 
 class AdkApp:
+    """An ADK Application."""
+
+    agent_framework = "google-adk"
+
     def __init__(
         self,
         *,

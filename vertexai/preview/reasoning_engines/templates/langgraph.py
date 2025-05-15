@@ -230,6 +230,8 @@ class LanggraphAgent:
     for details.
     """
 
+    agent_framework = "langgraph"
+
     def __init__(
         self,
         model: str,

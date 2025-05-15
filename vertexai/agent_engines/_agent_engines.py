@@ -85,6 +85,8 @@ _FAILED_TO_REGISTER_API_METHODS_WARNING_TEMPLATE = (
     "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
     "Error: {%s}"
 )
+_AGENT_FRAMEWORK_ATTR = "agent_framework"
+_DEFAULT_AGENT_FRAMEWORK = "custom"
 
 
 @typing.runtime_checkable
@@ -512,6 +514,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             )
             agent_engine_spec.class_methods.extend(class_methods_spec)
             reasoning_engine.spec = agent_engine_spec
+            reasoning_engine.spec.agent_framework = _get_agent_framework(agent_engine)
         operation_future = sdk_resource.api_client.create_reasoning_engine(
             parent=initializer.global_config.common_location_path(
                 project=sdk_resource.project, location=sdk_resource.location
@@ -1104,6 +1107,17 @@ def _generate_deployment_spec_or_raise(
     return deployment_spec, update_masks
 
 
+def _get_agent_framework(
+    agent_engine: Union[Queryable, OperationRegistrable],
+) -> str:
+    if (
+        hasattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
+        and getattr(agent_engine, _AGENT_FRAMEWORK_ATTR) is not None
+    ):
+        return getattr(agent_engine, _AGENT_FRAMEWORK_ATTR)
+    return _DEFAULT_AGENT_FRAMEWORK
+
+
 def _generate_update_request_or_raise(
     *,
     resource_name: str,
@@ -1153,6 +1167,8 @@ def _generate_update_request_or_raise(
         )
         agent_engine_spec.class_methods.extend(class_methods_spec)
         update_masks.append("spec.class_methods")
+        agent_engine_spec.agent_framework = _get_agent_framework(agent_engine)
+        update_masks.append("spec.agent_framework")
     if env_vars is not None:
         is_spec_update = True
         deployment_spec, deployment_update_masks = _generate_deployment_spec_or_raise(

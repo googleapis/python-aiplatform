@@ -189,6 +189,8 @@ class LlamaIndexQueryPipelineAgent:
     https://docs.llamaindex.ai/en/stable/module_guides/querying/pipeline/.
     """
 
+    agent_framework = "llama-index"
+
     def __init__(
         self,
         model: str,

@@ -46,6 +46,9 @@ from google.protobuf import field_mask_pb2
 from google.protobuf import struct_pb2
 
 
+_TEST_AGENT_FRAMEWORK = "test-agent-framework"
+
+
 class CapitalizeEngine:
     """A sample Agent Engine."""
 
@@ -94,6 +97,8 @@ class StreamQueryEngine:
 
 class OperationRegistrableEngine:
     """Add a test class that implements OperationRegistrable."""
+
+    agent_framework = _TEST_AGENT_FRAMEWORK
 
     def query(self, unused_arbitrary_string_name: str) -> str:
         """Runs the engine."""
@@ -385,13 +390,19 @@ _TEST_AGENT_ENGINE_PACKAGE_SPEC = types.ReasoningEngineSpec.PackageSpec(
 )
 _TEST_INPUT_AGENT_ENGINE_OBJ = types.ReasoningEngine(
     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-    spec=types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC),
+    spec=types.ReasoningEngineSpec(
+        package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+        agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+    ),
 )
 _TEST_INPUT_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
 _TEST_AGENT_ENGINE_OBJ = types.ReasoningEngine(
     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-    spec=types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC),
+    spec=types.ReasoningEngineSpec(
+        package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+        agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+    ),
 )
 _TEST_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
 _TEST_UPDATE_AGENT_ENGINE_OBJ = types.ReasoningEngine(
@@ -400,6 +411,7 @@ _TEST_UPDATE_AGENT_ENGINE_OBJ = types.ReasoningEngine(
         package_spec=types.ReasoningEngineSpec.PackageSpec(
             pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
         ),
+        agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
     ),
 )
 _TEST_UPDATE_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
@@ -525,8 +537,9 @@ _TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH = _create_empty_fake_package(
 )
 
 
-def _generate_agent_engine_with_class_methods(
+def _generate_agent_engine_with_class_methods_and_agent_framework(
     class_methods: List[proto.Message],
+    agent_framework: str,
 ) -> types.ReasoningEngine:
     test_agent_engine = types.ReasoningEngine(
         name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -537,6 +550,7 @@ def _generate_agent_engine_with_class_methods(
         ),
     )
     test_agent_engine.spec.class_methods.extend(class_methods)
+    test_agent_engine.spec.agent_framework = agent_framework
     return test_agent_engine
 
 
@@ -986,6 +1000,7 @@ class TestAgentEngine:
                     ),
                 ],
             ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
         )
         test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
         create_agent_engine_mock.assert_called_with(
@@ -1032,6 +1047,7 @@ class TestAgentEngine:
                     ),
                 ],
             ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
         )
         test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
         create_agent_engine_mock.assert_called_with(
@@ -1045,6 +1061,49 @@ class TestAgentEngine:
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
         )
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine_instance, expected_framework",
+        [
+            (
+                "Engine without agent_framework attribute",
+                CapitalizeEngine(),
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            ),
+            (
+                "Engine with agent_framework attribute set to None",
+                type(
+                    "NoneFrameworkEngine",
+                    (object,),
+                    {"agent_framework": None, "clone": lambda self: self},
+                )(),
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            ),
+            (
+                "Engine with agent_framework attribute set to a specific string",
+                OperationRegistrableEngine(),
+                _TEST_AGENT_FRAMEWORK,
+            ),
+            (
+                "Engine with a different agent_framework string",
+                type(
+                    "CustomFrameworkEngine",
+                    (object,),
+                    {
+                        "agent_framework": "MyCustomFramework",
+                        "clone": lambda self: self,
+                    },
+                )(),
+                "MyCustomFramework",
+            ),
+        ],
+    )
+    def test_get_agent_framework(
+        self, test_case_name, test_engine_instance, expected_framework
+    ):
+        framework = _agent_engines._get_agent_framework(test_engine_instance)
+        assert framework == expected_framework
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
@@ -1097,6 +1156,7 @@ class TestAgentEngine:
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1105,13 +1165,15 @@ class TestAgentEngine:
                 "Update the stream query engine",
                 {"agent_engine": StreamQueryEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
-                    reasoning_engine=_generate_agent_engine_with_class_methods(
-                        _TEST_STREAM_QUERY_SCHEMAS
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_STREAM_QUERY_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1120,13 +1182,15 @@ class TestAgentEngine:
                 "Update the async stream query engine",
                 {"agent_engine": AsyncStreamQueryEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
-                    reasoning_engine=_generate_agent_engine_with_class_methods(
-                        _TEST_ASYNC_STREAM_QUERY_SCHEMAS
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_ASYNC_STREAM_QUERY_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1135,13 +1199,15 @@ class TestAgentEngine:
                 "Update the operation registrable engine",
                 {"agent_engine": OperationRegistrableEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
-                    reasoning_engine=_generate_agent_engine_with_class_methods(
-                        _TEST_OPERATION_REGISTRABLE_SCHEMAS
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+                        _TEST_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1150,13 +1216,15 @@ class TestAgentEngine:
                 "Update the operation not registered engine",
                 {"agent_engine": OperationNotRegisteredEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
-                    reasoning_engine=_generate_agent_engine_with_class_methods(
-                        _TEST_OPERATION_NOT_REGISTRED_SCHEMAS
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1222,6 +1290,23 @@ class TestAgentEngine:
                             "spec.deployment_spec.env",
                             "spec.deployment_spec.secret_env",
                         ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with agent_framework attribute",
+                {"agent_engine": OperationRegistrableEngine()},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+                        _TEST_AGENT_FRAMEWORK,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.package_spec.pickle_object_gcs_uri",
+                            "spec.class_methods",
+                            "spec.agent_framework",
+                        ]
                     ),
                 ),
             ),
@@ -1525,22 +1610,25 @@ class TestAgentEngine:
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
-        "test_case_name, test_engine, want_class_methods",
+        "test_case_name, test_engine, want_class_methods, want_agent_framework",
         [
             (
                 "Default (Not Operation Registrable) Engine",
                 CapitalizeEngine(),
                 _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS,
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
             ),
             (
                 "Operation Registrable Engine",
                 OperationRegistrableEngine(),
                 _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+                _TEST_AGENT_FRAMEWORK,
             ),
             (
                 "Operation Not Registered Engine",
                 OperationNotRegisteredEngine(),
                 _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
             ),
         ],
     )
@@ -1549,6 +1637,7 @@ class TestAgentEngine:
         test_case_name,
         test_engine,
         want_class_methods,
+        want_agent_framework,
         create_agent_engine_mock,
     ):
         agent_engines.create(
@@ -1557,8 +1646,12 @@ class TestAgentEngine:
             requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
         )
-        spec = types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC)
+        spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            agent_framework=want_agent_framework,
+        )
         spec.class_methods.extend(want_class_methods)
+        spec.agent_framework = want_agent_framework
         create_agent_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
             reasoning_engine=types.ReasoningEngine(

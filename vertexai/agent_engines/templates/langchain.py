@@ -360,6 +360,8 @@ class LangchainAgent:
     for details.
     """
 
+    agent_framework = "langchain"
+
     def __init__(
         self,
         model: str,
