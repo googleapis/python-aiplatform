@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.93.0](https://github.com/googleapis/python-aiplatform/compare/v1.92.0...v1.93.0) (2025-05-15)
+
+
+### Features
+
+* A new value `NVIDIA_B200 & NVIDIA_H200_141GB` is added to enum `AcceleratorType` ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Add `MultimodalDataset.toBigframes()` method to convert dataset to a Bigframes Dataframe object and inspect the dataset in the notebook. ([64dfdbc](https://github.com/googleapis/python-aiplatform/commit/64dfdbcbf050b8e818a1d0c8c510fbba492247f8))
+* Add ANN feature for RagManagedDb ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Add EncryptionSpec for RagCorpus CMEK feature ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Add support for system paths in ModuleAgent ([8c95d3f](https://github.com/googleapis/python-aiplatform/commit/8c95d3fdaf77a6a82cd5ca076d26ad0e7ec798d9))
+* Allow customers to set kms_key_name for context caching create method ([c551cc6](https://github.com/googleapis/python-aiplatform/commit/c551cc63cc133b2c434e19ec510b6252bed7b7f5))
+* GenAI - Release the Model Garden SDK to GA ([49c3418](https://github.com/googleapis/python-aiplatform/commit/49c3418fdde0e7aca5d08cab24cb462548a017c5))
+* New field `additional_properties` is added to message `.google.cloud.aiplatform.v1.Schema` ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Populate agent_framework field in the RE spec. ([0a127fd](https://github.com/googleapis/python-aiplatform/commit/0a127fd26d10dbb81d33cbc9e7e1e12b457b9f27))
+* RAG - Add ANN and KNN retrieval strategies for RagManagedDb in preview ([8c0bf19](https://github.com/googleapis/python-aiplatform/commit/8c0bf19fdd9f60c73ff6269713f64b2a0a6c75fb))
+* Support async stream query in agent engines and adk template. ([0c4f4a6](https://github.com/googleapis/python-aiplatform/commit/0c4f4a6a64bdc67e33724628cac530bf6bd388f4))
+* Support Python 3.13 for reasoning engine. ([51b13e5](https://github.com/googleapis/python-aiplatform/commit/51b13e5b0169e65cf880c2da5a1bc2672f44ca24))
+* Update v1 sdk to support llmparser in import file functions ([03a7861](https://github.com/googleapis/python-aiplatform/commit/03a7861e0f9339c472f58f991b267fcda0e95245))
+
+
+### Bug Fixes
+
+* Fix the type annotation for content dictionaries in AdkApp ([674beaa](https://github.com/googleapis/python-aiplatform/commit/674beaaeffa203a1f4962f7afd66f1c959fb9e12))
+
+
+### Documentation
+
+* Fix links and typos ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Remove comments for a non public feature ([#5301](https://github.com/googleapis/python-aiplatform/issues/5301)) ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Update doc publisher for Gemini docs ([6700e3d](https://github.com/googleapis/python-aiplatform/commit/6700e3dbd85fd6a7c0bcefe9d8d13dab438d0c81))
+
 ## [1.92.0](https://github.com/googleapis/python-aiplatform/compare/v1.91.0...v1.92.0) (2025-05-08)
 
 
