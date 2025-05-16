@@ -21,6 +21,7 @@ import pytest
 from typing import Dict, Iterable, List, MutableSequence, Optional
 from unittest import mock
 
+from google.api_core import operation as ga_operation
 import vertexai
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1 import types as types_v1
@@ -28,6 +29,7 @@ from google.cloud.aiplatform_v1.services import (
     prediction_service as prediction_service_v1,
 )
 from google.cloud.aiplatform_v1beta1 import types as types_v1beta1
+from google.cloud.aiplatform_v1beta1.services import endpoint_service
 from vertexai import generative_models
 from vertexai.preview import (
     generative_models as preview_generative_models,
@@ -48,6 +50,7 @@ from google.cloud.aiplatform_v1.services import (
 )
 from vertexai.generative_models import _function_calling_utils
 from vertexai.caching import CachedContent
+from google.protobuf import field_mask_pb2
 
 
 _TEST_PROJECT = "test-project"
@@ -1709,6 +1712,115 @@ class TestGenerativeModels:
         ]:
             _fix_schema_dict_for_gapic_in_place(actual)
             assert actual == expected
+
+    @pytest.mark.parametrize(
+        "generative_models",
+        [preview_generative_models],  # Only preview supports set_logging_config
+    )
+    @mock.patch.object(endpoint_service.EndpointServiceClient, "update_endpoint")
+    def test_set_logging_config_for_endpoint(
+        self, mock_update_endpoint, generative_models: generative_models
+    ):
+        endpoint_name = (
+            f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/12345"
+        )
+        model = generative_models.GenerativeModel(endpoint_name)
+
+        mock_update_endpoint.return_value = types_v1beta1.Endpoint(name=endpoint_name)
+
+        enabled = True
+        sampling_rate = 0.5
+        bigquery_destination = f"bq://{_TEST_PROJECT}.my_dataset.my_table"
+        enable_otel_logging = True
+
+        model.set_request_response_logging_config(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=bigquery_destination,
+            enable_otel_logging=enable_otel_logging,
+        )
+
+        expected_logging_config = types_v1beta1.PredictRequestResponseLoggingConfig(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=types_v1beta1.BigQueryDestination(
+                output_uri=bigquery_destination
+            ),
+            enable_otel_logging=enable_otel_logging,
+        )
+        expected_endpoint = types_v1beta1.Endpoint(
+            name=endpoint_name,
+            predict_request_response_logging_config=expected_logging_config,
+        )
+        expected_update_mask = field_mask_pb2.FieldMask(
+            paths=["predict_request_response_logging_config"]
+        )
+
+        mock_update_endpoint.assert_called_once_with(
+            types_v1beta1.UpdateEndpointRequest(
+                endpoint=expected_endpoint,
+                update_mask=expected_update_mask,
+            )
+        )
+
+    @pytest.mark.parametrize(
+        "generative_models",
+        [preview_generative_models],  # Only preview supports set_logging_config
+    )
+    @mock.patch.object(
+        endpoint_service.EndpointServiceClient, "set_publisher_model_config"
+    )
+    def test_set_logging_config_for_publisher_model(
+        self, mock_set_publisher_model_config, generative_models: generative_models
+    ):
+        model_name = "gemini-pro"
+        model = generative_models.GenerativeModel(model_name)
+        full_model_name = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/publishers/google/models/{model_name}"
+
+        enabled = False
+        sampling_rate = 1.0
+        bigquery_destination = f"bq://{_TEST_PROJECT}.another_dataset"
+        enable_otel_logging = False
+
+        mock_operation = mock.Mock(spec=ga_operation.Operation)
+        mock_set_publisher_model_config.return_value = mock_operation
+        mock_operation.result.return_value = types_v1beta1.PublisherModelConfig(
+            logging_config=types_v1beta1.PredictRequestResponseLoggingConfig(
+                enabled=enabled,
+                sampling_rate=sampling_rate,
+                bigquery_destination=types_v1beta1.BigQueryDestination(
+                    output_uri=bigquery_destination
+                ),
+                enable_otel_logging=enable_otel_logging,
+            )
+        )
+
+        model.set_request_response_logging_config(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=bigquery_destination,
+            enable_otel_logging=enable_otel_logging,
+        )
+
+        expected_logging_config = types_v1beta1.PredictRequestResponseLoggingConfig(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=types_v1beta1.BigQueryDestination(
+                output_uri=bigquery_destination
+            ),
+            enable_otel_logging=enable_otel_logging,
+        )
+        expected_publisher_model_config = types_v1beta1.PublisherModelConfig(
+            logging_config=expected_logging_config
+        )
+
+        mock_set_publisher_model_config.assert_called_once_with(
+            types_v1beta1.SetPublisherModelConfigRequest(
+                name=full_model_name,
+                publisher_model_config=expected_publisher_model_config,
+            )
+        )
+        mock_operation.result.assert_called_once()
 
 
 EXPECTED_SCHEMA_FOR_GET_CURRENT_WEATHER = {
