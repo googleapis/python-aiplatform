@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.93.1](https://github.com/googleapis/python-aiplatform/compare/v1.93.0...v1.93.1) (2025-05-16)
+
+
+### Bug Fixes
+
+* Fix resolving between passed and attached read configs in multimodal datasets ([4429e36](https://github.com/googleapis/python-aiplatform/commit/4429e36ac26c10f4676357171f8493a79f444d42))
+
 ## [1.93.0](https://github.com/googleapis/python-aiplatform/compare/v1.92.0...v1.93.0) (2025-05-15)
 
 
