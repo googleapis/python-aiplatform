@@ -41,6 +41,7 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers imp
     ListRagCorporaPager,
     ListRagFilesPager,
 )
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag.utils import (
     _gapic_utils,
 )
@@ -74,6 +75,7 @@ def create_corpus(
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
     backend_config: Optional[RagVectorDbConfig] = None,
+    encryption_spec: Optional[EncryptionSpec] = None,
 ) -> RagCorpus:
     """Creates a new RagCorpus resource.
 
@@ -91,8 +93,8 @@ def create_corpus(
 
     Args:
         display_name: If not provided, SDK will create one. The display name of
-            the RagCorpus. The name can be up to 128 characters long and can
-            consist of any UTF-8 characters.
+            the RagCorpus. The name can be up to 128 characters long and can consist
+            of any UTF-8 characters.
         description: The description of the RagCorpus.
         embedding_model_config: The embedding model config.
             Note: Deprecated. Use backend_config instead.
@@ -104,6 +106,8 @@ def create_corpus(
             vertex_ai_search_config is specified.
         backend_config: The backend config of the RagCorpus. It can specify a
             Vector DB and/or the embedding model config.
+        encryption_spec: The encryption spec of the RagCorpus.
+
     Returns:
         RagCorpus.
     Raises:
@@ -153,6 +157,12 @@ def create_corpus(
     else:
         _gapic_utils.set_vector_db(
             vector_db=vector_db,
+            rag_corpus=rag_corpus,
+        )
+
+    if encryption_spec:
+        _gapic_utils.set_encryption_spec(
+            encryption_spec=encryption_spec,
             rag_corpus=rag_corpus,
         )
 

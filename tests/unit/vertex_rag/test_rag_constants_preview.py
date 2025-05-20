@@ -38,6 +38,7 @@ from google.cloud.aiplatform_v1beta1 import (
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag import (
     ANN,
     Basic,
@@ -91,6 +92,9 @@ TEST_WEAVIATE_COLLECTION_NAME = "test-collection"
 TEST_WEAVIATE_API_KEY_SECRET_VERSION = (
     "projects/test-project/secrets/test-secret/versions/1"
 )
+TEST_ENCRYPTION_SPEC = EncryptionSpec(
+    kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
+)
 TEST_WEAVIATE_CONFIG = Weaviate(
     weaviate_http_endpoint=TEST_WEAVIATE_HTTP_ENDPOINT,
     collection_name=TEST_WEAVIATE_COLLECTION_NAME,
@@ -132,6 +136,14 @@ TEST_GAPIC_RAG_CORPUS.rag_embedding_model_config.vertex_prediction_endpoint.endp
     "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
         TEST_PROJECT, TEST_REGION
     )
+)
+TEST_GAPIC_CMEK_RAG_CORPUS = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    encryption_spec=EncryptionSpec(
+        kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
+    ),
 )
 TEST_GAPIC_RAG_CORPUS_WEAVIATE = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -235,6 +247,14 @@ TEST_RAG_CORPUS = RagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
     embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
+)
+TEST_CMEK_RAG_CORPUS = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    encryption_spec=EncryptionSpec(
+        kms_key_name="projects/test-project/locations/us-central1/keyRings/test-key-ring/cryptoKeys/test-key"
+    ),
 )
 TEST_RAG_CORPUS_WEAVIATE = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,

@@ -18,6 +18,8 @@
 import dataclasses
 from typing import List, Optional, Sequence, Union
 
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
+
 from google.protobuf import timestamp_pb2
 
 DEPRECATION_DATE = "June 2025"
@@ -270,6 +272,7 @@ class RagCorpus:
         vertex_ai_search_config: The Vertex AI Search config of the RagCorpus.
         backend_config: The backend config of the RagCorpus. It can specify a
             Vector DB and/or the embedding model config.
+        encryption_spec: The encryption spec of the RagCorpus. Immutable.
     """
 
     name: Optional[str] = None
@@ -281,6 +284,7 @@ class RagCorpus:
     ] = None
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
     backend_config: Optional[RagVectorDbConfig] = None
+    encryption_spec: Optional[EncryptionSpec] = None
 
 
 @dataclasses.dataclass

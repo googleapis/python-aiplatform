@@ -54,6 +54,21 @@ def create_rag_corpus_mock():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_cmek():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_cmek:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_CMEK_RAG_CORPUS
+        )
+        create_rag_corpus_mock_cmek.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_cmek
+
+
+@pytest.fixture
 def create_rag_corpus_mock_backend():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -652,6 +667,15 @@ class TestRagDataManagement:
         )
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_BACKEND)
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_cmek")
+    def test_create_corpus_cmek_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            encryption_spec=test_rag_constants_preview.TEST_ENCRYPTION_SPEC,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_CMEK_RAG_CORPUS)
 
     @pytest.mark.usefixtures("create_rag_corpus_mock_weaviate")
     def test_create_corpus_weaviate_success(self):
