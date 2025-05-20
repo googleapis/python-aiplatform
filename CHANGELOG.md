@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.93.1](https://github.com/googleapis/python-aiplatform/compare/v1.93.0...v1.93.1) (2025-05-20)
+
+
+### Bug Fixes
+
+* Fix dedicated endpoint DNS is empty ([fc6d893](https://github.com/googleapis/python-aiplatform/commit/fc6d893b2191442d5e1edb9c097db56ef05fc5a5))
+* Fix resolving between passed and attached read configs in multimodal datasets ([4429e36](https://github.com/googleapis/python-aiplatform/commit/4429e36ac26c10f4676357171f8493a79f444d42))
+
 ## [1.93.0](https://github.com/googleapis/python-aiplatform/compare/v1.92.0...v1.93.0) (2025-05-15)
 
 
