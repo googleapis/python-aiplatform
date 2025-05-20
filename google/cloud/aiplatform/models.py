@@ -791,8 +791,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         If dedicated endpoint is not enabled, this property returns None.
         """
         if re.match(r"^projects/.*/endpoints/.*$", self._gca_resource.name):
-            self._assert_gca_resource_is_available()
-            return getattr(self._gca_resource, "dedicated_endpoint_dns", None)
+            dedicated_endpoint_dns = getattr(
+                self._gca_resource, "dedicated_endpoint_dns", None
+            )
+            if self.dedicated_endpoint_enabled and not dedicated_endpoint_dns:
+                self._sync_gca_resource()
+                dedicated_endpoint_dns = getattr(
+                    self._gca_resource, "dedicated_endpoint_dns", None
+                )
+            return dedicated_endpoint_dns
         return None
 
     @property
@@ -2452,7 +2459,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 model_resource_name=prediction_response.model,
             )
 
-        if self.dedicated_endpoint_dns is None:
+        if not self.dedicated_endpoint_dns:
             raise ValueError(
                 "Dedicated endpoint DNS is empty. Please make sure endpoint"
                 "and model are ready before making a prediction."
@@ -2610,7 +2617,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             )
 
         if self.dedicated_endpoint_enabled:
-            if self.dedicated_endpoint_dns is None:
+            if not self.dedicated_endpoint_dns:
                 raise ValueError(
                     "Dedicated endpoint DNS is empty. Please make sure endpoint"
                     "and model are ready before making a prediction."
@@ -2682,7 +2689,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             )
 
         if self.dedicated_endpoint_enabled:
-            if self.dedicated_endpoint_dns is None:
+            if not self.dedicated_endpoint_dns:
                 raise ValueError(
                     "Dedicated endpoint DNS is empty. Please make sure endpoint"
                     "and model are ready before making a prediction."
