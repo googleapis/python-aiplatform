@@ -1,5 +1,108 @@
 # Changelog
 
+## [1.93.1](https://github.com/googleapis/python-aiplatform/compare/v1.93.0...v1.93.1) (2025-05-20)
+
+
+### Bug Fixes
+
+* Fix dedicated endpoint DNS is empty ([fc6d893](https://github.com/googleapis/python-aiplatform/commit/fc6d893b2191442d5e1edb9c097db56ef05fc5a5))
+* Fix resolving between passed and attached read configs in multimodal datasets ([4429e36](https://github.com/googleapis/python-aiplatform/commit/4429e36ac26c10f4676357171f8493a79f444d42))
+
+## [1.93.0](https://github.com/googleapis/python-aiplatform/compare/v1.92.0...v1.93.0) (2025-05-15)
+
+
+### Features
+
+* A new value `NVIDIA_B200 & NVIDIA_H200_141GB` is added to enum `AcceleratorType` ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Add `MultimodalDataset.toBigframes()` method to convert dataset to a Bigframes Dataframe object and inspect the dataset in the notebook. ([64dfdbc](https://github.com/googleapis/python-aiplatform/commit/64dfdbcbf050b8e818a1d0c8c510fbba492247f8))
+* Add ANN feature for RagManagedDb ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Add EncryptionSpec for RagCorpus CMEK feature ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Add support for system paths in ModuleAgent ([8c95d3f](https://github.com/googleapis/python-aiplatform/commit/8c95d3fdaf77a6a82cd5ca076d26ad0e7ec798d9))
+* Allow customers to set kms_key_name for context caching create method ([c551cc6](https://github.com/googleapis/python-aiplatform/commit/c551cc63cc133b2c434e19ec510b6252bed7b7f5))
+* GenAI - Release the Model Garden SDK to GA ([49c3418](https://github.com/googleapis/python-aiplatform/commit/49c3418fdde0e7aca5d08cab24cb462548a017c5))
+* New field `additional_properties` is added to message `.google.cloud.aiplatform.v1.Schema` ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Populate agent_framework field in the RE spec. ([0a127fd](https://github.com/googleapis/python-aiplatform/commit/0a127fd26d10dbb81d33cbc9e7e1e12b457b9f27))
+* RAG - Add ANN and KNN retrieval strategies for RagManagedDb in preview ([8c0bf19](https://github.com/googleapis/python-aiplatform/commit/8c0bf19fdd9f60c73ff6269713f64b2a0a6c75fb))
+* Support async stream query in agent engines and adk template. ([0c4f4a6](https://github.com/googleapis/python-aiplatform/commit/0c4f4a6a64bdc67e33724628cac530bf6bd388f4))
+* Support Python 3.13 for reasoning engine. ([51b13e5](https://github.com/googleapis/python-aiplatform/commit/51b13e5b0169e65cf880c2da5a1bc2672f44ca24))
+* Update v1 sdk to support llmparser in import file functions ([03a7861](https://github.com/googleapis/python-aiplatform/commit/03a7861e0f9339c472f58f991b267fcda0e95245))
+
+
+### Bug Fixes
+
+* Fix the type annotation for content dictionaries in AdkApp ([674beaa](https://github.com/googleapis/python-aiplatform/commit/674beaaeffa203a1f4962f7afd66f1c959fb9e12))
+
+
+### Documentation
+
+* Fix links and typos ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Remove comments for a non public feature ([#5301](https://github.com/googleapis/python-aiplatform/issues/5301)) ([02236be](https://github.com/googleapis/python-aiplatform/commit/02236be891c90dd6ceb45e79968715e144facdaa))
+* Update doc publisher for Gemini docs ([6700e3d](https://github.com/googleapis/python-aiplatform/commit/6700e3dbd85fd6a7c0bcefe9d8d13dab438d0c81))
+
+## [1.92.0](https://github.com/googleapis/python-aiplatform/compare/v1.91.0...v1.92.0) (2025-05-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* Removed support for session resource paths that do not include reasoning engine
+
+### Features
+
+* [vertexai] Added a concise option to `OpenModel.list_deploy_options()` ([acc301a](https://github.com/googleapis/python-aiplatform/commit/acc301a9742601cbb2439cc270f4faa6e8783a40))
+* [vertexai] Added system labels to `OpenModel.deploy()` ([acc301a](https://github.com/googleapis/python-aiplatform/commit/acc301a9742601cbb2439cc270f4faa6e8783a40))
+* A new field `system_labels` is added to message `google.cloud.aiplatform.v1beta1.DeployRequest` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Add `enable_custom_service_account` parameter (must be set to `True` for successful Persistent Resource). The `service_account` parameter is retained for backward compatibility. ([bf79bdf](https://github.com/googleapis/python-aiplatform/commit/bf79bdf643c60e72b15f414dba964e9da2eb2d7f))
+* Add dedicated_endpoint_enabled and dedicated_endpoint_dns property. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
+* Add gemini_request_read_config field to AssembleDataRequest and AssessDataRequest in aiplatform v1beta ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Add google.genai.types.Content as an allowed message type to ADK's stream_query method ([6b131d1](https://github.com/googleapis/python-aiplatform/commit/6b131d134d93e43ad3cfde5c3deb43a1a007ef32))
+* Adding ThinkingConfig to v1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Adding ThinkingConfig to v1beta1 client library ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Allow customers to set encryption_spec for context caching ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Deprecated EventActions.transfer_to_agent and replaced with EventActions.transfer_agent ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Implement check_license_agreement_status and accept_model_license_agreement for Model Garden OpenModel. ([3289d92](https://github.com/googleapis/python-aiplatform/commit/3289d9230d7aad005a3df6cadabf13f133c1850d))
+* In predict/rawPredict/streamRawPredict, send requests to the correct DNS based on endpoint type. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
+* Model Registry Model Checkpoint API ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* New fields `ref` and `defs` are added to message `.google.cloud.aiplatform.v1beta1.Schema` ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Remove the requirement for a staging bucket to be set if an agent engine is created without extra packages or requirements files. ([6de9de1](https://github.com/googleapis/python-aiplatform/commit/6de9de17254834c18eb3a9d41f87cd864e29456f))
+
+
+### Bug Fixes
+
+* Only set parameters when it is not None for predict requests. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
+* Raise exception with details for dedicated endpoint if predict failed. ([32ee6d9](https://github.com/googleapis/python-aiplatform/commit/32ee6d9d6be8824ea482964bfd3064ac0832aef5))
+* Removed support for session resource paths that do not include reasoning engine ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Set the app_name in AdkApp template to GOOGLE_CLOUD_AGENT_ENGINE_ID if it exists. ([1cbe028](https://github.com/googleapis/python-aiplatform/commit/1cbe028e045f9179cbd28bc9bddecb7623dce237))
+
+
+### Documentation
+
+* Deprecate election category HARM_CATEGORY_CIVIC_INTEGRITY ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Fix comment for field_mapping field in GeminiTemplateConfig ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+* Update an outdated URL ([1f98f4e](https://github.com/googleapis/python-aiplatform/commit/1f98f4ef509a54978afde0d36b5f85f3d7e709e5))
+
+
+### Miscellaneous Chores
+
+* Release 1.92.0 ([5d60f6b](https://github.com/googleapis/python-aiplatform/commit/5d60f6b6c4971c86315f0bb51a11b1c9308034a7))
+
+## [1.91.0](https://github.com/googleapis/python-aiplatform/compare/v1.90.0...v1.91.0) (2025-04-30)
+
+
+### Features
+
+* Add Model Garden deploy SDK documentation and use cases. ([6eea5f4](https://github.com/googleapis/python-aiplatform/commit/6eea5f4fc05444cf47609fbe4da9038d5fa6ac29))
+* Allow setting Vertex Model Garden source model version id during model upload ([b1bbba6](https://github.com/googleapis/python-aiplatform/commit/b1bbba6f94a86fdc711c59bfc248abe544c3da09))
+* GenAI - Add support for self-hosted OSS models in Batch Prediction. ([c76ac62](https://github.com/googleapis/python-aiplatform/commit/c76ac624a4b708dc5980ec64eb52661eb7c8061d))
+* GenAI - Support batch prediction in Model Garden OpenModel. ([8bf30b7](https://github.com/googleapis/python-aiplatform/commit/8bf30b74828c976e315879d9a7b61cb718e1bcfe))
+* Update upperbound for langgraph ([547bf01](https://github.com/googleapis/python-aiplatform/commit/547bf01410647b104c6b8134d57b8c27847558b4))
+
+
+### Bug Fixes
+
+* Removing Python 3.8 support due to EOL ([4330b2f](https://github.com/googleapis/python-aiplatform/commit/4330b2fc2860eb38986937a81f4919059775137a))
+
 ## [1.90.0](https://github.com/googleapis/python-aiplatform/compare/v1.89.0...v1.90.0) (2025-04-22)
 
 

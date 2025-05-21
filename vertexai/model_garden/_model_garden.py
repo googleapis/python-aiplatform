@@ -257,7 +257,17 @@ class _ModelGardenClientWithOverride(utils.ClientWithOverride):
 
 
 class OpenModel:
-    """Represents a Model Garden Open model."""
+    """Represents a Model Garden Open model.
+
+    Attributes:
+        model_name: Model Garden model resource name in the format of
+            `publishers/{publisher}/models/{model}@{version}`, or a
+            simplified resource name in the format of
+            `{publisher}/{model}@{version}`, or a Hugging Face model ID in
+            the format of `{organization}/{model}`.
+    """
+
+    __module__ = "vertexai.model_garden"
 
     def __init__(
         self,
@@ -373,6 +383,7 @@ class OpenModel:
         reservation_affinity_values: Optional[List[str]] = None,
         use_dedicated_endpoint: Optional[bool] = False,
         fast_tryout_enabled: Optional[bool] = False,
+        system_labels: Optional[Dict[str, str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
@@ -399,139 +410,138 @@ class OpenModel:
         Args:
             accept_eula (bool): Whether to accept the End User License Agreement.
             hugging_face_access_token (str): The access token to access Hugging Face
-                models. Reference: https://huggingface.co/docs/hub/en/security-tokens
-            machine_type (str):
-                Optional. The type of machine. Not specifying machine type will
-                result in model to be deployed with automatic resources.
-            min_replica_count (int):
-                Optional. The minimum number of machine replicas this deployed
-                model will be always deployed on. If traffic against it increases,
-                it may dynamically be deployed onto more replicas, and as traffic
-                decreases, some of these extra replicas may be freed.
-            max_replica_count (int):
-                Optional. The maximum number of replicas this deployed model may
-                be deployed on when the traffic against it increases. If requested
-                value is too large, the deployment will error, but if deployment
-                succeeds then the ability to scale the model to that many replicas
-                is guaranteed (barring service outages). If traffic against the
-                deployed model increases beyond what its replicas at maximum may
-                handle, a portion of the traffic will be dropped. If this value
-                is not provided, the larger value of min_replica_count or 1 will
-                be used. If value provided is smaller than min_replica_count, it
-                will automatically be increased to be min_replica_count.
-            accelerator_type (str):
-                Optional. Hardware accelerator type. Must also set accelerator_count if used.
-                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
-                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
-            accelerator_count (int):
-                Optional. The number of accelerators to attach to a worker replica.
-            spot (bool):
-                Optional. Whether to schedule the deployment workload on spot VMs.
-            reservation_affinity_type (str):
-                Optional. The type of reservation affinity.
-                One of NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION,
-                SPECIFIC_THEN_ANY_RESERVATION, SPECIFIC_THEN_NO_RESERVATION
-            reservation_affinity_key (str):
-                Optional. Corresponds to the label key of a reservation resource.
-                To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key
-                and specify the name of your reservation as its value.
-            reservation_affinity_values (List[str]):
-                Optional. Corresponds to the label values of a reservation resource.
-                This must be the full resource name of the reservation.
-                Format: 'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
-            use_dedicated_endpoint (bool):
-                Optional. Default value is False. If set to True, the underlying prediction call will be made
-                using the dedicated endpoint dns.
-            fast_tryout_enabled (bool):
-                Optional. Defaults to False.
-                If True, model will be deployed using faster deployment path.
-                Useful for quick experiments. Not for production workloads. Only
-                available for most popular models with certain machine types.
+              models. Reference: https://huggingface.co/docs/hub/en/security-tokens
+            machine_type (str): Optional. The type of machine. Not specifying
+              machine type will result in model to be deployed with automatic
+              resources.
+            min_replica_count (int): Optional. The minimum number of machine
+              replicas this deployed model will be always deployed on. If traffic
+              against it increases, it may dynamically be deployed onto more
+              replicas, and as traffic decreases, some of these extra replicas may
+              be freed.
+            max_replica_count (int): Optional. The maximum number of replicas this
+              deployed model may be deployed on when the traffic against it
+              increases. If requested value is too large, the deployment will error,
+              but if deployment succeeds then the ability to scale the model to that
+              many replicas is guaranteed (barring service outages). If traffic
+              against the deployed model increases beyond what its replicas at
+              maximum may handle, a portion of the traffic will be dropped. If this
+              value is not provided, the larger value of min_replica_count or 1 will
+              be used. If value provided is smaller than min_replica_count, it will
+              automatically be increased to be min_replica_count.
+            accelerator_type (str): Optional. Hardware accelerator type. Must also
+              set accelerator_count if used. One of ACCELERATOR_TYPE_UNSPECIFIED,
+              NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100,
+              NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
+            accelerator_count (int): Optional. The number of accelerators to attach
+              to a worker replica.
+            spot (bool): Optional. Whether to schedule the deployment workload on
+              spot VMs.
+            reservation_affinity_type (str): Optional. The type of reservation
+              affinity. One of NO_RESERVATION, ANY_RESERVATION,
+              SPECIFIC_RESERVATION, SPECIFIC_THEN_ANY_RESERVATION,
+              SPECIFIC_THEN_NO_RESERVATION
+            reservation_affinity_key (str): Optional. Corresponds to the label key
+              of a reservation resource. To target a SPECIFIC_RESERVATION by name,
+              use `compute.googleapis.com/reservation-name` as the key and specify
+              the name of your reservation as its value.
+            reservation_affinity_values (List[str]): Optional. Corresponds to the
+              label values of a reservation resource. This must be the full resource
+              name of the reservation.
+                Format:
+                  'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            use_dedicated_endpoint (bool): Optional. Default value is False. If set
+              to True, the underlying prediction call will be made using the
+              dedicated endpoint dns.
+            fast_tryout_enabled (bool): Optional. Defaults to False. If True, model
+              will be deployed using faster deployment path. Useful for quick
+              experiments. Not for production workloads. Only available for most
+              popular models with certain machine types.
+            system_labels (Dict[str, str]): Optional. System labels for Model Garden
+              deployments. These labels are managed by Google and for tracking
+              purposes only.
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the uploaded model.
-            deploy_request_timeout: The timeout for the deploy request. Default
-                is 2 hours.
-            serving_container_spec (types.ModelContainerSpec):
-                Optional. The container specification for the model instance.
-                This specification overrides the default container specification
-                and other serving container parameters.
-            serving_container_image_uri (str):
-                Optional. The URI of the Model serving container. This parameter is required
-                if the parameter `local_model` is not specified.
-            serving_container_predict_route (str):
-                Optional. An HTTP path to send prediction requests to the container, and
-                which must be supported by it. If not specified a default HTTP path will
-                be used by Vertex AI.
-            serving_container_health_route (str):
-                Optional. An HTTP path to send health check requests to the container, and which
-                must be supported by it. If not specified a standard HTTP path will be
-                used by Vertex AI.
-            serving_container_command: Optional[Sequence[str]]=None,
-                The command with which the container is run. Not executed within a
-                shell. The Docker image's ENTRYPOINT is used if this is not provided.
-                Variable references $(VAR_NAME) are expanded using the container's
-                environment. If a variable cannot be resolved, the reference in the
-                input string will be unchanged. The $(VAR_NAME) syntax can be escaped
-                with a double $$, ie: $$(VAR_NAME). Escaped references will never be
-                expanded, regardless of whether the variable exists or not.
-            serving_container_args: Optional[Sequence[str]]=None,
-                The arguments to the command. The Docker image's CMD is used if this is
-                not provided. Variable references $(VAR_NAME) are expanded using the
-                container's environment. If a variable cannot be resolved, the reference
-                in the input string will be unchanged. The $(VAR_NAME) syntax can be
-                escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
-                never be expanded, regardless of whether the variable exists or not.
+            deploy_request_timeout: The timeout for the deploy request. Default is 2
+              hours.
+            serving_container_spec (types.ModelContainerSpec): Optional. The
+              container specification for the model instance. This specification
+              overrides the default container specification and other serving
+              container parameters.
+            serving_container_image_uri (str): Optional. The URI of the Model
+              serving container. This parameter is required if the parameter
+              `local_model` is not specified.
+            serving_container_predict_route (str): Optional. An HTTP path to send
+              prediction requests to the container, and which must be supported by
+              it. If not specified a default HTTP path will be used by Vertex AI.
+            serving_container_health_route (str): Optional. An HTTP path to send
+              health check requests to the container, and which must be supported by
+              it. If not specified a standard HTTP path will be used by Vertex AI.
+            serving_container_command: Optional[Sequence[str]]=None, The command
+              with which the container is run. Not executed within a shell. The
+              Docker image's ENTRYPOINT is used if this is not provided. Variable
+              references $(VAR_NAME) are expanded using the container's environment.
+              If a variable cannot be resolved, the reference in the input string
+              will be unchanged. The $(VAR_NAME) syntax can be escaped with a double
+              $$, ie: $$(VAR_NAME). Escaped references will never be expanded,
+              regardless of whether the variable exists or not.
+            serving_container_args: Optional[Sequence[str]]=None, The arguments to
+              the command. The Docker image's CMD is used if this is not provided.
+              Variable references $(VAR_NAME) are expanded using the container's
+              environment. If a variable cannot be resolved, the reference in the
+              input string will be unchanged. The $(VAR_NAME) syntax can be escaped
+              with a double $$, ie: $$(VAR_NAME). Escaped references will never be
+              expanded, regardless of whether the variable exists or not.
             serving_container_environment_variables: Optional[Dict[str, str]]=None,
-                The environment variables that are to be present in the container.
-                Should be a dictionary where keys are environment variable names
-                and values are environment variable values for those names.
-            serving_container_ports: Optional[Sequence[int]]=None,
-                Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives Vertex AI information about the
-                network connections the container uses. Listing or not a port here has
-                no impact on whether the port is actually exposed, any port listening on
-                the default "0.0.0.0" address inside a container will be accessible from
-                the network.
-            serving_container_grpc_ports: Optional[Sequence[int]]=None,
-                Declaration of ports that are exposed by the container. Vertex AI sends gRPC
-                prediction requests that it receives to the first port on this list. Vertex
-                AI also sends liveness and health checks to this port.
-                If you do not specify this field, gRPC requests to the container will be
-                disabled.
-                Vertex AI does not use ports other than the first one listed. This field
-                corresponds to the `ports` field of the Kubernetes Containers v1 core API.
-            serving_container_deployment_timeout (int):
-                Optional. Deployment timeout in seconds.
-            serving_container_shared_memory_size_mb (int):
-                Optional. The amount of the VM memory to reserve as the shared
-                memory for the model in megabytes.
-            serving_container_startup_probe_exec (Sequence[str]):
-                Optional. Exec specifies the action to take. Used by startup
-                probe. An example of this argument would be
-                ["cat", "/tmp/healthy"]
-            serving_container_startup_probe_period_seconds (int):
-                Optional. How often (in seconds) to perform the startup probe.
-                Default to 10 seconds. Minimum value is 1.
-            serving_container_startup_probe_timeout_seconds (int):
-                Optional. Number of seconds after which the startup probe times
-                out. Defaults to 1 second. Minimum value is 1.
-            serving_container_health_probe_exec (Sequence[str]):
-                Optional. Exec specifies the action to take. Used by health
-                probe. An example of this argument would be
-                ["cat", "/tmp/healthy"]
-            serving_container_health_probe_period_seconds (int):
-                Optional. How often (in seconds) to perform the health probe.
-                Default to 10 seconds. Minimum value is 1.
-            serving_container_health_probe_timeout_seconds (int):
-                Optional. Number of seconds after which the health probe times
-                out. Defaults to 1 second. Minimum value is 1.
+              The environment variables that are to be present in the container.
+              Should be a dictionary where keys are environment variable names and
+              values are environment variable values for those names.
+            serving_container_ports: Optional[Sequence[int]]=None, Declaration of
+              ports that are exposed by the container. This field is primarily
+              informational, it gives Vertex AI information about the network
+              connections the container uses. Listing or not a port here has no
+              impact on whether the port is actually exposed, any port listening on
+              the default "0.0.0.0" address inside a container will be accessible
+              from the network.
+            serving_container_grpc_ports: Optional[Sequence[int]]=None, Declaration
+              of ports that are exposed by the container. Vertex AI sends gRPC
+              prediction requests that it receives to the first port on this list.
+              Vertex AI also sends liveness and health checks to this port. If you
+              do not specify this field, gRPC requests to the container will be
+              disabled. Vertex AI does not use ports other than the first one
+              listed. This field corresponds to the `ports` field of the Kubernetes
+              Containers v1 core API.
+            serving_container_deployment_timeout (int): Optional. Deployment timeout
+              in seconds.
+            serving_container_shared_memory_size_mb (int): Optional. The amount of
+              the VM memory to reserve as the shared memory for the model in
+              megabytes.
+            serving_container_startup_probe_exec (Sequence[str]): Optional. Exec
+              specifies the action to take. Used by startup probe. An example of
+              this argument would be ["cat", "/tmp/healthy"]
+            serving_container_startup_probe_period_seconds (int): Optional. How
+              often (in seconds) to perform the startup probe. Default to 10
+              seconds. Minimum value is 1.
+            serving_container_startup_probe_timeout_seconds (int): Optional. Number
+              of seconds after which the startup probe times out. Defaults to 1
+              second. Minimum value is 1.
+            serving_container_health_probe_exec (Sequence[str]): Optional. Exec
+              specifies the action to take. Used by health probe. An example of this
+              argument would be ["cat", "/tmp/healthy"]
+            serving_container_health_probe_period_seconds (int): Optional. How often
+              (in seconds) to perform the health probe. Default to 10 seconds.
+              Minimum value is 1.
+            serving_container_health_probe_timeout_seconds (int): Optional. Number
+              of seconds after which the health probe times out. Defaults to 1
+              second. Minimum value is 1.
 
         Returns:
             endpoint (aiplatform.Endpoint):
                 Created endpoint.
 
         Raises:
-            ValueError: If ``serving_container_spec`` is specified but ``serving_container_spec.image_uri``
+            ValueError: If ``serving_container_spec`` is specified but
+            ``serving_container_spec.image_uri``
                 is ``None``, or if ``serving_container_spec`` is specified but other
                 serving container parameters are specified.
         """
@@ -589,14 +599,19 @@ class OpenModel:
         if fast_tryout_enabled:
             request.deploy_config.fast_tryout_enabled = fast_tryout_enabled
 
+        if system_labels:
+            request.deploy_config.system_labels = system_labels
+
         if serving_container_spec:
             if not serving_container_spec.image_uri:
                 raise ValueError(
-                    "Serving container image uri is required for the serving container spec."
+                    "Serving container image uri is required for the serving container"
+                    " spec."
                 )
             if serving_container_image_uri:
                 raise ValueError(
-                    "Serving container image uri is already set in the serving container spec."
+                    "Serving container image uri is already set in the serving"
+                    " container spec."
                 )
             request.model_config.container_spec = serving_container_spec
 
@@ -640,24 +655,65 @@ class OpenModel:
 
     def list_deploy_options(
         self,
-    ) -> Sequence[types.PublisherModel.CallToAction.Deploy]:
-        """Lists the verified deploy options for the model."""
+        concise: bool = False,
+    ) -> Union[str, Sequence[types.PublisherModel.CallToAction.Deploy]]:
+        """Lists the verified deploy options for the model.
+
+        Args:
+            concise: If true, returns a human-readable string with container and
+              machine specs.
+
+        Returns:
+            A list of deploy options or a concise formatted string.
+        """
         request = types.GetPublisherModelRequest(
             name=self._publisher_model_name,
             is_hugging_face_model=bool(self._is_hugging_face_model),
             include_equivalent_model_garden_model_deployment_configs=True,
         )
         response = self._us_central1_model_garden_client.get_publisher_model(request)
-        multi_deploy = (
+        deploy_options = (
             response.supported_actions.multi_deploy_vertex.multi_deploy_vertex
         )
-        if not multi_deploy:
+
+        if not deploy_options:
             raise ValueError(
-                "Model does not support deployment, please use a deploy-able model"
-                " instead. You can use the list_deployable_models() method"
-                " to find out which ones currently support deployment."
+                "Model does not support deployment. "
+                "Use `list_deployable_models()` to find supported models."
             )
-        return multi_deploy
+
+        if not concise:
+            return deploy_options
+
+        def _extract_config(option):
+            container = (
+                option.container_spec.image_uri if option.container_spec else None
+            )
+            machine = (
+                option.dedicated_resources.machine_spec
+                if option.dedicated_resources
+                else None
+            )
+
+            return {
+                "serving_container_image_uri": container,
+                "machine_type": getattr(machine, "machine_type", None),
+                "accelerator_type": getattr(
+                    getattr(machine, "accelerator_type", None), "name", None
+                ),
+                "accelerator_count": getattr(machine, "accelerator_count", None),
+            }
+
+        concise_deploy_options = [_extract_config(opt) for opt in deploy_options]
+        return "\n\n".join(
+            f"[Option {i + 1}]\n"
+            + "\n".join(
+                f'  {k}="{v}",' if k != "accelerator_count" else f"  {k}={v},"
+                for k, v in config.items()
+                if v is not None
+            )
+            for i, config in enumerate(concise_deploy_options)
+        )
 
     def batch_predict(
         self,
@@ -715,3 +771,44 @@ class OpenModel:
             starting_replica_count=starting_replica_count,
             max_replica_count=max_replica_count,
         )
+
+    def check_license_agreement_status(self) -> bool:
+        """Check whether the project has accepted the license agreement of the model.
+
+        EULA (End User License Agreement) is a legal document that the user must
+        accept before using the model. For Models having license restrictions,
+        the user must accept the EULA before using the model. You can check the
+        details of the License in Model Garden.
+
+        Returns:
+            bool : True if the project has accepted the End User License
+            Agreement, False otherwise.
+        """
+        request = types.CheckPublisherModelEulaAcceptanceRequest(
+            parent=f"projects/{self._project}",
+            publisher_model=self._publisher_model_name,
+        )
+        response = self._model_garden_client.check_publisher_model_eula_acceptance(
+            request
+        )
+        return response.publisher_model_eula_acked
+
+    def accept_model_license_agreement(
+        self,
+    ) -> types.model_garden_service.PublisherModelEulaAcceptance:
+        """Accepts the EULA(End User License Agreement) of the model for the project.
+
+        For Models having license restrictions, the user must accept the EULA
+        before using the model. Calling this method will mark the EULA as accepted
+        for the project.
+
+        Returns:
+            types.model_garden_service.PublisherModelEulaAcceptance:
+                The response of the accept_eula call, containing project number,
+                model name and acceptance status.
+        """
+        request = types.AcceptPublisherModelEulaRequest(
+            parent=f"projects/{self._project}",
+            publisher_model=self._publisher_model_name,
+        )
+        return self._model_garden_client.accept_publisher_model_eula(request)

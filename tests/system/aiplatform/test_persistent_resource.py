@@ -27,11 +27,15 @@ from google.cloud.aiplatform.compat.types import (
     persistent_resource_v1 as gca_persistent_resource,
 )
 from tests.system.aiplatform import e2e_base
+from google.cloud.aiplatform.tests.unit.aiplatform import constants as test_constants
 import pytest
 
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
 _TEST_INITIAL_REPLICA_COUNT = 2
+_TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE = (
+    test_constants.ProjectConstants._TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE
+)
 
 
 @pytest.mark.usefixtures("tear_down_resources")
@@ -59,7 +63,9 @@ class TestPersistentResource(e2e_base.TestEndToEnd):
         ]
 
         test_resource = persistent_resource.PersistentResource.create(
-            persistent_resource_id=resource_id, resource_pools=resource_pools
+            persistent_resource_id=resource_id,
+            resource_pools=resource_pools,
+            enable_custom_service_account=_TEST_ENABLE_CUSTOM_SERVICE_ACCOUNT_TRUE,
         )
 
         shared_state["resources"] = [test_resource]

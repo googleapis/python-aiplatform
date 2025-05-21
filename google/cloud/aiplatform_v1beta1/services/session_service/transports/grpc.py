@@ -350,8 +350,8 @@ class SessionServiceGrpcTransport(SessionServiceTransport):
     ) -> Callable[[session_service.CreateSessionRequest], operations_pb2.Operation]:
         r"""Return a callable for the create session method over gRPC.
 
-        Creates a new [Session][google.cloud.aiplatform.v1beta1.Session]
-        in a given project and location.
+        Creates a new
+        [Session][google.cloud.aiplatform.v1beta1.Session].
 
         Returns:
             Callable[[~.CreateSessionRequest],
@@ -407,7 +407,7 @@ class SessionServiceGrpcTransport(SessionServiceTransport):
         r"""Return a callable for the list sessions method over gRPC.
 
         Lists [Sessions][google.cloud.aiplatform.v1beta1.Session] in a
-        given project and location.
+        given reasoning engine.
 
         Returns:
             Callable[[~.ListSessionsRequest],

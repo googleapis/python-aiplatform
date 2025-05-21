@@ -175,6 +175,7 @@ from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
 from .types.dataset_service import ExportDataResponse
 from .types.dataset_service import GeminiExample
+from .types.dataset_service import GeminiRequestReadConfig
 from .types.dataset_service import GeminiTemplateConfig
 from .types.dataset_service import GetAnnotationSpecRequest
 from .types.dataset_service import GetDatasetRequest
@@ -1173,6 +1174,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
@@ -1703,6 +1705,7 @@ __all__ = (
     "GcsDestination",
     "GcsSource",
     "GeminiExample",
+    "GeminiRequestReadConfig",
     "GeminiTemplateConfig",
     "GenAiCacheServiceClient",
     "GenAiTuningServiceClient",
@@ -2358,6 +2361,7 @@ __all__ = (
     "Trial",
     "TrialContext",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",

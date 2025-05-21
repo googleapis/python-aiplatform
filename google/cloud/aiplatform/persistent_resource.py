@@ -171,6 +171,7 @@ class PersistentResource(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         network: Optional[str] = None,
         kms_key_name: Optional[str] = None,
+        enable_custom_service_account: Optional[bool] = None,
         service_account: Optional[str] = None,
         reserved_ip_ranges: List[str] = None,
         sync: Optional[bool] = True,  # pylint: disable=unused-argument
@@ -234,6 +235,16 @@ class PersistentResource(base.VertexAiResourceNounWithFutureManager):
                 PersistentResource. If set, this PersistentResource and all
                 sub-resources of this PersistentResource will be secured by
                 this key.
+            enable_custom_service_account (bool):
+                Optional. When set to True, allows the `service_account`
+                parameter to specify a custom service account for workloads on this
+                PersistentResource. Defaults to None (False behavior).
+
+                If True, the service account provided in the `service_account` parameter
+                will be used for workloads (runtimes, jobs), provided the user has the
+                ``iam.serviceAccounts.actAs`` permission. If False, the
+                `service_account` parameter is ignored, and the PersistentResource
+                will use the default service account.
             service_account (str):
                 Optional. Default service account that this
                 PersistentResource's workloads run as. The workloads
@@ -295,7 +306,31 @@ class PersistentResource(base.VertexAiResourceNounWithFutureManager):
                 gca_encryption_spec_compat.EncryptionSpec(kms_key_name=kms_key_name)
             )
 
-        if service_account:
+        # Raise ValueError if enable_custom_service_account is False but
+        # service_account is provided
+        if (
+            enable_custom_service_account is False and service_account is not None
+        ):  # pylint: disable=g-bool-id-comparison
+            raise ValueError(
+                "The parameter `enable_custom_service_account` was set to False, "
+                "but a value was provided for `service_account`. These two "
+                "settings are incompatible. If you want to use a custom "
+                "service account, set `enable_custom_service_account` to True."
+            )
+
+        elif enable_custom_service_account:
+            service_account_spec = gca_persistent_resource_compat.ServiceAccountSpec(
+                enable_custom_service_account=True,
+                # Set service_account if it is provided, otherwise set to None
+                service_account=service_account if service_account else None,
+            )
+            gca_persistent_resource.resource_runtime_spec = (
+                gca_persistent_resource_compat.ResourceRuntimeSpec(
+                    service_account_spec=service_account_spec
+                )
+            )
+        elif service_account:
+            # Handle the deprecated case where only service_account is provided
             service_account_spec = gca_persistent_resource_compat.ServiceAccountSpec(
                 enable_custom_service_account=True, service_account=service_account
             )

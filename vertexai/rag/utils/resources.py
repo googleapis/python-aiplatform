@@ -445,3 +445,27 @@ class LayoutParserConfig:
 
     processor_name: str
     max_parsing_requests_per_min: Optional[int] = None
+
+
+@dataclasses.dataclass
+class LlmParserConfig:
+    """Configuration for the Document AI Layout Parser Processor.
+
+    Attributes:
+        model_name (str):
+            The full resource name of a Vertex AI model. Format:
+            -  `projects/{project_id}/locations/{location}/publishers/google/models/{model_id}`
+            -  `projects/{project_id}/locations/{location}/models/{model_id}`
+        max_parsing_requests_per_min (int):
+            The maximum number of requests the job is allowed to make to the
+            Vertex AI model per minute. Consult
+            https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and
+            the Quota page for your project to set an appropriate value here.
+            If unspecified, a default value of 120 QPM will be used.
+        custom_parsing_prompt (str):
+            A custom prompt to use for parsing.
+    """
+
+    model_name: str
+    max_parsing_requests_per_min: Optional[int] = None
+    custom_parsing_prompt: Optional[str] = None

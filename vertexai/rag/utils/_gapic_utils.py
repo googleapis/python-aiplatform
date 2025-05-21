@@ -41,6 +41,7 @@ from google.cloud.aiplatform.utils import (
 )
 from vertexai.rag.utils.resources import (
     LayoutParserConfig,
+    LlmParserConfig,
     Pinecone,
     RagCorpus,
     RagEmbeddingModelConfig,
@@ -381,7 +382,8 @@ def prepare_import_files_request(
     max_embedding_requests_per_min: int = 1000,
     import_result_sink: Optional[str] = None,
     partial_failures_sink: Optional[str] = None,
-    parser: Optional[LayoutParserConfig] = None,
+    layout_parser: Optional[LayoutParserConfig] = None,
+    llm_parser: Optional[LlmParserConfig] = None,
 ) -> ImportRagFilesRequest:
     if len(corpus_name.split("/")) != 6:
         raise ValueError(
@@ -389,22 +391,36 @@ def prepare_import_files_request(
         )
 
     rag_file_parsing_config = RagFileParsingConfig()
-    if parser is not None:
+    if layout_parser is not None:
         if (
-            re.fullmatch(_VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX, parser.processor_name)
+            re.fullmatch(
+                _VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX,
+                layout_parser.processor_name,
+            )
             is None
         ):
             raise ValueError(
-                "processor_name must be of the format "
-                "`projects/{project_id}/locations/{location}/processors/{processor_id}`"
-                "or "
-                "`projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`, "
-                f"got {parser.processor_name!r}"
+                "processor_name must be of the format"
+                " `projects/{project_id}/locations/{location}/processors/{processor_id}`or"
+                " `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`,"
+                f" got {layout_parser.processor_name!r}"
             )
         rag_file_parsing_config.layout_parser = RagFileParsingConfig.LayoutParser(
-            processor_name=parser.processor_name,
-            max_parsing_requests_per_min=parser.max_parsing_requests_per_min,
+            processor_name=layout_parser.processor_name,
+            max_parsing_requests_per_min=layout_parser.max_parsing_requests_per_min,
         )
+    if llm_parser is not None:
+        rag_file_parsing_config.llm_parser = RagFileParsingConfig.LlmParser(
+            model_name=llm_parser.model_name
+        )
+        if llm_parser.max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.llm_parser.max_parsing_requests_per_min = (
+                llm_parser.max_parsing_requests_per_min
+            )
+        if llm_parser.custom_parsing_prompt is not None:
+            rag_file_parsing_config.llm_parser.custom_parsing_prompt = (
+                llm_parser.custom_parsing_prompt
+            )
 
     chunk_size = 1024
     chunk_overlap = 200

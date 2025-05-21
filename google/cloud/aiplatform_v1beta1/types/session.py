@@ -238,8 +238,8 @@ class EventActions(proto.Message):
             updating an artifact. key is the filename, value
             is the version.
         transfer_to_agent (bool):
-            Optional. If set, the event transfers to the
-            specified agent.
+            Deprecated. If set, the event transfers to
+            the specified agent.
         escalate (bool):
             Optional. The agent is escalating to a higher
             level agent.
@@ -251,6 +251,9 @@ class EventActions(proto.Message):
             multiple function calls. Struct value is the
             required auth config, which can be another
             struct.
+        transfer_agent (str):
+            Optional. If set, the event transfers to the
+            specified agent.
     """
 
     skip_summarization: bool = proto.Field(
@@ -279,6 +282,10 @@ class EventActions(proto.Message):
         proto.MESSAGE,
         number=7,
         message=struct_pb2.Struct,
+    )
+    transfer_agent: str = proto.Field(
+        proto.STRING,
+        number=8,
     )
 
 

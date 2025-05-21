@@ -70,6 +70,7 @@ __protobuf__ = proto.module(
         "AssessDataResponse",
         "AssessDataOperationMetadata",
         "GeminiTemplateConfig",
+        "GeminiRequestReadConfig",
         "GeminiExample",
         "AssembleDataRequest",
         "AssembleDataResponse",
@@ -1179,6 +1180,9 @@ class AssessDataRequest(proto.Message):
             Required. The name of the Dataset resource. Used only for
             MULTIMODAL datasets. Format:
             ``projects/{project}/locations/{location}/datasets/{dataset}``
+        gemini_request_read_config (google.cloud.aiplatform_v1beta1.types.GeminiRequestReadConfig):
+            Optional. The Gemini request read config for
+            the dataset.
     """
 
     class TuningValidationAssessmentConfig(proto.Message):
@@ -1301,6 +1305,11 @@ class AssessDataRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    gemini_request_read_config: "GeminiRequestReadConfig" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="GeminiRequestReadConfig",
     )
 
 
@@ -1450,7 +1459,7 @@ class GeminiTemplateConfig(proto.Message):
             assembling the request to use for downstream
             applications.
         field_mapping (MutableMapping[str, str]):
-            Required. Map of template params to the
+            Required. Map of template parameters to the
             columns in the dataset table.
     """
 
@@ -1463,6 +1472,43 @@ class GeminiTemplateConfig(proto.Message):
         proto.STRING,
         proto.STRING,
         number=2,
+    )
+
+
+class GeminiRequestReadConfig(proto.Message):
+    r"""Configuration for how to read Gemini requests from a
+    multimodal dataset.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        template_config (google.cloud.aiplatform_v1beta1.types.GeminiTemplateConfig):
+            Gemini request template with placeholders.
+
+            This field is a member of `oneof`_ ``read_config``.
+        assembled_request_column_name (str):
+            Optional. Column name in the dataset table
+            that contains already fully assembled Gemini
+            requests.
+
+            This field is a member of `oneof`_ ``read_config``.
+    """
+
+    template_config: "GeminiTemplateConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="read_config",
+        message="GeminiTemplateConfig",
+    )
+    assembled_request_column_name: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="read_config",
     )
 
 
@@ -1607,6 +1653,8 @@ class AssembleDataRequest(proto.Message):
             Required. The name of the Dataset resource (used only for
             MULTIMODAL datasets). Format:
             ``projects/{project}/locations/{location}/datasets/{dataset}``
+        gemini_request_read_config (google.cloud.aiplatform_v1beta1.types.GeminiRequestReadConfig):
+            Optional. The read config for the dataset.
     """
 
     gemini_template_config: "GeminiTemplateConfig" = proto.Field(
@@ -1623,6 +1671,11 @@ class AssembleDataRequest(proto.Message):
     name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    gemini_request_read_config: "GeminiRequestReadConfig" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message="GeminiRequestReadConfig",
     )
 
 

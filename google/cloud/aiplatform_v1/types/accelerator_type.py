@@ -29,7 +29,7 @@ __protobuf__ = proto.module(
 
 
 class AcceleratorType(proto.Enum):
-    r"""Represents a hardware accelerator type.
+    r"""LINT: LEGACY_NAMES Represents a hardware accelerator type.
 
     Values:
         ACCELERATOR_TYPE_UNSPECIFIED (0):
@@ -57,6 +57,10 @@ class AcceleratorType(proto.Enum):
             Nvidia H100 80Gb GPU.
         NVIDIA_H100_MEGA_80GB (14):
             Nvidia H100 Mega 80Gb GPU.
+        NVIDIA_H200_141GB (15):
+            Nvidia H200 141Gb GPU.
+        NVIDIA_B200 (16):
+            Nvidia B200 GPU.
         TPU_V2 (6):
             TPU v2.
         TPU_V3 (7):
@@ -77,6 +81,8 @@ class AcceleratorType(proto.Enum):
     NVIDIA_L4 = 11
     NVIDIA_H100_80GB = 13
     NVIDIA_H100_MEGA_80GB = 14
+    NVIDIA_H200_141GB = 15
+    NVIDIA_B200 = 16
     TPU_V2 = 6
     TPU_V3 = 7
     TPU_V4_POD = 10

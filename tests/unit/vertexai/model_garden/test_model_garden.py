@@ -14,6 +14,7 @@
 """Unit tests for ModelGarden class."""
 
 import importlib
+import textwrap
 from unittest import mock
 
 from google import auth
@@ -33,7 +34,7 @@ from google.cloud.aiplatform_v1.types import manual_batch_tuning_parameters
 from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.services import model_garden_service
 from vertexai import batch_prediction
-from vertexai.preview import model_garden
+from vertexai import model_garden
 import pytest
 
 from google.protobuf import duration_pb2
@@ -41,6 +42,7 @@ from google.protobuf import duration_pb2
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+_TEST_PROJECT_NUMBER = "1234567890"
 
 _TEST_MODEL_FULL_RESOURCE_NAME = (
     "publishers/google/models/paligemma@paligemma-224-float32"
@@ -179,14 +181,39 @@ def get_publisher_model_mock():
                     multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
                         multi_deploy_vertex=[
                             types.PublisherModel.CallToAction.Deploy(
+                                container_spec=types.ModelContainerSpec(
+                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                                    command=["python", "main.py"],
+                                    args=["--model-id=gemma-2b"],
+                                    env=[
+                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
+                                    ],
+                                ),
                                 dedicated_resources=types.DedicatedResources(
                                     machine_spec=types.MachineSpec(
                                         machine_type="g2-standard-16",
                                         accelerator_type="NVIDIA_L4",
                                         accelerator_count=1,
                                     )
-                                )
-                            )
+                                ),
+                            ),
+                            types.PublisherModel.CallToAction.Deploy(
+                                container_spec=types.ModelContainerSpec(
+                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+                                    command=["python", "main.py"],
+                                    args=["--model-id=gemma-2b"],
+                                    env=[
+                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
+                                    ],
+                                ),
+                                dedicated_resources=types.DedicatedResources(
+                                    machine_spec=types.MachineSpec(
+                                        machine_type="g2-standard-32",
+                                        accelerator_type="NVIDIA_L4",
+                                        accelerator_count=4,
+                                    )
+                                ),
+                            ),
                         ]
                     )
                 ),
@@ -197,14 +224,39 @@ def get_publisher_model_mock():
                     multi_deploy_vertex=types.PublisherModel.CallToAction.DeployVertex(
                         multi_deploy_vertex=[
                             types.PublisherModel.CallToAction.Deploy(
+                                container_spec=types.ModelContainerSpec(
+                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+                                    command=["python", "main.py"],
+                                    args=["--model-id=gemma-2b"],
+                                    env=[
+                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
+                                    ],
+                                ),
                                 dedicated_resources=types.DedicatedResources(
                                     machine_spec=types.MachineSpec(
                                         machine_type="g2-standard-16",
                                         accelerator_type="NVIDIA_L4",
                                         accelerator_count=1,
                                     )
-                                )
-                            )
+                                ),
+                            ),
+                            types.PublisherModel.CallToAction.Deploy(
+                                container_spec=types.ModelContainerSpec(
+                                    image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+                                    command=["python", "main.py"],
+                                    args=["--model-id=gemma-2b"],
+                                    env=[
+                                        types.EnvVar(name="MODEL_ID", value="gemma-2b")
+                                    ],
+                                ),
+                                dedicated_resources=types.DedicatedResources(
+                                    machine_spec=types.MachineSpec(
+                                        machine_type="g2-standard-32",
+                                        accelerator_type="NVIDIA_L4",
+                                        accelerator_count=4,
+                                    )
+                                ),
+                            ),
                         ]
                     )
                 ),
@@ -398,6 +450,40 @@ def list_publisher_models_mock():
         yield list_publisher_models
 
 
+@pytest.fixture
+def check_license_agreement_status_mock():
+    """Mocks the check_license_agreement_status method."""
+    with mock.patch.object(
+        model_garden_service.ModelGardenServiceClient,
+        "check_publisher_model_eula_acceptance",
+    ) as check_license_agreement_status:
+        check_license_agreement_status.return_value = (
+            types.PublisherModelEulaAcceptance(
+                project_number=_TEST_PROJECT_NUMBER,
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+                publisher_model_eula_acked=True,
+            )
+        )
+        yield check_license_agreement_status
+
+
+@pytest.fixture
+def accept_model_license_agreement_mock():
+    """Mocks the accept_model_license_agreement method."""
+    with mock.patch.object(
+        model_garden_service.ModelGardenServiceClient,
+        "accept_publisher_model_eula",
+    ) as accept_model_license_agreement:
+        accept_model_license_agreement.return_value = (
+            types.PublisherModelEulaAcceptance(
+                project_number=_TEST_PROJECT_NUMBER,
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+                publisher_model_eula_acked=True,
+            )
+        )
+        yield accept_model_license_agreement
+
+
 @pytest.mark.usefixtures(
     "google_auth_mock",
     "deploy_mock",
@@ -406,9 +492,11 @@ def list_publisher_models_mock():
     "export_publisher_model_mock",
     "batch_prediction_mock",
     "complete_bq_uri_mock",
+    "check_license_agreement_status_mock",
+    "accept_model_license_agreement_mock",
 )
-class TestModelGarden:
-    """Test cases for ModelGarden class."""
+class TestModelGardenOpenModel:
+    """Test cases for Model Garden OpenModel class."""
 
     def setup_method(self):
         importlib.reload(aiplatform.initializer)
@@ -709,6 +797,24 @@ class TestModelGarden:
             )
         )
 
+    def test_deploy_with_system_labels_success(self, deploy_mock):
+        """Tests deploying a model with system labels."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        model.deploy(system_labels={"test-key": "test-value"})
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                deploy_config=types.DeployRequest.DeployConfig(
+                    system_labels={"test-key": "test-value"}
+                ),
+            )
+        )
+
     def test_deploy_with_fast_tryout_enabled_success(self, deploy_mock):
         """Tests deploying a model with fast tryout enabled."""
         aiplatform.init(
@@ -880,9 +986,8 @@ class TestModelGarden:
         )
 
         expected_message = (
-            "Model does not support deployment, please use a deploy-able model"
-            " instead. You can use the list_deployable_models() method to find out"
-            " which ones currently support deployment."
+            "Model does not support deployment. "
+            "Use `list_deployable_models()` to find supported models."
         )
         with pytest.raises(ValueError) as exception:
             model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
@@ -900,6 +1005,71 @@ class TestModelGarden:
 
         hf_model = model_garden.OpenModel(_TEST_MODEL_HUGGING_FACE_ID)
         hf_model.list_deploy_options()
+        get_publisher_model_mock.assert_called_with(
+            types.GetPublisherModelRequest(
+                name=_TEST_HUGGING_FACE_MODEL_FULL_RESOURCE_NAME,
+                is_hugging_face_model=True,
+                include_equivalent_model_garden_model_deployment_configs=True,
+            )
+        )
+
+    def test_list_deploy_options_concise(self, get_publisher_model_mock):
+        """Tests getting the supported deploy options for a model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        expected_message = (
+            "Model does not support deployment. "
+            "Use `list_deployable_models()` to find supported models."
+        )
+        with pytest.raises(ValueError) as exception:
+            model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+            _ = model.list_deploy_options(concise=True)
+        assert str(exception.value) == expected_message
+
+        result = model.list_deploy_options(concise=True)
+        expected_result = textwrap.dedent(
+            """\
+        [Option 1]
+          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+          machine_type="g2-standard-16",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+
+        [Option 2]
+          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+          machine_type="g2-standard-32",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=4,"""
+        )
+        assert result == expected_result
+        get_publisher_model_mock.assert_called_with(
+            types.GetPublisherModelRequest(
+                name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                is_hugging_face_model=False,
+                include_equivalent_model_garden_model_deployment_configs=True,
+            )
+        )
+
+        hf_model = model_garden.OpenModel(_TEST_MODEL_HUGGING_FACE_ID)
+        hf_result = hf_model.list_deploy_options(concise=True)
+        expected_hf_result = textwrap.dedent(
+            """\
+        [Option 1]
+          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20241202_0916_RC00",
+          machine_type="g2-standard-16",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=1,
+
+        [Option 2]
+          serving_container_image_uri="us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/text-generation-inference-cu121.2-1.py310:latest",
+          machine_type="g2-standard-32",
+          accelerator_type="NVIDIA_L4",
+          accelerator_count=4,"""
+        )
+        assert hf_result == expected_hf_result
         get_publisher_model_mock.assert_called_with(
             types.GetPublisherModelRequest(
                 name=_TEST_HUGGING_FACE_MODEL_FULL_RESOURCE_NAME,
@@ -998,4 +1168,44 @@ class TestModelGarden:
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
             timeout=None,
+        )
+
+    def test_check_license_agreement_status_success(
+        self, check_license_agreement_status_mock
+    ):
+        """Tests checking EULA acceptance for a model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        eula_acceptance = model.check_license_agreement_status()
+        check_license_agreement_status_mock.assert_called_once_with(
+            types.CheckPublisherModelEulaAcceptanceRequest(
+                parent=f"projects/{_TEST_PROJECT}",
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+            )
+        )
+        assert eula_acceptance
+
+    def test_accept_model_license_agreement_success(
+        self, accept_model_license_agreement_mock
+    ):
+        """Tests accepting EULA for a model."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        eula_acceptance = model.accept_model_license_agreement()
+        accept_model_license_agreement_mock.assert_called_once_with(
+            types.AcceptPublisherModelEulaRequest(
+                parent=f"projects/{_TEST_PROJECT}",
+                publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+            )
+        )
+        assert eula_acceptance == types.PublisherModelEulaAcceptance(
+            project_number=_TEST_PROJECT_NUMBER,
+            publisher_model=_TEST_MODEL_FULL_RESOURCE_NAME,
+            publisher_model_eula_acked=True,
         )

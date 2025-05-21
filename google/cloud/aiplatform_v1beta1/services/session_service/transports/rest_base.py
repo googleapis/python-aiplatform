@@ -171,11 +171,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             http_options: List[Dict[str, str]] = [
                 {
                     "method": "post",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*}/sessions",
-                    "body": "session",
-                },
-                {
-                    "method": "post",
                     "uri": "/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*}/sessions",
                     "body": "session",
                 },
@@ -233,10 +228,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
             http_options: List[Dict[str, str]] = [
                 {
                     "method": "delete",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/sessions/*}",
-                },
-                {
-                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}",
                 },
             ]
@@ -282,10 +273,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{name=projects/*/locations/*/sessions/*}",
-                },
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}",
@@ -337,10 +324,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
                     "method": "get",
                     "uri": "/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*/sessions/*}/events",
                 },
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*/sessions/*}/events",
-                },
             ]
             return http_options
 
@@ -384,10 +367,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
-                {
-                    "method": "get",
-                    "uri": "/v1beta1/{parent=projects/*/locations/*}/sessions",
-                },
                 {
                     "method": "get",
                     "uri": "/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*}/sessions",
@@ -435,11 +414,6 @@ class _BaseSessionServiceRestTransport(SessionServiceTransport):
         @staticmethod
         def _get_http_options():
             http_options: List[Dict[str, str]] = [
-                {
-                    "method": "patch",
-                    "uri": "/v1beta1/{session.name=projects/*/locations/*/sessions/*}",
-                    "body": "session",
-                },
                 {
                     "method": "patch",
                     "uri": "/v1beta1/{session.name=projects/*/locations/*/reasoningEngines/*/sessions/*}",

@@ -21,7 +21,7 @@ import pytest
 import sys
 import tarfile
 import tempfile
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, AsyncIterable, Dict, Iterable, List, Optional
 from unittest import mock
 
 import proto
@@ -46,6 +46,9 @@ from google.protobuf import field_mask_pb2
 from google.protobuf import struct_pb2
 
 
+_TEST_AGENT_FRAMEWORK = "test-agent-framework"
+
+
 class CapitalizeEngine:
     """A sample Agent Engine."""
 
@@ -55,6 +58,23 @@ class CapitalizeEngine:
     def query(self, unused_arbitrary_string_name: str) -> str:
         """Runs the engine."""
         return unused_arbitrary_string_name.upper()
+
+    def clone(self):
+        return self
+
+
+class AsyncStreamQueryEngine:
+    """A sample Agent Engine that implements `async_stream_query`."""
+
+    def set_up(self):
+        pass
+
+    async def async_stream_query(
+        self, unused_arbitrary_string_name: str
+    ) -> AsyncIterable[Any]:
+        """Runs the async stream engine."""
+        for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
+            yield chunk
 
     def clone(self):
         return self
@@ -78,6 +98,8 @@ class StreamQueryEngine:
 class OperationRegistrableEngine:
     """Add a test class that implements OperationRegistrable."""
 
+    agent_framework = _TEST_AGENT_FRAMEWORK
+
     def query(self, unused_arbitrary_string_name: str) -> str:
         """Runs the engine."""
         return unused_arbitrary_string_name.upper()
@@ -91,6 +113,13 @@ class OperationRegistrableEngine:
         for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
             yield chunk
 
+    async def async_stream_query(
+        self, unused_arbitrary_string_name: str
+    ) -> AsyncIterable[Any]:
+        """Runs the async stream engine."""
+        for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
+            yield chunk
+
     # Add a custom method to test the custom stream method registration.
     def custom_stream_query(self, unused_arbitrary_string_name: str) -> Iterable[Any]:
         """Runs the stream engine."""
@@ -99,6 +128,12 @@ class OperationRegistrableEngine:
 
     # Add a custom method to test the custom stream method registration.
     def custom_stream_method(self, unused_arbitrary_string_name: str) -> Iterable[Any]:
+        for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
+            yield chunk
+
+    async def custom_async_stream_method(
+        self, unused_arbitrary_string_name: str
+    ) -> AsyncIterable[Any]:
         for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
             yield chunk
 
@@ -114,6 +149,10 @@ class OperationRegistrableEngine:
             _TEST_STREAM_API_MODE: [
                 _TEST_DEFAULT_STREAM_METHOD_NAME,
                 _TEST_CUSTOM_STREAM_METHOD_NAME,
+            ],
+            _TEST_ASYNC_STREAM_API_MODE: [
+                _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
+                _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
             ],
         }
 
@@ -138,8 +177,21 @@ class SameRegisteredOperationsEngine:
         for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
             yield chunk
 
+    async def async_stream_query(
+        self, unused_arbitrary_string_name: str
+    ) -> AsyncIterable[Any]:
+        """Runs the async stream engine."""
+        for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
+            yield chunk
+
     # Add a custom method to test the custom stream method registration.
     def custom_stream_method(self, unused_arbitrary_string_name: str) -> Iterable[Any]:
+        for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
+            yield chunk
+
+    async def custom_async_stream_method(
+        self, unused_arbitrary_string_name: str
+    ) -> AsyncIterable[Any]:
         for chunk in _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE:
             yield chunk
 
@@ -155,6 +207,10 @@ class SameRegisteredOperationsEngine:
             _TEST_STREAM_API_MODE: [
                 _TEST_DEFAULT_STREAM_METHOD_NAME,
                 _TEST_CUSTOM_STREAM_METHOD_NAME,
+            ],
+            _TEST_ASYNC_STREAM_API_MODE: [
+                _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
+                _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
             ],
         }
 
@@ -236,14 +292,20 @@ _TEST_REQUIREMENTS_FILE = _agent_engines._REQUIREMENTS_FILE
 _TEST_EXTRA_PACKAGES_FILE = _agent_engines._EXTRA_PACKAGES_FILE
 _TEST_STANDARD_API_MODE = _agent_engines._STANDARD_API_MODE
 _TEST_STREAM_API_MODE = _agent_engines._STREAM_API_MODE
+_TEST_ASYNC_STREAM_API_MODE = _agent_engines._ASYNC_STREAM_API_MODE
 _TEST_DEFAULT_METHOD_NAME = _agent_engines._DEFAULT_METHOD_NAME
 _TEST_DEFAULT_STREAM_METHOD_NAME = _agent_engines._DEFAULT_STREAM_METHOD_NAME
+_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME = (
+    _agent_engines._DEFAULT_ASYNC_STREAM_METHOD_NAME
+)
 _TEST_CAPITALIZE_ENGINE_METHOD_DOCSTRING = "Runs the engine."
 _TEST_STREAM_METHOD_DOCSTRING = "Runs the stream engine."
+_TEST_ASYNC_STREAM_METHOD_DOCSTRING = "Runs the async stream engine."
 _TEST_MODE_KEY_IN_SCHEMA = _agent_engines._MODE_KEY_IN_SCHEMA
 _TEST_METHOD_NAME_KEY_IN_SCHEMA = _agent_engines._METHOD_NAME_KEY_IN_SCHEMA
 _TEST_CUSTOM_METHOD_NAME = "custom_method"
 _TEST_CUSTOM_STREAM_METHOD_NAME = "custom_stream_method"
+_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME = "custom_async_stream_method"
 _TEST_CUSTOM_METHOD_DEFAULT_DOCSTRING = """
     Runs the Agent Engine to serve the user request.
 
@@ -271,6 +333,20 @@ _TEST_CUSTOM_STREAM_METHOD_DEFAULT_DOCSTRING = """
 
     Returns:
         Iterable[Any]: The response from serving the user request.
+"""
+_TEST_CUSTOM_ASYNC_STREAM_METHOD_DEFAULT_DOCSTRING = """
+    Runs the Agent Engine to serve the user request.
+
+    This will be based on the `.custom_async_stream_method(...)` of the python object that
+    was passed in when creating the Agent Engine. The method will invoke the
+    `async_stream_query` API client of the python object.
+
+    Args:
+        **kwargs:
+            Optional. The arguments of the `.custom_async_stream_method(...)` method.
+
+    Returns:
+        AsyncIterable[Any]: The response from serving the user request.
 """
 _TEST_METHOD_TO_BE_UNREGISTERED_NAME = "method_to_be_unregistered"
 _TEST_QUERY_PROMPT = "Find the first fibonacci number greater than 999"
@@ -314,13 +390,19 @@ _TEST_AGENT_ENGINE_PACKAGE_SPEC = types.ReasoningEngineSpec.PackageSpec(
 )
 _TEST_INPUT_AGENT_ENGINE_OBJ = types.ReasoningEngine(
     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-    spec=types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC),
+    spec=types.ReasoningEngineSpec(
+        package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+        agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+    ),
 )
 _TEST_INPUT_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
 _TEST_AGENT_ENGINE_OBJ = types.ReasoningEngine(
     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
     display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-    spec=types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC),
+    spec=types.ReasoningEngineSpec(
+        package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+        agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+    ),
 )
 _TEST_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
 _TEST_UPDATE_AGENT_ENGINE_OBJ = types.ReasoningEngine(
@@ -329,6 +411,7 @@ _TEST_UPDATE_AGENT_ENGINE_OBJ = types.ReasoningEngine(
         package_spec=types.ReasoningEngineSpec.PackageSpec(
             pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
         ),
+        agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
     ),
 )
 _TEST_UPDATE_AGENT_ENGINE_OBJ.spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
@@ -371,11 +454,31 @@ _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA = _utils.to_proto(
 _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
 ] = _TEST_STREAM_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA = _utils.to_proto(
+    _utils.generate_schema(
+        AsyncStreamQueryEngine().async_stream_query,
+        schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
+    )
+)
+_TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA[
+    _TEST_MODE_KEY_IN_SCHEMA
+] = _TEST_ASYNC_STREAM_API_MODE
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA = _utils.to_proto(
+    _utils.generate_schema(
+        OperationRegistrableEngine().custom_async_stream_method,
+        schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
+    )
+)
+_TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[
+    _TEST_MODE_KEY_IN_SCHEMA
+] = _TEST_ASYNC_STREAM_API_MODE
 _TEST_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA,
+    _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA,
+    _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA,
 ]
 _TEST_OPERATION_NOT_REGISTRED_SCHEMAS = [
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
@@ -398,6 +501,9 @@ _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
 ] = _TEST_STANDARD_API_MODE
 _TEST_STREAM_QUERY_SCHEMAS = [
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
+]
+_TEST_ASYNC_STREAM_QUERY_SCHEMAS = [
+    _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA,
 ]
 _TEST_PACKAGE_DISTRIBUTIONS = {
     "requests": ["requests"],
@@ -431,8 +537,9 @@ _TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH = _create_empty_fake_package(
 )
 
 
-def _generate_agent_engine_with_class_methods(
+def _generate_agent_engine_with_class_methods_and_agent_framework(
     class_methods: List[proto.Message],
+    agent_framework: str,
 ) -> types.ReasoningEngine:
     test_agent_engine = types.ReasoningEngine(
         name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -443,6 +550,7 @@ def _generate_agent_engine_with_class_methods(
         ),
     )
     test_agent_engine.spec.class_methods.extend(class_methods)
+    test_agent_engine.spec.agent_framework = agent_framework
     return test_agent_engine
 
 
@@ -607,7 +715,7 @@ def stream_query_agent_engine_mock():
     with mock.patch.object(
         reasoning_engine_execution_service.ReasoningEngineExecutionServiceClient,
         "stream_query_reasoning_engine",
-        return_value=mock_streamer(),
+        side_effect=lambda *args, **kwargs: mock_streamer(),
     ) as stream_query_agent_engine_mock:
         yield stream_query_agent_engine_mock
 
@@ -657,6 +765,17 @@ class InvalidCapitalizeEngineWithoutStreamQuerySelf:
         pass
 
     def stream_query() -> str:
+        """Runs the engine."""
+        return "RESPONSE"
+
+
+class InvalidCapitalizeEngineWithoutAsyncStreamQuerySelf:
+    """A sample Agent Engine with an invalid async_stream_query method."""
+
+    def set_up(self):
+        pass
+
+    async def async_stream_query() -> str:
         """Runs the engine."""
         return "RESPONSE"
 
@@ -881,6 +1000,7 @@ class TestAgentEngine:
                     ),
                 ],
             ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
         )
         test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
         create_agent_engine_mock.assert_called_with(
@@ -927,6 +1047,7 @@ class TestAgentEngine:
                     ),
                 ],
             ),
+            agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
         )
         test_spec.class_methods.append(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
         create_agent_engine_mock.assert_called_with(
@@ -940,6 +1061,49 @@ class TestAgentEngine:
             name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
         )
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine_instance, expected_framework",
+        [
+            (
+                "Engine without agent_framework attribute",
+                CapitalizeEngine(),
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            ),
+            (
+                "Engine with agent_framework attribute set to None",
+                type(
+                    "NoneFrameworkEngine",
+                    (object,),
+                    {"agent_framework": None, "clone": lambda self: self},
+                )(),
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            ),
+            (
+                "Engine with agent_framework attribute set to a specific string",
+                OperationRegistrableEngine(),
+                _TEST_AGENT_FRAMEWORK,
+            ),
+            (
+                "Engine with a different agent_framework string",
+                type(
+                    "CustomFrameworkEngine",
+                    (object,),
+                    {
+                        "agent_framework": "MyCustomFramework",
+                        "clone": lambda self: self,
+                    },
+                )(),
+                "MyCustomFramework",
+            ),
+        ],
+    )
+    def test_get_agent_framework(
+        self, test_case_name, test_engine_instance, expected_framework
+    ):
+        framework = _agent_engines._get_agent_framework(test_engine_instance)
+        assert framework == expected_framework
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
@@ -992,6 +1156,7 @@ class TestAgentEngine:
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1000,13 +1165,32 @@ class TestAgentEngine:
                 "Update the stream query engine",
                 {"agent_engine": StreamQueryEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
-                    reasoning_engine=_generate_agent_engine_with_class_methods(
-                        _TEST_STREAM_QUERY_SCHEMAS
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_STREAM_QUERY_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
+                        ]
+                    ),
+                ),
+            ),
+            (
+                "Update the async stream query engine",
+                {"agent_engine": AsyncStreamQueryEngine()},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_ASYNC_STREAM_QUERY_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.package_spec.pickle_object_gcs_uri",
+                            "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1015,13 +1199,15 @@ class TestAgentEngine:
                 "Update the operation registrable engine",
                 {"agent_engine": OperationRegistrableEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
-                    reasoning_engine=_generate_agent_engine_with_class_methods(
-                        _TEST_OPERATION_REGISTRABLE_SCHEMAS
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+                        _TEST_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1030,13 +1216,15 @@ class TestAgentEngine:
                 "Update the operation not registered engine",
                 {"agent_engine": OperationNotRegisteredEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
-                    reasoning_engine=_generate_agent_engine_with_class_methods(
-                        _TEST_OPERATION_NOT_REGISTRED_SCHEMAS
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
                     ),
                     update_mask=field_mask_pb2.FieldMask(
                         paths=[
                             "spec.package_spec.pickle_object_gcs_uri",
                             "spec.class_methods",
+                            "spec.agent_framework",
                         ]
                     ),
                 ),
@@ -1102,6 +1290,23 @@ class TestAgentEngine:
                             "spec.deployment_spec.env",
                             "spec.deployment_spec.secret_env",
                         ],
+                    ),
+                ),
+            ),
+            (
+                "Update the agent_engine with agent_framework attribute",
+                {"agent_engine": OperationRegistrableEngine()},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+                        _TEST_AGENT_FRAMEWORK,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.package_spec.pickle_object_gcs_uri",
+                            "spec.class_methods",
+                            "spec.agent_framework",
+                        ]
                     ),
                 ),
             ),
@@ -1343,6 +1548,20 @@ class TestAgentEngine:
                         ),
                         _TEST_STREAM_API_MODE,
                     ),
+                    (
+                        _utils.generate_schema(
+                            OperationRegistrableEngine().async_stream_query,
+                            schema_name=_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
+                        ),
+                        _TEST_ASYNC_STREAM_API_MODE,
+                    ),
+                    (
+                        _utils.generate_schema(
+                            OperationRegistrableEngine().custom_async_stream_method,
+                            schema_name=_TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
+                        ),
+                        _TEST_ASYNC_STREAM_API_MODE,
+                    ),
                 ],
             ),
             (
@@ -1391,22 +1610,25 @@ class TestAgentEngine:
 
     # pytest does not allow absl.testing.parameterized.named_parameters.
     @pytest.mark.parametrize(
-        "test_case_name, test_engine, want_class_methods",
+        "test_case_name, test_engine, want_class_methods, want_agent_framework",
         [
             (
                 "Default (Not Operation Registrable) Engine",
                 CapitalizeEngine(),
                 _TEST_NO_OPERATION_REGISTRABLE_SCHEMAS,
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
             ),
             (
                 "Operation Registrable Engine",
                 OperationRegistrableEngine(),
                 _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+                _TEST_AGENT_FRAMEWORK,
             ),
             (
                 "Operation Not Registered Engine",
                 OperationNotRegisteredEngine(),
                 _TEST_OPERATION_NOT_REGISTRED_SCHEMAS,
+                _agent_engines._DEFAULT_AGENT_FRAMEWORK,
             ),
         ],
     )
@@ -1415,6 +1637,7 @@ class TestAgentEngine:
         test_case_name,
         test_engine,
         want_class_methods,
+        want_agent_framework,
         create_agent_engine_mock,
     ):
         agent_engines.create(
@@ -1423,8 +1646,12 @@ class TestAgentEngine:
             requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
         )
-        spec = types.ReasoningEngineSpec(package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC)
+        spec = types.ReasoningEngineSpec(
+            package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+            agent_framework=want_agent_framework,
+        )
         spec.class_methods.extend(want_class_methods)
+        spec.agent_framework = want_agent_framework
         create_agent_engine_mock.assert_called_with(
             parent=_TEST_PARENT,
             reasoning_engine=types.ReasoningEngine(
@@ -1835,6 +2062,203 @@ class TestAgentEngine:
                 )
             )
 
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_method_docs, test_class_methods_spec",
+        [
+            (
+                "Default Async Stream Queryable (Not Operation Registrable) Engine",
+                AsyncStreamQueryEngine(),
+                {
+                    _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME: (
+                        _TEST_ASYNC_STREAM_METHOD_DOCSTRING
+                    ),
+                },
+                _TEST_ASYNC_STREAM_QUERY_SCHEMAS,
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                {
+                    _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME: (
+                        _TEST_ASYNC_STREAM_METHOD_DOCSTRING
+                    ),
+                    _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME: (
+                        _TEST_CUSTOM_ASYNC_STREAM_METHOD_DEFAULT_DOCSTRING
+                    ),
+                },
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_async_stream_query_after_create_agent_engine_with_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_method_docs,
+        test_class_methods_spec,
+        stream_query_agent_engine_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_agent_engine = agent_engines.create(test_engine)
+
+        for method_name, test_doc in test_class_method_docs.items():
+            invoked_method = getattr(test_agent_engine, method_name)
+            results = []
+            async for chunk in invoked_method(input=_TEST_QUERY_PROMPT):
+                results.append(chunk)
+
+            assert len(results) == 2  # Matches the length of mocked response
+
+            stream_query_agent_engine_mock.assert_called_with(
+                request=types.StreamQueryReasoningEngineRequest(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    input={"input": _TEST_QUERY_PROMPT},
+                    class_method=method_name,
+                )
+            )
+            assert invoked_method.__doc__ == test_doc
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_methods, test_class_methods_spec",
+        [
+            (
+                "Default Async Stream Queryable (Not Operation Registrable) Engine",
+                AsyncStreamQueryEngine(),
+                [_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME],
+                _TEST_ASYNC_STREAM_QUERY_SCHEMAS,
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                [
+                    _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
+                    _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
+                ],
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_async_stream_query_after_update_agent_engine_with_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_methods,
+        test_class_methods_spec,
+        update_agent_engine_mock,
+        stream_query_agent_engine_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.append(_TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME, spec=test_spec
+            )
+            test_agent_engine = agent_engines.create(MethodToBeUnregisteredEngine())
+            assert hasattr(test_agent_engine, _TEST_METHOD_TO_BE_UNREGISTERED_NAME)
+
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_agent_engine.update(agent_engine=test_engine)
+
+        assert not hasattr(test_agent_engine, _TEST_METHOD_TO_BE_UNREGISTERED_NAME)
+        for method_name in test_class_methods:
+            invoked_method = getattr(test_agent_engine, method_name)
+            results = []
+            async for chunk in invoked_method(input=_TEST_QUERY_PROMPT):
+                results.append(chunk)
+
+            assert len(results) == 2  # Matches the length of mocked response
+
+            stream_query_agent_engine_mock.assert_called_with(
+                request=types.StreamQueryReasoningEngineRequest(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    input={"input": _TEST_QUERY_PROMPT},
+                    class_method=method_name,
+                )
+            )
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "test_case_name, test_engine, test_class_methods, test_class_methods_spec",
+        [
+            (
+                "Default Async Stream Queryable (Not Operation Registrable) Engine",
+                AsyncStreamQueryEngine(),
+                [_TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME],
+                _TEST_ASYNC_STREAM_QUERY_SCHEMAS,
+            ),
+            (
+                "Operation Registrable Engine",
+                OperationRegistrableEngine(),
+                [
+                    _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME,
+                    _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME,
+                ],
+                _TEST_OPERATION_REGISTRABLE_SCHEMAS,
+            ),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_async_stream_query_agent_engine_with_operation_schema(
+        self,
+        test_case_name,
+        test_engine,
+        test_class_methods,
+        test_class_methods_spec,
+        stream_query_agent_engine_mock,
+    ):
+        with mock.patch.object(
+            base.VertexAiResourceNoun,
+            "_get_gca_resource",
+        ) as get_gca_resource_mock:
+            test_spec = types.ReasoningEngineSpec()
+            test_spec.class_methods.extend(test_class_methods_spec)
+            get_gca_resource_mock.return_value = types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=test_spec,
+            )
+            test_agent_engine = agent_engines.get(_TEST_RESOURCE_ID)
+
+        for method_name in test_class_methods:
+            invoked_method = getattr(test_agent_engine, method_name)
+            results = []
+            async for chunk in invoked_method(input=_TEST_QUERY_PROMPT):
+                results.append(chunk)
+
+            assert len(results) == 2  # Matches the length of mocked response
+
+            stream_query_agent_engine_mock.assert_called_with(
+                request=types.StreamQueryReasoningEngineRequest(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    input={"input": _TEST_QUERY_PROMPT},
+                    class_method=method_name,
+                )
+            )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngineErrors:
@@ -1895,8 +2319,9 @@ class TestAgentEngineErrors:
         with pytest.raises(
             TypeError,
             match=(
-                "agent_engine has neither a callable method named"
-                " `query` nor a callable method named `register_operations`."
+                "agent_engine has none of the following callable methods: "
+                "`query`, `stream_query`, `async_stream_query` or "
+                "`register_operations`."
             ),
         ):
             agent_engines.create(
@@ -1918,8 +2343,9 @@ class TestAgentEngineErrors:
         with pytest.raises(
             TypeError,
             match=(
-                "agent_engine has neither a callable method named"
-                " `query` nor a callable method named `register_operations`."
+                "agent_engine has none of the following callable methods: "
+                "`query`, `stream_query`, `async_stream_query` or "
+                "`register_operations`."
             ),
         ):
             agent_engines.create(
@@ -1993,6 +2419,23 @@ class TestAgentEngineErrors:
         with pytest.raises(ValueError, match="Invalid stream_query signature"):
             agent_engines.create(
                 InvalidCapitalizeEngineWithoutStreamQuerySelf(),
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            )
+
+    def test_create_agent_engine_with_invalid_async_stream_query_method(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        with pytest.raises(ValueError, match="Invalid async_stream_query signature"):
+            agent_engines.create(
+                InvalidCapitalizeEngineWithoutAsyncStreamQuerySelf(),
                 display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             )
@@ -2130,8 +2573,9 @@ class TestAgentEngineErrors:
         with pytest.raises(
             TypeError,
             match=(
-                "agent_engine has neither a callable method named"
-                " `query` nor a callable method named `register_operations`."
+                "agent_engine has none of the following callable methods: "
+                "`query`, `stream_query`, `async_stream_query` or "
+                "`register_operations`."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -2152,8 +2596,9 @@ class TestAgentEngineErrors:
         with pytest.raises(
             TypeError,
             match=(
-                "agent_engine has neither a callable method named"
-                " `query` nor a callable method named `register_operations`."
+                "agent_engine has none of the following callable methods: "
+                "`query`, `stream_query`, `async_stream_query` or "
+                "`register_operations`."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -2292,7 +2737,7 @@ class TestAgentEngineErrors:
                     "register the API methods: "
                     "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
                     "Error: {Unsupported api mode: `UNKNOWN_API_MODE`, "
-                    "Supported modes are: `` and `stream`.}"
+                    "Supported modes are: ``, `stream` and `async_stream`.}"
                 ),
             ),
         ],
@@ -2313,6 +2758,47 @@ class TestAgentEngineErrors:
             agent_engines.get(_TEST_AGENT_ENGINE_RESOURCE_NAME)
 
         assert want_log_output in caplog.text
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestLightweightAgentEngine:
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        self.test_agent = CapitalizeEngine()
+
+    def test_create_agent_engine_with_no_spec(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        agent_engines.create(
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+        )
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
 
 
 def _generate_agent_engine_to_update() -> "agent_engines.AgentEngine":

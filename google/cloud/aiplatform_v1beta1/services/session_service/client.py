@@ -45,6 +45,7 @@ from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+import google.protobuf
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault, None]
@@ -225,12 +226,14 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
     def session_path(
         project: str,
         location: str,
+        reasoning_engine: str,
         session: str,
     ) -> str:
         """Returns a fully-qualified session string."""
-        return "projects/{project}/locations/{location}/sessions/{session}".format(
+        return "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}".format(
             project=project,
             location=location,
+            reasoning_engine=reasoning_engine,
             session=session,
         )
 
@@ -238,7 +241,7 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
     def parse_session_path(path: str) -> Dict[str, str]:
         """Parses a session path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/sessions/(?P<session>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/reasoningEngines/(?P<reasoning_engine>.+?)/sessions/(?P<session>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -247,13 +250,15 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
     def session_event_path(
         project: str,
         location: str,
+        reasoning_engine: str,
         session: str,
         event: str,
     ) -> str:
         """Returns a fully-qualified session_event string."""
-        return "projects/{project}/locations/{location}/sessions/{session}/events/{event}".format(
+        return "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}".format(
             project=project,
             location=location,
+            reasoning_engine=reasoning_engine,
             session=session,
             event=event,
         )
@@ -262,7 +267,7 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
     def parse_session_event_path(path: str) -> Dict[str, str]:
         """Parses a session_event path into its component segments."""
         m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/sessions/(?P<session>.+?)/events/(?P<event>.+?)$",
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/reasoningEngines/(?P<reasoning_engine>.+?)/sessions/(?P<session>.+?)/events/(?P<event>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -794,8 +799,8 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
     ) -> gac_operation.Operation:
-        r"""Creates a new [Session][google.cloud.aiplatform.v1beta1.Session]
-        in a given project and location.
+        r"""Creates a new
+        [Session][google.cloud.aiplatform.v1beta1.Session].
 
         .. code-block:: python
 
@@ -839,7 +844,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
             parent (str):
                 Required. The resource name of the location to create
                 the session in. Format:
-                ``projects/{project}/locations/{location}`` or
                 ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
 
                 This corresponds to the ``parent`` field
@@ -1043,7 +1047,7 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
     ) -> pagers.ListSessionsPager:
         r"""Lists [Sessions][google.cloud.aiplatform.v1beta1.Session] in a
-        given project and location.
+        given reasoning engine.
 
         .. code-block:: python
 
@@ -1333,8 +1337,6 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
                 [SessionService.DeleteSession][google.cloud.aiplatform.v1beta1.SessionService.DeleteSession].
             name (str):
                 Required. The resource name of the session. Format:
-                ``projects/{project}/locations/{location}/sessions/{session}``
-                or
                 ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}``
 
                 This corresponds to the ``name`` field
@@ -2413,5 +2415,7 @@ DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
 )
 
+if hasattr(DEFAULT_CLIENT_INFO, "protobuf_runtime_version"):  # pragma: NO COVER
+    DEFAULT_CLIENT_INFO.protobuf_runtime_version = google.protobuf.__version__
 
 __all__ = ("SessionServiceClient",)

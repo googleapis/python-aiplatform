@@ -228,6 +228,8 @@ def _override_active_span_processor(
 class AG2Agent:
     """An AG2 Agent."""
 
+    agent_framework = "ag2"
+
     def __init__(
         self,
         model: str,

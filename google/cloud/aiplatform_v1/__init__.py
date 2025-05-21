@@ -652,6 +652,7 @@ from .types.migration_service import MigrateResourceRequest
 from .types.migration_service import MigrateResourceResponse
 from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
+from .types.model import Checkpoint
 from .types.model import GenieSource
 from .types.model import LargeModelReference
 from .types.model import Model
@@ -957,6 +958,7 @@ from .types.tuning_job import SupervisedTuningDatasetDistribution
 from .types.tuning_job import SupervisedTuningDataStats
 from .types.tuning_job import SupervisedTuningSpec
 from .types.tuning_job import TunedModel
+from .types.tuning_job import TunedModelCheckpoint
 from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
@@ -1134,6 +1136,7 @@ __all__ = (
     "CheckTrialEarlyStoppingStateMetatdata",
     "CheckTrialEarlyStoppingStateRequest",
     "CheckTrialEarlyStoppingStateResponse",
+    "Checkpoint",
     "Citation",
     "CitationMetadata",
     "Claim",
@@ -1925,6 +1928,7 @@ __all__ = (
     "Trial",
     "TrialContext",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",

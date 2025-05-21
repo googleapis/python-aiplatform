@@ -311,6 +311,8 @@ def _override_active_span_processor(
 class LanggraphAgent:
     """A LangGraph Agent."""
 
+    agent_framework = "langgraph"
+
     def __init__(
         self,
         model: str,

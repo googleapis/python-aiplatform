@@ -689,6 +689,7 @@ from .migration_service import (
     SearchMigratableResourcesResponse,
 )
 from .model import (
+    Checkpoint,
     GenieSource,
     LargeModelReference,
     Model,
@@ -1076,6 +1077,7 @@ from .tuning_job import (
     SupervisedTuningDataStats,
     SupervisedTuningSpec,
     TunedModel,
+    TunedModelCheckpoint,
     TunedModelRef,
     TuningDataStats,
     TuningJob,
@@ -1713,6 +1715,7 @@ __all__ = (
     "MigrateResourceResponse",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "Checkpoint",
     "GenieSource",
     "LargeModelReference",
     "Model",
@@ -2010,6 +2013,7 @@ __all__ = (
     "SupervisedTuningDataStats",
     "SupervisedTuningSpec",
     "TunedModel",
+    "TunedModelCheckpoint",
     "TunedModelRef",
     "TuningDataStats",
     "TuningJob",

@@ -3980,7 +3980,9 @@ def test_create_session_rest_flattened():
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+        }
 
         # get truthy value for each flattened field
         mock_args = dict(
@@ -4004,7 +4006,7 @@ def test_create_session_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/sessions"
+            "%s/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*}/sessions"
             % client.transport._host,
             args[1],
         )
@@ -4158,7 +4160,9 @@ def test_get_session_rest_flattened():
         return_value = session.Session()
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+        }
 
         # get truthy value for each flattened field
         mock_args = dict(
@@ -4183,7 +4187,7 @@ def test_get_session_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/sessions/*}"
+            "%s/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}"
             % client.transport._host,
             args[1],
         )
@@ -4355,7 +4359,9 @@ def test_list_sessions_rest_flattened():
         return_value = session_service.ListSessionsResponse()
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+        }
 
         # get truthy value for each flattened field
         mock_args = dict(
@@ -4380,7 +4386,7 @@ def test_list_sessions_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/sessions"
+            "%s/v1beta1/{parent=projects/*/locations/*/reasoningEngines/*}/sessions"
             % client.transport._host,
             args[1],
         )
@@ -4451,7 +4457,9 @@ def test_list_sessions_rest_pager(transport: str = "rest"):
             return_val.status_code = 200
         req.side_effect = return_values
 
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
+        sample_request = {
+            "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+        }
 
         pager = client.list_sessions(request=sample_request)
 
@@ -4595,7 +4603,9 @@ def test_update_session_rest_flattened():
 
         # get arguments that satisfy an http rule for this method
         sample_request = {
-            "session": {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+            "session": {
+                "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+            }
         }
 
         # get truthy value for each flattened field
@@ -4622,7 +4632,7 @@ def test_update_session_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{session.name=projects/*/locations/*/sessions/*}"
+            "%s/v1beta1/{session.name=projects/*/locations/*/reasoningEngines/*/sessions/*}"
             % client.transport._host,
             args[1],
         )
@@ -4777,7 +4787,9 @@ def test_delete_session_rest_flattened():
         return_value = operations_pb2.Operation(name="operations/spam")
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+        sample_request = {
+            "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+        }
 
         # get truthy value for each flattened field
         mock_args = dict(
@@ -4800,7 +4812,7 @@ def test_delete_session_rest_flattened():
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
         assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/sessions/*}"
+            "%s/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}"
             % client.transport._host,
             args[1],
         )
@@ -5740,7 +5752,9 @@ def test_create_session_rest_bad_request(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -5771,7 +5785,9 @@ def test_create_session_rest_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request_init["session"] = {
         "name": "name_value",
         "create_time": {"seconds": 751, "nanos": 543},
@@ -5936,7 +5952,9 @@ def test_get_session_rest_bad_request(request_type=session_service.GetSessionReq
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -5967,7 +5985,9 @@ def test_get_session_rest_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -6067,7 +6087,9 @@ def test_list_sessions_rest_bad_request(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -6098,7 +6120,9 @@ def test_list_sessions_rest_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -6200,7 +6224,9 @@ def test_update_session_rest_bad_request(
     )
     # send a request that will satisfy transcoding
     request_init = {
-        "session": {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+        "session": {
+            "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+        }
     }
     request = request_type(**request_init)
 
@@ -6233,10 +6259,12 @@ def test_update_session_rest_call_success(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {
-        "session": {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+        "session": {
+            "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+        }
     }
     request_init["session"] = {
-        "name": "projects/sample1/locations/sample2/sessions/sample3",
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4",
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "display_name": "display_name_value",
@@ -6409,7 +6437,9 @@ def test_delete_session_rest_bad_request(
         credentials=ga_credentials.AnonymousCredentials(), transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -6440,7 +6470,9 @@ def test_delete_session_rest_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -6741,6 +6773,7 @@ def test_append_event_rest_call_success(request_type):
             "transfer_to_agent": True,
             "escalate": True,
             "requested_auth_configs": {},
+            "transfer_agent": "transfer_agent_value",
         },
         "timestamp": {"seconds": 751, "nanos": 543},
         "error_code": "error_code_value",
@@ -7766,7 +7799,9 @@ async def test_create_session_rest_asyncio_bad_request(
         credentials=async_anonymous_credentials(), transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -7801,7 +7836,9 @@ async def test_create_session_rest_asyncio_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request_init["session"] = {
         "name": "name_value",
         "create_time": {"seconds": 751, "nanos": 543},
@@ -7981,7 +8018,9 @@ async def test_get_session_rest_asyncio_bad_request(
         credentials=async_anonymous_credentials(), transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -8016,7 +8055,9 @@ async def test_get_session_rest_asyncio_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -8128,7 +8169,9 @@ async def test_list_sessions_rest_asyncio_bad_request(
         credentials=async_anonymous_credentials(), transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -8163,7 +8206,9 @@ async def test_list_sessions_rest_asyncio_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {
+        "parent": "projects/sample1/locations/sample2/reasoningEngines/sample3"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -8278,7 +8323,9 @@ async def test_update_session_rest_asyncio_bad_request(
     )
     # send a request that will satisfy transcoding
     request_init = {
-        "session": {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+        "session": {
+            "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+        }
     }
     request = request_type(**request_init)
 
@@ -8315,10 +8362,12 @@ async def test_update_session_rest_asyncio_call_success(request_type):
 
     # send a request that will satisfy transcoding
     request_init = {
-        "session": {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+        "session": {
+            "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+        }
     }
     request_init["session"] = {
-        "name": "projects/sample1/locations/sample2/sessions/sample3",
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4",
         "create_time": {"seconds": 751, "nanos": 543},
         "update_time": {},
         "display_name": "display_name_value",
@@ -8504,7 +8553,9 @@ async def test_delete_session_rest_asyncio_bad_request(
         credentials=async_anonymous_credentials(), transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
@@ -8539,7 +8590,9 @@ async def test_delete_session_rest_asyncio_call_success(request_type):
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/sessions/sample3"}
+    request_init = {
+        "name": "projects/sample1/locations/sample2/reasoningEngines/sample3/sessions/sample4"
+    }
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
@@ -8877,6 +8930,7 @@ async def test_append_event_rest_asyncio_call_success(request_type):
             "transfer_to_agent": True,
             "escalate": True,
             "requested_auth_configs": {},
+            "transfer_agent": "transfer_agent_value",
         },
         "timestamp": {"seconds": 751, "nanos": 543},
         "error_code": "error_code_value",
@@ -10554,21 +10608,26 @@ def test_session_service_grpc_lro_async_client():
 def test_session_path():
     project = "squid"
     location = "clam"
-    session = "whelk"
-    expected = "projects/{project}/locations/{location}/sessions/{session}".format(
+    reasoning_engine = "whelk"
+    session = "octopus"
+    expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}".format(
         project=project,
         location=location,
+        reasoning_engine=reasoning_engine,
         session=session,
     )
-    actual = SessionServiceClient.session_path(project, location, session)
+    actual = SessionServiceClient.session_path(
+        project, location, reasoning_engine, session
+    )
     assert expected == actual
 
 
 def test_parse_session_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "session": "nudibranch",
+        "project": "oyster",
+        "location": "nudibranch",
+        "reasoning_engine": "cuttlefish",
+        "session": "mussel",
     }
     path = SessionServiceClient.session_path(**expected)
 
@@ -10578,26 +10637,31 @@ def test_parse_session_path():
 
 
 def test_session_event_path():
-    project = "cuttlefish"
-    location = "mussel"
-    session = "winkle"
-    event = "nautilus"
-    expected = "projects/{project}/locations/{location}/sessions/{session}/events/{event}".format(
+    project = "winkle"
+    location = "nautilus"
+    reasoning_engine = "scallop"
+    session = "abalone"
+    event = "squid"
+    expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}".format(
         project=project,
         location=location,
+        reasoning_engine=reasoning_engine,
         session=session,
         event=event,
     )
-    actual = SessionServiceClient.session_event_path(project, location, session, event)
+    actual = SessionServiceClient.session_event_path(
+        project, location, reasoning_engine, session, event
+    )
     assert expected == actual
 
 
 def test_parse_session_event_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
-        "session": "squid",
-        "event": "clam",
+        "project": "clam",
+        "location": "whelk",
+        "reasoning_engine": "octopus",
+        "session": "oyster",
+        "event": "nudibranch",
     }
     path = SessionServiceClient.session_event_path(**expected)
 
@@ -10607,7 +10671,7 @@ def test_parse_session_event_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "whelk"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -10617,7 +10681,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "octopus",
+        "billing_account": "mussel",
     }
     path = SessionServiceClient.common_billing_account_path(**expected)
 
@@ -10627,7 +10691,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "oyster"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -10637,7 +10701,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nudibranch",
+        "folder": "nautilus",
     }
     path = SessionServiceClient.common_folder_path(**expected)
 
@@ -10647,7 +10711,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "cuttlefish"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -10657,7 +10721,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "mussel",
+        "organization": "abalone",
     }
     path = SessionServiceClient.common_organization_path(**expected)
 
@@ -10667,7 +10731,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "winkle"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -10677,7 +10741,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nautilus",
+        "project": "clam",
     }
     path = SessionServiceClient.common_project_path(**expected)
 
@@ -10687,8 +10751,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "scallop"
-    location = "abalone"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -10699,8 +10763,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
+        "project": "oyster",
+        "location": "nudibranch",
     }
     path = SessionServiceClient.common_location_path(**expected)
 
