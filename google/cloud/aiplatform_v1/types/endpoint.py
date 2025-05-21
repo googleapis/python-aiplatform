@@ -386,6 +386,8 @@ class DeployedModel(proto.Message):
             System labels to apply to Model Garden
             deployments. System labels are managed by Google
             for internal use only.
+        checkpoint_id (str):
+            The checkpoint id of the model.
         speculative_decoding_spec (google.cloud.aiplatform_v1.types.SpeculativeDecodingSpec):
             Optional. Spec for configuring speculative
             decoding.
@@ -498,6 +500,10 @@ class DeployedModel(proto.Message):
         proto.STRING,
         proto.STRING,
         number=28,
+    )
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=29,
     )
     speculative_decoding_spec: "SpeculativeDecodingSpec" = proto.Field(
         proto.MESSAGE,

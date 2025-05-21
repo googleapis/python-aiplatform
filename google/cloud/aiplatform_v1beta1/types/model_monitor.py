@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import model_monitoring_spec
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -90,6 +91,11 @@ class ModelMonitor(proto.Message):
             It is required for most models, but optional for
             Vertex AI AutoML Tables unless the schem
             information is not available.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Customer-managed encryption key spec for a
+            ModelMonitor. If set, this ModelMonitor and all
+            sub-resources of this ModelMonitor will be
+            secured by this key.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this ModelMonitor
             was created.
@@ -191,6 +197,11 @@ class ModelMonitor(proto.Message):
         proto.MESSAGE,
         number=9,
         message="ModelMonitoringSchema",
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=gca_encryption_spec.EncryptionSpec,
     )
     create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
