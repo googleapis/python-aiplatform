@@ -38,10 +38,8 @@ def train(
 
     Args:
         source_model (str): Model name for tuning, e.g., "gemini-1.0-pro-002".
-        train_dataset: Cloud Storage path to file containing training dataset for
-          tuning. The dataset should be in JSONL format.
-        validation_dataset: Cloud Storage path to file containing validation
-          dataset for tuning. The dataset should be in JSONL format.
+        train_dataset: Training dataset used for tuning. The dataset can be specified as either a Cloud Storage path to a JSONL file or as the resource name of a Vertex Multimodal Dataset.
+        validation_dataset: Validation dataset used for tuning. The dataset can be specified as either a Cloud Storage path to a JSONL file or as the resource name of a Vertex Multimodal Dataset.
         tuned_model_display_name: The display name of the
           [TunedModel][google.cloud.aiplatform.v1.Model]. The name can be up to
           128 characters long and can consist of any UTF-8 characters.
