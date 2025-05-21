@@ -18,6 +18,7 @@ from test_constants import test_agent
 _TEST_MODULE_NAME = "test_constants"
 _TEST_AGENT_NAME = "test_agent"
 _TEST_REGISTER_OPERATIONS = {"": ["query"], "stream": ["stream_query"]}
+_TEST_SYS_PATH = "/tmp/test_sys_path"
 _TEST_QUERY_INPUT = "test query"
 _TEST_STREAM_QUERY_INPUT = 5
 
@@ -34,26 +35,36 @@ class TestModuleAgent:
         assert agent._tmpl_attrs.get("register_operations") == _TEST_REGISTER_OPERATIONS
 
     def test_set_up(self):
+        import os
+        import sys
+
         agent = agent_engines.ModuleAgent(
             module_name=_TEST_MODULE_NAME,
             agent_name=_TEST_AGENT_NAME,
             register_operations=_TEST_REGISTER_OPERATIONS,
+            sys_paths=[_TEST_SYS_PATH],
         )
         assert agent._tmpl_attrs.get("agent") is None
+        assert agent._tmpl_attrs.get("sys_paths") == [_TEST_SYS_PATH]
+        assert os.path.abspath(_TEST_SYS_PATH) not in sys.path
         agent.set_up()
         assert agent._tmpl_attrs.get("agent") is not None
+        assert os.path.abspath(_TEST_SYS_PATH) in sys.path
 
     def test_clone(self):
         agent = agent_engines.ModuleAgent(
             module_name=_TEST_MODULE_NAME,
             agent_name=_TEST_AGENT_NAME,
             register_operations=_TEST_REGISTER_OPERATIONS,
+            sys_paths=[_TEST_SYS_PATH],
         )
         agent.set_up()
         assert agent._tmpl_attrs.get("agent") is not None
+        assert agent._tmpl_attrs.get("sys_paths") == [_TEST_SYS_PATH]
         agent_clone = agent.clone()
         assert agent._tmpl_attrs.get("agent") is not None
         assert agent_clone._tmpl_attrs.get("agent") is None
+        assert agent_clone._tmpl_attrs.get("sys_paths") == [_TEST_SYS_PATH]
         agent_clone.set_up()
         assert agent_clone._tmpl_attrs.get("agent") is not None
 
