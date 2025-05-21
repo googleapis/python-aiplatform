@@ -1039,6 +1039,9 @@ class GenerateContentResponse(proto.Message):
                 this includes the number of tokens in the cached content.
             candidates_token_count (int):
                 Number of tokens in the response(s).
+            thoughts_token_count (int):
+                Output only. Number of tokens present in
+                thoughts output.
             total_token_count (int):
                 Total token count for prompt and response
                 candidates.
@@ -1063,6 +1066,10 @@ class GenerateContentResponse(proto.Message):
         candidates_token_count: int = proto.Field(
             proto.INT32,
             number=2,
+        )
+        thoughts_token_count: int = proto.Field(
+            proto.INT32,
+            number=14,
         )
         total_token_count: int = proto.Field(
             proto.INT32,

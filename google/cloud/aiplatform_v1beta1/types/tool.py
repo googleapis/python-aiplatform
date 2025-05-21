@@ -594,7 +594,47 @@ class VertexAISearch(proto.Message):
             Optional. Fully-qualified Vertex AI Search engine resource
             ID. Format:
             ``projects/{project}/locations/{location}/collections/{collection}/engines/{engine}``
+        max_results (int):
+            Optional. Number of search results to return
+            per query. The default value is 10.
+            The maximumm allowed value is 10.
+        filter (str):
+            Optional. Filter strings to be passed to the
+            search API.
+        data_store_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.VertexAISearch.DataStoreSpec]):
+            Specifications that define the specific
+            DataStores to be searched, along with
+            configurations for those data stores. This is
+            only considered for Engines with multiple data
+            stores.
+            It should only be set if engine is used.
     """
+
+    class DataStoreSpec(proto.Message):
+        r"""Define data stores within engine to filter on in a search
+        call and configurations for those data stores. For more
+        information, see
+        https://cloud.google.com/generative-ai-app-builder/docs/reference/rpc/google.cloud.discoveryengine.v1#datastorespec
+
+        Attributes:
+            data_store (str):
+                Full resource name of DataStore, such as Format:
+                ``projects/{project}/locations/{location}/collections/{collection}/dataStores/{dataStore}``
+            filter (str):
+                Optional. Filter specification to filter documents in the
+                data store specified by data_store field. For more
+                information on filtering, see
+                `Filtering <https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata>`__
+        """
+
+        data_store: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        filter: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     datastore: str = proto.Field(
         proto.STRING,
@@ -603,6 +643,19 @@ class VertexAISearch(proto.Message):
     engine: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+    max_results: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    data_store_specs: MutableSequence[DataStoreSpec] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=5,
+        message=DataStoreSpec,
     )
 
 
