@@ -4677,6 +4677,11 @@ def test_create_cached_content_rest_call_success(request_type):
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_resources": [
@@ -5160,6 +5165,11 @@ def test_update_cached_content_rest_call_success(request_type):
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_resources": [
@@ -6505,6 +6515,11 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_resources": [
@@ -7020,6 +7035,11 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "vertex_ai_search": {
                         "datastore": "datastore_value",
                         "engine": "engine_value",
+                        "max_results": 1207,
+                        "filter": "filter_value",
+                        "data_store_specs": [
+                            {"data_store": "data_store_value", "filter": "filter_value"}
+                        ],
                     },
                     "vertex_rag_store": {
                         "rag_resources": [
