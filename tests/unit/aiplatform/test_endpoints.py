@@ -365,6 +365,20 @@ def get_dedicated_endpoint_mock():
 
 
 @pytest.fixture
+def get_dedicated_endpoint_no_dns_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            dedicated_endpoint_enabled=True,
+        )
+        yield get_endpoint_mock
+
+
+@pytest.fixture
 def get_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
@@ -2660,6 +2674,21 @@ class TestEndpoint:
             data='{"instances": [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], "parameters": {"param": 3.0}}',
             headers={"Content-Type": "application/json"},
             timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dedicated_endpoint_no_dns_mock")
+    def test_predict_dedicated_endpoint_without_dns(self, predict_endpoint_http_mock):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        with pytest.raises(ValueError) as err:
+            test_endpoint.predict(
+                instances=_TEST_INSTANCES,
+                parameters={"param": 3.0},
+                use_dedicated_endpoint=True,
+            )
+        assert err.match(
+            regexp=r"Dedicated endpoint DNS is empty. Please make sure endpoint"
+            "and model are ready before making a prediction."
         )
 
     @pytest.mark.usefixtures("get_dedicated_endpoint_mock")

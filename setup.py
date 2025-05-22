@@ -143,7 +143,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    "google-adk >= 0.0.2",
+    "google-adk >= 0.0.2, < 1.0.0",
 ]
 
 reasoning_engine_extra_require = [

@@ -388,6 +388,8 @@ class DeployedModel(proto.Message):
             System labels to apply to Model Garden
             deployments. System labels are managed by Google
             for internal use only.
+        checkpoint_id (str):
+            The checkpoint id of the model.
     """
 
     class Status(proto.Message):
@@ -502,6 +504,10 @@ class DeployedModel(proto.Message):
         proto.STRING,
         proto.STRING,
         number=28,
+    )
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=29,
     )
 
 

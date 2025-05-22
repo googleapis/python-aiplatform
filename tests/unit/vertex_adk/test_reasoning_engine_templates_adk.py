@@ -17,12 +17,11 @@ import json
 from unittest import mock
 
 from google import auth
-from google.genai import types
 import vertexai
 from google.cloud.aiplatform import initializer
-from vertexai.preview import reasoning_engines
 from vertexai.agent_engines import _utils
-
+from vertexai.preview import reasoning_engines
+from google.genai import types
 import pytest
 
 
@@ -84,6 +83,15 @@ def simple_span_processor_mock():
         yield simple_span_processor_mock
 
 
+@pytest.fixture
+def mock_adk_major_version():
+    with mock.patch(
+        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
+        return_value=0,
+    ):
+        yield
+
+
 class _MockRunner:
     def run(self, *args, **kwargs):
         from google.adk.events import event
@@ -140,8 +148,24 @@ class _MockRunner:
         )
 
 
-@pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("google_auth_mock", "mock_adk_major_version")
 class TestAdkApp:
+    def test_adk_major_version(self):
+        with mock.patch(
+            "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
+            return_value=1,
+        ):
+            with pytest.raises(
+                ValueError,
+                match=(
+                    "Unsupported google-adk major version: 1, please use"
+                    " google-adk<1.0.0 for AdkApp deployment."
+                ),
+            ):
+                reasoning_engines.AdkApp(
+                    agent=Agent(name="test_agent", model=_TEST_MODEL)
+                )
+
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(vertexai)
@@ -376,6 +400,7 @@ class TestAdkApp:
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
 
+@pytest.mark.usefixtures("mock_adk_major_version")
 class TestAdkAppErrors:
     def test_raise_get_session_not_found_error(self):
         with pytest.raises(
