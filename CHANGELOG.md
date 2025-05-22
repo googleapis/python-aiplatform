@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.94.0](https://github.com/googleapis/python-aiplatform/compare/v1.93.1...v1.94.0) (2025-05-22)
+
+
+### Features
+
+* Add checkpoint ID to endpoint proto ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add checkpoint ID to endpoint proto ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add encryption_spec to Model Monitoring public preview API ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add VertexAISearch.max_results, filter, data_store_specs options ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add VertexAISearch.max_results, filter, data_store_specs options ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Adding thoughts_token_count to prediction service ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Adding thoughts_token_count to v1beta1 client library ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Update preview `create_corpus` to accept `encryption_spec` in `rag_data.py` ([ad821c5](https://github.com/googleapis/python-aiplatform/commit/ad821c58f834981adb9759013248e7156f3706b9))
+
+
+### Bug Fixes
+
+* Throw error when user is using google-adk&gt;=1.0.0 as it is not well supported for now. ([634bb78](https://github.com/googleapis/python-aiplatform/commit/634bb78c32168fac7ac084a1fcbdede8e45bdae8))
+
 ## [1.93.1](https://github.com/googleapis/python-aiplatform/compare/v1.93.0...v1.93.1) (2025-05-20)
 
 
