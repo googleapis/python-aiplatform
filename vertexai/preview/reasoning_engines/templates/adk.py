@@ -70,6 +70,16 @@ _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
 
 
+def get_adk_major_version() -> int:
+    """Get the major version of google-adk."""
+    try:
+        from google.adk import version
+
+        return int(version.__version__.split(".")[0])
+    except ImportError:
+        return 0
+
+
 class _ArtifactVersion:
     def __init__(self, **kwargs):
         self.version: Optional[str] = kwargs.get("version")
@@ -271,6 +281,14 @@ class AdkApp:
     ):
         """An ADK Application."""
         from google.cloud.aiplatform import initializer
+
+        adk_major_version = get_adk_major_version()
+        if adk_major_version > 0:
+            msg = (
+                f"Unsupported google-adk major version: {adk_major_version}, "
+                "please use google-adk<1.0.0 for AdkApp deployment."
+            )
+            raise ValueError(msg)
 
         self._tmpl_attrs: Dict[str, Any] = {
             "project": initializer.global_config.project,
