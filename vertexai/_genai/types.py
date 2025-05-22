@@ -28,9 +28,40 @@ class PairwiseChoice(_common.CaseInSensitiveEnum):
     """Output only. Pairwise metric choice."""
 
     PAIRWISE_CHOICE_UNSPECIFIED = "PAIRWISE_CHOICE_UNSPECIFIED"
+    """Unspecified prediction choice."""
     BASELINE = "BASELINE"
+    """Baseline prediction wins"""
     CANDIDATE = "CANDIDATE"
+    """Candidate prediction wins"""
     TIE = "TIE"
+    """Winner cannot be determined"""
+
+
+class AggregationMetric(_common.CaseInSensitiveEnum):
+    """"""
+
+    AGGREGATION_METRIC_UNSPECIFIED = "AGGREGATION_METRIC_UNSPECIFIED"
+    """Unspecified aggregation metric."""
+    AVERAGE = "AVERAGE"
+    """Average aggregation metric."""
+    MODE = "MODE"
+    """Mode aggregation metric."""
+    STANDARD_DEVIATION = "STANDARD_DEVIATION"
+    """Standard deviation aggregation metric."""
+    VARIANCE = "VARIANCE"
+    """Variance aggregation metric."""
+    MINIMUM = "MINIMUM"
+    """Minimum aggregation metric."""
+    MAXIMUM = "MAXIMUM"
+    """Maximum aggregation metric."""
+    MEDIAN = "MEDIAN"
+    """Median aggregation metric."""
+    PERCENTILE_P90 = "PERCENTILE_P90"
+    """90th percentile aggregation metric."""
+    PERCENTILE_P95 = "PERCENTILE_P95"
+    """95th percentile aggregation metric."""
+    PERCENTILE_P99 = "PERCENTILE_P99"
+    """99th percentile aggregation metric."""
 
 
 class BleuInstance(_common.BaseModel):
@@ -265,12 +296,40 @@ PointwiseMetricInstanceOrDict = Union[
 ]
 
 
+class CustomOutputFormatConfig(_common.BaseModel):
+    """Spec for custom output format configuration."""
+
+    return_raw_output: Optional[bool] = Field(
+        default=None, description="""Optional. Whether to return raw output."""
+    )
+
+
+class CustomOutputFormatConfigDict(TypedDict, total=False):
+    """Spec for custom output format configuration."""
+
+    return_raw_output: Optional[bool]
+    """Optional. Whether to return raw output."""
+
+
+CustomOutputFormatConfigOrDict = Union[
+    CustomOutputFormatConfig, CustomOutputFormatConfigDict
+]
+
+
 class PointwiseMetricSpec(_common.BaseModel):
     """Spec for pointwise metric."""
 
     metric_prompt_template: Optional[str] = Field(
         default=None,
         description="""Required. Metric prompt template for pointwise metric.""",
+    )
+    custom_output_format_config: Optional[CustomOutputFormatConfig] = Field(
+        default=None,
+        description="""Optional. CustomOutputFormatConfig allows customization of metric output. By default, metrics return a score and explanation. When this config is set, the default output is replaced with either: - The raw output string. - A parsed output based on a user-defined schema. If a custom format is chosen, the `score` and `explanation` fields in the corresponding metric result will be empty.""",
+    )
+    system_instruction: Optional[str] = Field(
+        default=None,
+        description="""Optional. System instructions for pointwise metric.""",
     )
 
 
@@ -279,6 +338,12 @@ class PointwiseMetricSpecDict(TypedDict, total=False):
 
     metric_prompt_template: Optional[str]
     """Required. Metric prompt template for pointwise metric."""
+
+    custom_output_format_config: Optional[CustomOutputFormatConfigDict]
+    """Optional. CustomOutputFormatConfig allows customization of metric output. By default, metrics return a score and explanation. When this config is set, the default output is replaced with either: - The raw output string. - A parsed output based on a user-defined schema. If a custom format is chosen, the `score` and `explanation` fields in the corresponding metric result will be empty."""
+
+    system_instruction: Optional[str]
+    """Optional. System instructions for pointwise metric."""
 
 
 PointwiseMetricSpecOrDict = Union[PointwiseMetricSpec, PointwiseMetricSpecDict]
@@ -334,6 +399,22 @@ class PairwiseMetricSpec(_common.BaseModel):
         default=None,
         description="""Required. Metric prompt template for pairwise metric.""",
     )
+    baseline_response_field_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The field name of the baseline response.""",
+    )
+    candidate_response_field_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The field name of the candidate response.""",
+    )
+    custom_output_format_config: Optional[CustomOutputFormatConfig] = Field(
+        default=None,
+        description="""Optional. CustomOutputFormatConfig allows customization of metric output. When this config is set, the default output is replaced with the raw output string. If a custom format is chosen, the `pairwise_choice` and `explanation` fields in the corresponding metric result will be empty.""",
+    )
+    system_instruction: Optional[str] = Field(
+        default=None,
+        description="""Optional. System instructions for pairwise metric.""",
+    )
 
 
 class PairwiseMetricSpecDict(TypedDict, total=False):
@@ -341,6 +422,18 @@ class PairwiseMetricSpecDict(TypedDict, total=False):
 
     metric_prompt_template: Optional[str]
     """Required. Metric prompt template for pairwise metric."""
+
+    baseline_response_field_name: Optional[str]
+    """Optional. The field name of the baseline response."""
+
+    candidate_response_field_name: Optional[str]
+    """Optional. The field name of the candidate response."""
+
+    custom_output_format_config: Optional[CustomOutputFormatConfigDict]
+    """Optional. CustomOutputFormatConfig allows customization of metric output. When this config is set, the default output is replaced with the raw output string. If a custom format is chosen, the `pairwise_choice` and `explanation` fields in the corresponding metric result will be empty."""
+
+    system_instruction: Optional[str]
+    """Optional. System instructions for pairwise metric."""
 
 
 PairwiseMetricSpecOrDict = Union[PairwiseMetricSpec, PairwiseMetricSpecDict]
@@ -824,6 +917,25 @@ class BleuResultsDict(TypedDict, total=False):
 BleuResultsOrDict = Union[BleuResults, BleuResultsDict]
 
 
+class CometResult(_common.BaseModel):
+    """Spec for Comet result - calculates the comet score for the given instance using the version specified in the spec."""
+
+    score: Optional[float] = Field(
+        default=None,
+        description="""Output only. Comet score. Range depends on version.""",
+    )
+
+
+class CometResultDict(TypedDict, total=False):
+    """Spec for Comet result - calculates the comet score for the given instance using the version specified in the spec."""
+
+    score: Optional[float]
+    """Output only. Comet score. Range depends on version."""
+
+
+CometResultOrDict = Union[CometResult, CometResultDict]
+
+
 class ExactMatchMetricValue(_common.BaseModel):
     """Exact match metric value for an instance."""
 
@@ -860,9 +972,67 @@ class ExactMatchResultsDict(TypedDict, total=False):
 ExactMatchResultsOrDict = Union[ExactMatchResults, ExactMatchResultsDict]
 
 
+class MetricxResult(_common.BaseModel):
+    """Spec for MetricX result - calculates the MetricX score for the given instance using the version specified in the spec."""
+
+    score: Optional[float] = Field(
+        default=None,
+        description="""Output only. MetricX score. Range depends on version.""",
+    )
+
+
+class MetricxResultDict(TypedDict, total=False):
+    """Spec for MetricX result - calculates the MetricX score for the given instance using the version specified in the spec."""
+
+    score: Optional[float]
+    """Output only. MetricX score. Range depends on version."""
+
+
+MetricxResultOrDict = Union[MetricxResult, MetricxResultDict]
+
+
+class RawOutput(_common.BaseModel):
+    """Raw output."""
+
+    raw_output: Optional[list[str]] = Field(
+        default=None, description="""Output only. Raw output string."""
+    )
+
+
+class RawOutputDict(TypedDict, total=False):
+    """Raw output."""
+
+    raw_output: Optional[list[str]]
+    """Output only. Raw output string."""
+
+
+RawOutputOrDict = Union[RawOutput, RawOutputDict]
+
+
+class CustomOutput(_common.BaseModel):
+    """Spec for custom output."""
+
+    raw_outputs: Optional[RawOutput] = Field(
+        default=None, description="""Output only. List of raw output strings."""
+    )
+
+
+class CustomOutputDict(TypedDict, total=False):
+    """Spec for custom output."""
+
+    raw_outputs: Optional[RawOutputDict]
+    """Output only. List of raw output strings."""
+
+
+CustomOutputOrDict = Union[CustomOutput, CustomOutputDict]
+
+
 class PairwiseMetricResult(_common.BaseModel):
     """Spec for pairwise metric result."""
 
+    custom_output: Optional[CustomOutput] = Field(
+        default=None, description="""Output only. Spec for custom output."""
+    )
     explanation: Optional[str] = Field(
         default=None,
         description="""Output only. Explanation for pairwise metric score.""",
@@ -874,6 +1044,9 @@ class PairwiseMetricResult(_common.BaseModel):
 
 class PairwiseMetricResultDict(TypedDict, total=False):
     """Spec for pairwise metric result."""
+
+    custom_output: Optional[CustomOutputDict]
+    """Output only. Spec for custom output."""
 
     explanation: Optional[str]
     """Output only. Explanation for pairwise metric score."""
@@ -888,6 +1061,9 @@ PairwiseMetricResultOrDict = Union[PairwiseMetricResult, PairwiseMetricResultDic
 class PointwiseMetricResult(_common.BaseModel):
     """Spec for pointwise metric result."""
 
+    custom_output: Optional[CustomOutput] = Field(
+        default=None, description="""Output only. Spec for custom output."""
+    )
     explanation: Optional[str] = Field(
         default=None,
         description="""Output only. Explanation for pointwise metric score.""",
@@ -899,6 +1075,9 @@ class PointwiseMetricResult(_common.BaseModel):
 
 class PointwiseMetricResultDict(TypedDict, total=False):
     """Spec for pointwise metric result."""
+
+    custom_output: Optional[CustomOutputDict]
+    """Output only. Spec for custom output."""
 
     explanation: Optional[str]
     """Output only. Explanation for pointwise metric score."""
@@ -944,6 +1123,60 @@ class RougeResultsDict(TypedDict, total=False):
 
 
 RougeResultsOrDict = Union[RougeResults, RougeResultsDict]
+
+
+class RubricCritiqueResult(_common.BaseModel):
+    """Rubric critique result."""
+
+    rubric: Optional[str] = Field(
+        default=None, description="""Output only. Rubric to be evaluated."""
+    )
+    verdict: Optional[bool] = Field(
+        default=None,
+        description="""Output only. Verdict for the rubric - true if the rubric is met, false otherwise.""",
+    )
+
+
+class RubricCritiqueResultDict(TypedDict, total=False):
+    """Rubric critique result."""
+
+    rubric: Optional[str]
+    """Output only. Rubric to be evaluated."""
+
+    verdict: Optional[bool]
+    """Output only. Verdict for the rubric - true if the rubric is met, false otherwise."""
+
+
+RubricCritiqueResultOrDict = Union[RubricCritiqueResult, RubricCritiqueResultDict]
+
+
+class RubricBasedInstructionFollowingResult(_common.BaseModel):
+    """Result for RubricBasedInstructionFollowing metric."""
+
+    rubric_critique_results: Optional[list[RubricCritiqueResult]] = Field(
+        default=None,
+        description="""Output only. List of per rubric critique results.""",
+    )
+    score: Optional[float] = Field(
+        default=None,
+        description="""Output only. Overall score for the instruction following.""",
+    )
+
+
+class RubricBasedInstructionFollowingResultDict(TypedDict, total=False):
+    """Result for RubricBasedInstructionFollowing metric."""
+
+    rubric_critique_results: Optional[list[RubricCritiqueResultDict]]
+    """Output only. List of per rubric critique results."""
+
+    score: Optional[float]
+    """Output only. Overall score for the instruction following."""
+
+
+RubricBasedInstructionFollowingResultOrDict = Union[
+    RubricBasedInstructionFollowingResult,
+    RubricBasedInstructionFollowingResultDict,
+]
 
 
 class SummarizationVerbosityResult(_common.BaseModel):
@@ -1151,15 +1384,293 @@ ToolParameterKVMatchResultsOrDict = Union[
 ]
 
 
+class TrajectoryAnyOrderMatchMetricValue(_common.BaseModel):
+    """TrajectoryAnyOrderMatch metric value for an instance."""
+
+    score: Optional[float] = Field(
+        default=None,
+        description="""Output only. TrajectoryAnyOrderMatch score.""",
+    )
+
+
+class TrajectoryAnyOrderMatchMetricValueDict(TypedDict, total=False):
+    """TrajectoryAnyOrderMatch metric value for an instance."""
+
+    score: Optional[float]
+    """Output only. TrajectoryAnyOrderMatch score."""
+
+
+TrajectoryAnyOrderMatchMetricValueOrDict = Union[
+    TrajectoryAnyOrderMatchMetricValue, TrajectoryAnyOrderMatchMetricValueDict
+]
+
+
+class TrajectoryAnyOrderMatchResults(_common.BaseModel):
+    """Results for TrajectoryAnyOrderMatch metric."""
+
+    trajectory_any_order_match_metric_values: Optional[
+        list[TrajectoryAnyOrderMatchMetricValue]
+    ] = Field(
+        default=None,
+        description="""Output only. TrajectoryAnyOrderMatch metric values.""",
+    )
+
+
+class TrajectoryAnyOrderMatchResultsDict(TypedDict, total=False):
+    """Results for TrajectoryAnyOrderMatch metric."""
+
+    trajectory_any_order_match_metric_values: Optional[
+        list[TrajectoryAnyOrderMatchMetricValueDict]
+    ]
+    """Output only. TrajectoryAnyOrderMatch metric values."""
+
+
+TrajectoryAnyOrderMatchResultsOrDict = Union[
+    TrajectoryAnyOrderMatchResults, TrajectoryAnyOrderMatchResultsDict
+]
+
+
+class TrajectoryExactMatchMetricValue(_common.BaseModel):
+    """TrajectoryExactMatch metric value for an instance."""
+
+    score: Optional[float] = Field(
+        default=None, description="""Output only. TrajectoryExactMatch score."""
+    )
+
+
+class TrajectoryExactMatchMetricValueDict(TypedDict, total=False):
+    """TrajectoryExactMatch metric value for an instance."""
+
+    score: Optional[float]
+    """Output only. TrajectoryExactMatch score."""
+
+
+TrajectoryExactMatchMetricValueOrDict = Union[
+    TrajectoryExactMatchMetricValue, TrajectoryExactMatchMetricValueDict
+]
+
+
+class TrajectoryExactMatchResults(_common.BaseModel):
+    """Results for TrajectoryExactMatch metric."""
+
+    trajectory_exact_match_metric_values: Optional[
+        list[TrajectoryExactMatchMetricValue]
+    ] = Field(
+        default=None,
+        description="""Output only. TrajectoryExactMatch metric values.""",
+    )
+
+
+class TrajectoryExactMatchResultsDict(TypedDict, total=False):
+    """Results for TrajectoryExactMatch metric."""
+
+    trajectory_exact_match_metric_values: Optional[
+        list[TrajectoryExactMatchMetricValueDict]
+    ]
+    """Output only. TrajectoryExactMatch metric values."""
+
+
+TrajectoryExactMatchResultsOrDict = Union[
+    TrajectoryExactMatchResults, TrajectoryExactMatchResultsDict
+]
+
+
+class TrajectoryInOrderMatchMetricValue(_common.BaseModel):
+    """TrajectoryInOrderMatch metric value for an instance."""
+
+    score: Optional[float] = Field(
+        default=None,
+        description="""Output only. TrajectoryInOrderMatch score.""",
+    )
+
+
+class TrajectoryInOrderMatchMetricValueDict(TypedDict, total=False):
+    """TrajectoryInOrderMatch metric value for an instance."""
+
+    score: Optional[float]
+    """Output only. TrajectoryInOrderMatch score."""
+
+
+TrajectoryInOrderMatchMetricValueOrDict = Union[
+    TrajectoryInOrderMatchMetricValue, TrajectoryInOrderMatchMetricValueDict
+]
+
+
+class TrajectoryInOrderMatchResults(_common.BaseModel):
+    """Results for TrajectoryInOrderMatch metric."""
+
+    trajectory_in_order_match_metric_values: Optional[
+        list[TrajectoryInOrderMatchMetricValue]
+    ] = Field(
+        default=None,
+        description="""Output only. TrajectoryInOrderMatch metric values.""",
+    )
+
+
+class TrajectoryInOrderMatchResultsDict(TypedDict, total=False):
+    """Results for TrajectoryInOrderMatch metric."""
+
+    trajectory_in_order_match_metric_values: Optional[
+        list[TrajectoryInOrderMatchMetricValueDict]
+    ]
+    """Output only. TrajectoryInOrderMatch metric values."""
+
+
+TrajectoryInOrderMatchResultsOrDict = Union[
+    TrajectoryInOrderMatchResults, TrajectoryInOrderMatchResultsDict
+]
+
+
+class TrajectoryPrecisionMetricValue(_common.BaseModel):
+    """TrajectoryPrecision metric value for an instance."""
+
+    score: Optional[float] = Field(
+        default=None, description="""Output only. TrajectoryPrecision score."""
+    )
+
+
+class TrajectoryPrecisionMetricValueDict(TypedDict, total=False):
+    """TrajectoryPrecision metric value for an instance."""
+
+    score: Optional[float]
+    """Output only. TrajectoryPrecision score."""
+
+
+TrajectoryPrecisionMetricValueOrDict = Union[
+    TrajectoryPrecisionMetricValue, TrajectoryPrecisionMetricValueDict
+]
+
+
+class TrajectoryPrecisionResults(_common.BaseModel):
+    """Results for TrajectoryPrecision metric."""
+
+    trajectory_precision_metric_values: Optional[
+        list[TrajectoryPrecisionMetricValue]
+    ] = Field(
+        default=None,
+        description="""Output only. TrajectoryPrecision metric values.""",
+    )
+
+
+class TrajectoryPrecisionResultsDict(TypedDict, total=False):
+    """Results for TrajectoryPrecision metric."""
+
+    trajectory_precision_metric_values: Optional[
+        list[TrajectoryPrecisionMetricValueDict]
+    ]
+    """Output only. TrajectoryPrecision metric values."""
+
+
+TrajectoryPrecisionResultsOrDict = Union[
+    TrajectoryPrecisionResults, TrajectoryPrecisionResultsDict
+]
+
+
+class TrajectoryRecallMetricValue(_common.BaseModel):
+    """TrajectoryRecall metric value for an instance."""
+
+    score: Optional[float] = Field(
+        default=None, description="""Output only. TrajectoryRecall score."""
+    )
+
+
+class TrajectoryRecallMetricValueDict(TypedDict, total=False):
+    """TrajectoryRecall metric value for an instance."""
+
+    score: Optional[float]
+    """Output only. TrajectoryRecall score."""
+
+
+TrajectoryRecallMetricValueOrDict = Union[
+    TrajectoryRecallMetricValue, TrajectoryRecallMetricValueDict
+]
+
+
+class TrajectoryRecallResults(_common.BaseModel):
+    """Results for TrajectoryRecall metric."""
+
+    trajectory_recall_metric_values: Optional[
+        list[TrajectoryRecallMetricValue]
+    ] = Field(
+        default=None,
+        description="""Output only. TrajectoryRecall metric values.""",
+    )
+
+
+class TrajectoryRecallResultsDict(TypedDict, total=False):
+    """Results for TrajectoryRecall metric."""
+
+    trajectory_recall_metric_values: Optional[list[TrajectoryRecallMetricValueDict]]
+    """Output only. TrajectoryRecall metric values."""
+
+
+TrajectoryRecallResultsOrDict = Union[
+    TrajectoryRecallResults, TrajectoryRecallResultsDict
+]
+
+
+class TrajectorySingleToolUseMetricValue(_common.BaseModel):
+    """TrajectorySingleToolUse metric value for an instance."""
+
+    score: Optional[float] = Field(
+        default=None,
+        description="""Output only. TrajectorySingleToolUse score.""",
+    )
+
+
+class TrajectorySingleToolUseMetricValueDict(TypedDict, total=False):
+    """TrajectorySingleToolUse metric value for an instance."""
+
+    score: Optional[float]
+    """Output only. TrajectorySingleToolUse score."""
+
+
+TrajectorySingleToolUseMetricValueOrDict = Union[
+    TrajectorySingleToolUseMetricValue, TrajectorySingleToolUseMetricValueDict
+]
+
+
+class TrajectorySingleToolUseResults(_common.BaseModel):
+    """Results for TrajectorySingleToolUse metric."""
+
+    trajectory_single_tool_use_metric_values: Optional[
+        list[TrajectorySingleToolUseMetricValue]
+    ] = Field(
+        default=None,
+        description="""Output only. TrajectorySingleToolUse metric values.""",
+    )
+
+
+class TrajectorySingleToolUseResultsDict(TypedDict, total=False):
+    """Results for TrajectorySingleToolUse metric."""
+
+    trajectory_single_tool_use_metric_values: Optional[
+        list[TrajectorySingleToolUseMetricValueDict]
+    ]
+    """Output only. TrajectorySingleToolUse metric values."""
+
+
+TrajectorySingleToolUseResultsOrDict = Union[
+    TrajectorySingleToolUseResults, TrajectorySingleToolUseResultsDict
+]
+
+
 class EvaluateInstancesResponse(_common.BaseModel):
     """Result of evaluating an LLM metric."""
 
     bleu_results: Optional[BleuResults] = Field(
         default=None, description="""Results for bleu metric."""
     )
+    comet_result: Optional[CometResult] = Field(
+        default=None,
+        description="""Translation metrics. Result for Comet metric.""",
+    )
     exact_match_results: Optional[ExactMatchResults] = Field(
         default=None,
         description="""Auto metric evaluation results. Results for exact match metric.""",
+    )
+    metricx_result: Optional[MetricxResult] = Field(
+        default=None, description="""Result for Metricx metric."""
     )
     pairwise_metric_result: Optional[PairwiseMetricResult] = Field(
         default=None, description="""Result for pairwise metric."""
@@ -1170,6 +1681,12 @@ class EvaluateInstancesResponse(_common.BaseModel):
     )
     rouge_results: Optional[RougeResults] = Field(
         default=None, description="""Results for rouge metric."""
+    )
+    rubric_based_instruction_following_result: Optional[
+        RubricBasedInstructionFollowingResult
+    ] = Field(
+        default=None,
+        description="""Result for rubric based instruction following metric.""",
     )
     summarization_verbosity_result: Optional[SummarizationVerbosityResult] = Field(
         default=None,
@@ -1190,6 +1707,32 @@ class EvaluateInstancesResponse(_common.BaseModel):
         default=None,
         description="""Results for tool parameter key value match metric.""",
     )
+    trajectory_any_order_match_results: Optional[
+        TrajectoryAnyOrderMatchResults
+    ] = Field(
+        default=None,
+        description="""Result for trajectory any order match metric.""",
+    )
+    trajectory_exact_match_results: Optional[TrajectoryExactMatchResults] = Field(
+        default=None,
+        description="""Result for trajectory exact match metric.""",
+    )
+    trajectory_in_order_match_results: Optional[TrajectoryInOrderMatchResults] = Field(
+        default=None,
+        description="""Result for trajectory in order match metric.""",
+    )
+    trajectory_precision_results: Optional[TrajectoryPrecisionResults] = Field(
+        default=None, description="""Result for trajectory precision metric."""
+    )
+    trajectory_recall_results: Optional[TrajectoryRecallResults] = Field(
+        default=None, description="""Results for trajectory recall metric."""
+    )
+    trajectory_single_tool_use_results: Optional[
+        TrajectorySingleToolUseResults
+    ] = Field(
+        default=None,
+        description="""Results for trajectory single tool use metric.""",
+    )
 
 
 class EvaluateInstancesResponseDict(TypedDict, total=False):
@@ -1198,8 +1741,14 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     bleu_results: Optional[BleuResultsDict]
     """Results for bleu metric."""
 
+    comet_result: Optional[CometResultDict]
+    """Translation metrics. Result for Comet metric."""
+
     exact_match_results: Optional[ExactMatchResultsDict]
     """Auto metric evaluation results. Results for exact match metric."""
+
+    metricx_result: Optional[MetricxResultDict]
+    """Result for Metricx metric."""
 
     pairwise_metric_result: Optional[PairwiseMetricResultDict]
     """Result for pairwise metric."""
@@ -1209,6 +1758,11 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
 
     rouge_results: Optional[RougeResultsDict]
     """Results for rouge metric."""
+
+    rubric_based_instruction_following_result: Optional[
+        RubricBasedInstructionFollowingResultDict
+    ]
+    """Result for rubric based instruction following metric."""
 
     summarization_verbosity_result: Optional[SummarizationVerbosityResultDict]
     """Result for summarization verbosity metric."""
@@ -1225,9 +1779,308 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     tool_parameter_kv_match_results: Optional[ToolParameterKVMatchResultsDict]
     """Results for tool parameter key value match metric."""
 
+    trajectory_any_order_match_results: Optional[TrajectoryAnyOrderMatchResultsDict]
+    """Result for trajectory any order match metric."""
+
+    trajectory_exact_match_results: Optional[TrajectoryExactMatchResultsDict]
+    """Result for trajectory exact match metric."""
+
+    trajectory_in_order_match_results: Optional[TrajectoryInOrderMatchResultsDict]
+    """Result for trajectory in order match metric."""
+
+    trajectory_precision_results: Optional[TrajectoryPrecisionResultsDict]
+    """Result for trajectory precision metric."""
+
+    trajectory_recall_results: Optional[TrajectoryRecallResultsDict]
+    """Results for trajectory recall metric."""
+
+    trajectory_single_tool_use_results: Optional[TrajectorySingleToolUseResultsDict]
+    """Results for trajectory single tool use metric."""
+
 
 EvaluateInstancesResponseOrDict = Union[
     EvaluateInstancesResponse, EvaluateInstancesResponseDict
+]
+
+
+class BigQuerySource(_common.BaseModel):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
+    )
+
+
+class BigQuerySourceDict(TypedDict, total=False):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str]
+    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
+
+
+BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
+
+
+class GcsSource(_common.BaseModel):
+    """The Google Cloud Storage location for the input content."""
+
+    uris: Optional[list[str]] = Field(
+        default=None,
+        description="""Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards.""",
+    )
+
+
+class GcsSourceDict(TypedDict, total=False):
+    """The Google Cloud Storage location for the input content."""
+
+    uris: Optional[list[str]]
+    """Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards."""
+
+
+GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
+
+
+class EvaluationDataset(_common.BaseModel):
+    """The dataset used for evaluation."""
+
+    bigquery_source: Optional[BigQuerySource] = Field(
+        default=None, description="""BigQuery source holds the dataset."""
+    )
+    gcs_source: Optional[GcsSource] = Field(
+        default=None,
+        description="""Cloud storage source holds the dataset. Currently only one Cloud Storage file path is supported.""",
+    )
+
+
+class EvaluationDatasetDict(TypedDict, total=False):
+    """The dataset used for evaluation."""
+
+    bigquery_source: Optional[BigQuerySourceDict]
+    """BigQuery source holds the dataset."""
+
+    gcs_source: Optional[GcsSourceDict]
+    """Cloud storage source holds the dataset. Currently only one Cloud Storage file path is supported."""
+
+
+EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
+
+
+class Metric(_common.BaseModel):
+    """The metric used for dataset level evaluation."""
+
+    aggregation_metrics: Optional[list[AggregationMetric]] = Field(
+        default=None,
+        description="""Optional. The aggregation metrics to use.""",
+    )
+    bleu_spec: Optional[BleuSpec] = Field(
+        default=None, description="""Spec for bleu metric."""
+    )
+    exact_match_spec: Optional[ExactMatchSpec] = Field(
+        default=None, description="""Spec for exact match metric."""
+    )
+    pairwise_metric_spec: Optional[PairwiseMetricSpec] = Field(
+        default=None, description="""Spec for pairwise metric."""
+    )
+    pointwise_metric_spec: Optional[PointwiseMetricSpec] = Field(
+        default=None, description="""Spec for pointwise metric."""
+    )
+    rouge_spec: Optional[RougeSpec] = Field(
+        default=None, description="""Spec for rouge metric."""
+    )
+
+
+class MetricDict(TypedDict, total=False):
+    """The metric used for dataset level evaluation."""
+
+    aggregation_metrics: Optional[list[AggregationMetric]]
+    """Optional. The aggregation metrics to use."""
+
+    bleu_spec: Optional[BleuSpecDict]
+    """Spec for bleu metric."""
+
+    exact_match_spec: Optional[ExactMatchSpecDict]
+    """Spec for exact match metric."""
+
+    pairwise_metric_spec: Optional[PairwiseMetricSpecDict]
+    """Spec for pairwise metric."""
+
+    pointwise_metric_spec: Optional[PointwiseMetricSpecDict]
+    """Spec for pointwise metric."""
+
+    rouge_spec: Optional[RougeSpecDict]
+    """Spec for rouge metric."""
+
+
+MetricOrDict = Union[Metric, MetricDict]
+
+
+class GcsDestination(_common.BaseModel):
+    """The Google Cloud Storage location where the output is to be written to."""
+
+    output_uri_prefix: Optional[str] = Field(
+        default=None,
+        description="""Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist.""",
+    )
+
+
+class GcsDestinationDict(TypedDict, total=False):
+    """The Google Cloud Storage location where the output is to be written to."""
+
+    output_uri_prefix: Optional[str]
+    """Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist."""
+
+
+GcsDestinationOrDict = Union[GcsDestination, GcsDestinationDict]
+
+
+class OutputConfig(_common.BaseModel):
+    """Config for evaluation output."""
+
+    gcs_destination: Optional[GcsDestination] = Field(
+        default=None,
+        description="""Cloud storage destination for evaluation output.""",
+    )
+
+
+class OutputConfigDict(TypedDict, total=False):
+    """Config for evaluation output."""
+
+    gcs_destination: Optional[GcsDestinationDict]
+    """Cloud storage destination for evaluation output."""
+
+
+OutputConfigOrDict = Union[OutputConfig, OutputConfigDict]
+
+
+class AutoraterConfig(_common.BaseModel):
+    """The configs for autorater."""
+
+    autorater_model: Optional[str] = Field(
+        default=None,
+        description="""Optional. The fully qualified name of the publisher model or tuned autorater endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/*/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`""",
+    )
+    flip_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Default is true. Whether to flip the candidate and baseline responses. This is only applicable to the pairwise metric. If enabled, also provide PairwiseMetricSpec.candidate_response_field_name and PairwiseMetricSpec.baseline_response_field_name. When rendering PairwiseMetricSpec.metric_prompt_template, the candidate and baseline fields will be flipped for half of the samples to reduce bias.""",
+    )
+    sampling_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Number of samples for each instance in the dataset. If not specified, the default is 4. Minimum value is 1, maximum value is 32.""",
+    )
+
+
+class AutoraterConfigDict(TypedDict, total=False):
+    """The configs for autorater."""
+
+    autorater_model: Optional[str]
+    """Optional. The fully qualified name of the publisher model or tuned autorater endpoint to use. Publisher model format: `projects/{project}/locations/{location}/publishers/*/models/*` Tuned model endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`"""
+
+    flip_enabled: Optional[bool]
+    """Optional. Default is true. Whether to flip the candidate and baseline responses. This is only applicable to the pairwise metric. If enabled, also provide PairwiseMetricSpec.candidate_response_field_name and PairwiseMetricSpec.baseline_response_field_name. When rendering PairwiseMetricSpec.metric_prompt_template, the candidate and baseline fields will be flipped for half of the samples to reduce bias."""
+
+    sampling_count: Optional[int]
+    """Optional. Number of samples for each instance in the dataset. If not specified, the default is 4. Minimum value is 1, maximum value is 32."""
+
+
+AutoraterConfigOrDict = Union[AutoraterConfig, AutoraterConfigDict]
+
+
+class EvaluateDatasetConfig(_common.BaseModel):
+    """Config for evaluate instances."""
+
+    http_options: Optional[HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class EvaluateDatasetConfigDict(TypedDict, total=False):
+    """Config for evaluate instances."""
+
+    http_options: Optional[HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
+
+
+class _EvaluateDatasetRequestParameters(_common.BaseModel):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
+    metrics: Optional[list[Metric]] = Field(default=None, description="""""")
+    output_config: Optional[OutputConfig] = Field(default=None, description="""""")
+    autorater_config: Optional[AutoraterConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
+
+
+class _EvaluateDatasetRequestParametersDict(TypedDict, total=False):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDatasetDict]
+    """"""
+
+    metrics: Optional[list[MetricDict]]
+    """"""
+
+    output_config: Optional[OutputConfigDict]
+    """"""
+
+    autorater_config: Optional[AutoraterConfigDict]
+    """"""
+
+    config: Optional[EvaluateDatasetConfigDict]
+    """"""
+
+
+_EvaluateDatasetRequestParametersOrDict = Union[
+    _EvaluateDatasetRequestParameters, _EvaluateDatasetRequestParametersDict
+]
+
+
+class EvaluateDatasetOperation(_common.BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
+
+
+class EvaluateDatasetOperationDict(TypedDict, total=False):
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[EvaluationDatasetDict]
+    """"""
+
+
+EvaluateDatasetOperationOrDict = Union[
+    EvaluateDatasetOperation, EvaluateDatasetOperationDict
 ]
 
 

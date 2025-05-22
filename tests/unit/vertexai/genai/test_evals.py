@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 # pylint: disable=protected-access,bad-continuation
 
 import importlib
+from unittest import mock
 
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
+
 import pytest
 
 _TEST_PROJECT = "test-project"
@@ -30,7 +31,7 @@ _TEST_LOCATION = "us-central1"
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
 
 
-class TestGenAiClient:
+class TestEvals:
     """Unit tests for the GenAI client."""
 
     def setup_method(self):
@@ -43,11 +44,35 @@ class TestGenAiClient:
         )
 
     @pytest.mark.usefixtures("google_auth_mock")
-    def test_genai_client(self):
+    def test_evaluate_instances(self):
         test_client = _genai.client.Client(
             project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        assert test_client is not None
-        assert test_client._api_client.vertexai
-        assert test_client._api_client.project == _TEST_PROJECT
-        assert test_client._api_client.location == _TEST_LOCATION
+        with mock.patch.object(
+            test_client.evals, "_evaluate_instances"
+        ) as mock_evaluate:
+            test_client.evals._evaluate_instances(bleu_input=_genai.types.BleuInput())
+            mock_evaluate.assert_called_once_with(bleu_input=_genai.types.BleuInput())
+
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_eval_run(self):
+        test_client = _genai.client.Client(
+            project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        with pytest.raises(NotImplementedError):
+            test_client.evals.run()
+
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_eval_batch_eval(self):
+        test_client = _genai.client.Client(
+            project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        with mock.patch.object(test_client.evals, "batch_eval") as mock_batch_eval:
+            test_client.evals.batch_eval(
+                dataset=_genai.types.EvaluationDataset(),
+                metrics=[_genai.types.Metric()],
+                output_config=_genai.types.OutputConfig(),
+                autorater_config=_genai.types.AutoraterConfig(),
+                config=_genai.types.EvaluateDatasetConfig(),
+            )
+            mock_batch_eval.assert_called_once()
