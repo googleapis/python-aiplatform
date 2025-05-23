@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.95.0](https://github.com/googleapis/python-aiplatform/compare/v1.94.0...v1.95.0) (2025-05-23)
+
+
+### Features
+
+* [vertexai] Fix the result of export function ([9427b15](https://github.com/googleapis/python-aiplatform/commit/9427b158dd9d3d8a6ec56024484855947d4a0eac))
+
 ## [1.94.0](https://github.com/googleapis/python-aiplatform/compare/v1.93.1...v1.94.0) (2025-05-22)
 
 
