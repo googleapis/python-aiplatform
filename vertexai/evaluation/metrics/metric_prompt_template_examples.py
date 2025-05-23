@@ -145,7 +145,7 @@ class MetricPromptTemplateExamples:
             metric=constants.Metric.MULTI_TURN_CHAT_QUALITY,
             metric_prompt_template=_default_templates.MULTI_TURN_CHAT_QUALITY_PROMPT_TEMPLATE,
         )
-        MULTI_TURN_SAFETY_QUALITY = pointwise_metric.PointwiseMetric(
+        MULTI_TURN_SAFETY = pointwise_metric.PointwiseMetric(
             metric=constants.Metric.MULTI_TURN_SAFETY,
             metric_prompt_template=_default_templates.MULTI_TURN_SAFETY_PROMPT_TEMPLATE,
         )
@@ -193,7 +193,7 @@ class MetricPromptTemplateExamples:
             metric=constants.Metric.PAIRWISE_MULTI_TURN_CHAT_QUALITY,
             metric_prompt_template=_default_templates.PAIRWISE_MULTI_TURN_CHAT_QUALITY_PROMPT_TEMPLATE,
         )
-        MULTI_TURN_SAFETY_QUALITY = pairwise_metric.PairwiseMetric(
+        MULTI_TURN_SAFETY = pairwise_metric.PairwiseMetric(
             metric=constants.Metric.PAIRWISE_MULTI_TURN_SAFETY,
             metric_prompt_template=_default_templates.PAIRWISE_MULTI_TURN_SAFETY_PROMPT_TEMPLATE,
         )
