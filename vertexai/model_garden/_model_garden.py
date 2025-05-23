@@ -366,7 +366,7 @@ class OpenModel:
         _LOGGER.info(f"End time: {datetime.datetime.now()}")
         _LOGGER.info(f"Response: {export_publisher_model_response}")
 
-        return target_gcs_path
+        return export_publisher_model_response.destination_uri
 
     def deploy(
         self,
