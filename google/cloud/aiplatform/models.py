@@ -791,14 +791,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         If dedicated endpoint is not enabled, this property returns None.
         """
         if re.match(r"^projects/.*/endpoints/.*$", self._gca_resource.name):
+            print("This is a dedicate endpoint")
             dedicated_endpoint_dns = getattr(
                 self._gca_resource, "dedicated_endpoint_dns", None
             )
+            print(f"dedicated_endpoint_dns: {dedicated_endpoint_dns}")
             if self.dedicated_endpoint_enabled and not dedicated_endpoint_dns:
+                print("dedicate endpoint dns not set, syncing")
                 self._sync_gca_resource()
                 dedicated_endpoint_dns = getattr(
                     self._gca_resource, "dedicated_endpoint_dns", None
                 )
+                print(f"dedicated_endpoint_dns after sync: {dedicated_endpoint_dns}")
             return dedicated_endpoint_dns
         return None
 
