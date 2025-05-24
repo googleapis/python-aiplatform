@@ -149,6 +149,11 @@ class IndexServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.import_index: gapic_v1.method.wrap_method(
+                self.import_index,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.list_indexes: gapic_v1.method.wrap_method(
                 self.list_indexes,
                 default_timeout=5.0,
@@ -254,6 +259,15 @@ class IndexServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [index_service.GetIndexRequest], Union[index.Index, Awaitable[index.Index]]
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def import_index(
+        self,
+    ) -> Callable[
+        [index_service.ImportIndexRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

@@ -125,6 +125,14 @@ class AsyncIndexServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            async def pre_import_index(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_import_index(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             async def pre_list_indexes(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -298,6 +306,54 @@ class AsyncIndexServiceRestInterceptor:
         `post_get_index` interceptor. The (possibly modified) response returned by
         `post_get_index` will be passed to
         `post_get_index_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_import_index(
+        self,
+        request: index_service.ImportIndexRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        index_service.ImportIndexRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Pre-rpc interceptor for import_index
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the IndexService server.
+        """
+        return request, metadata
+
+    async def post_import_index(
+        self, response: operations_pb2.Operation
+    ) -> operations_pb2.Operation:
+        """Post-rpc interceptor for import_index
+
+        DEPRECATED. Please use the `post_import_index_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the IndexService server but before
+        it is returned to user code. This `post_import_index` interceptor runs
+        before the `post_import_index_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_import_index_with_metadata(
+        self,
+        response: operations_pb2.Operation,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[operations_pb2.Operation, Sequence[Tuple[str, Union[str, bytes]]]]:
+        """Post-rpc interceptor for import_index
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the IndexService server but before it is returned to user code.
+
+        We recommend only using this `post_import_index_with_metadata`
+        interceptor in new development instead of the `post_import_index` interceptor.
+        When both interceptors are used, this `post_import_index_with_metadata` interceptor runs after the
+        `post_import_index` interceptor. The (possibly modified) response returned by
+        `post_import_index` will be passed to
+        `post_import_index_with_metadata`.
         """
         return response, metadata
 
@@ -823,6 +879,11 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
             self.get_index: self._wrap_method(
                 self.get_index,
                 default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.import_index: self._wrap_method(
+                self.import_index,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.list_indexes: self._wrap_method(
@@ -1390,6 +1451,175 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
                     extra={
                         "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
                         "rpcName": "GetIndex",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
+    class _ImportIndex(
+        _BaseIndexServiceRestTransport._BaseImportIndex, AsyncIndexServiceRestStub
+    ):
+        def __hash__(self):
+            return hash("AsyncIndexServiceRestTransport.ImportIndex")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: index_service.ImportIndexRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> operations_pb2.Operation:
+            r"""Call the import index method over HTTP.
+
+            Args:
+                request (~.index_service.ImportIndexRequest):
+                    The request object. Request message for
+                [IndexService.ImportIndex][google.cloud.aiplatform.v1beta1.IndexService.ImportIndex].
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.operations_pb2.Operation:
+                    This resource represents a
+                long-running operation that is the
+                result of a network API call.
+
+            """
+
+            http_options = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_import_index(
+                request, metadata
+            )
+            transcoded_request = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_transcoded_request(
+                    http_options, request
+                )
+            )
+
+            body = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_request_body_json(
+                    transcoded_request
+                )
+            )
+
+            # Jsonify the query params
+            query_params = (
+                _BaseIndexServiceRestTransport._BaseImportIndex._get_query_params_json(
+                    transcoded_request
+                )
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = json_format.MessageToJson(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.IndexServiceClient.ImportIndex",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ImportIndex",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncIndexServiceRestTransport._ImportIndex._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = operations_pb2.Operation()
+            pb_resp = resp
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_import_index(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_import_index_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = json_format.MessageToJson(resp)
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.IndexServiceAsyncClient.import_index",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.IndexService",
+                        "rpcName": "ImportIndex",
                         "metadata": http_response["headers"],
                         "httpResponse": http_response,
                     },
@@ -4200,6 +4430,12 @@ class AsyncIndexServiceRestTransport(_BaseIndexServiceRestTransport):
     @property
     def get_index(self) -> Callable[[index_service.GetIndexRequest], index.Index]:
         return self._GetIndex(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def import_index(
+        self,
+    ) -> Callable[[index_service.ImportIndexRequest], operations_pb2.Operation]:
+        return self._ImportIndex(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def list_indexes(

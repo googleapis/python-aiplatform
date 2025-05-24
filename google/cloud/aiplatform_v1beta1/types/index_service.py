@@ -34,6 +34,8 @@ __protobuf__ = proto.module(
         "ListIndexesResponse",
         "UpdateIndexRequest",
         "UpdateIndexOperationMetadata",
+        "ImportIndexRequest",
+        "ImportIndexOperationMetadata",
         "DeleteIndexRequest",
         "UpsertDatapointsRequest",
         "UpsertDatapointsResponse",
@@ -232,6 +234,222 @@ class UpdateIndexOperationMetadata(proto.Message):
     )
 
 
+class ImportIndexRequest(proto.Message):
+    r"""Request message for
+    [IndexService.ImportIndex][google.cloud.aiplatform.v1beta1.IndexService.ImportIndex].
+
+    Attributes:
+        name (str):
+            Required. The name of the Index resource to import data to.
+            Format:
+            ``projects/{project}/locations/{location}/indexes/{index}``
+        is_complete_overwrite (bool):
+            Optional. If true, completely replace
+            existing index data. Must be true for streaming
+            update indexes.
+        config (google.cloud.aiplatform_v1beta1.types.ImportIndexRequest.ConnectorConfig):
+            Required. Configuration for importing data
+            from an external source.
+    """
+
+    class ConnectorConfig(proto.Message):
+        r"""Configuration for importing data from an external source.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            big_query_source_config (google.cloud.aiplatform_v1beta1.types.ImportIndexRequest.ConnectorConfig.BigQuerySourceConfig):
+                Configuration for importing data from a
+                BigQuery table.
+
+                This field is a member of `oneof`_ ``source``.
+        """
+
+        class DatapointFieldMapping(proto.Message):
+            r"""Mapping of datapoint fields to column names for columnar data
+            sources.
+
+            Attributes:
+                id_column (str):
+                    Required. The column with unique identifiers
+                    for each data point.
+                embedding_column (str):
+                    Required. The column with the vector
+                    embeddings for each data point.
+                restricts (MutableSequence[google.cloud.aiplatform_v1beta1.types.ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.Restrict]):
+                    Optional. List of restricts for string
+                    values.
+                numeric_restricts (MutableSequence[google.cloud.aiplatform_v1beta1.types.ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.NumericRestrict]):
+                    Optional. List of restricts for numeric
+                    values.
+                metadata_columns (MutableSequence[str]):
+                    Optional. List of columns containing metadata
+                    to be included in the index.
+            """
+
+            class Restrict(proto.Message):
+                r"""Restrictions on string values.
+
+                Attributes:
+                    namespace (str):
+                        Required. The namespace of the restrict in
+                        the index.
+                    allow_column (MutableSequence[str]):
+                        Optional. The columns containing the allow
+                        values.
+                    deny_column (MutableSequence[str]):
+                        Optional. The columns containing the deny
+                        values.
+                """
+
+                namespace: str = proto.Field(
+                    proto.STRING,
+                    number=1,
+                )
+                allow_column: MutableSequence[str] = proto.RepeatedField(
+                    proto.STRING,
+                    number=2,
+                )
+                deny_column: MutableSequence[str] = proto.RepeatedField(
+                    proto.STRING,
+                    number=3,
+                )
+
+            class NumericRestrict(proto.Message):
+                r"""Restrictions on numeric values.
+
+                Attributes:
+                    namespace (str):
+                        Required. The namespace of the restrict.
+                    value_column (str):
+                        Optional. The column containing the numeric
+                        value.
+                    value_type (google.cloud.aiplatform_v1beta1.types.ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.NumericRestrict.ValueType):
+                        Required. Numeric type of the restrict. Must
+                        be consistent for all datapoints within the
+                        namespace.
+                """
+
+                class ValueType(proto.Enum):
+                    r"""The type of numeric value for the restrict.
+
+                    Values:
+                        VALUE_TYPE_UNSPECIFIED (0):
+                            Should not be used.
+                        INT (1):
+                            Represents 64 bit integer.
+                        FLOAT (2):
+                            Represents 32 bit float.
+                        DOUBLE (3):
+                            Represents 64 bit float.
+                    """
+                    VALUE_TYPE_UNSPECIFIED = 0
+                    INT = 1
+                    FLOAT = 2
+                    DOUBLE = 3
+
+                namespace: str = proto.Field(
+                    proto.STRING,
+                    number=1,
+                )
+                value_column: str = proto.Field(
+                    proto.STRING,
+                    number=2,
+                )
+                value_type: "ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.NumericRestrict.ValueType" = proto.Field(
+                    proto.ENUM,
+                    number=3,
+                    enum="ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.NumericRestrict.ValueType",
+                )
+
+            id_column: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            embedding_column: str = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            restricts: MutableSequence[
+                "ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.Restrict"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=3,
+                message="ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.Restrict",
+            )
+            numeric_restricts: MutableSequence[
+                "ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.NumericRestrict"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=4,
+                message="ImportIndexRequest.ConnectorConfig.DatapointFieldMapping.NumericRestrict",
+            )
+            metadata_columns: MutableSequence[str] = proto.RepeatedField(
+                proto.STRING,
+                number=5,
+            )
+
+        class BigQuerySourceConfig(proto.Message):
+            r"""Configuration for importing data from a BigQuery table.
+
+            Attributes:
+                table_path (str):
+                    Required. The path to the BigQuery table containing the
+                    index data, in the format of
+                    ``bq://<project_id>.<dataset_id>.<table>``.
+                datapoint_field_mapping (google.cloud.aiplatform_v1beta1.types.ImportIndexRequest.ConnectorConfig.DatapointFieldMapping):
+                    Required. Mapping of datapoint fields to
+                    BigQuery column names.
+            """
+
+            table_path: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            datapoint_field_mapping: "ImportIndexRequest.ConnectorConfig.DatapointFieldMapping" = proto.Field(
+                proto.MESSAGE,
+                number=2,
+                message="ImportIndexRequest.ConnectorConfig.DatapointFieldMapping",
+            )
+
+        big_query_source_config: "ImportIndexRequest.ConnectorConfig.BigQuerySourceConfig" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="source",
+            message="ImportIndexRequest.ConnectorConfig.BigQuerySourceConfig",
+        )
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    is_complete_overwrite: bool = proto.Field(
+        proto.BOOL,
+        number=2,
+    )
+    config: ConnectorConfig = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=ConnectorConfig,
+    )
+
+
+class ImportIndexOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [IndexService.ImportIndex][google.cloud.aiplatform.v1beta1.IndexService.ImportIndex].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
 class DeleteIndexRequest(proto.Message):
     r"""Request message for
     [IndexService.DeleteIndex][google.cloud.aiplatform.v1beta1.IndexService.DeleteIndex].
@@ -409,6 +627,10 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                     Invalid sparse embedding.
                 INVALID_EMBEDDING (17):
                     Invalid dense embedding.
+                INVALID_EMBEDDING_METADATA (18):
+                    Invalid embedding metadata.
+                EMBEDDING_METADATA_EXCEEDS_SIZE_LIMIT (19):
+                    Embedding metadata exceeds size limit.
             """
             ERROR_TYPE_UNSPECIFIED = 0
             EMPTY_LINE = 1
@@ -428,6 +650,8 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             INVALID_TOKEN_VALUE = 15
             INVALID_SPARSE_EMBEDDING = 16
             INVALID_EMBEDDING = 17
+            INVALID_EMBEDDING_METADATA = 18
+            EMBEDDING_METADATA_EXCEEDS_SIZE_LIMIT = 19
 
         error_type: "NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType" = proto.Field(
             proto.ENUM,

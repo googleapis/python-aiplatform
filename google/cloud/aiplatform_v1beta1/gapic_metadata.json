@@ -2320,6 +2320,11 @@
                 "get_index"
               ]
             },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
+              ]
+            },
             "ListIndexes": {
               "methods": [
                 "list_indexes"
@@ -2360,6 +2365,11 @@
                 "get_index"
               ]
             },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
+              ]
+            },
             "ListIndexes": {
               "methods": [
                 "list_indexes"
@@ -2398,6 +2408,11 @@
             "GetIndex": {
               "methods": [
                 "get_index"
+              ]
+            },
+            "ImportIndex": {
+              "methods": [
+                "import_index"
               ]
             },
             "ListIndexes": {
