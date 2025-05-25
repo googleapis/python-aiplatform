@@ -23,10 +23,10 @@ def predict_image_object_detection_sample(
     project: str,
     endpoint_id: str,
     filename: str,
-    location: str = "us-central1",
-    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
+    location: str = "us-central1"
 ):
     # The AI Platform services require regional API endpoints.
+    api_endpoint = f"{location}-aiplatform.googleapis.com"
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
