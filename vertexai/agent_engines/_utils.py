@@ -685,6 +685,20 @@ def _import_opentelemetry_or_warn() -> Optional[types.ModuleType]:
     return None
 
 
+def _import_opentelemetry_sdk_resources_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.sdk.trace module."""
+    try:
+        import opentelemetry.sdk.resources  # noqa:F401
+
+        return opentelemetry.sdk.resources
+    except ImportError:
+        LOGGER.warning(
+            "Failed to import opentelemetry.sdk.resources. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
 def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
     """Tries to import the opentelemetry.sdk.trace module."""
     try:
