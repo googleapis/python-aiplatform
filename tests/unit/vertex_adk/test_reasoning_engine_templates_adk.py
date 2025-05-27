@@ -87,7 +87,7 @@ def simple_span_processor_mock():
 def mock_adk_major_version():
     with mock.patch(
         "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
-        return_value=0,
+        return_value=1,
     ):
         yield
 
@@ -153,13 +153,13 @@ class TestAdkApp:
     def test_adk_major_version(self):
         with mock.patch(
             "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_major_version",
-            return_value=1,
+            return_value=0,
         ):
             with pytest.raises(
                 ValueError,
                 match=(
-                    "Unsupported google-adk major version: 1, please use"
-                    " google-adk<1.0.0 for AdkApp deployment."
+                    "Unsupported google-adk major version: 0, please use"
+                    " google-adk>=1.0.0 for AdkApp deployment."
                 ),
             ):
                 reasoning_engines.AdkApp(

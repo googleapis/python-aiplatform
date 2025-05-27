@@ -143,7 +143,8 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    "google-adk >= 0.0.2, < 1.0.0",
+    # 1.0.0 contains breaking changes, so we need to pin to 1.0.0.
+    "google-adk >= 1.0.0, < 2.0.0",
 ]
 
 reasoning_engine_extra_require = [
