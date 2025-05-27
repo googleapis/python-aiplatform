@@ -395,6 +395,33 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         return self._stubs["get_index"]
 
     @property
+    def import_index(
+        self,
+    ) -> Callable[[index_service.ImportIndexRequest], operations_pb2.Operation]:
+        r"""Return a callable for the import index method over gRPC.
+
+        Imports an Index from an external source (e.g.,
+        BigQuery).
+
+        Returns:
+            Callable[[~.ImportIndexRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "import_index" not in self._stubs:
+            self._stubs["import_index"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.IndexService/ImportIndex",
+                request_serializer=index_service.ImportIndexRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["import_index"]
+
+    @property
     def list_indexes(
         self,
     ) -> Callable[
