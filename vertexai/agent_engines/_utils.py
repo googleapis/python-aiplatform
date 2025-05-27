@@ -685,6 +685,20 @@ def _import_opentelemetry_or_warn() -> Optional[types.ModuleType]:
     return None
 
 
+def _import_opentelemetry_sdk_resources_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.sdk.trace module."""
+    try:
+        import opentelemetry.sdk.resources  # noqa:F401
+
+        return opentelemetry.sdk.resources
+    except ImportError:
+        LOGGER.warning(
+            "Failed to import opentelemetry.sdk.resources. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
 def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
     """Tries to import the opentelemetry.sdk.trace module."""
     try:
@@ -709,6 +723,20 @@ def _import_cloud_trace_v2_or_warn() -> Optional[types.ModuleType]:
         LOGGER.warning(
             "google-cloud-trace is not installed. Please call "
             "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_otlp_trace_exporter_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the google.cloud.trace_v2 module."""
+    try:
+        import opentelemetry.exporter.otlp.proto.http.trace_exporter
+
+        return opentelemetry.exporter.otlp.proto.http.trace_exporter
+    except ImportError:
+        LOGGER.warning(
+            "opentelemetry-exporter-otlp is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[agent_engines]'."
         )
     return None
 
