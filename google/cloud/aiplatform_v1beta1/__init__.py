@@ -646,6 +646,8 @@ from .types.index_service import CreateIndexOperationMetadata
 from .types.index_service import CreateIndexRequest
 from .types.index_service import DeleteIndexRequest
 from .types.index_service import GetIndexRequest
+from .types.index_service import ImportIndexOperationMetadata
+from .types.index_service import ImportIndexRequest
 from .types.index_service import ListIndexesRequest
 from .types.index_service import ListIndexesResponse
 from .types.index_service import NearestNeighborSearchOperationMetadata
@@ -1794,6 +1796,8 @@ __all__ = (
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
+    "ImportIndexOperationMetadata",
+    "ImportIndexRequest",
     "ImportModelEvaluationRequest",
     "ImportRagFilesConfig",
     "ImportRagFilesOperationMetadata",
