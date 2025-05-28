@@ -83,6 +83,7 @@ for library in s.get_staging_dirs(default_version):
             "noxfile.py",
             "testing",
             "docs/conf.py",
+            "*.tar.gz"
         ],
     )
     has_generator_updates = True

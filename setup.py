@@ -49,11 +49,8 @@ packages += [
 profiler_extra_require = [
     "tensorboard-plugin-profile >= 2.4.0, <2.18.0",  # <3.0.0",
     "werkzeug >= 2.0.0, <4.0.0",
-    "tensorflow >=2.4.0, <3.0.0",
 ]
-tensorboard_extra_require = [
-    "tensorflow >=2.3.0, <3.0.0; python_version<='3.11'"
-] + profiler_extra_require
+tensorboard_extra_require = profiler_extra_require
 
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0"]
