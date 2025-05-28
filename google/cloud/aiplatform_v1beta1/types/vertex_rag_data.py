@@ -591,7 +591,61 @@ class RagCorpus(proto.Message):
             Only applicable to RagManagedDb option for
             Vector DB. This field can only be set at corpus
             creation time, and cannot be updated or deleted.
+        corpus_type_config (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig):
+            Optional. The corpus type config of the
+            RagCorpus.
     """
+
+    class CorpusTypeConfig(proto.Message):
+        r"""The config for the corpus type of the RagCorpus.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            document_corpus (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig.DocumentCorpus):
+                Optional. Config for the document corpus.
+
+                This field is a member of `oneof`_ ``corpus_type_config``.
+            memory_corpus (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig.MemoryCorpus):
+                Optional. Config for the memory corpus.
+
+                This field is a member of `oneof`_ ``corpus_type_config``.
+        """
+
+        class DocumentCorpus(proto.Message):
+            r"""Config for the document corpus."""
+
+        class MemoryCorpus(proto.Message):
+            r"""Config for the memory corpus.
+
+            Attributes:
+                llm_parser (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig.LlmParser):
+                    The LLM parser to use for the memory corpus.
+            """
+
+            llm_parser: "RagFileParsingConfig.LlmParser" = proto.Field(
+                proto.MESSAGE,
+                number=1,
+                message="RagFileParsingConfig.LlmParser",
+            )
+
+        document_corpus: "RagCorpus.CorpusTypeConfig.DocumentCorpus" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="corpus_type_config",
+            message="RagCorpus.CorpusTypeConfig.DocumentCorpus",
+        )
+        memory_corpus: "RagCorpus.CorpusTypeConfig.MemoryCorpus" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="corpus_type_config",
+            message="RagCorpus.CorpusTypeConfig.MemoryCorpus",
+        )
 
     vector_db_config: "RagVectorDbConfig" = proto.Field(
         proto.MESSAGE,
@@ -650,6 +704,11 @@ class RagCorpus(proto.Message):
         proto.MESSAGE,
         number=12,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    corpus_type_config: CorpusTypeConfig = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=CorpusTypeConfig,
     )
 
 
@@ -1009,7 +1068,7 @@ class RagFileParsingConfig(proto.Message):
         )
 
     class LlmParser(proto.Message):
-        r"""Specifies the advanced parsing for RagFiles.
+        r"""Specifies the LLM parsing for RagFiles.
 
         Attributes:
             model_name (str):
@@ -1196,7 +1255,7 @@ class ImportRagFilesConfig(proto.Message):
             indexing pipeline job is allowed to make to the embedding
             model specified in the project. Please follow the quota
             usage guideline of the embedding model you use to set the
-            value properly. If this value is not specified,
+            value properly.If this value is not specified,
             max_embedding_requests_per_min will be used by indexing
             pipeline job as the global limit.
         rebuild_ann_index (bool):
