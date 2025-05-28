@@ -20,6 +20,7 @@ from vertexai.generative_models._generative_models import (
     Candidate,
     ChatSession,
     Content,
+    CustomModel,
     FinishReason,
     FunctionCall,
     FunctionDeclaration,
@@ -40,6 +41,7 @@ from vertexai.generative_models._generative_models import (
 __all__ = [
     "GenerationConfig",
     "GenerativeModel",
+    "CustomModel",
     "GenerationResponse",
     "Candidate",
     "ChatSession",
