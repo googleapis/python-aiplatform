@@ -8985,6 +8985,17 @@ def test_create_rag_corpus_rest_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9231,6 +9242,17 @@ def test_update_rag_corpus_rest_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11775,6 +11797,17 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12037,6 +12070,17 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
         "corpus_status": {"state": 1, "error_status": "error_status_value"},
         "rag_files_count": 1588,
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "corpus_type_config": {
+            "document_corpus": {},
+            "memory_corpus": {
+                "llm_parser": {
+                    "model_name": "model_name_value",
+                    "max_parsing_requests_per_min": 3005,
+                    "global_max_parsing_requests_per_min": 3725,
+                    "custom_parsing_prompt": "custom_parsing_prompt_value",
+                }
+            },
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
