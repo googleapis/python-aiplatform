@@ -4664,6 +4664,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "end_offset": {},
                                 },
                                 "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                             }
                         ],
                     }
@@ -6310,6 +6311,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "end_offset": {},
                                 },
                                 "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                             }
                         ],
                     }

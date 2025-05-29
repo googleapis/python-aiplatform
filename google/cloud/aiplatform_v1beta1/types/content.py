@@ -202,8 +202,11 @@ class Part(proto.Message):
 
             This field is a member of `oneof`_ ``metadata``.
         thought (bool):
-            Output only. Indicates if the part is thought
-            from the model.
+            Indicates if the part is thought from the
+            model.
+        thought_signature (bytes):
+            An opaque signature for the thought so it can
+            be reused in subsequent requests.
     """
 
     text: str = proto.Field(
@@ -256,6 +259,10 @@ class Part(proto.Message):
     thought: bool = proto.Field(
         proto.BOOL,
         number=10,
+    )
+    thought_signature: bytes = proto.Field(
+        proto.BYTES,
+        number=11,
     )
 
 
@@ -623,6 +630,12 @@ class GenerationConfig(proto.Message):
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
+            include_thoughts (bool):
+                Indicates whether to include thoughts in the
+                response. If true, thoughts are returned only
+                when available.
+
+                This field is a member of `oneof`_ ``_include_thoughts``.
             thinking_budget (int):
                 Optional. Indicates the thinking budget in tokens. This is
                 only applied when enable_thinking is true.
@@ -630,6 +643,11 @@ class GenerationConfig(proto.Message):
                 This field is a member of `oneof`_ ``_thinking_budget``.
         """
 
+        include_thoughts: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+            optional=True,
+        )
         thinking_budget: int = proto.Field(
             proto.INT32,
             number=3,
