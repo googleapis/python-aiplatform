@@ -20,6 +20,8 @@ from google.genai import client
 from google.genai import types
 from .evals import Evals
 from .evals import AsyncEvals
+from .agentengines import AgentEngines
+from .agentengines import AsyncAgentEngines
 
 
 class AsyncClient:
@@ -29,10 +31,15 @@ class AsyncClient:
         self._api_client = api_client
         self._aio = AsyncClient(self._api_client)
         self._evals = AsyncEvals(self._api_client)
+        self._agent_engines = AsyncAgentEngines(self._api_client)
 
     @property
     def evals(self) -> AsyncEvals:
         return self._evals
+
+    @property
+    def agent_engines(self) -> AsyncAgentEngines:
+        return self._agent_engines
 
 
 class Client:
@@ -86,7 +93,12 @@ class Client:
         )
 
         self._evals = Evals(self._api_client)
+        self._agent_engines = AgentEngines(self._api_client)
 
     @property
     def evals(self) -> Evals:
         return self._evals
+
+    @property
+    def agent_engines(self) -> AgentEngines:
+        return self._agent_engines
