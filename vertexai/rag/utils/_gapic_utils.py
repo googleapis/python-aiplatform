@@ -55,6 +55,7 @@ from vertexai.rag.utils.resources import (
     VertexAiSearchConfig,
     VertexVectorSearch,
     VertexPredictionEndpoint,
+    RagCitedGenerationResponse,
 )
 
 
@@ -244,6 +245,17 @@ def convert_json_to_rag_file(upload_rag_file_response: Dict[str, Any]) -> RagFil
         description=upload_rag_file_response.get("ragFile").get("description"),
     )
     return rag_file
+
+
+def convert_tuple_to_rag_cited_generation_response(
+    cited_text: str, final_bibliography: str
+) -> RagCitedGenerationResponse:
+    """Converts a tuple to a RagCitedGenerationResponse."""
+    rag_cited_generation_response = RagCitedGenerationResponse(
+        cited_text=cited_text,
+        final_bibliography=final_bibliography,
+    )
+    return rag_cited_generation_response
 
 
 def convert_path_to_resource_id(

@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1.services import (
     llm_utility_service as llm_utility_service_v1,
 )
 from google.cloud.aiplatform_v1beta1 import types as aiplatform_types
+from google.cloud.aiplatform_v1beta1.services import endpoint_service
 from google.cloud.aiplatform_v1beta1.services import prediction_service
 from google.cloud.aiplatform_v1beta1.services import llm_utility_service
 from google.cloud.aiplatform_v1beta1.types import (
@@ -59,6 +60,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import tool as gapic_tool_types
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2
 import warnings
 
 if TYPE_CHECKING:
@@ -499,6 +501,19 @@ class _GenerativeModel:
         return aiplatform_initializer.global_config.create_client(
             client_class=prediction_service.PredictionServiceAsyncClient,
             location_override=self._location if not api_key else None,
+            api_key=api_key,
+        )
+
+    @functools.cached_property
+    def _endpoint_client(self) -> endpoint_service.EndpointServiceClient:
+        # Note this doesn't work with GCP Express but it's better to set the
+        # client correctly and allow the service to throw
+        api_key = aiplatform_initializer.global_config.api_key
+        if api_key and aiplatform_initializer.global_config.project:
+            api_key = None
+        return aiplatform_initializer.global_config.create_client(
+            client_class=endpoint_service.EndpointServiceClient,
+            location_override=self._location,
             api_key=api_key,
         )
 
@@ -3612,3 +3627,68 @@ class _PreviewGenerativeModel(_GenerativeModel):
             response_validation=response_validation,
             responder=responder,
         )
+
+    def set_request_response_logging_config(
+        self,
+        *,
+        enabled: bool,
+        sampling_rate: float,
+        bigquery_destination: str,
+        enable_otel_logging: Optional[bool] = None,
+    ) -> Union[aiplatform_types.PublisherModelConfig, aiplatform_types.Endpoint]:
+        """
+        Sets the request/response logging config.
+
+        Args:
+            enabled: If logging is enabled or not.
+            sampling_rate: Percentage of requests to be logged, expressed as a
+                fraction in range(0,1].
+        bigquery_destination: BigQuery table for logging. If only given a project,
+            a new dataset will be created with name
+            ``logging_<endpoint-display-name>_<endpoint-id>`` where will
+            be made BigQuery-dataset-name compatible (e.g. most special
+            characters will become underscores). If no table name is
+            given, a new table will be created with name
+            ``request_response_logging``
+        enable_otel_logging: This field is used for large models. If true, in
+            addition to the original large model logs, logs will be converted in
+            OTel schema format, and saved in otel_log column. Default
+            value is false.
+        Returns:
+            The updated PublisherModelConfig or Endpoint.
+        """
+
+        logging_config = aiplatform_types.PredictRequestResponseLoggingConfig(
+            enabled=enabled,
+            sampling_rate=sampling_rate,
+            bigquery_destination=aiplatform_types.BigQueryDestination(
+                output_uri=bigquery_destination
+            ),
+            enable_otel_logging=enable_otel_logging,
+        )
+
+        if self._endpoint_client.parse_endpoint_path(self._prediction_resource_name):
+            return self._endpoint_client.update_endpoint(
+                aiplatform_types.UpdateEndpointRequest(
+                    endpoint=aiplatform_types.Endpoint(
+                        name=self._prediction_resource_name,
+                        predict_request_response_logging_config=logging_config,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=["predict_request_response_logging_config"]
+                    ),
+                )
+            )
+
+        else:
+
+            operation = self._endpoint_client.set_publisher_model_config(
+                aiplatform_types.SetPublisherModelConfigRequest(
+                    name=self._prediction_resource_name,
+                    publisher_model_config=aiplatform_types.PublisherModelConfig(
+                        logging_config=logging_config
+                    ),
+                )
+            )
+
+            return operation.result()

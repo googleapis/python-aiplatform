@@ -469,3 +469,17 @@ class LlmParserConfig:
     model_name: str
     max_parsing_requests_per_min: Optional[int] = None
     custom_parsing_prompt: Optional[str] = None
+
+
+@dataclasses.dataclass
+class RagCitedGenerationResponse:
+    """RagCitedGenerationResponse.
+
+    Attributes:
+        cited_text: The text with inline citations.
+        final_bibliography: List of all unique cited chunks, their URIs, and page
+          numbers (if applicable).
+    """
+
+    cited_text: str
+    final_bibliography: str

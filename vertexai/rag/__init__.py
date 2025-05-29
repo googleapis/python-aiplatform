@@ -27,6 +27,7 @@ from vertexai.rag.rag_data import (
     get_file,
     list_files,
     delete_file,
+    add_inline_citations_and_references,
 )
 
 from vertexai.rag.rag_retrieval import (
@@ -49,6 +50,7 @@ from vertexai.rag.utils.resources import (
     RagCorpus,
     RagEmbeddingModelConfig,
     RagFile,
+    RagCitedGenerationResponse,
     RagManagedDb,
     RagResource,
     RagRetrievalConfig,
@@ -78,6 +80,7 @@ __all__ = (
     "RagCorpus",
     "RagEmbeddingModelConfig",
     "RagFile",
+    "RagCitedGenerationResponse",
     "RagManagedDb",
     "RagResource",
     "RagRetrievalConfig",
@@ -106,4 +109,5 @@ __all__ = (
     "retrieval_query",
     "upload_file",
     "update_corpus",
+    "add_inline_citations_and_references",
 )

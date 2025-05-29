@@ -90,6 +90,7 @@ from google.cloud.aiplatform.compat.services import (
     prediction_service_async_client_v1,
     reasoning_engine_service_client_v1,
     reasoning_engine_execution_service_client_v1,
+    reasoning_engine_execution_async_client_v1,
     schedule_service_client_v1,
     tensorboard_service_client_v1,
     vizier_service_client_v1,
@@ -1003,6 +1004,17 @@ class AgentEngineExecutionClientWithOverride(ClientWithOverride):
         (
             compat.V1,
             reasoning_engine_execution_service_client_v1.ReasoningEngineExecutionServiceClient,
+        ),
+    )
+
+
+class AgentEngineExecutionAsyncClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1
+    _version_map = (
+        (
+            compat.V1,
+            reasoning_engine_execution_async_client_v1.ReasoningEngineExecutionServiceAsyncClient,
         ),
     )
 

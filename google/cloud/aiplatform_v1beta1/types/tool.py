@@ -531,6 +531,15 @@ class VertexRagStore(proto.Message):
         rag_retrieval_config (google.cloud.aiplatform_v1beta1.types.RagRetrievalConfig):
             Optional. The retrieval config for the Rag
             query.
+        store_context (bool):
+            Optional. Currently only supported for Gemini Multimodal
+            Live API.
+
+            In Gemini Multimodal Live API, if ``store_context`` bool is
+            true, Gemini will leverage it to automatically memorize the
+            interactions between the client and Gemini, and retrieve
+            context when needed to augment the response generation for
+            users' ongoing and future interactions.
     """
 
     class RagResource(proto.Message):
@@ -577,6 +586,10 @@ class VertexRagStore(proto.Message):
         proto.MESSAGE,
         number=6,
         message="RagRetrievalConfig",
+    )
+    store_context: bool = proto.Field(
+        proto.BOOL,
+        number=7,
     )
 
 
