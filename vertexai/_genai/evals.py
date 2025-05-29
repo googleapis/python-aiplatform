@@ -690,6 +690,7 @@ def _EvaluationDataset_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+
     if getv(from_object, ["bigquery_source"]) is not None:
         setv(
             to_object,
@@ -966,6 +967,7 @@ def _EvaluationDataset_from_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+
     if getv(from_object, ["bigquerySource"]) is not None:
         setv(
             to_object,

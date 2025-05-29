@@ -1804,6 +1804,25 @@ EvaluateInstancesResponseOrDict = Union[
 ]
 
 
+class EvalCase(_common.BaseModel):
+    """A comprehensive representation of a GenAI interaction for evaluation."""
+
+    prompt: Optional[genai_types.Content] = Field(
+        default=None,
+        description="""The most recent user message (current input).""",
+    )
+
+
+class EvalCaseDict(TypedDict, total=False):
+    """A comprehensive representation of a GenAI interaction for evaluation."""
+
+    prompt: Optional[genai_types.Content]
+    """The most recent user message (current input)."""
+
+
+EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
+
+
 class BigQuerySource(_common.BaseModel):
     """The BigQuery location for the input content."""
 
@@ -1845,6 +1864,9 @@ GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
 class EvaluationDataset(_common.BaseModel):
     """The dataset used for evaluation."""
 
+    eval_cases: Optional[list[EvalCase]] = Field(
+        default=None, description="""The evaluation cases to be evaluated."""
+    )
     bigquery_source: Optional[BigQuerySource] = Field(
         default=None, description="""BigQuery source holds the dataset."""
     )
@@ -1856,6 +1878,9 @@ class EvaluationDataset(_common.BaseModel):
 
 class EvaluationDatasetDict(TypedDict, total=False):
     """The dataset used for evaluation."""
+
+    eval_cases: Optional[list[EvalCaseDict]]
+    """The evaluation cases to be evaluated."""
 
     bigquery_source: Optional[BigQuerySourceDict]
     """BigQuery source holds the dataset."""
