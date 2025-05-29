@@ -192,6 +192,16 @@ class Part(proto.Message):
             Optional. Result of executing the [ExecutableCode].
 
             This field is a member of `oneof`_ ``data``.
+        thought (bool):
+            Indicates if the part is thought from the
+            model.
+
+            This field is a member of `oneof`_ ``data``.
+        thought_signature (bytes):
+            An opaque signature for the thought so it can
+            be reused in subsequent requests.
+
+            This field is a member of `oneof`_ ``data``.
         video_metadata (google.cloud.aiplatform_v1.types.VideoMetadata):
             Optional. Video metadata. The metadata should only be
             specified while the video data is presented in inline_data
@@ -240,6 +250,16 @@ class Part(proto.Message):
         number=9,
         oneof="data",
         message=tool.CodeExecutionResult,
+    )
+    thought: bool = proto.Field(
+        proto.BOOL,
+        number=10,
+        oneof="data",
+    )
+    thought_signature: bytes = proto.Field(
+        proto.BYTES,
+        number=11,
+        oneof="data",
     )
     video_metadata: "VideoMetadata" = proto.Field(
         proto.MESSAGE,
@@ -502,6 +522,12 @@ class GenerationConfig(proto.Message):
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
+            include_thoughts (bool):
+                Indicates whether to include thoughts in the
+                response. If true, thoughts are returned only
+                when available.
+
+                This field is a member of `oneof`_ ``_include_thoughts``.
             thinking_budget (int):
                 Optional. Indicates the thinking budget in tokens. This is
                 only applied when enable_thinking is true.
@@ -509,6 +535,11 @@ class GenerationConfig(proto.Message):
                 This field is a member of `oneof`_ ``_thinking_budget``.
         """
 
+        include_thoughts: bool = proto.Field(
+            proto.BOOL,
+            number=1,
+            optional=True,
+        )
         thinking_budget: int = proto.Field(
             proto.INT32,
             number=3,
