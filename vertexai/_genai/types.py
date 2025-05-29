@@ -18,6 +18,7 @@
 import logging
 from typing import Any, Optional, Union
 from google.genai import _common
+from google.genai import types as genai_types
 from pydantic import Field
 from typing_extensions import TypedDict
 
@@ -2082,6 +2083,48 @@ class EvaluateDatasetOperationDict(TypedDict, total=False):
 EvaluateDatasetOperationOrDict = Union[
     EvaluateDatasetOperation, EvaluateDatasetOperationDict
 ]
+
+
+class PromptTemplate(_common.BaseModel):
+    """A prompt template for creating prompts with variables."""
+
+    text: Optional[str] = Field(default=None, description="""""")
+
+
+class PromptTemplateDict(TypedDict, total=False):
+    """A prompt template for creating prompts with variables."""
+
+    text: Optional[str]
+    """"""
+
+
+PromptTemplateOrDict = Union[PromptTemplate, PromptTemplateDict]
+
+
+class EvalRunInferenceConfig(_common.BaseModel):
+    """Optional parameters for inference."""
+
+    dest: Optional[str] = Field(default=None, description="""""")
+    prompt_template: Optional[str] = Field(default=None, description="""""")
+    generate_content_config: Optional[genai_types.GenerateContentConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class EvalRunInferenceConfigDict(TypedDict, total=False):
+    """Optional parameters for inference."""
+
+    dest: Optional[str]
+    """"""
+
+    prompt_template: Optional[str]
+    """"""
+
+    generate_content_config: Optional[genai_types.GenerateContentConfig]
+    """"""
+
+
+EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
 
 
 class EvalDataset(_common.BaseModel):
