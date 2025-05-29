@@ -908,6 +908,12 @@ class AdkApp:
                 "create_session",
                 "delete_session",
             ],
+            "async": [
+                "async_get_session",
+                "async_list_sessions",
+                "async_create_session",
+                "async_delete_session",
+            ],
             "stream": ["stream_query", "streaming_agent_run_with_events"],
             "async_stream": ["async_stream_query"],
         }
