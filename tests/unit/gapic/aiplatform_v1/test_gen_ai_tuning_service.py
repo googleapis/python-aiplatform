@@ -4626,6 +4626,8 @@ def test_create_tuning_job_rest_call_success(request_type):
                                     "outcome": 1,
                                     "output": "output_value",
                                 },
+                                "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                                 "video_metadata": {
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
@@ -6225,6 +6227,8 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                     "outcome": 1,
                                     "output": "output_value",
                                 },
+                                "thought": True,
+                                "thought_signature": b"thought_signature_blob",
                                 "video_metadata": {
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
