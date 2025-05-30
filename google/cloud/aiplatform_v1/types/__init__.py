@@ -1059,6 +1059,7 @@ from .tool import (
     RetrievalConfig,
     Tool,
     ToolConfig,
+    UrlContext,
     VertexAISearch,
     VertexRagStore,
 )
@@ -1999,6 +2000,7 @@ __all__ = (
     "RetrievalConfig",
     "Tool",
     "ToolConfig",
+    "UrlContext",
     "VertexAISearch",
     "VertexRagStore",
     "FilterSplit",
