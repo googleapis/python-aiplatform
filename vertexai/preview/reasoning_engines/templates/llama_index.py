@@ -384,7 +384,7 @@ class LlamaIndexQueryPipelineAgent:
         that can not be serialized.
         """
         if self._enable_tracing:
-            from vertexai.reasoning_engines import _utils
+            from vertexai.agent_engines import _utils
 
             cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
             cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
@@ -393,6 +393,9 @@ class LlamaIndexQueryPipelineAgent:
             )
             opentelemetry = _utils._import_opentelemetry_or_warn()
             opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
+            opentelemetry_sdk_resources = (
+                _utils._import_opentelemetry_sdk_resources_or_warn()
+            )
             if all(
                 (
                     cloud_trace_exporter,
@@ -400,9 +403,15 @@ class LlamaIndexQueryPipelineAgent:
                     openinference_llama_index,
                     opentelemetry,
                     opentelemetry_sdk_trace,
+                    opentelemetry_sdk_resources,
                 )
             ):
                 import google.auth
+                import os
+
+                SERVICE_INSTANCE_ID = opentelemetry_sdk_resources.SERVICE_INSTANCE_ID
+                SERVICE_NAME = opentelemetry_sdk_resources.SERVICE_NAME
+                AGENT_ENGINE_ID = os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID", "")
 
                 credentials, _ = google.auth.default()
                 span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
@@ -416,17 +425,16 @@ class LlamaIndexQueryPipelineAgent:
                         span_exporter=span_exporter,
                     )
                 )
+                resource = opentelemetry_sdk_resources.Resource.create(
+                    attributes={
+                        SERVICE_NAME: "aiplatform.googleapis.com/ReasoningEngine",
+                        SERVICE_INSTANCE_ID: AGENT_ENGINE_ID,
+                    }
+                )
                 tracer_provider: TracerProvider = (
                     opentelemetry.trace.get_tracer_provider()
                 )
-                # Get the appropriate tracer provider:
-                # 1. If _TRACER_PROVIDER is already set, use that.
-                # 2. Otherwise, if the OTEL_PYTHON_TRACER_PROVIDER environment
-                # variable is set, use that.
-                # 3. As a final fallback, use _PROXY_TRACER_PROVIDER.
-                # If none of the above is set, we log a warning, and
-                # create a tracer provider.
-                if not tracer_provider:
+                if AGENT_ENGINE_ID or not tracer_provider:
                     from google.cloud.aiplatform import base
 
                     _LOGGER = base.Logger(__name__)
@@ -436,13 +444,17 @@ class LlamaIndexQueryPipelineAgent:
                         "OTEL_PYTHON_TRACER_PROVIDER, _TRACER_PROVIDER, "
                         "or _PROXY_TRACER_PROVIDER."
                     )
-                    tracer_provider = opentelemetry_sdk_trace.TracerProvider()
+                    tracer_provider = opentelemetry_sdk_trace.TracerProvider(
+                        resource=resource,
+                    )
                     opentelemetry.trace.set_tracer_provider(tracer_provider)
                 # Avoids AttributeError:
                 # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
                 # attribute 'add_span_processor'.
                 if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
-                    tracer_provider = opentelemetry_sdk_trace.TracerProvider()
+                    tracer_provider = opentelemetry_sdk_trace.TracerProvider(
+                        resource=resource,
+                    )
                     opentelemetry.trace.set_tracer_provider(tracer_provider)
                 # Avoids OpenTelemetry client already exists error.
                 _override_active_span_processor(
