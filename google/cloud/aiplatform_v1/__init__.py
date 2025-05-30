@@ -859,6 +859,7 @@ from .types.schedule_service import UpdateScheduleRequest
 from .types.service_networking import PrivateServiceConnectConfig
 from .types.service_networking import PscAutomatedEndpoints
 from .types.service_networking import PSCAutomationConfig
+from .types.service_networking import PscInterfaceConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -1711,6 +1712,7 @@ __all__ = (
     "PrivateServiceConnectConfig",
     "Probe",
     "PscAutomatedEndpoints",
+    "PscInterfaceConfig",
     "PublisherModel",
     "PublisherModelView",
     "PurgeArtifactsMetadata",

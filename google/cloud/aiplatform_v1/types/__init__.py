@@ -954,6 +954,7 @@ from .service_networking import (
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
     PSCAutomationConfig,
+    PscInterfaceConfig,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1915,6 +1916,7 @@ __all__ = (
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
+    "PscInterfaceConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
