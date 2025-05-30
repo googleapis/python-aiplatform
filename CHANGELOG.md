@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.95.1](https://github.com/googleapis/python-aiplatform/compare/v1.95.0...v1.95.1) (2025-05-30)
+
+
+### Features
+
+* Add support to process RAG response and generate inline citations in RAG v1. ([2b2dc4f](https://github.com/googleapis/python-aiplatform/commit/2b2dc4fbc5d52b16159868b112affafa8ac716ae))
+* Register async methods to AdkApp. ([cb2754d](https://github.com/googleapis/python-aiplatform/commit/cb2754de4707228bf7df7f7be078c61b77abd314))
+
+
+### Bug Fixes
+
+* Fix CachedContent.create if the kms_key_name is not given ([05986c0](https://github.com/googleapis/python-aiplatform/commit/05986c068b1719de22ee32536ec592ea04ee012b))
+
+
+### Miscellaneous Chores
+
+* Release 1.95.1 ([1d2387f](https://github.com/googleapis/python-aiplatform/commit/1d2387f1e418efa8db7c1e14f37d36647662b3d2))
+
 ## [1.95.0](https://github.com/googleapis/python-aiplatform/compare/v1.94.0...v1.95.0) (2025-05-28)
 
 
