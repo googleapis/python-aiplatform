@@ -105,7 +105,9 @@ def _prepare_create_request(
             expire_time=expire_time,
             ttl=ttl,
             display_name=display_name,
-            encryption_spec=EncryptionSpec(kms_key_name=kms_key_name),
+            encryption_spec=EncryptionSpec(kms_key_name=kms_key_name)
+            if kms_key_name
+            else None,
         ),
     )
     serialized_message_v1beta1 = type(request_v1beta1).serialize(request_v1beta1)
