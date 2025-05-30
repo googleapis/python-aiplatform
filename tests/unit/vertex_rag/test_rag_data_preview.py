@@ -312,6 +312,34 @@ def create_rag_corpus_mock_vertex_ai_datastore_search_config():
         )
         yield create_rag_corpus_mock_vertex_ai_datastore_search_config
 
+@pytest.fixture
+def create_rag_corpus_mock_memory_corpus():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_memory_corpus:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_MEMORY_CORPUS
+        )
+        create_rag_corpus_mock_memory_corpus.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_memory_corpus
+
+@pytest.fixture
+def create_rag_corpus_mock_document_corpus():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_document_corpus:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_DOCUMENT_CORPUS
+        )
+        create_rag_corpus_mock_document_corpus.return_value = create_rag_corpus_lro_mock
+        yield create_rag_corpus_mock_document_corpus
+
 
 @pytest.fixture
 def update_rag_corpus_mock_vertex_ai_engine_search_config():
@@ -917,6 +945,24 @@ class TestRagDataManagement:
                 display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME
             )
         e.match("Failed in RagCorpus creation due to")
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_memory_corpus")
+    def test_create_memory_corpus_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            corpus_type_config=test_rag_constants_preview.TEST_RAG_MEMORY_CORPUS,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_GAPIC_RAG_MEMORY_CORPUS)
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_document_corpus")
+    def test_create_document_corpus_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            corpus_type_config=test_rag_constants_preview.TEST_RAG_DOCUMENT_CORPUS,
+        )
+
+        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_GAPIC_RAG_DOCUMENT_CORPUS)
 
     @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
     def test_update_corpus_weaviate_success(self):
