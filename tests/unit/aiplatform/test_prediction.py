@@ -1821,6 +1821,7 @@ class TestLocalModel:
             host_port=host_port,
             container_ready_timeout=container_ready_timeout,
             container_ready_check_interval=container_ready_check_interval,
+            container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
         ):
             pass
 
@@ -1831,7 +1832,7 @@ class TestLocalModel:
             serving_container_health_route="",
             serving_container_command=[],
             serving_container_args=[],
-            serving_container_environment_variables={},
+            serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             serving_container_ports=[],
             credential_path=credential_path,
             host_port=host_port,
@@ -2052,9 +2053,7 @@ class TestLocalModel:
             """
             Docker failed with error code {return_code}.
             Command: {command}
-            """.format(
-                return_code=return_code, command=" ".join(expected_command)
-            )
+            """.format(return_code=return_code, command=" ".join(expected_command))
         )
 
         with pytest.raises(errors.DockerError) as exception:
