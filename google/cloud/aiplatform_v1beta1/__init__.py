@@ -1156,6 +1156,7 @@ from .types.tool import RetrievalConfig
 from .types.tool import Tool
 from .types.tool import ToolConfig
 from .types.tool import ToolUseExample
+from .types.tool import UrlContext
 from .types.tool import VertexAISearch
 from .types.tool import VertexRagStore
 from .types.training_pipeline import FilterSplit
@@ -2446,6 +2447,7 @@ __all__ = (
     "UpsertDatapointsResponse",
     "UpsertExamplesRequest",
     "UpsertExamplesResponse",
+    "UrlContext",
     "UserActionReference",
     "Value",
     "VertexAISearch",

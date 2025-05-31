@@ -28,6 +28,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "Tool",
+        "UrlContext",
         "ToolUseExample",
         "FunctionDeclaration",
         "FunctionCall",
@@ -92,6 +93,9 @@ class Tool(proto.Message):
             Optional. CodeExecution tool type.
             Enables the model to execute code as part of
             generation.
+        url_context (google.cloud.aiplatform_v1beta1.types.UrlContext):
+            Optional. Tool to support URL context
+            retrieval.
     """
 
     class GoogleSearch(proto.Message):
@@ -139,6 +143,15 @@ class Tool(proto.Message):
         number=4,
         message=CodeExecution,
     )
+    url_context: "UrlContext" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="UrlContext",
+    )
+
+
+class UrlContext(proto.Message):
+    r"""Tool to support URL context."""
 
 
 class ToolUseExample(proto.Message):

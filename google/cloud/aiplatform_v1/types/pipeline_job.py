@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_s
 from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1.types import pipeline_state
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import value as gca_value
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -131,6 +132,9 @@ class PipelineJob(proto.Message):
             to any ip ranges under the provided VPC network.
 
             Example: ['vertex-ai-ip-range'].
+        psc_interface_config (google.cloud.aiplatform_v1.types.PscInterfaceConfig):
+            Optional. Configuration for PSC-I for
+            PipelineJob.
         template_uri (str):
             A template uri from where the
             [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1.PipelineJob.pipeline_spec],
@@ -325,6 +329,11 @@ class PipelineJob(proto.Message):
     reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=25,
+    )
+    psc_interface_config: service_networking.PscInterfaceConfig = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=service_networking.PscInterfaceConfig,
     )
     template_uri: str = proto.Field(
         proto.STRING,

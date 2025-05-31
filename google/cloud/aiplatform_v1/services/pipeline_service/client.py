@@ -71,6 +71,7 @@ from google.cloud.aiplatform_v1.types import pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import pipeline_state
+from google.cloud.aiplatform_v1.types import service_networking
 from google.cloud.aiplatform_v1.types import training_pipeline
 from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
 from google.cloud.location import locations_pb2  # type: ignore
@@ -385,6 +386,28 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         """Parses a network path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def network_attachment_path(
+        project: str,
+        region: str,
+        networkattachment: str,
+    ) -> str:
+        """Returns a fully-qualified network_attachment string."""
+        return "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
+            project=project,
+            region=region,
+            networkattachment=networkattachment,
+        )
+
+    @staticmethod
+    def parse_network_attachment_path(path: str) -> Dict[str, str]:
+        """Parses a network_attachment path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/regions/(?P<region>.+?)/networkAttachments/(?P<networkattachment>.+?)$",
+            path,
         )
         return m.groupdict() if m else {}
 

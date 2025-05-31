@@ -954,6 +954,7 @@ from .service_networking import (
     PrivateServiceConnectConfig,
     PscAutomatedEndpoints,
     PSCAutomationConfig,
+    PscInterfaceConfig,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -1059,6 +1060,7 @@ from .tool import (
     RetrievalConfig,
     Tool,
     ToolConfig,
+    UrlContext,
     VertexAISearch,
     VertexRagStore,
 )
@@ -1914,6 +1916,7 @@ __all__ = (
     "PrivateServiceConnectConfig",
     "PscAutomatedEndpoints",
     "PSCAutomationConfig",
+    "PscInterfaceConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -1999,6 +2002,7 @@ __all__ = (
     "RetrievalConfig",
     "Tool",
     "ToolConfig",
+    "UrlContext",
     "VertexAISearch",
     "VertexRagStore",
     "FilterSplit",

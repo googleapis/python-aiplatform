@@ -153,6 +153,10 @@ class JobServiceAsyncClient:
     )
     network_path = staticmethod(JobServiceClient.network_path)
     parse_network_path = staticmethod(JobServiceClient.parse_network_path)
+    network_attachment_path = staticmethod(JobServiceClient.network_attachment_path)
+    parse_network_attachment_path = staticmethod(
+        JobServiceClient.parse_network_attachment_path
+    )
     notification_channel_path = staticmethod(JobServiceClient.notification_channel_path)
     parse_notification_channel_path = staticmethod(
         JobServiceClient.parse_notification_channel_path
