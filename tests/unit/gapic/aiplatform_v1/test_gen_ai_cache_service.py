@@ -4672,7 +4672,9 @@ def test_create_cached_content_rest_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
@@ -5163,7 +5165,9 @@ def test_update_cached_content_rest_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
@@ -6516,7 +6520,9 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
@@ -7039,7 +7045,9 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
