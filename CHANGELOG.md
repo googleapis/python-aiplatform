@@ -1,5 +1,52 @@
 # Changelog
 
+## [1.95.1](https://github.com/googleapis/python-aiplatform/compare/v1.95.0...v1.95.1) (2025-05-30)
+
+
+### Features
+
+* Add support to process RAG response and generate inline citations in RAG v1. ([2b2dc4f](https://github.com/googleapis/python-aiplatform/commit/2b2dc4fbc5d52b16159868b112affafa8ac716ae))
+* Register async methods to AdkApp. ([cb2754d](https://github.com/googleapis/python-aiplatform/commit/cb2754de4707228bf7df7f7be078c61b77abd314))
+
+
+### Bug Fixes
+
+* Fix CachedContent.create if the kms_key_name is not given ([05986c0](https://github.com/googleapis/python-aiplatform/commit/05986c068b1719de22ee32536ec592ea04ee012b))
+
+
+### Miscellaneous Chores
+
+* Release 1.95.1 ([1d2387f](https://github.com/googleapis/python-aiplatform/commit/1d2387f1e418efa8db7c1e14f37d36647662b3d2))
+
+## [1.95.0](https://github.com/googleapis/python-aiplatform/compare/v1.94.0...v1.95.0) (2025-05-28)
+
+
+### Features
+
+* [vertexai] Fix the result of export function ([9427b15](https://github.com/googleapis/python-aiplatform/commit/9427b158dd9d3d8a6ec56024484855947d4a0eac))
+* Add async support for reasoning engine. ([1b7d29c](https://github.com/googleapis/python-aiplatform/commit/1b7d29cb8727a8ce49f849705451aba64c4f88dd))
+* Introduce RAG as context/memory store for Gemini Live API ([787c60f](https://github.com/googleapis/python-aiplatform/commit/787c60fc1f79f80c693df1300f8a33cc17a08ee1))
+* Update AdkApp template to match ADK async interface. After this change, AdkApp will only work with ADK &gt;= 1.0.0. ([e1745d7](https://github.com/googleapis/python-aiplatform/commit/e1745d7767780613de2211ef0fb302105eff9cef))
+
+## [1.94.0](https://github.com/googleapis/python-aiplatform/compare/v1.93.1...v1.94.0) (2025-05-22)
+
+
+### Features
+
+* Add checkpoint ID to endpoint proto ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add checkpoint ID to endpoint proto ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add encryption_spec to Model Monitoring public preview API ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add VertexAISearch.max_results, filter, data_store_specs options ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Add VertexAISearch.max_results, filter, data_store_specs options ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Adding thoughts_token_count to prediction service ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Adding thoughts_token_count to v1beta1 client library ([f0812e3](https://github.com/googleapis/python-aiplatform/commit/f0812e3983df66ca4b53add8f8a8e9a4a9a7699a))
+* Update preview `create_corpus` to accept `encryption_spec` in `rag_data.py` ([ad821c5](https://github.com/googleapis/python-aiplatform/commit/ad821c58f834981adb9759013248e7156f3706b9))
+
+
+### Bug Fixes
+
+* Throw error when user is using google-adk&gt;=1.0.0 as it is not well supported for now. ([634bb78](https://github.com/googleapis/python-aiplatform/commit/634bb78c32168fac7ac084a1fcbdede8e45bdae8))
+
 ## [1.93.1](https://github.com/googleapis/python-aiplatform/compare/v1.93.0...v1.93.1) (2025-05-20)
 
 

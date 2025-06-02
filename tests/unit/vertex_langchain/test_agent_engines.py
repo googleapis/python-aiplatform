@@ -63,6 +63,20 @@ class CapitalizeEngine:
         return self
 
 
+class AsyncQueryEngine:
+    """A sample Agent Engine that implements `async_query`."""
+
+    def set_up(self):
+        pass
+
+    async def async_query(self, unused_arbitrary_string_name: str):
+        """Runs the query asynchronously."""
+        return unused_arbitrary_string_name.upper()
+
+    def clone(self):
+        return self
+
+
 class AsyncStreamQueryEngine:
     """A sample Agent Engine that implements `async_stream_query`."""
 
@@ -104,8 +118,16 @@ class OperationRegistrableEngine:
         """Runs the engine."""
         return unused_arbitrary_string_name.upper()
 
+    async def async_query(self, unused_arbitrary_string_name: str) -> str:
+        """Runs the query asynchronously."""
+        return unused_arbitrary_string_name.upper()
+
     # Add a custom method to test the custom method registration.
     def custom_method(self, x: str) -> str:
+        return x.upper()
+
+    # Add a custom async method to test the custom async method registration.
+    async def custom_async_method(self, x: str):
         return x.upper()
 
     def stream_query(self, unused_arbitrary_string_name: str) -> Iterable[Any]:
@@ -146,6 +168,10 @@ class OperationRegistrableEngine:
                 _TEST_DEFAULT_METHOD_NAME,
                 _TEST_CUSTOM_METHOD_NAME,
             ],
+            _TEST_ASYNC_API_MODE: [
+                _TEST_DEFAULT_ASYNC_METHOD_NAME,
+                _TEST_CUSTOM_ASYNC_METHOD_NAME,
+            ],
             _TEST_STREAM_API_MODE: [
                 _TEST_DEFAULT_STREAM_METHOD_NAME,
                 _TEST_CUSTOM_STREAM_METHOD_NAME,
@@ -164,12 +190,20 @@ class SameRegisteredOperationsEngine:
         """Runs the engine."""
         return unused_arbitrary_string_name.upper()
 
+    async def async_query(self, unused_arbitrary_string_name: str) -> str:
+        """Runs the query asynchronously."""
+        return unused_arbitrary_string_name.upper()
+
     # Add a custom method to test the custom method registration
     def custom_method(self, x: str) -> str:
         return x.upper()
 
-    # Add a custom method that is not registered.ration
+    # Add a custom method that is not registered.
     def custom_method_2(self, x: str) -> str:
+        return x.upper()
+
+    # Add a custom async method to test the custom async method registration.
+    async def custom_async_method(self, x: str):
         return x.upper()
 
     def stream_query(self, unused_arbitrary_string_name: str) -> Iterable[Any]:
@@ -203,6 +237,10 @@ class SameRegisteredOperationsEngine:
             _TEST_STANDARD_API_MODE: [
                 _TEST_DEFAULT_METHOD_NAME,
                 _TEST_CUSTOM_METHOD_NAME,
+            ],
+            _TEST_ASYNC_API_MODE: [
+                _TEST_DEFAULT_ASYNC_METHOD_NAME,
+                _TEST_CUSTOM_ASYNC_METHOD_NAME,
             ],
             _TEST_STREAM_API_MODE: [
                 _TEST_DEFAULT_STREAM_METHOD_NAME,
@@ -291,9 +329,11 @@ _TEST_BLOB_FILENAME = _agent_engines._BLOB_FILENAME
 _TEST_REQUIREMENTS_FILE = _agent_engines._REQUIREMENTS_FILE
 _TEST_EXTRA_PACKAGES_FILE = _agent_engines._EXTRA_PACKAGES_FILE
 _TEST_STANDARD_API_MODE = _agent_engines._STANDARD_API_MODE
+_TEST_ASYNC_API_MODE = _agent_engines._ASYNC_API_MODE
 _TEST_STREAM_API_MODE = _agent_engines._STREAM_API_MODE
 _TEST_ASYNC_STREAM_API_MODE = _agent_engines._ASYNC_STREAM_API_MODE
 _TEST_DEFAULT_METHOD_NAME = _agent_engines._DEFAULT_METHOD_NAME
+_TEST_DEFAULT_ASYNC_METHOD_NAME = _agent_engines._DEFAULT_ASYNC_METHOD_NAME
 _TEST_DEFAULT_STREAM_METHOD_NAME = _agent_engines._DEFAULT_STREAM_METHOD_NAME
 _TEST_DEFAULT_ASYNC_STREAM_METHOD_NAME = (
     _agent_engines._DEFAULT_ASYNC_STREAM_METHOD_NAME
@@ -304,6 +344,7 @@ _TEST_ASYNC_STREAM_METHOD_DOCSTRING = "Runs the async stream engine."
 _TEST_MODE_KEY_IN_SCHEMA = _agent_engines._MODE_KEY_IN_SCHEMA
 _TEST_METHOD_NAME_KEY_IN_SCHEMA = _agent_engines._METHOD_NAME_KEY_IN_SCHEMA
 _TEST_CUSTOM_METHOD_NAME = "custom_method"
+_TEST_CUSTOM_ASYNC_METHOD_NAME = "custom_async_method"
 _TEST_CUSTOM_STREAM_METHOD_NAME = "custom_stream_method"
 _TEST_CUSTOM_ASYNC_STREAM_METHOD_NAME = "custom_async_stream_method"
 _TEST_CUSTOM_METHOD_DEFAULT_DOCSTRING = """
@@ -319,6 +360,20 @@ _TEST_CUSTOM_METHOD_DEFAULT_DOCSTRING = """
 
     Returns:
         dict[str, Any]: The response from serving the user request.
+"""
+_TEST_CUSTOM_ASYNC_METHOD_DEFAULT_DOCSTRING = """
+    Runs the Agent Engine to serve the user request.
+
+    This will be based on the `.custom_async_method(...)` of the python object that
+    was passed in when creating the Agent Engine. The method will invoke the
+    `async_query` API client of the python object.
+
+    Args:
+        **kwargs:
+            Optional. The arguments of the `.custom_async_method(...)` method.
+
+    Returns:
+        Coroutine[Any]: The response from serving the user request.
 """
 _TEST_CUSTOM_STREAM_METHOD_DEFAULT_DOCSTRING = """
     Runs the Agent Engine to serve the user request.
@@ -429,6 +484,13 @@ _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE = [
 ]
 _TEST_AGENT_ENGINE_OPERATION_SCHEMAS = []
 _TEST_AGENT_ENGINE_EXTRA_PACKAGE = "fake.py"
+_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA = _utils.to_proto(
+    _utils.generate_schema(
+        AsyncQueryEngine().async_query,
+        schema_name=_TEST_DEFAULT_ASYNC_METHOD_NAME,
+    )
+)
+_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_ASYNC_API_MODE
 _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _utils.to_proto(
     _utils.generate_schema(
         OperationRegistrableEngine().custom_method,
@@ -438,6 +500,15 @@ _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA = _utils.to_proto(
 _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
 ] = _TEST_STANDARD_API_MODE
+_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA = _utils.to_proto(
+    _utils.generate_schema(
+        OperationRegistrableEngine().custom_async_method,
+        schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
+    )
+)
+_TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA[
+    _TEST_MODE_KEY_IN_SCHEMA
+] = _TEST_ASYNC_API_MODE
 _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA = _utils.to_proto(
     _utils.generate_schema(
         StreamQueryEngine().stream_query,
@@ -475,6 +546,8 @@ _TEST_AGENT_ENGINE_CUSTOM_ASYNC_STREAM_QUERY_SCHEMA[
 _TEST_OPERATION_REGISTRABLE_SCHEMAS = [
     _TEST_AGENT_ENGINE_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_METHOD_SCHEMA,
+    _TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA,
+    _TEST_AGENT_ENGINE_ASYNC_CUSTOM_METHOD_SCHEMA,
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_CUSTOM_STREAM_QUERY_SCHEMA,
     _TEST_AGENT_ENGINE_ASYNC_STREAM_QUERY_SCHEMA,
@@ -499,6 +572,7 @@ _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA = _utils.to_proto(
 _TEST_METHOD_TO_BE_UNREGISTERED_SCHEMA[
     _TEST_MODE_KEY_IN_SCHEMA
 ] = _TEST_STANDARD_API_MODE
+_TEST_ASYNC_QUERY_SCHEMAS = [_TEST_AGENT_ENGINE_ASYNC_METHOD_SCHEMA]
 _TEST_STREAM_QUERY_SCHEMAS = [
     _TEST_AGENT_ENGINE_STREAM_QUERY_SCHEMA,
 ]
@@ -754,6 +828,17 @@ class InvalidCapitalizeEngineWithoutQuerySelf:
         pass
 
     def query() -> str:
+        """Runs the engine."""
+        return "RESPONSE"
+
+
+class InvalidCapitalizeEngineWithoutAsyncQuerySelf:
+    """A sample Agent Engine with an invalid async_query method."""
+
+    def set_up(self):
+        pass
+
+    async def async_query() -> str:
         """Runs the engine."""
         return "RESPONSE"
 
@@ -1162,6 +1247,23 @@ class TestAgentEngine:
                 ),
             ),
             (
+                "Update the async query engine",
+                {"agent_engine": AsyncQueryEngine()},
+                types.reasoning_engine_service.UpdateReasoningEngineRequest(
+                    reasoning_engine=_generate_agent_engine_with_class_methods_and_agent_framework(
+                        _TEST_ASYNC_QUERY_SCHEMAS,
+                        _agent_engines._DEFAULT_AGENT_FRAMEWORK,
+                    ),
+                    update_mask=field_mask_pb2.FieldMask(
+                        paths=[
+                            "spec.package_spec.pickle_object_gcs_uri",
+                            "spec.class_methods",
+                            "spec.agent_framework",
+                        ]
+                    ),
+                ),
+            ),
+            (
                 "Update the stream query engine",
                 {"agent_engine": StreamQueryEngine()},
                 types.reasoning_engine_service.UpdateReasoningEngineRequest(
@@ -1533,6 +1635,20 @@ class TestAgentEngine:
                             schema_name=_TEST_CUSTOM_METHOD_NAME,
                         ),
                         _TEST_STANDARD_API_MODE,
+                    ),
+                    (
+                        _utils.generate_schema(
+                            OperationRegistrableEngine().async_query,
+                            schema_name=_TEST_DEFAULT_ASYNC_METHOD_NAME,
+                        ),
+                        _TEST_ASYNC_API_MODE,
+                    ),
+                    (
+                        _utils.generate_schema(
+                            OperationRegistrableEngine().custom_async_method,
+                            schema_name=_TEST_CUSTOM_ASYNC_METHOD_NAME,
+                        ),
+                        _TEST_ASYNC_API_MODE,
                     ),
                     (
                         _utils.generate_schema(
@@ -2320,8 +2436,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `stream_query`, `async_stream_query` or "
-                "`register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query` "
+                "or `register_operations`."
             ),
         ):
             agent_engines.create(
@@ -2344,8 +2460,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `stream_query`, `async_stream_query` or "
-                "`register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query` "
+                "or `register_operations`."
             ),
         ):
             agent_engines.create(
@@ -2402,6 +2518,23 @@ class TestAgentEngineErrors:
         with pytest.raises(ValueError, match="Invalid query signature"):
             agent_engines.create(
                 InvalidCapitalizeEngineWithoutQuerySelf(),
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            )
+
+    def test_create_agent_engine_with_invalid_async_query_method(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+    ):
+        with pytest.raises(ValueError, match="Invalid async_query signature"):
+            agent_engines.create(
+                InvalidCapitalizeEngineWithoutAsyncQuerySelf(),
                 display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
                 requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
             )
@@ -2574,8 +2707,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `stream_query`, `async_stream_query` or "
-                "`register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query` "
+                "or `register_operations`."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -2597,8 +2730,8 @@ class TestAgentEngineErrors:
             TypeError,
             match=(
                 "agent_engine has none of the following callable methods: "
-                "`query`, `stream_query`, `async_stream_query` or "
-                "`register_operations`."
+                "`query`, `async_query`, `stream_query`, `async_stream_query` "
+                "or `register_operations`."
             ),
         ):
             test_agent_engine = _generate_agent_engine_to_update()
@@ -2737,7 +2870,7 @@ class TestAgentEngineErrors:
                     "register the API methods: "
                     "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#custom-methods. "
                     "Error: {Unsupported api mode: `UNKNOWN_API_MODE`, "
-                    "Supported modes are: ``, `stream` and `async_stream`.}"
+                    "Supported modes are: ``, `async`, `stream` and `async_stream`.}"
                 ),
             ),
         ],

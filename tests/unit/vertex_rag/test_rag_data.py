@@ -783,6 +783,16 @@ class TestRagDataManagement:
             rag.delete_file(test_rag_constants.TEST_RAG_FILE_RESOURCE_NAME)
         e.match("Failed in RagFile deletion due to")
 
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    def test_inline_citations_and_references_success(self):
+        response = rag.add_inline_citations_and_references(
+            original_text_str=test_rag_constants.TEST_ORIGINAL_TEXT,
+            grounding_supports=test_rag_constants.TEST_GROUNDING_SUPPORTS,
+            grounding_chunks=test_rag_constants.TEST_GROUNDING_CHUNKS,
+        )
+        assert response.cited_text == test_rag_constants.TEST_CITED_TEXT
+        assert response.final_bibliography == test_rag_constants.TEST_FINAL_BIBLIOGRAPHY
+
     def test_prepare_import_files_request_list_gcs_uris(self):
         paths = [test_rag_constants.TEST_GCS_PATH]
         request = prepare_import_files_request(

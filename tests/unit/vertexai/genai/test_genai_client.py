@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +14,14 @@
 #
 
 # pylint: disable=protected-access,bad-continuation
-import pytest
+
 import importlib
-from unittest import mock
+
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer as aiplatform_initializer
-
 from vertexai import _genai
+import pytest
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -53,22 +51,3 @@ class TestGenAiClient:
         assert test_client._api_client.vertexai
         assert test_client._api_client.project == _TEST_PROJECT
         assert test_client._api_client.location == _TEST_LOCATION
-
-    @pytest.mark.usefixtures("google_auth_mock")
-    def test_evaluate_instances(self):
-        test_client = _genai.client.Client(
-            project=_TEST_PROJECT, location=_TEST_LOCATION
-        )
-        with mock.patch.object(
-            test_client.evals, "_evaluate_instances"
-        ) as mock_evaluate:
-            test_client.evals._evaluate_instances(bleu_input=_genai.types.BleuInput())
-            mock_evaluate.assert_called_once_with(bleu_input=_genai.types.BleuInput())
-
-    @pytest.mark.usefixtures("google_auth_mock")
-    def test_eval_run(self):
-        test_client = _genai.client.Client(
-            project=_TEST_PROJECT, location=_TEST_LOCATION
-        )
-        with pytest.raises(NotImplementedError):
-            test_client.evals.run()

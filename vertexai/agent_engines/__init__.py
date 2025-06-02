@@ -29,6 +29,7 @@ from vertexai.agent_engines._agent_engines import (
     ModuleAgent,
     OperationRegistrable,
     Queryable,
+    AsyncQueryable,
     StreamQueryable,
     AsyncStreamQueryable,
 )
@@ -313,6 +314,7 @@ __all__ = (
     "Cloneable",
     "OperationRegistrable",
     "Queryable",
+    "AsyncQueryable",
     "StreamQueryable",
     "AsyncStreamQueryable",
     # Methods

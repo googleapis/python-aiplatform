@@ -179,6 +179,9 @@ from google.cloud.aiplatform_v1.services.reasoning_engine_service import (
 from google.cloud.aiplatform_v1.services.reasoning_engine_execution_service import (
     client as reasoning_engine_execution_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.reasoning_engine_execution_service import (
+    async_client as reasoning_engine_execution_async_client_v1,
+)
 from google.cloud.aiplatform_v1.services.schedule_service import (
     client as schedule_service_client_v1,
 )
