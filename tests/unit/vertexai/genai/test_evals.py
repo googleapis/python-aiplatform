@@ -25,8 +25,10 @@ from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai import _genai
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import types as genai_types
+import google.genai.errors as genai_errors
 import pandas as pd
 import pytest
+import warnings
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -52,11 +54,18 @@ class TestEvals:
         test_client = _genai.client.Client(
             project=_TEST_PROJECT, location=_TEST_LOCATION
         )
-        with mock.patch.object(
-            test_client.evals, "_evaluate_instances"
-        ) as mock_evaluate:
-            test_client.evals._evaluate_instances(bleu_input=_genai.types.BleuInput())
-            mock_evaluate.assert_called_once_with(bleu_input=_genai.types.BleuInput())
+        with warnings.catch_warnings(record=True) as captured_warnings:
+            warnings.simplefilter("always")
+            with mock.patch.object(
+                test_client.evals, "_evaluate_instances"
+            ) as mock_evaluate:
+                test_client.evals._evaluate_instances(
+                    bleu_input=_genai.types.BleuInput()
+                )
+                mock_evaluate.assert_called_once_with(
+                    bleu_input=_genai.types.BleuInput()
+                )
+                assert captured_warnings[0].category == genai_errors.ExperimentalWarning
 
     @pytest.mark.usefixtures("google_auth_mock")
     def test_eval_run(self):

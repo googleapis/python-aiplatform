@@ -16,10 +16,12 @@
 from typing import Optional, Union
 
 import google.auth
+from google.genai import _common
 from google.genai import client
 from google.genai import types
-from .evals import Evals
+
 from .evals import AsyncEvals
+from .evals import Evals
 
 
 class AsyncClient:
@@ -31,6 +33,10 @@ class AsyncClient:
         self._evals = AsyncEvals(self._api_client)
 
     @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals module is experimental, and may change in future "
+        "versions."
+    )
     def evals(self) -> AsyncEvals:
         return self._evals
 
@@ -88,5 +94,9 @@ class Client:
         self._evals = Evals(self._api_client)
 
     @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals module is experimental, and may change in future "
+        "versions."
+    )
     def evals(self) -> Evals:
         return self._evals
