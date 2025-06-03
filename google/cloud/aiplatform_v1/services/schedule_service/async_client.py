@@ -100,6 +100,12 @@ class ScheduleServiceAsyncClient:
     parse_execution_path = staticmethod(ScheduleServiceClient.parse_execution_path)
     network_path = staticmethod(ScheduleServiceClient.network_path)
     parse_network_path = staticmethod(ScheduleServiceClient.parse_network_path)
+    network_attachment_path = staticmethod(
+        ScheduleServiceClient.network_attachment_path
+    )
+    parse_network_attachment_path = staticmethod(
+        ScheduleServiceClient.parse_network_attachment_path
+    )
     notebook_execution_job_path = staticmethod(
         ScheduleServiceClient.notebook_execution_job_path
     )
