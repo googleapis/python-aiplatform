@@ -3411,13 +3411,14 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_endpoint_mock")
     async def test_explain_async_with_explaination_spec_override(
         self, predict_async_client_v1beta1_explain_mock
     ):
         test_endpoint = aiplatform.Endpoint(_TEST_ID).preview
 
-        await test_endpoint.explain(
+        await test_endpoint.explain_async(
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
@@ -3429,13 +3430,14 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_endpoint_mock")
     async def test_explain_async_with_concurrent_explaination_spec_override(
         self, predict_async_client_v1beta1_explain_mock
     ):
         test_endpoint = aiplatform.Endpoint(_TEST_ID).preview
 
-        await test_endpoint.explain(
+        await test_endpoint.explain_async(
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
