@@ -313,6 +313,88 @@ result = EvalTask(
 )
 ```
 
+#### Agent Engine
+
+Before you begin, install the packages with
+
+```shell
+pip3 install --upgrade --user "google-cloud-aiplatform[agent_engines,adk]>=1.95.1"
+```
+
+First, define a function that looks up the exchange rate:
+
+```python
+def get_exchange_rate(
+    currency_from: str = "USD",
+    currency_to: str = "EUR",
+    currency_date: str = "latest",
+):
+    """Retrieves the exchange rate between two currencies on a specified date.
+
+    Uses the Frankfurter API (https://api.frankfurter.app/) to obtain
+    exchange rate data.
+
+    Returns:
+        dict: A dictionary containing the exchange rate information.
+            Example: {"amount": 1.0, "base": "USD", "date": "2023-11-24",
+                "rates": {"EUR": 0.95534}}
+    """
+    import requests
+    response = requests.get(
+        f"https://api.frankfurter.app/{currency_date}",
+        params={"from": currency_from, "to": currency_to},
+    )
+    return response.json()
+```
+
+Next, define an ADK Agent:
+
+```python
+from google.adk.agents import Agent
+from vertexai.preview.reasoning_engines import AdkApp
+
+app = AdkApp(agent=Agent(
+    model="gemini-2.0-flash",        # Required.
+    name='currency_exchange_agent',  # Required.
+    tools=[get_exchange_rate],       # Optional.
+))
+```
+
+Test the agent locally using US dollars and Swedish Krona:
+
+```python
+for event in app.stream_query(
+    user_id="user-id",
+    message="What is the exchange rate from US dollars to SEK today?",
+):
+    print(event)
+```
+
+To deploy the agent to Agent Engine:
+
+```python
+vertexai.init(
+    project='my-project',
+    location='us-central1',
+    staging_bucket="gs://my-staging-bucket",
+)
+
+remote_app = vertexai.agent_engines.create(
+    app,
+    requirements=["google-cloud-aiplatform[agent_engines,adk]"],
+)
+```
+
+You can also run queries against the deployed agent:
+
+```python
+for event in remote_app.stream_query(
+    user_id="user-id",
+    message="What is the exchange rate from US dollars to SEK today?",
+):
+    print(event)
+```
+
 ## Documentation
 
 You can find complete documentation for the Vertex AI SDKs and the Gemini model in the Google Cloud [documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
