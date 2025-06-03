@@ -1293,6 +1293,7 @@ from .tool import (
     Tool,
     ToolConfig,
     ToolUseExample,
+    UrlContext,
     VertexAISearch,
     VertexRagStore,
 )
@@ -2450,6 +2451,7 @@ __all__ = (
     "Tool",
     "ToolConfig",
     "ToolUseExample",
+    "UrlContext",
     "VertexAISearch",
     "VertexRagStore",
     "FilterSplit",
