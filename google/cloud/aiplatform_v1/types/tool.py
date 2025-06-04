@@ -28,6 +28,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
         "Tool",
+        "UrlContext",
         "FunctionDeclaration",
         "FunctionCall",
         "FunctionResponse",
@@ -91,6 +92,9 @@ class Tool(proto.Message):
             Optional. CodeExecution tool type.
             Enables the model to execute code as part of
             generation.
+        url_context (google.cloud.aiplatform_v1.types.UrlContext):
+            Optional. Tool to support URL context
+            retrieval.
     """
 
     class GoogleSearch(proto.Message):
@@ -138,6 +142,15 @@ class Tool(proto.Message):
         number=4,
         message=CodeExecution,
     )
+    url_context: "UrlContext" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message="UrlContext",
+    )
+
+
+class UrlContext(proto.Message):
+    r"""Tool to support URL context."""
 
 
 class FunctionDeclaration(proto.Message):
@@ -182,12 +195,37 @@ class FunctionDeclaration(proto.Message):
             required:
 
              - param1
+        parameters_json_schema (google.protobuf.struct_pb2.Value):
+            Optional. Describes the parameters to the function in JSON
+            Schema format. The schema must describe an object where the
+            properties are the parameters to the function. For example:
+
+            ::
+
+               {
+                 "type": "object",
+                 "properties": {
+                   "name": { "type": "string" },
+                   "age": { "type": "integer" }
+                 },
+                 "additionalProperties": false,
+                 "required": ["name", "age"],
+                 "propertyOrdering": ["name", "age"]
+               }
+
+            This field is mutually exclusive with ``parameters``.
         response (google.cloud.aiplatform_v1.types.Schema):
             Optional. Describes the output from this
             function in JSON Schema format. Reflects the
             Open API 3.03 Response Object. The Schema
             defines the type used for the response value of
             the function.
+        response_json_schema (google.protobuf.struct_pb2.Value):
+            Optional. Describes the output from this function in JSON
+            Schema format. The value specified by the schema is the
+            response value of the function.
+
+            This field is mutually exclusive with ``response``.
     """
 
     name: str = proto.Field(
@@ -203,10 +241,20 @@ class FunctionDeclaration(proto.Message):
         number=3,
         message=openapi.Schema,
     )
+    parameters_json_schema: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=struct_pb2.Value,
+    )
     response: openapi.Schema = proto.Field(
         proto.MESSAGE,
         number=4,
         message=openapi.Schema,
+    )
+    response_json_schema: struct_pb2.Value = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=struct_pb2.Value,
     )
 
 

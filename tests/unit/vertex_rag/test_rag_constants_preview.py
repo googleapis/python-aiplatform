@@ -42,6 +42,7 @@ from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag import (
     ANN,
     Basic,
+    DocumentCorpus,
     EmbeddingModelConfig,
     Enterprise,
     Filter,
@@ -52,8 +53,10 @@ from vertexai.preview.rag import (
     LayoutParserConfig,
     LlmParserConfig,
     LlmRanker,
+    MemoryCorpus,
     Pinecone,
     RagCorpus,
+    RagCorpusTypeConfig,
     RagEmbeddingModelConfig,
     RagEngineConfig,
     RagFile,
@@ -226,6 +229,7 @@ TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB_ANN = GapicRagCorpus(
         )
     ),
 )
+
 TEST_EMBEDDING_MODEL_CONFIG = EmbeddingModelConfig(
     publisher_model="publishers/google/models/textembedding-gecko",
 )
@@ -816,10 +820,67 @@ TEST_LAYOUT_PARSER_WITH_PROCESSOR_VERSION_PATH_CONFIG = LayoutParserConfig(
     max_parsing_requests_per_min=100,
 )
 
+TEST_GAPIC_LLM_PARSER = RagFileParsingConfig.LlmParser(
+    model_name="gemini-1.5-pro-002",
+    max_parsing_requests_per_min=500,
+    global_max_parsing_requests_per_min=1000,
+    custom_parsing_prompt="test-custom-parsing-prompt",
+)
+
 TEST_LLM_PARSER_CONFIG = LlmParserConfig(
     model_name="gemini-1.5-pro-002",
     max_parsing_requests_per_min=500,
+    global_max_parsing_requests_per_min=1000,
     custom_parsing_prompt="test-custom-parsing-prompt",
+)
+
+TEST_RAG_MEMORY_CORPUS_CONFIG = MemoryCorpus(
+    llm_parser=TEST_LLM_PARSER_CONFIG,
+)
+
+TEST_RAG_MEMORY_CORPUS = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    corpus_type_config=RagCorpusTypeConfig(
+        corpus_type_config=TEST_RAG_MEMORY_CORPUS_CONFIG
+    ),
+)
+
+TEST_GAPIC_RAG_MEMORY_CORPUS = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    corpus_type_config=GapicRagCorpus.CorpusTypeConfig(
+        memory_corpus=GapicRagCorpus.CorpusTypeConfig.MemoryCorpus(
+            llm_parser=RagFileParsingConfig.LlmParser(
+                model_name="gemini-1.5-pro-002",
+                max_parsing_requests_per_min=500,
+                global_max_parsing_requests_per_min=1000,
+                custom_parsing_prompt="test-custom-parsing-prompt",
+            )
+        )
+    ),
+)
+
+TEST_RAG_DOCUMENT_CORPUS_CONFIG = DocumentCorpus()
+
+TEST_RAG_DOCUMENT_CORPUS = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    corpus_type_config=RagCorpusTypeConfig(
+        corpus_type_config=TEST_RAG_DOCUMENT_CORPUS_CONFIG
+    ),
+)
+
+TEST_GAPIC_RAG_DOCUMENT_CORPUS = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    corpus_type_config=GapicRagCorpus.CorpusTypeConfig(
+        document_corpus=GapicRagCorpus.CorpusTypeConfig.DocumentCorpus()
+    ),
 )
 
 TEST_IMPORT_FILES_CONFIG_SHARE_POINT_SOURCE_NO_FOLDERS = ImportRagFilesConfig(
@@ -885,6 +946,7 @@ TEST_IMPORT_FILES_CONFIG_LLM_PARSER.rag_file_parsing_config = RagFileParsingConf
     llm_parser=RagFileParsingConfig.LlmParser(
         model_name="gemini-1.5-pro-002",
         max_parsing_requests_per_min=500,
+        global_max_parsing_requests_per_min=1000,
         custom_parsing_prompt="test-custom-parsing-prompt",
     )
 )

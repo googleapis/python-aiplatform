@@ -4622,6 +4622,8 @@ def test_create_cached_content_rest_call_success(request_type):
                     "function_response": {"name": "name_value", "response": {}},
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -4670,7 +4672,9 @@ def test_create_cached_content_rest_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
@@ -4716,6 +4720,7 @@ def test_create_cached_content_rest_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -5110,6 +5115,8 @@ def test_update_cached_content_rest_call_success(request_type):
                     "function_response": {"name": "name_value", "response": {}},
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -5158,7 +5165,9 @@ def test_update_cached_content_rest_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
@@ -5204,6 +5213,7 @@ def test_update_cached_content_rest_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -6460,6 +6470,8 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "function_response": {"name": "name_value", "response": {}},
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -6508,7 +6520,9 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
@@ -6554,6 +6568,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {
@@ -6980,6 +6995,8 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "function_response": {"name": "name_value", "response": {}},
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
+                    "thought": True,
+                    "thought_signature": b"thought_signature_blob",
                     "video_metadata": {"start_offset": {}, "end_offset": {}},
                 }
             ],
@@ -7028,7 +7045,9 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                             "ref": "ref_value",
                             "defs": {},
                         },
+                        "parameters_json_schema": {},
                         "response": {},
+                        "response_json_schema": {},
                     }
                 ],
                 "retrieval": {
@@ -7074,6 +7093,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                 },
                 "enterprise_web_search": {},
                 "code_execution": {},
+                "url_context": {},
             }
         ],
         "tool_config": {

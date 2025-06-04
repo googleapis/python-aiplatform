@@ -1103,7 +1103,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             A BigFrames dataframe.
         """
         bigframes = _try_import_bigframes()
-        return bigframes.pandas.read_gbq_table(self.bigquery_table().lstrip("bq://"))
+        return bigframes.pandas.read_gbq_table(self.bigquery_table.lstrip("bq://"))
 
     @classmethod
     @base.optional_sync()

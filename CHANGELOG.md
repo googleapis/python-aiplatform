@@ -1,5 +1,56 @@
 # Changelog
 
+## [1.96.0](https://github.com/googleapis/python-aiplatform/compare/v1.95.1...v1.96.0) (2025-06-03)
+
+
+### Features
+
+* A new field `include_thoughts` is added to message `.google.cloud.aiplatform.v1.GenerationConfig.ThinkingConfig` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* A new field `include_thoughts` is added to message `.google.cloud.aiplatform.v1.Part` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* A new field `thought_signature` is added to message `.google.cloud.aiplatform.v1.Part` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* A new field `thought` is added to message `.google.cloud.aiplatform.v1.Part` ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add json schema support to structured output and function declaration ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add json schema support to structured output and function declaration ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add network_attachment to PscInterfaceConfig ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add psc_interface_config to CustomJobSpec ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add psc_interface_config to PersistentResource ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Add psc_interface_config to PipelineJob ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Expose URL Context API to v1 ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+* Expose URL Context API to v1beta1 ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+
+
+### Bug Fixes
+
+* Small fix in `MultimodalDataset.toBigframes()`. ([ee12f05](https://github.com/googleapis/python-aiplatform/commit/ee12f055cb7cd42b99b0d72908243e94907f5470))
+
+
+### Documentation
+
+* Allow field `thought` to be set as input ([f2244aa](https://github.com/googleapis/python-aiplatform/commit/f2244aac08867e292a07ec7aa958f4f0c6eea09d))
+
+
+### Miscellaneous Chores
+
+* Release 1.96.0 ([97be629](https://github.com/googleapis/python-aiplatform/commit/97be629f2790b356340ed6b6ebfe78bff73afca5))
+
+## [1.95.1](https://github.com/googleapis/python-aiplatform/compare/v1.95.0...v1.95.1) (2025-05-30)
+
+
+### Features
+
+* Add support to process RAG response and generate inline citations in RAG v1. ([2b2dc4f](https://github.com/googleapis/python-aiplatform/commit/2b2dc4fbc5d52b16159868b112affafa8ac716ae))
+* Register async methods to AdkApp. ([cb2754d](https://github.com/googleapis/python-aiplatform/commit/cb2754de4707228bf7df7f7be078c61b77abd314))
+
+
+### Bug Fixes
+
+* Fix CachedContent.create if the kms_key_name is not given ([05986c0](https://github.com/googleapis/python-aiplatform/commit/05986c068b1719de22ee32536ec592ea04ee012b))
+
+
+### Miscellaneous Chores
+
+* Release 1.95.1 ([1d2387f](https://github.com/googleapis/python-aiplatform/commit/1d2387f1e418efa8db7c1e14f37d36647662b3d2))
+
 ## [1.95.0](https://github.com/googleapis/python-aiplatform/compare/v1.94.0...v1.95.0) (2025-05-28)
 
 

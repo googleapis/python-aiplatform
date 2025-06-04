@@ -75,6 +75,11 @@ Vertex AI SDK
     :show-inheritance:
     :inherited-members:
 
+.. automodule:: vertexai.agent_engines
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
 .. automodule:: vertexai.preview.reasoning_engines
     :members:
     :show-inheritance:

@@ -4117,6 +4117,7 @@ class TestLanguageModels:
             assert chat.message_history[1].author == chat.MODEL_AUTHOR
             assert chat.message_history[1].content == expected_candidate_0
 
+    @pytest.mark.asyncio
     async def test_code_chat_model_send_message_async(self):
         """Tests the send_message_async method for code chat model."""
         aiplatform.init(
