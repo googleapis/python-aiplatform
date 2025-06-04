@@ -52,6 +52,7 @@ from vertexai.preview.rag.utils.resources import (
     LlmParserConfig,
     Pinecone,
     RagCorpus,
+    RagCorpusTypeConfig,
     RagEngineConfig,
     RagFile,
     RagManagedDb,
@@ -69,6 +70,7 @@ from vertexai.preview.rag.utils.resources import (
 def create_corpus(
     display_name: Optional[str] = None,
     description: Optional[str] = None,
+    corpus_type_config: Optional[RagCorpusTypeConfig] = None,
     embedding_model_config: Optional[EmbeddingModelConfig] = None,
     vector_db: Optional[
         Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
@@ -96,6 +98,7 @@ def create_corpus(
             the RagCorpus. The name can be up to 128 characters long and can consist
             of any UTF-8 characters.
         description: The description of the RagCorpus.
+        corpus_type_config: The corpus type config of the RagCorpus.
         embedding_model_config: The embedding model config.
             Note: Deprecated. Use backend_config instead.
         vector_db: The vector db config of the RagCorpus. If unspecified, the
@@ -119,6 +122,13 @@ def create_corpus(
     parent = initializer.global_config.common_location_path(project=None, location=None)
 
     rag_corpus = GapicRagCorpus(display_name=display_name, description=description)
+
+    if corpus_type_config:
+        _gapic_utils.set_corpus_type_config(
+            corpus_type_config=corpus_type_config,
+            rag_corpus=rag_corpus,
+        )
+
     if embedding_model_config:
         _gapic_utils.set_embedding_model_config(
             embedding_model_config=embedding_model_config,

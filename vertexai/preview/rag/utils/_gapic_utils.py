@@ -44,13 +44,16 @@ from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag.utils.resources import (
     ANN,
+    DocumentCorpus,
     EmbeddingModelConfig,
     JiraSource,
     KNN,
     LayoutParserConfig,
     LlmParserConfig,
+    MemoryCorpus,
     Pinecone,
     RagCorpus,
+    RagCorpusTypeConfig,
     RagEmbeddingModelConfig,
     RagEngineConfig,
     RagFile,
@@ -312,12 +315,35 @@ def convert_gapic_to_backend_config(
     return vector_config
 
 
+def convert_gapic_to_rag_corpus_type_config(
+    gapic_rag_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
+) -> RagCorpusTypeConfig:
+    """Convert GapicRagCorpus.CorpusTypeConfig to RagCorpusTypeConfig."""
+    if gapic_rag_corpus_type_config.document_corpus:
+        return RagCorpusTypeConfig(corpus_type_config=DocumentCorpus())
+    elif gapic_rag_corpus_type_config.memory_corpus:
+        return RagCorpusTypeConfig(
+            corpus_type_config=MemoryCorpus(
+                llm_parser=LlmParserConfig(
+                    model_name=gapic_rag_corpus_type_config.memory_corpus.llm_parser.model_name,
+                    max_parsing_requests_per_min=gapic_rag_corpus_type_config.memory_corpus.llm_parser.max_parsing_requests_per_min,
+                    global_max_parsing_requests_per_min=gapic_rag_corpus_type_config.memory_corpus.llm_parser.global_max_parsing_requests_per_min,
+                    custom_parsing_prompt=gapic_rag_corpus_type_config.memory_corpus.llm_parser.custom_parsing_prompt,
+                )
+            )
+        )
+    return None
+
+
 def convert_gapic_to_rag_corpus(gapic_rag_corpus: GapicRagCorpus) -> RagCorpus:
     """Convert GapicRagCorpus to RagCorpus."""
     rag_corpus = RagCorpus(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
+        corpus_type_config=convert_gapic_to_rag_corpus_type_config(
+            gapic_rag_corpus.corpus_type_config
+        ),
         embedding_model_config=convert_gapic_to_embedding_model_config(
             gapic_rag_corpus.rag_embedding_model_config
         ),
@@ -553,6 +579,10 @@ def prepare_import_files_request(
             rag_file_parsing_config.llm_parser.max_parsing_requests_per_min = (
                 llm_parser.max_parsing_requests_per_min
             )
+        if llm_parser.global_max_parsing_requests_per_min is not None:
+            rag_file_parsing_config.llm_parser.global_max_parsing_requests_per_min = (
+                llm_parser.global_max_parsing_requests_per_min
+            )
         if llm_parser.custom_parsing_prompt is not None:
             rag_file_parsing_config.llm_parser.custom_parsing_prompt = (
                 llm_parser.custom_parsing_prompt
@@ -671,10 +701,51 @@ def get_file_name(
         )
 
 
+def set_corpus_type_config(
+    corpus_type_config: RagCorpusTypeConfig,
+    rag_corpus: GapicRagCorpus,
+) -> None:
+    """Set corpus type config in GapicRagCorpus."""
+    if isinstance(corpus_type_config.corpus_type_config, DocumentCorpus):
+        rag_corpus.corpus_type_config = GapicRagCorpus.CorpusTypeConfig(
+            document_corpus=GapicRagCorpus.CorpusTypeConfig.DocumentCorpus()
+        )
+    elif isinstance(corpus_type_config.corpus_type_config, MemoryCorpus):
+        memory_corpus = GapicRagCorpus.CorpusTypeConfig.MemoryCorpus()
+        if corpus_type_config.corpus_type_config.llm_parser is not None:
+            memory_corpus.llm_parser = RagFileParsingConfig.LlmParser(
+                model_name=corpus_type_config.corpus_type_config.llm_parser.model_name
+            )
+            if (
+                corpus_type_config.corpus_type_config.llm_parser.max_parsing_requests_per_min
+                is not None
+            ):
+                memory_corpus.llm_parser.max_parsing_requests_per_min = (
+                    corpus_type_config.corpus_type_config.llm_parser.max_parsing_requests_per_min
+                )
+            if (
+                corpus_type_config.corpus_type_config.llm_parser.global_max_parsing_requests_per_min
+                is not None
+            ):
+                memory_corpus.llm_parser.global_max_parsing_requests_per_min = (
+                    corpus_type_config.corpus_type_config.llm_parser.global_max_parsing_requests_per_min
+                )
+            if (
+                corpus_type_config.corpus_type_config.llm_parser.custom_parsing_prompt
+                is not None
+            ):
+                memory_corpus.llm_parser.custom_parsing_prompt = (
+                    corpus_type_config.corpus_type_config.llm_parser.custom_parsing_prompt
+                )
+    else:
+        raise TypeError
+
+
 def set_embedding_model_config(
     embedding_model_config: EmbeddingModelConfig,
     rag_corpus: GapicRagCorpus,
 ) -> None:
+    """Sets the embedding model config for the rag corpus."""
     if embedding_model_config.publisher_model and embedding_model_config.endpoint:
         raise ValueError("publisher_model and endpoint cannot be set at the same time.")
     if (
